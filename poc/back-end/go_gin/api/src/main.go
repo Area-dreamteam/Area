@@ -1,21 +1,23 @@
 package main
 
 import (
-	"net/http"
+	"context"
+	"log"
+
+	"gin/app/routes"
+	"gin/app/services"
 
 	"github.com/gin-gonic/gin"
 )
 
-func setupRouter() *gin.Engine {
+func main() {
+	db, err := services.NewDatabase()
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close(context.Background())
+
 	r := gin.Default()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
-	})
-	return r
-}
-
-func main() {
-	r := setupRouter()
-	r.Run(":8080")
+	routes.ApplyRoutes(r, db)
 }
