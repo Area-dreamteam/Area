@@ -25,3 +25,10 @@ To run the project, navigate to the directory and run one of the following npm c
 - npx expo start
 
 ```
+
+### Good points
+
+Using this language seems easy.
+Not much difficulty to understand how it works.
+Possibility to go back to previous page and a menu bar already implemented.
+One file per page -> no need to navigate through a lot of files to change one page's design or functionnalities.

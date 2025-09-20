@@ -25,3 +25,13 @@ You can check out [the Angular GitHub repository](https://github.com/angular/ang
 ## Deploy
 
 The easiest way to deploy your Angular app is to use the [Angular CLI](https://v17.angular.io/guide/deployment).
+
+## Good points
+
+All pages are separated in multiple files in one directory -> clear structuration + division of the different parts (CSS, HTML, TypeScript)
+
+## Bad points
+
+Complicated structuration -> too much files
+Have to navigate through multiple files to add functionnalities and modify design
+Complicated to understand
