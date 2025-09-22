@@ -17,53 +17,39 @@ class _RegisterPageState extends State<RegisterPage> {
             Padding(
               padding: const EdgeInsets.only(top: 110.0),
               child: Center(
-                child: Container(
-                  width: 200,
-                  height: 100,
                   child: Text(
                     'Register Page',
                     style: TextStyle(color: Colors.red, fontSize: 20),
-                  ),
                 ),
               ),
             ),
             Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.only(top: 15),
               child: TextField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'Phone number, email or username',
-                  hintText: 'Enter valid email id as abc@gmail.com',
+                  labelText: 'Email',
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(
-                left: 15.0,
-                right: 15.0,
-                top: 15,
-                bottom: 0,
-              ),
-              //padding: EdgeInsets.symmetric(horizontal: 15),
+              padding: const EdgeInsets.only(top: 15),
               child: TextField(
-                obscureText: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
-                  hintText: 'Enter secure password',
                 ),
               ),
             ),
 
             SizedBox(
               height: 65,
-              width: 360,
+              width: 300,
               child: Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: ElevatedButton(
                   child: Text(
-                    'Registre',
+                    'Register',
                     style: TextStyle(color: Colors.red, fontSize: 20),
                   ),
                   onPressed: () {
@@ -75,7 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
             SizedBox(
               height: 65,
-              width: 360,
+              width: 300,
               child: Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: ElevatedButton(
