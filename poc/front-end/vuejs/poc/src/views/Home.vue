@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<style scoped>
+<style>
 .container {
   display: flex;
   gap: 20px;
@@ -24,7 +24,5 @@
   color: #fff;
   font-weight: 700;
   text-decoration: none;
-  transition: transform .2s, background-color .2s;
 }
-.btn:hover { transform: scale(1.06); background-color: #ff1a1a; }
 </style>
