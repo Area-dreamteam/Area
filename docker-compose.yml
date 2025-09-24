@@ -8,7 +8,7 @@ services:
       context: "./server"
     volumes:
       - "./server/app:/server/app"
-      - "sqlite-data:/server/app"
+      - "./server/app/database.db:/server/app/database.db"
     restart: always
     networks:
       - area_net
