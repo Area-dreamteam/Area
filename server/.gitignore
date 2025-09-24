@@ -1,3 +1,12 @@
-venv
-__pycache__
 database.db
+*.env*
+node_modules
+package-lock.json
+dist
+__pycache__
+package-lock.json
+node_modules
+api/chroma_db
+data/files/*
+api/data/files/*
+**/*.venv
