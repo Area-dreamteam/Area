@@ -47,6 +47,7 @@ services:
 
   db:
     image: postgres:17.6
+    container_name: pgdata
     restart: always
 
     env_file:
