@@ -8,10 +8,11 @@ services:
       context: "./server"
     volumes:
       - "./server/app:/server/app"
-      - "sqlite-data:/server/app"
     restart: always
     networks:
       - area_net
+    depends_on:
+      - db
 
   # client_web:
   #   container_name: client_web
@@ -44,8 +45,21 @@ services:
   #   depends_on:
   #     - server
 
+  db:
+    image: postgres:17.6
+    restart: always
+
+    env_file:
+      - "./server/.env"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - area_net
+
 volumes:
-  sqlite-data:
+  pgdata:
   shared-volume:
 
 networks:
