@@ -1,0 +1,52 @@
+[
+    {
+        "id": 1,
+        "name": "test",
+        "email": "example@gmail.com",
+        "password": "password",
+        "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg",
+        "users_service": [
+            {
+                "service": {
+                    "id": 8,
+                    "name": "service name",
+                    "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg"
+                },
+                "token": "bhevzafhvavegaj"
+            },
+            {
+                "service": {
+                    "id": 10,
+                    "name": "service name",
+                    "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg"
+                },
+                "token": "bhevzafhvavegaj"
+            }
+        ]
+    },
+    {
+        "id": 1,
+        "name": "test",
+        "email": "example@gmail.com",
+        "password": "password",
+        "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg",
+        "users_service": [
+            {
+                "service": {
+                    "id": 8,
+                    "name": "service name",
+                    "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg"
+                },
+                "token": "bhevzafhvavegaj"
+            },
+            {
+                "service": {
+                    "id": 10,
+                    "name": "service name",
+                    "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg"
+                },
+                "token": "bhevzafhvavegaj"
+            }
+        ]
+    }
+]
