@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 
 from models import UserCreate, User, TokenResponse
-from core.security import hash_password, verify_password, create_token
+from core.security import hash_password, verify_password, sign_jwt
 from dependencies.db import SessionDep
 
 
@@ -32,4 +32,4 @@ def login(user: UserCreate, session: SessionDep):
     if not db_user or not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid username or password")
     
-    return TokenResponse(token=create_token(user.username))
+    return TokenResponse(token=sign_jwt(user.username))

@@ -23,6 +23,8 @@ psycopg2-binary==2.9.10
 pydantic==2.11.9
 pydantic_core==2.33.2
 Pygments==2.19.2
+PyJWT==2.8.0
+python-decouple==3.8
 python-dotenv==1.1.1
 python-multipart==0.0.20
 PyYAML==6.0.2

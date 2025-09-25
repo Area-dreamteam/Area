@@ -1,14 +1,36 @@
-from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from typing import Dict, Tuple
-from uuid import uuid4
+from typing import Dict
+import time
+import jwt
 
+
+
+# from decouple import config
+# JWT_SECRET = config("secret")
+# JWT_ALGORITHM = config("algorithm")
+
+JWT_SECRET = "dev"
+JWT_ALGORITHM = "HS256"
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-active_tokens: Dict[str, Tuple[str, datetime]] = {}
 
+
+def sign_jwt(user_id: str) -> Dict[str, str]:
+    payload = {
+        "user_id": user_id,
+        "expires": time.time() + 600
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def decode_jwt(token: str) -> dict:
+    try:
+        decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return decoded_token if decoded_token["expires"] >= time.time() else None
+    except:
+        return {}
 
 
 def hash_password(password: str) -> str:
@@ -17,21 +39,3 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
-
-
-def create_token(username: str, expires_in_minutes=30) -> str:
-    token = str(uuid4())
-    expires_at = datetime.utcnow() + timedelta(minutes=expires_in_minutes)
-    active_tokens[token] = (username, expires_at)
-    return token
-
-
-def get_username_from_token(token: str) -> str | None:
-    data = active_tokens.get(token)
-    if not data:
-        return None
-    username, expires_at = data
-    if datetime.utcnow() > expires_at:
-        del active_tokens[token]
-        return None
-    return username
