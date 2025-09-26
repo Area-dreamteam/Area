@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'AREA HomePage',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: const MainScaffold(),
+      home: const MainPage(),
       debugShowCheckedModeBanner: false,
     );
   }
