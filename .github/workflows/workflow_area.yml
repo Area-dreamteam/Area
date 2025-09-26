@@ -9,9 +9,6 @@ on:
     branches-ignore:
       - "ga-ignore-*"
 
-env:
-  PATH_FLUTTER_APP: ./mobile/
-
 jobs:
   flutter-test:
     name: Flutter tests and build apk
@@ -26,22 +23,22 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ${{ PATH_FLUTTER_APP }}
+        working-directory: ./mobile/
 
 
       - name: Analyse
         run: flutter analyze
-        working-directory: ${{ PATH_FLUTTER_APP }}
+        working-directory: ./mobile/
 
 
       - name: Run unit tests
         run: flutter test --coverage
-        working-directory: ${{ PATH_FLUTTER_APP }}
+        working-directory: ./mobile/
 
 
       - name: Build APK (release)
         run: flutter build apk --release
-        working-directory: ${{ PATH_FLUTTER_APP }}
+        working-directory: ./mobile/
 
   push_to_mirror:
     if: ${{ github.event_name == 'push'}}
