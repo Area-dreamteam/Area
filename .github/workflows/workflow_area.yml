@@ -20,7 +20,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.19.0'
+          flutter-version: '3.35.4'
 
       - name: Install dependencies
         run: flutter pub get
@@ -52,7 +52,5 @@ jobs:
             fetch-depth: 0
         - uses: pixta-dev/repository-mirroring-action@v1
           with:
-            target_repo_url:
-              "git@github.com:EpitechPGE3-2025/G-DEV-500-PAR-5-1-area-10.git"
-            ssh_private_key:
-              ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+            target_repo_url: "git@github.com:EpitechPGE3-2025/G-DEV-500-PAR-5-1-area-10.git"
+            ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
