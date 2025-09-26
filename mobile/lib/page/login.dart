@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:mobile/page/homePage.dart';
 import '../page/register.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({super.key});
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +62,24 @@ class Login extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         TextField(
+          obscureText: _obscurePassword,
           decoration: InputDecoration(
             hintText: "Password",
             border: OutlineInputBorder(borderSide: BorderSide.none),
             fillColor: Colors.white,
             filled: true,
             prefixIcon: const Icon(Icons.password),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
           ),
-          obscureText: true,
         ),
         const SizedBox(height: 40),
         ElevatedButton(

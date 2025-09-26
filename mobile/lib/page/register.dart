@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import '../page/login.dart';
 
-class Register extends StatelessWidget {
+class Register extends StatefulWidget {
   const Register({super.key});
+
+  @override
+  State<Register> createState() => _RegisterState();
+}
+
+class _RegisterState extends State<Register> {
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +28,6 @@ class Register extends StatelessWidget {
                 Column(
                   children: <Widget>[
                     const SizedBox(height: 60.0),
-
                     const Text(
                       "Sign up",
                       style: TextStyle(
@@ -31,7 +37,7 @@ class Register extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Text(
+                    const Text(
                       "Create your account",
                       style: TextStyle(fontSize: 15, color: Colors.white),
                     ),
@@ -48,9 +54,7 @@ class Register extends StatelessWidget {
                         prefixIcon: const Icon(Icons.person),
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     TextField(
                       decoration: InputDecoration(
                         hintText: "Email",
@@ -60,20 +64,29 @@ class Register extends StatelessWidget {
                         prefixIcon: const Icon(Icons.email),
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     TextField(
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         hintText: "Password",
                         border: OutlineInputBorder(borderSide: BorderSide.none),
                         fillColor: Colors.white,
                         filled: true,
                         prefixIcon: const Icon(Icons.password),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
-                      obscureText: true,
                     ),
-
                     const SizedBox(height: 20),
                   ],
                 ),
