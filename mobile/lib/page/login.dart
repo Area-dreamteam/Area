@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/page/homePage.dart';
 import '../page/register.dart';
 
 class Login extends StatelessWidget {
@@ -65,13 +66,22 @@ class Login extends StatelessWidget {
         ),
         const SizedBox(height: 40),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          },
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(vertical: 16),
             backgroundColor: Colors.white,
           ),
-          child: const Text("Login", style: TextStyle(fontSize: 20, color: Colors.black)),
+          child: const Text(
+            "Login",
+            style: TextStyle(fontSize: 20, color: Colors.black),
+          ),
         ),
       ],
     );
