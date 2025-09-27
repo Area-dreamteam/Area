@@ -42,7 +42,8 @@ jobs:
         working-directory: ./mobile/
 
   push_to_mirror:
-    if: ${{ github.event_name == 'push'}}
+    needs: flutter-test
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     name: push_to_mirror
     steps:
