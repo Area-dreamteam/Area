@@ -1,17 +1,24 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
-from core.db import create_db_and_tables
-from api import auth, heroes
+from core.loader import load_services_catalog, load_services_config
+from core.db import init_db
+from core.logger import logger
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Server starting...")
+    catalog: list[dict]= load_services_catalog()
+    config: list[dict] = load_services_config()
+    app.state.services_config = config
+    init_db(catalog)
+    yield
+    logger.info("Server shutting down...")
 
+app = FastAPI(lifespan=lifespan, title="AREA API", version="1.0.0")
 
-app = FastAPI()
+@app.get("/")
+async def root():
+    return {"message": "Welcome to AREA API"}
 
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
-
-
-
-app.include_router(auth.router, tags=["auth"])
-app.include_router(heroes.router, tags=["heroes"])
+# app.include_router(auth.router, tags=["auth"], prefix='/auth')
