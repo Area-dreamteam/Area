@@ -2,7 +2,7 @@ from fastapi.security import APIKeyHeader
 from fastapi import HTTPException, status, Security
 from datetime import datetime
 
-from core.security import active_tokens
+from core.security import decode_jwt
 
 
 
@@ -11,18 +11,11 @@ api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 
 def get_current_user(token: str = Security( api_key_header)) -> str:
-    if not token or token not in active_tokens:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing token",
-        )
+    payload = decode_jwt(token)
+    
+    if not payload:
+        return HTTPException(status_code=403, detail="Invalid authorization token.")
 
-    username, expires_at = active_tokens[token]
-    if datetime.utcnow() > expires_at:
-        del active_tokens[token]
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
-        )
+    #TODO : check if the user_id is on the database
 
-    return username
+    return payload["user_id"]
