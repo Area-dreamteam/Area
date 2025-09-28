@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/navbar.dart';
 
 class AreaPage extends StatefulWidget {
   const AreaPage({super.key});
@@ -16,10 +17,10 @@ class _ExplorePageState extends State<AreaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Explore Page")),
       body: const Center(
-        child: Text("Explore Page Content"),
+        child: Text("My Area", style: TextStyle(fontSize: 24)),
       ),
+      bottomNavigationBar: const MyBottomNavigationBar(selectedIndex: 3),
     );
   }
 }
