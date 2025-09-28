@@ -8,6 +8,7 @@ services:
       context: "./server"
     volumes:
       - "./server/app:/server/app"
+      - "./server/images:/images"
     restart: always
     networks:
       - area_net
