@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2025
+** Area_Mirroring
+** File description:
+** layout
+*/
+
 import type { Metadata } from "next";
 import NavigationBar from "./components/Navbar"
 import "./globals.css";
@@ -15,8 +22,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <NavigationBar/>
-        {/* <link className="bg-black" rel="icon" href="../../public/menubar.png" sizes="48x48"/> */}
         {children}
       </body>
     </html>
