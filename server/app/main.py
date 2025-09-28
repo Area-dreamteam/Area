@@ -7,6 +7,7 @@ from core.loader import load_services_catalog, load_services_config
 from core.db import init_db
 from core.logger import logger
 from api import about
+from api import auth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,4 +27,5 @@ app.mount("/images", StaticFiles(directory="/images"), name='images')
 async def root():
     return {"message": "Welcome to AREA API"}
 
-app.include_router(about.router, tags=["About"])
+app.include_router(about.router, tags=["about"])
+app.include_router(auth.router, tags=["auth"], prefix="/auth")
