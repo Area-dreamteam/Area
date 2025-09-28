@@ -1,0 +1,48 @@
+[
+  {
+    "name": "gmail",
+    "description": "Service email de Google",
+    "image_url": "https://logo.clearbit.com/gmail.com",
+    "actions": [
+      {
+        "name": "new_email",
+        "description": "Déclenché lorsqu’un nouvel email arrive.",
+        "config_schema": {
+          "fields": ["from", "subject", "has_attachment"]
+        }
+      }
+    ],
+    "reactions": [
+      {
+        "name": "send_email",
+        "description": "Permet d’envoyer un email.",
+        "config_schema": {
+          "fields": ["to", "subject", "body"]
+        }
+      }
+    ]
+  },
+  {
+    "name": "github",
+    "description": "Gestion de dépôts Git et collaboration",
+    "image_url": "https://logo.clearbit.com/github.com",
+    "actions": [
+      {
+        "name": "new_issue",
+        "description": "Déclenché lorsqu’une nouvelle issue est créée.",
+        "config_schema": {
+          "fields": ["repository"]
+        }
+      }
+    ],
+    "reactions": [
+      {
+        "name": "create_issue",
+        "description": "Permet de créer une issue dans un dépôt.",
+        "config_schema": {
+          "fields": ["repository", "title", "body"]
+        }
+      }
+    ]
+  }
+]
