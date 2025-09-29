@@ -36,9 +36,9 @@ export default function NavigationBar()
   return (
     <Menubar className="flex flex-row-reverse">
       <MenubarMenu>
-        {MenuButton("Explore", "explore")}
-        {MenuButton("Login", "login")}
-        {MenuButton("Register", "register")}
+        {MenuButton("Explore", "/explore")}
+        {MenuButton("Login", "/login")}
+        {MenuButton("Register", "/register")}
       </MenubarMenu>
     </Menubar>
   );
@@ -51,7 +51,7 @@ function ProfileDropdown()
       {/* <Image alt="Profile picture" src={profile}/> */}
       <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">Open</Button>
+        <Button variant="outline">:::</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">
         <DropdownMenuGroup>
@@ -98,9 +98,9 @@ export function ConnectedNavbar()
     <Menubar className="flex flex-row-reverse">
       <MenubarMenu >
         {ProfileDropdown()}
-        {MenuButton("Create", "create")}
-        {MenuButton("My applets", "my_applets")}
-        {MenuButton("Explore", "explore")}
+        {MenuButton("Create", "/create")}
+        {MenuButton("My applets", "/my_applets")}
+        {MenuButton("Explore", "/explore")}
       </MenubarMenu>
     </Menubar>
     </div>

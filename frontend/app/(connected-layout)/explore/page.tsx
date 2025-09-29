@@ -23,10 +23,10 @@ const services = [
     {
         id: "5896",
         user_id: "0454226",
-        name: "instagram",
+        name: "Discord",
         desc: "no caption yet",
         color: "#85bcf9",
-        logo: "https://upload.wikimedia.org/wikipedia/fr/7/75/Snapchat.png?20230424210458"
+        logo: "/images/Discord_icon.png"
     },
     {
         id: "8794",
@@ -34,17 +34,51 @@ const services = [
         name: "Snapchat",
         desc: "stupid invention",
         color: "#dbda82",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png"
+        logo: "/images/Snapchat_icon.png"
+    },
+    {
+        id: "3221",
+        user_id: "0454226",
+        name: "Instagram",
+        desc: "no caption yet",
+        color: "#880729",
+        logo: "/images/Instagram_icon.webp"
     }
 ]
+
+const applets = [
+    {
+        title: "",
+    }
+]
+
+function taskbarButton(buttonName: string, selected: string, setPage: (str: string) => void)
+{
+    return (
+        <Button className="bg-white hover:bg-white hover:text-[#424242] text-black font-bold text-[15px]" onClick={() => setPage(buttonName)} style={{ textDecoration: (selected == buttonName ? "underline" : "") }}>
+            {buttonName}
+        </Button>
+    )
+}
+
+function customDropdown(text: string)
+{
+    return (
+        <DropdownMenuCheckboxItem className="hover:bg-[#a5c1e5] pl-[5px] rounded-md">
+            {text}
+        </DropdownMenuCheckboxItem>
+    )
+}
 
 export default function Explore()
 {
     const [page, setPage] = useState("All");
     const blocks = services.map((service) => (
-        <div key={service.id} className="flex items-end rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
-            <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
-            {/* <Image alt="service's logo" src={service.logo} width={100} height={100}/> */}
+        <div key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
+            <Image alt="service's logo" src={service.logo} width={4000} height={4000} className="rounded-xl w-[250px] h-[250px]"/>
+            <div className="flex justify-center">
+                <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
+            </div>
         </div>
     ))
 
@@ -53,10 +87,10 @@ export default function Explore()
             <h1 className="font-bold text-[100px] flex justify-center"> Explore </h1>
             <div className="flex justify-center">
                 <div className="flex justify-around w-1/2">
-                    <Button className="bg-white hover:bg-white hover:text-[#424242] text-black font-bold text-[15px]" onClick={() => setPage("All")}>All</Button>
-                    <Button className="bg-white hover:bg-white hover:text-[#424242] text-black font-bold text-[15px]" onClick={() => setPage("Applets")}>Applets</Button>
-                    <Button className="bg-white hover:bg-white hover:text-[#424242] text-black font-bold text-[15px]" onClick={() => setPage("Services")}>Services</Button>
-                    <Button className="bg-white hover:bg-white hover:text-[#424242] text-black font-bold text-[15px]" onClick={() => setPage("Stories")}>Stories</Button>
+                    {taskbarButton("All", page, setPage)}
+                    {taskbarButton("Applets", page, setPage)}
+                    {taskbarButton("Services", page, setPage)}
+                    {taskbarButton("Stories", page, setPage)}
                 </div>
             </div>
             <br/>
@@ -66,20 +100,22 @@ export default function Explore()
             <br/>
             <div className="flex justify-center">
                 <DropdownMenu>
-                    <DropdownMenuTrigger >
-                        All services
+                    <DropdownMenuTrigger asChild>
+                        <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">All services</Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent className="bg-white rounded-md border-1 pl-[5px] pr-[5px]">
                     <DropdownMenuLabel className="font-bold pb-[10px]">Filters</DropdownMenuLabel>
-                    <DropdownMenuCheckboxItem>All services</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>New services</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>Popular services</DropdownMenuCheckboxItem>
+                    {customDropdown("All services")}
+                    {customDropdown("New services")}
+                    {customDropdown("Popular services")}
                     <DropdownMenuLabel className="font-bold pb-[1px]">Categories</DropdownMenuLabel>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="mt-[50px] flex justify-around">
-                {blocks}
+            <div className="flex justify-center">
+                <div className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
+                    {blocks}
+                </div>
             </div>
         </div>
     )

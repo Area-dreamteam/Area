@@ -14,11 +14,6 @@ import { redirect } from 'next/navigation'
 import Image from "next/image"
 import Link from "next/link"
 
-function redirectToFacebook()
-{
-    redirect("https://facebook.com")
-}
-
 export default function Register()
 {
     return (
@@ -41,18 +36,20 @@ export default function Register()
                         <hr className="w-[350px] outline-[1px] mb-[25px]" style={{ color: "#4400ff"}}/>
                     </div>
                     <div className="flex justify-center">
-                        <Link href="https://google.com" className="flex justify-center mb-3 bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[350px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]">
+                        <Link href="https://google.com" className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]">
                             Continue with Google
                         </Link>
                     </div>
-                    <div className="flex justify-center mb-[25px]">
-                        <div className="flex justify-center mb-3 bg-[#4400ff] text-white hover:text-black text-[30px] hover:bg-[#73bbff] rounded-full h-[70px] pt-[15px] pl-[20px] pr-[20px]" style={{ width: "fit-content" }} onClick={() => redirectToFacebook}>
-                            <Image alt="Facebook logo" src={facebook} sizes="100vw" 
-                            style={{ width: '30px', height: '30px' }}/>
-                            <p>
-                                Continue with Facebook
-                            </p>
-                        </div>
+                    <div className="flex justify-center">
+                        <Link href="https://apple.com" className="flex justify-center mb-[20px] bg-black text-white text-[30px] hover:bg-[#3a3a3a] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]">
+                            Continue with Apple
+                        </Link>
+                    </div>
+                    <div className="flex justify-center">
+                        <Link href="https://google.com" className="flex justify-center mb-[20px] bg-black text-white text-[30px] hover:bg-[#3a3a3a] rounded-full w-[450px] h-[70px]  border-[2px] pt-[10px] pl-[25px] pr-[25px]">
+                        <Image alt="Facebook logo" src={facebook} sizes="100vw" style={{ width: '30px', height: '30px', marginRight: "25px" }}/>
+                        Continue with Facebook
+                        </Link>
                     </div>
                     <div className="flex justify-center">
                         <p className="mb-3 text-black text-center text-[20px]">
