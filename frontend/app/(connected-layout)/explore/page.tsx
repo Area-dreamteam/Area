@@ -70,10 +70,9 @@ function customDropdown(text: string)
     )
 }
 
-export default function Explore()
+function Services()
 {
-    const [page, setPage] = useState("All");
-    const blocks = services.map((service) => (
+    const serviceBlocks = services.map((service) => (
         <div key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
             <Image alt="service's logo" src={service.logo} width={4000} height={4000} className="rounded-xl w-[250px] h-[250px]"/>
             <div className="flex justify-center">
@@ -81,6 +80,35 @@ export default function Explore()
             </div>
         </div>
     ))
+
+    return (
+        <div>
+            <div className="flex justify-center">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">All services</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-white rounded-md border-1 pl-[5px] pr-[5px]">
+                    <DropdownMenuLabel className="font-bold pb-[10px]">Filters</DropdownMenuLabel>
+                    {customDropdown("All services")}
+                    {customDropdown("New services")}
+                    {customDropdown("Popular services")}
+                    <DropdownMenuLabel className="font-bold pb-[1px]">Categories</DropdownMenuLabel>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+            <div className="flex justify-center">
+                <div className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
+                    {serviceBlocks}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default function Explore()
+{
+    const [page, setPage] = useState("All");
 
     return (
         <div>
@@ -98,25 +126,7 @@ export default function Explore()
                 <Input className="w-[400px]" placeholder="Search Apllets or Services"/>
             </div>
             <br/>
-            <div className="flex justify-center">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">All services</Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-white rounded-md border-1 pl-[5px] pr-[5px]">
-                    <DropdownMenuLabel className="font-bold pb-[10px]">Filters</DropdownMenuLabel>
-                    {customDropdown("All services")}
-                    {customDropdown("New services")}
-                    {customDropdown("Popular services")}
-                    <DropdownMenuLabel className="font-bold pb-[1px]">Categories</DropdownMenuLabel>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-            <div className="flex justify-center">
-                <div className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
-                    {blocks}
-                </div>
-            </div>
+            {page == "Services" && <Services/>}
         </div>
     )
 }
