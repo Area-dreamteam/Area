@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/home_page.dart';
 import 'package:mobile/pages/explore_page.dart';
 import 'package:mobile/pages/create_page.dart';
-import 'package:mobile/pages/my_area_page.dart';
+import 'package:mobile/pages/history.dart';
 import 'package:mobile/pages/profile_page.dart';
 
 class MyBottomNavigationBar extends StatelessWidget {
