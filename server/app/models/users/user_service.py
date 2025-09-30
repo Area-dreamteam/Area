@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
@@ -11,6 +11,7 @@ class UserService(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id")
     service_id: int = Field(foreign_key="service.id")
     access_token: str
+    refresh_token: Optional[str] = None
 
     user: "User" = Relationship(back_populates="services")
     service: "Service" = Relationship(back_populates="users")
