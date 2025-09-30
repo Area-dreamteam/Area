@@ -21,10 +21,44 @@ services:
           ignore:
             - ./frontend/app
     networks:
-      - backend
-#    depends_on:
-#      - db
-#      - api
+      - area_net
+    depends_on:
+      - db
+      - server
+
+  server:
+    env_file: "./server/.env"
+    ports:
+      - "8080:8080"
+    build:
+      context: "./server"
+    volumes:
+      - "./server/app:/server/app"
+      - "./server/images:/images"
+    restart: always
+    networks:
+      - area_net
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17.6
+    container_name: pgdata
+    restart: always
+
+    env_file:
+      - "./server/.env"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - area_net
+
+volumes:
+  pgdata:
+  shared-volume:
+
 networks:
-  backend:
-    driver: bridge
+  area_net:
+
