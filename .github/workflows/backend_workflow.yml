@@ -20,7 +20,7 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
@@ -45,7 +45,7 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
@@ -72,7 +72,7 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Run PyCharm Security
         uses: tonybaloney/pycharm-security@master
         with:
@@ -87,7 +87,7 @@ jobs:
 #        working-directory: ./backend
 #    steps:
 #      - name: Checkout code
-#        uses: actions/checkout@v2
+#        uses: actions/checkout@v4
 #      - name: Build and push Docker images
 #        uses: docker/build-push-action@v1
 #        with:
