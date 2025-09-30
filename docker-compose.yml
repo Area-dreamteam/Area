@@ -1,0 +1,30 @@
+services:
+  frontend:
+    container_name: frontend
+    env_file: "./frontend/.env"
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./frontend:/app"
+      - /app/node_modules
+      - /app/.next
+    restart: always
+    build:
+      context: "./frontend"
+    develop:
+      watch:
+        - path: ./frontend/src
+          action: sync
+          target: /app
+        - path: ./frontend
+          action: rebuild
+          ignore:
+            - ./frontend/app
+    networks:
+      - backend
+#    depends_on:
+#      - db
+#      - api
+networks:
+  backend:
+    driver: bridge
