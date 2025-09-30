@@ -20,9 +20,9 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v6
       with:
         python-version: 3.8
     - name: Lint with flake8
@@ -32,7 +32,7 @@ jobs:
         mkdir -p reports/flake8
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=79 --statistics --format=html --htmldir=reports/flake8
     - name: Archive flake8 coverage results
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: flake8-coverage-report
         path: reports/flake8/
@@ -45,9 +45,9 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v6
       with:
         python-version: 3.8
     - name: Install dependencies
@@ -59,7 +59,7 @@ jobs:
         pip install pytest pytest-cov pytest-html pytest-sugar pytest-json-report
         py.test -v --cov --html=reports/pytest/report.html
     - name: Archive pytest coverage results
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: pytest-coverage-report
         path: reports/pytest/
@@ -72,7 +72,7 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run PyCharm Security
         uses: tonybaloney/pycharm-security@master
         with:
