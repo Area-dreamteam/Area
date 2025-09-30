@@ -4,7 +4,7 @@
         "name": "test",
         "email": "example@gmail.com",
         "password": "password",
-        "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg",
+        "role": "user",
         "users_service": [
             {
                 "service": {
@@ -29,7 +29,7 @@
         "name": "test",
         "email": "example@gmail.com",
         "password": "password",
-        "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg",
+        "role": "user",
         "users_service": [
             {
                 "service": {

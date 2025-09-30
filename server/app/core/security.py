@@ -1,36 +1,29 @@
 from passlib.context import CryptContext
-from typing import Dict
-import time
+from datetime import datetime, timedelta, timezone
 import jwt
-
-
-
-# from decouple import config
-# JWT_SECRET = config("secret")
-# JWT_ALGORITHM = config("algorithm")
-
-JWT_SECRET = "dev"
-JWT_ALGORITHM = "HS256"
+from core.config import settings
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 
-def sign_jwt(user_id: str) -> Dict[str, str]:
+def sign_jwt(user_id: int) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(hours=settings.ACCESS_TOKEN_EXPIRE_HOURS)
     payload = {
-        "user_id": user_id,
-        "expires": time.time() + 600
+        "sub": str(user_id),
+        "exp": expire
     }
-    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 
 def decode_jwt(token: str) -> dict:
     try:
-        decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        return decoded_token if decoded_token["expires"] >= time.time() else None
-    except:
-        return {}
+        return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.PyJWTError:
+        return None
 
 
 def hash_password(password: str) -> str:

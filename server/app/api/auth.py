@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 
-from models import UserCreate, User, TokenResponse
+from models import User
+from schemas.user import UserCreate, TokenResponse
 from core.security import hash_password, verify_password, sign_jwt
 from dependencies.db import SessionDep
 
@@ -11,25 +12,28 @@ router = APIRouter()
 
 
 
-@router.post("/register/")
+@router.post("/register")
 def register(user: UserCreate, session: SessionDep):
-    existing = session.exec(select(User).where(User.username == user.username)).first()
+    existing = session.exec(select(User).where(User.email == user.email)).first()
     if existing:
-        raise HTTPException(status_code=400, detail="Username already exists")
+        raise HTTPException(status_code=400, detail="Email already registered")
 
     new_user = User(
-        username=user.username,
-        hashed_password=hash_password(user.password)
+        name=user.name,
+        email=user.email,
+        password=hash_password(user.password)
     )
     session.add(new_user)
     session.commit()
-    return {"msg": "User registered"}
+    session.refresh(new_user)
+    return {"message": "User registered", "id": new_user.id, "email": new_user.email}
 
 
-@router.post("/login/", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse)
 def login(user: UserCreate, session: SessionDep):
-    db_user = session.exec(select(User).where(User.username == user.username)).first()
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(status_code=400, detail="Invalid username or password")
-    
-    return TokenResponse(token=sign_jwt(user.username))
+    db_user = session.exec(select(User).where(User.email == user.email)).first()
+    if not db_user or not verify_password(user.password, db_user.password):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+
+    token = sign_jwt(db_user.id)
+    return TokenResponse(access_token=token)
