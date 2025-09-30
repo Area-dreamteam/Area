@@ -1,0 +1,45 @@
+name: Github Action Mobile
+
+on:
+  push:
+    branches: ["main", "mobile"]
+  pull_request:
+    types: [opened, reopened]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  flutter-test:
+    name: Flutter tests and build apk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.35.4'
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ./mobile/
+
+
+      - name: Analyse
+        run: flutter analyze
+        working-directory: ./mobile/
+
+
+      - name: Run unit tests
+        run: flutter test --coverage
+        working-directory: ./mobile/
+
+
+      - name: Build APK (release)
+        run: flutter build apk --release
+        working-directory: ./mobile/
