@@ -1,0 +1,27 @@
+services:
+  frontend:
+    container_name: frontend-prod
+    env_file: "./frontend/.env"
+    ports:
+      - "3000:3000"
+    restart: always
+    build:
+      context: "./frontend"
+      dockerfile: "Dockerfile.prod"
+    develop:
+      watch:
+        - path: ./frontend/src
+          action: sync
+          target: /app
+        - path: ./frontend
+          action: rebuild
+          ignore:
+            - ./frontend/app
+    networks:
+      - backend
+#    depends_on:
+#      - db
+#      - api
+networks:
+  backend:
+    driver: bridge

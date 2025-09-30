@@ -1,0 +1,42 @@
+{
+    "id": 1,
+    "name": "example_name",
+    "description": "example description",
+    "enable": false,
+    "created_at": "ajd",
+    "user": {
+        "name": "example_name"
+    },
+    "action": {
+        "id": 1,
+        "name": "example_name",
+        "description": "example description",
+        "service": {
+            "id": 8,
+            "name": "example_name",
+            "description": "example description"
+        }
+    },
+    "reaction": [
+        {
+            "id": 1,
+            "name": "example_name",
+            "description": "example description",
+            "service": {
+                "id": 10,
+                "name": "example_name",
+                "description": "example description"
+            }
+        },
+        {
+            "id": 1,
+            "name": "example_name",
+            "description": "example description",
+            "service": {
+                "id": 14,
+                "name": "example_name",
+                "description": "example description"
+            }
+        }
+    ]
+}
