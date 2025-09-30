@@ -12,6 +12,8 @@ class Service(SQLModel, table=True):
     name: str = Field(index=True, unique=True, nullable=False)
     description: Optional[str] = None
     image_url: str
+    category: str
+    color: str = "#000000"
 
     actions: List["Action"] = Relationship(back_populates="service")
     reactions: List["Reaction"] = Relationship(back_populates="service")

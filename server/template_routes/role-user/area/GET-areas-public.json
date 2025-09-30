@@ -2,17 +2,19 @@
     {
         "id": 1,
         "name": "example_name",
-        "description": "example description",
-        "user_id": 12,
-        "enable": false,
-        "created_at": "ajd"
+        "user": {
+            "name": "example_name"
+        },
+        "created_at": "ajd",
+        "color": "#000000"
     },
     {
         "id": 2,
         "name": "example_name",
-        "description": "example description",
-        "user_id": 45,
-        "enable": false,
-        "created_at": "ajd"
+        "user": {
+            "name": "example_name"
+        },
+        "created_at": "ajd",
+        "color": "#000000"
     }
 ]

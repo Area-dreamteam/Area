@@ -114,11 +114,15 @@ def sync_services_catalog_to_db(session: Session, catalog: list[dict]):
                 name=service_data["name"],
                 description=service_data.get("description"),
                 image_url=service_data.get("image_url"),
+                color=service_data.get("color"),
+                category=service_data.get("category")
             ),
             conflict_target=["name"],
             update_fields=dict(
                 description=service_data.get("description"),
                 image_url=service_data.get("image_url"),
+                color=service_data.get("color"),
+                category=service_data.get("category")
             ),
             returning_column=Service.id
         )
