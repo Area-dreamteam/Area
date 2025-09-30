@@ -16,6 +16,9 @@ jobs:
   flutter-test:
     name: Flutter tests and build apk
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
     steps:
       - uses: actions/checkout@v4
 
@@ -27,19 +30,15 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ./mobile/
 
 
       - name: Analyse
         run: flutter analyze
-        working-directory: ./mobile/
 
 
       - name: Run unit tests
         run: flutter test --coverage
-        working-directory: ./mobile/
 
 
       - name: Build APK (release)
         run: flutter build apk --release
-        working-directory: ./mobile/
