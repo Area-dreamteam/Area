@@ -2,7 +2,7 @@ name: Check NextJs build
 
 on:
   push:
-    branches: ["main", "web"]
+    branches: ["main", "Web"]
   pull_request:
     types: [opened, reopened]
 
