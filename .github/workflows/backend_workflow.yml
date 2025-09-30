@@ -2,7 +2,7 @@ name: FastAPI
 
 on:
   push:
-    branches: ["main", "server"]
+    branches: ["main", "server*"]
   pull_request:
     types: [opened, reopened]
 
