@@ -8,24 +8,15 @@ class CreatePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Create', style: TextStyle(fontSize: 30)),
-      ),
       body: Center(
         child: Column(
           children: [
-            CreateCard(
-              title: 'If This',
-              onTap: () {
-              },
-            ),
+            SizedBox(height: 60,),
+            Title(color: Colors.black, child: Text('Create', style: TextStyle(fontSize: 50),)),
+            SizedBox(height: 60,),
+            CreateCard(title: 'If This', onTap: () {}),
             SizedBox(height: 20),
-            CreateCard(
-              title: 'Then That',
-              onTap: () {
-              },
-            ),
+            CreateCard(title: 'Then That', onTap: () {}),
           ],
         ),
       ),
