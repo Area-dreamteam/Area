@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./server
     steps:
     - uses: actions/checkout@v5
     - name: Set up Python 3.8
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./server
     steps:
     - uses: actions/checkout@v5
     - name: Set up Python 3.8
@@ -70,13 +70,13 @@ jobs:
     name: Security check
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./server
     steps:
       - uses: actions/checkout@v5
       - name: Run PyCharm Security
         uses: tonybaloney/pycharm-security@master
         with:
-          path: backend/
+          path: server/
 
 #  docker_cicd:
 #    name: Build Image
@@ -84,7 +84,7 @@ jobs:
 #    runs-on: ubuntu-latest
 #    defaults:
 #      run:
-#        working-directory: ./backend
+#        working-directory: ./server
 #    steps:
 #      - name: Checkout code
 #        uses: actions/checkout@v4
