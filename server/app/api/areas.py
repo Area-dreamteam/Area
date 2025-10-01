@@ -3,15 +3,16 @@ from sqlmodel import select
 from models import Area
 from schemas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic
 from dependencies.db import SessionDep
+from dependencies.roles import CurrentUser
 
 router = APIRouter()
 
 @router.get("/areas", response_model=list[AreaGet])
-def get_areas(session: SessionDep):
+def get_areas(session: SessionDep, user: CurrentUser):
     return
 
 @router.get("/areas/{id}", response_model=AreaIdGet)
-def get_area_by_id(session: SessionDep):
+def get_area_by_id(session: SessionDep, user: CurrentUser):
     return
 
 @router.get("/areas/public", response_model=list[AreaGetPublic])

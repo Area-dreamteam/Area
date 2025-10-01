@@ -1,21 +1,31 @@
 from fastapi.security import APIKeyHeader
-from fastapi import HTTPException, status, Security
-from datetime import datetime
+from fastapi import HTTPException, Security, Depends
+from typing import Annotated
+from dependencies.db import SessionDep
+from sqlmodel import Session
 
 from core.security import decode_jwt
-
+from models import User
 
 
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 
 
-def get_current_user(token: str = Security( api_key_header)) -> str:
+def get_current_user(session: SessionDep, token: str = Security( api_key_header)) -> User:
+    if token.startswith("bearer "):
+        token = token[7:]
     payload = decode_jwt(token)
-    
+
     if not payload:
-        return HTTPException(status_code=403, detail="Invalid authorization token.")
+        raise HTTPException(status_code=403, detail="Invalid authorization token.")
 
-    #TODO : check if the user_id is on the database
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=403, detail="Invalid token.")
+    user_id = int(user_id)
 
-    return payload["user_id"]
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=403, detail="User not found.")
+    return user

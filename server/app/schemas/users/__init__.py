@@ -4,5 +4,5 @@ __all__ = [
     "UserCreate",
     "TokenResponse",
     "UserIdGet",
-    "Role"
+    "Role",
 ]

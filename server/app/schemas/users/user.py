@@ -6,12 +6,13 @@ class UserCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
+    role: Role = Role.USER
 
 class TokenResponse(BaseModel):
     token_type: str = "bearer"
     access_token: str
 
-class UserBasicInfo(BaseModel):
+class UserShortInfo(BaseModel):
     id: int
     name: str
 

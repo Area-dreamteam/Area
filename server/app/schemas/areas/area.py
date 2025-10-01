@@ -2,13 +2,13 @@ from pydantic import BaseModel
 from datetime import datetime
 from ..services.action import ActionBasicInfo
 from ..services.reaction import ReactionBasicInfo
-from ..users.user import UserBasicInfo
+from ..users.user import UserShortInfo
 
 class AreaGet(BaseModel):
     id: int
     name: str
     description: str
-    user: UserBasicInfo
+    user: UserShortInfo
     enable: bool
     created_at: datetime
     color: str
@@ -22,7 +22,7 @@ class AreaGetPublic(BaseModel):
     id: int
     name: str
     description: str
-    user: UserBasicInfo
+    user: UserShortInfo
     created_at: datetime
     color: str
 
