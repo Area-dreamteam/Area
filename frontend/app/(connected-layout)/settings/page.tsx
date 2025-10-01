@@ -14,73 +14,84 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import Link from "next/link"
+
+function profileButton(text: string, enable: boolean)
+{
+    return (
+        <Button>
+            {text}
+        </Button>
+    )
+}
+
+function profileLabels(text: string)
+{
+    return (
+        <h2 className="text-[30px] mt-[40px] font-bold">
+            {text}
+        </h2>
+    )
+}
+
+function profileLink(text: string, ref: string, linkColor: string)
+{
+    return (
+        <Link href={ref} className="mb-[30px] text-center text-[18px]" style={{ color: linkColor }}>
+            {text}
+        </Link>
+    )
+}
+
+function LinkedAccount(text: string, button: string, link: string)
+{
+    return (
+        <div className="flex justify-around">
+            {text}
+            {profileLink(button, link, "#0099ff")}
+        </div>
+    )
+}
 
 export default function Settings()
 {
     return (
-        <div>
-            <h1>
+        <div className="mx-auto mt-[40px] w-[700px] font-bold">
+            <h1 className="flex justify-center text-[50px] mt-[40px] font-bold">
                 Account Settings
             </h1>
-            <h2>
+            <hr/>
+            <h2 className="text-[30px] mt-[40px]">
                 Profile
             </h2>
-            <p>Personalize your account by linking a profile from another service.</p>
-            <Button disabled>
-                Add profile service
-            </Button>
-            <h2>
-                Account
-            </h2>
+            <p className="text-[20px]">Personalize your account by linking a profile from another service.</p>
+            {profileLink("Add profile service", "/", "#0099ff")}
+            {profileLabels("Account")}
+            <br/>
             <h3>
                 Username
             </h3>
             <Input defaultValue="Pseudo"/>
+            <br/><br/>
             <h3>
-                Username
+                Password
             </h3>
-            <Input defaultValue="Password" type="password"/>
-            <Button>Change password</Button>
+            <Input defaultValue="Password" type="password" readOnly/>
+            {profileLink("Change password", "/settings/change_password", "#0099ff")}
+            <br/><br/>
             <h3>
                 Email
             </h3>
             <Input defaultValue="Email"/>
-            <h3>
-                Time zone
-            </h3>
-            <Input defaultValue="Pseudo"/>
-            <Select>
-                <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="(+01:00) Paris" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="-10">(-10:00)</SelectItem>
-                    <SelectItem value="-9">(-9:00)</SelectItem>
-                    <SelectItem value="-8">(-8:00)</SelectItem>
-                    <SelectItem value="-7">(-7:00)</SelectItem>
-                    <SelectItem value="-6">(-6:00)</SelectItem>
-                    <SelectItem value="-5">(-5:00)</SelectItem>
-                    <SelectItem value="-4">(-4:00)</SelectItem>
-                    <SelectItem value="-3">(-3:00)</SelectItem>
-                    <SelectItem value="-2">(-2:00)</SelectItem>
-                    <SelectItem value="-1">(-1:00)</SelectItem>
-                    <SelectItem value="0">(0:00)</SelectItem>
-                    <SelectItem value="+1">(+1:00)</SelectItem>
-                    <SelectItem value="+2">(+2:00)</SelectItem>
-                    <SelectItem value="+3">(+3:00)</SelectItem>
-                    <SelectItem value="+4">(+4:00)</SelectItem>
-                    <SelectItem value="+5">(+5:00)</SelectItem>
-                    <SelectItem value="+6">(+6:00)</SelectItem>
-                    <SelectItem value="+7">(+7:00)</SelectItem>
-                    <SelectItem value="+8">(+8:00)</SelectItem>
-                    <SelectItem value="+9">(+9:00)</SelectItem>
-                    <SelectItem value="+10">(+10:00)</SelectItem>
-                    <SelectItem value="+11">(+11:00)</SelectItem>
-                    <SelectItem value="+12">(+12:00)</SelectItem>
-                    <SelectItem value="+13">(+13:00)</SelectItem>
-                </SelectContent>
-            </Select>
-            {/* to complete later because there's way to much to do here and it isn't on the to-do list for monday */}
+            <br/><br/>
+            {profileLabels("Linked accounts")}
+            {LinkedAccount("Apple is not linked", "Link your account", "https://apple.com")}
+            {LinkedAccount("Facebook is not linked", "Link your account", "https://facebook.com")}
+            {LinkedAccount("Google is linked", "Unlink", "https://google.com")}
+            {profileLink("Delete my account", "/", "#ff0000")}
+            <Button className="block mx-auto text-[40px] mt-[70px] text-white w-[300px] h-[100px] rounded-full font-bold mb-[20px]" disabled>
+                Update
+            </Button>
         </div>
     )
 }
