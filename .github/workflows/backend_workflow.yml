@@ -35,7 +35,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: flake8-coverage-report
-        path: reports/flake8/
+        path: ./server/reports/flake8/
 
   pytest:
     name: Unit Testing

@@ -1,7 +1,7 @@
 annotated-types==0.7.0
 bcrypt==4.3.0
 certifi==2025.8.3
-click==8.3.0
+click==8.1.8
 dnspython==2.8.0
 email-validator==2.3.0
 fastapi==0.117.1
