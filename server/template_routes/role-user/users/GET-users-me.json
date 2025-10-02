@@ -1,0 +1,23 @@
+{
+    "id": 1,
+    "name": "test",
+    "email": "example@gmail.com",
+    "users_service": [
+        {
+            "service": {
+                "id": 8,
+                "name": "service name",
+                "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg",
+                "connected": true
+            }
+        },
+        {
+            "service": {
+                "id": 10,
+                "name": "service name",
+                "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg",
+                "connected": true
+            }
+        }
+    ]
+}
