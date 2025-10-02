@@ -18,6 +18,7 @@ import {
 } from "@radix-ui/react-dropdown-menu"
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 
 const services = [
     {
@@ -26,7 +27,8 @@ const services = [
         name: "Discord",
         desc: "no caption yet",
         color: "#85bcf9",
-        logo: "/images/Discord_icon.png"
+        logo: "/images/Discord_icon.png",
+        url: "/services/discord"
     },
     {
         id: "8794",
@@ -34,7 +36,8 @@ const services = [
         name: "Snapchat",
         desc: "stupid invention",
         color: "#FFFC00",
-        logo: "/images/Snapchat_icon.png"
+        logo: "/images/Snapchat_icon.png",
+        url: "/services/snapchat"
     },
     {
         id: "3221",
@@ -42,38 +45,44 @@ const services = [
         name: "Instagram",
         desc: "no caption yet",
         color: "#880729",
-        logo: "/images/Instagram_icon.webp"
+        logo: "/images/Instagram_icon.webp",
+        url: "/services/instagram"
     }
 ]
 
 const applets = [
     {
         id: 2,
-        name: "example_name",
-        description: "example description",
-        user_id: 45,
+        name: "Steam",
+        description: "there's a lot of game in here.",
+        user: {
+            name: "someone"
+        },
         created_at: "ajd",
-        color: "#486aef"
+        color: "#486aef",
+        url: "/applets/steam"
     },
     {
         id: 3,
-        name: "Spotify",
-        description: "This is a music application",
+        name: "Riot",
+        description: "They made LoL.",
         user: {
-            name: "Gauthier"
+            name: "someone"
         },
         created_at: "22-05-2001",
-        color: "#794694"
+        color: "#794694",
+        url: "/applets/riot"
     },
     {
         id: 4,
         name: "Spotify",
-        description: "This is a music application",
+        description: "This is a music application.",
         user: {
             name: "Gauthier"
         },
         created_at: "22-05-2001",
-        color: "#11e59f"
+        color: "#11e59f",
+        url: "/applets/spotify"
     }
 ]
 
@@ -129,12 +138,12 @@ function Services({search = ""}: SearchProp)
     const serviceBlocks = services.map((service) => ((
         service.name.toLowerCase().includes(search.toLowerCase()) ?
         (
-            <div key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
+            <Link href={service.url} key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
                 <Image alt="service's logo" src={service.logo} width={4000} height={4000} className="rounded-xl w-[250px] h-[250px]"/>
                 <div className="flex justify-center">
                     <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
                 </div>
-            </div>
+            </Link>
         ) : (
             ""
         )
@@ -164,11 +173,11 @@ function Applets({search = ""}: SearchProp)
     const appletBlocks = applets.map((applet) => (
         applet.name.toLowerCase().includes(search.toLowerCase()) ?
         (
-            <div key={applet.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: applet.color }}>
+            <Link href={applet.url} key={applet.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: applet.color }}>
                 <div className="flex justify-center">
                     <p className="font-bold text-white text-[20px] m-[20px]">{applet.name}</p>
                 </div>
-            </div>
+            </Link>
         ) : (
         ""
     )))
