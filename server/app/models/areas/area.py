@@ -1,5 +1,5 @@
 from typing import Optional, TYPE_CHECKING, List
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, Column, TIMESTAMP, text
 from datetime import datetime
 
 if TYPE_CHECKING:
@@ -14,7 +14,11 @@ class Area(SQLModel, table=True):
     name: str
     description: Optional[str] = None
     enable: bool = Field(default=False)
-    created_at: datetime
+    created_at: Optional[datetime] = Field(sa_column=Column(
+        TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+    ))
     is_public: bool = Field(default=False)
 
     user: Optional["User"] = Relationship(back_populates="areas")

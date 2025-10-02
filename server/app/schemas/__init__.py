@@ -1,13 +1,15 @@
-from .services import ServiceGet, ServiceIdGet, ActionIdGet, ActionShortInfo, ReactionIdGet, ReactionShortInfo
+from .services import ServiceGet, ServiceIdGet, ActionIdGet, ActionBasicInfo, ActionShortInfo, ReactionIdGet, ReactionBasicInfo, ReactionShortInfo
 from .areas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic
-from .users import UserCreate, TokenResponse, UserIdGet, Role
+from .users import UserCreate, TokenResponse, UserIdGet, Role, UserServiceGet, UserShortInfo
 
 __all__ = [
     "ServiceGet",
     "ServiceIdGet",
     "ActionIdGet",
+    "ActionBasicInfo",
     "ActionShortInfo",
     "ReactionIdGet",
+    "ReactionBasicInfo",
     "ReactionShortInfo",
     "AreaGet",
     "AreaIdGet",
@@ -16,5 +18,7 @@ __all__ = [
     "UserCreate",
     "TokenResponse",
     "UserIdGet",
+    "UserServiceGet",
+    "UserShortInfo",
     "Role"
 ]
