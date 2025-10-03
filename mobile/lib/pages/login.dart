@@ -32,7 +32,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  _header(context) {
+  Widget _header(BuildContext context) {
     return const Column(
       children: [
         Text(
@@ -47,7 +47,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  _inputFields(context) {
+  Widget _inputFields(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -104,7 +104,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  _signup(context) {
+  Widget _signup(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

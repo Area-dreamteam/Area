@@ -2,7 +2,7 @@ name: Github Action Mobile
 
 on:
   push:
-    branches: ["main", "mobile"]
+    branches: ["main", "mobile*"]
   pull_request:
     types: [opened, reopened]
 

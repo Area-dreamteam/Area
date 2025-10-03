@@ -8,20 +8,23 @@ services:
     build:
       context: "./frontend"
       dockerfile: "Dockerfile.prod"
-    develop:
-      watch:
-        - path: ./frontend/src
-          action: sync
-          target: /app
-        - path: ./frontend
-          action: rebuild
-          ignore:
-            - ./frontend/app
     networks:
       - backend
 #    depends_on:
 #      - db
 #      - api
+
+  mobile:
+    container_name: mobile-builder
+    #env_file: "./mobile/.env"
+    build:
+      context: ./mobile
+      dockerfile: "Dockerfile.prod"
+    volumes:
+      - "./mobile/target:/app/target"
+
+
+
 networks:
   backend:
     driver: bridge

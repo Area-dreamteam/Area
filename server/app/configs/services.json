@@ -3,6 +3,8 @@
     "name": "gmail",
     "description": "Service email de Google",
     "image_url": "https://logo.clearbit.com/gmail.com",
+    "color": "#111111",
+    "category": "Email",
     "actions": [
       {
         "name": "new_email",
@@ -26,6 +28,8 @@
     "name": "github",
     "description": "Gestion de dépôts Git et collaboration",
     "image_url": "https://logo.clearbit.com/github.com",
+    "color": "#111111",
+    "category": "Developer tools",
     "actions": [
       {
         "name": "new_issue",

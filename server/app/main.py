@@ -6,8 +6,7 @@ from contextlib import asynccontextmanager
 from core.loader import load_services_catalog, load_services_config
 from core.db import init_db
 from core.logger import logger
-from api import about
-from api import auth
+from api import about, auth, services, actions, reactions, areas, users
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -29,3 +28,8 @@ async def root():
 
 app.include_router(about.router, tags=["about"])
 app.include_router(auth.router, tags=["auth"], prefix="/auth")
+app.include_router(services.router, tags=["services"])
+app.include_router(actions.router, tags=["actions"])
+app.include_router(reactions.router, tags=["reactions"])
+app.include_router(areas.router, tags=["areas"])
+app.include_router(users.router, tags=["users"])

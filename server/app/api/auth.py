@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 
 from models import User
-from schemas.user import UserCreate, TokenResponse
+from schemas import UserCreate, TokenResponse
 from core.security import hash_password, verify_password, sign_jwt
 from dependencies.db import SessionDep
 
