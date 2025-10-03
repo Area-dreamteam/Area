@@ -34,7 +34,7 @@ export default function AppletPage({ params }: AppletProp) {
                 <div className="ml-[20px] pt-[50px]">
                     <BackButton/>
                 </div>
-                <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-2">
+                <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-2 mx-auto">
                     <p className="mb-[20px]">{applet.description}</p>
                     <p className="text-[20px]">{applet.name}</p>
                     <p className="text-[20px]">{applet.created_at}</p>
