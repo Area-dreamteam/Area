@@ -19,6 +19,8 @@ import {
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { AppletsFormat } from "@/types/applet";
+import appletsData from '@/data/applets.json';
 
 const services = [
     {
@@ -50,41 +52,7 @@ const services = [
     }
 ]
 
-const applets = [
-    {
-        id: 2,
-        name: "Steam",
-        description: "there's a lot of game in here.",
-        user: {
-            name: "someone"
-        },
-        created_at: "ajd",
-        color: "#486aef",
-        url: "/applets/steam"
-    },
-    {
-        id: 3,
-        name: "Riot",
-        description: "They made LoL.",
-        user: {
-            name: "someone"
-        },
-        created_at: "22-05-2001",
-        color: "#794694",
-        url: "/applets/riot"
-    },
-    {
-        id: 4,
-        name: "Spotify",
-        description: "This is a music application.",
-        user: {
-            name: "Gauthier"
-        },
-        created_at: "22-05-2001",
-        color: "#11e59f",
-        url: "/applets/spotify"
-    }
-]
+const applets : AppletsFormat = appletsData
 
 function taskbarButton(buttonName: string, selected: string,
     setPage: (str: string) => void, enable: boolean)
@@ -138,7 +106,7 @@ function Services({search = ""}: SearchProp)
     const serviceBlocks = services.map((service) => ((
         service.name.toLowerCase().includes(search.toLowerCase()) ?
         (
-            <Link href={service.url} key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
+            <Link href={`/services/${service.name}`} key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
                 <Image alt="service's logo" src={service.logo} width={4000} height={4000} className="rounded-xl w-[250px] h-[250px]"/>
                 <div className="flex justify-center">
                     <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
@@ -170,10 +138,10 @@ function Applets({search = ""}: SearchProp)
         service.name.toLowerCase().includes(search.toLowerCase())
     );
     const nbApplets = filteredApplets.length;
-    const appletBlocks = applets.map((applet) => (
+    const appletBlocks = Object.values(applets).map((applet) => (
         applet.name.toLowerCase().includes(search.toLowerCase()) ?
         (
-            <Link href={applet.url} key={applet.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: applet.color }}>
+            <Link href={`/applets/${applet.name}`} key={applet.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: applet.color }}>
                 <div className="flex justify-center">
                     <p className="font-bold text-white text-[20px] m-[20px]">{applet.name}</p>
                 </div>

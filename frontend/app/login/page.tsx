@@ -21,8 +21,12 @@ export default function Register()
                 <Link href="/" className="flex justify-center text-[100px] text-black hover:text-[#424242]">Area</Link>
                 <h1 className="flex justify-center text-[50px] text-black mb-10">Log in</h1>
                 <form>
-                    <Mail/>
-                    <Password/>
+                    <div className="flex justify-center">
+                        <Mail/>
+                    </div>
+                    <div className="flex justify-center">
+                        <Password w={"300px"}/>
+                    </div>
                     <div className="flex justify-center">
                         <Link href="/passwords/forgot" className="flex justify-center mb-[30px] text-black text-center text-[20px] hover:text-[#676767] underline">
                             Forgot your password ?

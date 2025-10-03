@@ -11,7 +11,7 @@ function Footer()
 {
   return (
     <div className="bg-black text-white font-bold pl-[10px]">
-      <Link href="/explore" className="pt-[50px] text-[50px]">Area</Link>
+      <Link href="/explore" className="mt-[50px] text-[50px]">Area</Link>
       <div className="grid grid-cols-3 pb-[25px]">
         <div className="flex flex-col mt-[10px] gap-[10px] text-[20px]">
         <Link href="/explore">Explore</Link>

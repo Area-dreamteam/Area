@@ -22,8 +22,12 @@ export default function Register()
                 <Link href="/" className="flex justify-center text-[100px] text-black hover:text-[#424242]">Area</Link>
                 <h1 className="flex justify-center text-[50px] text-black mb-10">Register</h1>
                 <form>
-                    <Mail/>
-                    <Password/>
+                    <div className="flex justify-center">
+                        <Mail/>
+                    </div>
+                    <div className="flex justify-center">
+                        <Password w={"300px"}/>
+                    </div>
                     <div className="flex justify-center">
                         <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] pt-2.5">
                             <Link href="/login">
@@ -47,8 +51,8 @@ export default function Register()
                     </div>
                     <div className="flex justify-center">
                         <Link href="https://google.com" className="flex justify-center mb-[20px] bg-black text-white text-[30px] hover:bg-[#3a3a3a] rounded-full w-[450px] h-[70px]  border-[2px] pt-[10px] pl-[25px] pr-[25px]">
-                        <Image alt="Facebook logo" src={facebook} sizes="100vw" style={{ width: '30px', height: '30px', marginRight: "25px" }}/>
-                        Continue with Facebook
+                            <Image alt="Facebook logo" src={facebook} sizes="100vw" style={{ width: '30px', height: '30px', marginRight: "25px" }}/>
+                            Continue with Facebook
                         </Link>
                     </div>
                     <div className="flex justify-center">
