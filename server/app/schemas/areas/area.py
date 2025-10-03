@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from ..services import ActionBasicInfo
-from ..services import ReactionBasicInfo
+from ..services import ActionBasicInfo, ReactionBasicInfo, CreateAreaAction, CreateAreaReaction
 from ..users import UserShortInfo
 
 class AreaGet(BaseModel):
@@ -30,3 +29,11 @@ class AreaIdGetPublic(BaseModel):
     area_info: AreaGetPublic
     action: ActionBasicInfo
     reactions: list[ReactionBasicInfo]
+
+class CreateArea(BaseModel):
+    name: str
+    description: str
+    enable: bool
+    is_public: bool
+    action: CreateAreaAction
+    reactions: list[CreateAreaReaction]

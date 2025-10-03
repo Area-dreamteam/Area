@@ -22,5 +22,5 @@ class Area(SQLModel, table=True):
     is_public: bool = Field(default=False)
 
     user: Optional["User"] = Relationship(back_populates="areas")
-    actions: List["AreaAction"] = Relationship(back_populates="area")
-    reactions: List["AreaReaction"] = Relationship(back_populates="area")
+    actions: "AreaAction" = Relationship(back_populates="area", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    reactions: List["AreaReaction"] = Relationship(back_populates="area", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
