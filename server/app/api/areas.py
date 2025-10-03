@@ -141,22 +141,3 @@ def get_area_public_by_id(id: int, session: SessionDep) -> AreaIdGetPublic:
     
     area_data = AreaIdGetPublic(area_info=area_info, action=action_data, reactions=reactions_data)
     return area_data
-
-# {
-#     "name": "best area",
-#     "description": "str",
-#     "enable": false,
-#     "is_public": false,
-#     "action":
-#         {
-#             "action_id": 1,
-#             "config": {}
-#         },
-#     "reactions":
-#     [
-#         {
-#             "reaction_id": 1,
-#             "config": {}
-#         }
-#     ]
-# }
