@@ -7,6 +7,7 @@ from core.loader import load_services_catalog, load_services_config
 from core.db import init_db
 from core.logger import logger
 from api import about, auth, services, actions, reactions, areas, users
+from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,6 +20,14 @@ async def lifespan(app: FastAPI):
     logger.info("Server shutting down...")
 
 app = FastAPI(lifespan=lifespan, title="AREA API", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
  
 app.mount("/images", StaticFiles(directory="/images"), name='images')
 

@@ -7,52 +7,21 @@
 
 'use client'
 
+import { Timestamp } from "next/dist/server/lib/cache-handlers/types"
+import { fetchServices, fetchApplets } from "@/app/functions/fetch"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react" 
+import Service from "@/app/types/service"
+import Image from "next/image"
+import Link from "next/link"
 import {
-    DropdownMenu,
+DropdownMenu,
     DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuLabel,
     DropdownMenuCheckboxItem,
 } from "@radix-ui/react-dropdown-menu"
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { AppletsFormat } from "@/types/applet";
-import appletsData from '@/data/applets.json';
-
-const services = [
-    {
-        id: "5896",
-        user_id: "0454226",
-        name: "Discord",
-        desc: "no caption yet",
-        color: "#85bcf9",
-        logo: "/images/Discord_icon.png",
-        url: "/services/discord"
-    },
-    {
-        id: "8794",
-        user_id: "046576",
-        name: "Snapchat",
-        desc: "stupid invention",
-        color: "#FFFC00",
-        logo: "/images/Snapchat_icon.png",
-        url: "/services/snapchat"
-    },
-    {
-        id: "3221",
-        user_id: "0454226",
-        name: "Instagram",
-        desc: "no caption yet",
-        color: "#880729",
-        logo: "/images/Instagram_icon.webp",
-        url: "/services/instagram"
-    }
-]
-
-const applets : AppletsFormat = appletsData
 
 function taskbarButton(buttonName: string, selected: string,
     setPage: (str: string) => void, enable: boolean)
@@ -79,7 +48,9 @@ function Filter()
         <div className="flex justify-center">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">All services</Button>
+                    <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">
+                        All services
+                    </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-white rounded-md border-1 pl-[5px] pr-[5px]">
                 <DropdownMenuLabel className="font-bold pb-[10px]">Filters</DropdownMenuLabel>
@@ -93,12 +64,33 @@ function Filter()
     )
 }
 
-interface SearchProp {
-    search?: string
+interface Applet {
+    id: number,
+    name: string,
+    description: string,
+    user: {
+      id: number,
+      name: string
+    },
+    enable: boolean,
+    created_at: Timestamp,
+    color: string
 }
 
-function Services({search = ""}: SearchProp)
+interface SearchProp {
+    search?: string
+    services?: Service[] | null
+    applets?: Applet[] | null
+}
+
+function Services({search = "", services = null}: SearchProp)
 {
+    if (services == null)
+        return (
+            <p className="flex justify-center text-[20px] mt-[20px]">
+                No service found.
+            </p>
+        )
     const filteredServices = services.filter(service =>
         service.name.toLowerCase().includes(search.toLowerCase())
     );
@@ -107,7 +99,7 @@ function Services({search = ""}: SearchProp)
         service.name.toLowerCase().includes(search.toLowerCase()) ?
         (
             <Link href={`/services/${service.name}`} key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
-                <Image alt="service's logo" src={service.logo} width={4000} height={4000} className="rounded-xl w-[250px] h-[250px]"/>
+                { service.logo == "" || service.logo == null ? "" : (<Image alt="service's logo" src={service.logo} width={4000} height={4000} className="rounded-xl w-[250px] h-[250px]"/>)}
                 <div className="flex justify-center">
                     <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
                 </div>
@@ -132,10 +124,16 @@ function Services({search = ""}: SearchProp)
     )
 }
 
-function Applets({search = ""}: SearchProp)
+function Applets({search = "", applets = null}: SearchProp)
 {
-    const filteredApplets = services.filter(service =>
-        service.name.toLowerCase().includes(search.toLowerCase())
+    if (applets == null)
+        return (
+            <p className="flex justify-center text-[20px] mt-[20px]">
+                No applet found.
+            </p>
+        )
+    const filteredApplets = applets.filter(applet =>
+        applet.name.toLowerCase().includes(search.toLowerCase())
     );
     const nbApplets = filteredApplets.length;
     const appletBlocks = Object.values(applets).map((applet) => (
@@ -165,15 +163,15 @@ function Applets({search = ""}: SearchProp)
     )
 }
 
-function All({search = ""}: SearchProp)
+function All({search = "", services = null, applets = null}: SearchProp)
 {
     return (
         <div>
             <h1 className="flex justify-center font-bold text-[25px]"> Services </h1>
-            <Services search={search}/>
+            <Services search={search} services={services}/>
             <br/>
             <h1 className="flex justify-center font-bold text-[25px]"> Applets </h1>
-            <Applets search={search}/>
+            <Applets search={search} applets={applets}/>
         </div>
     )
 }
@@ -182,6 +180,13 @@ export default function Explore()
 {
     const [page, setPage] = useState("All");
     const [searched, setSearched] = useState("");
+    const [services, setServices] = useState(null);
+    const [applets, setApplets] = useState(null);
+
+    useEffect(() => {
+        fetchServices(setServices);
+        fetchApplets(setApplets);
+    }, [])
 
     return (
         <div>
@@ -200,9 +205,9 @@ export default function Explore()
             <br/>
             {page == "Services"  && <Filter/>}
             <div className="flex justify-center">
-                {page == "Services" && <Services search={searched}/>}
-                {page == "Applets" && <Applets search={searched}/>}
-                {page == "All" && <All search={searched}/>}
+                {page == "Services" && <Services search={searched} services={services}/>}
+                {page == "Applets" && <Applets search={searched} applets={applets}/>}
+                {page == "All" && <All search={searched} services={services} applets={applets}/>}
             </div>
         </div>
     )
