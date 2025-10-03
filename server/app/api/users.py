@@ -27,6 +27,15 @@ def get_current_user(session: SessionDep, user: CurrentUser) -> UserIdGet:
     user_data: UserIdGet = get_user_data(session, user)
     return user_data
 
+@router.delete("/users/me")
+def delete_current_user(session: SessionDep, user: CurrentUser):
+    user_data: User = session.exec(select(User).where(User.id == user.id)).first()
+    if not user_data:
+        raise HTTPException(status_code=404, detail="Data not found")
+    session.delete(user_data)
+    session.commit()
+    return {"message": "User deleted", "user_id": user.id}
+
 @router.get("/users", response_model=list[UserIdGet])
 def get_users(session: SessionDep, _: CurrentAdmin) -> list[User]:
     users: list[User] = session.exec(select(User)).all()
@@ -45,3 +54,12 @@ def get_users_by_id(id: int, session: SessionDep, _: CurrentAdmin) -> UserIdGet:
 
     user_data: UserIdGet = get_user_data(session, user)
     return user_data
+
+@router.delete("/users/{id}")
+def delete_user_by_id(id: int, session: SessionDep, _: CurrentUser):
+    user_data: User = session.exec(select(User).where(User.id == id)).first()
+    if not user_data:
+        raise HTTPException(status_code=404, detail="Data not found")
+    session.delete(user_data)
+    session.commit()
+    return {"message": "User deleted", "user_id": id}
