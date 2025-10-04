@@ -16,7 +16,7 @@ def get_current_user(session: SessionDep, token: str = Security( api_key_header)
     if not token:
         raise HTTPException(status_code=403, detail="Token missing.")
 
-    if token.startswith("bearer "):
+    if token.startswith("Bearer "):
         token = token[7:]
     payload = decode_jwt(token)
 
