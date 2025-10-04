@@ -48,5 +48,40 @@
         }
       }
     ]
+  },
+  {
+    "name": "Date&Time",
+    "description": "Tout les X temps",
+    "image_url": "https://logo.clearbit.com/github.com",
+    "color": "#ebcada",
+    "category": "Everyday life",
+    "actions": [
+      {
+        "name": "Every hour at",
+        "interval": "15 * * * *",
+        "description": "Déclenché toutes les 15m, 30m, 45m, ou 1H.",
+        "config_schema": {
+          "fields": ["time_interval"]
+        }
+      }
+    ],
+    "reactions": []
+  },
+  {
+    "name": "Debug",
+    "description": "Debug mode for dev",
+    "image_url": "https://logo.clearbit.com/github.com",
+    "color": "#ebcaaa",
+    "category": "Dev",
+    "actions": [],
+    "reactions": [
+      {
+        "name": "Debug_reaction",
+        "description": "calls feilds",
+        "config_schema": {
+          "fields": ["repository", "title", "body"]
+        }
+      }
+    ]
   }
 ]
