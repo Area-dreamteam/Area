@@ -1,12 +1,16 @@
 from .service import ServiceGet, ServiceIdGet
-from .action import ActionIdGet, ActionShortInfo
-from .reaction import ReactionIdGet, ReactionShortInfo
+from .action import ActionIdGet, ActionShortInfo, ActionBasicInfo, CreateAreaAction
+from .reaction import ReactionIdGet, ReactionShortInfo, ReactionBasicInfo, CreateAreaReaction
 
 __all__ = [
     "ServiceGet",
     "ServiceIdGet",
     "ActionIdGet",
+    "ActionBasicInfo",
     "ActionShortInfo",
+    "CreateAreaAction",
     "ReactionIdGet",
-    "ReactionShortInfo"
+    "ReactionBasicInfo",
+    "ReactionShortInfo",
+    "CreateAreaReaction"
 ]

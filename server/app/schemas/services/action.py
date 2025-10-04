@@ -19,3 +19,7 @@ class ActionShortInfo(BaseModel):
     id: int
     name: str
     description: str
+
+class CreateAreaAction(BaseModel):
+    action_id: int
+    config: Any
