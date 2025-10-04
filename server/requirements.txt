@@ -1,5 +1,6 @@
 annotated-types
-bcrypt
+bcrypt==4.3.0
+passlib[bcrypt]>=1.7.4
 certifi
 click
 dnspython
@@ -17,7 +18,6 @@ Jinja2
 markdown-it-py
 MarkupSafe
 mdurl
-passlib
 psycopg2-binary
 pydantic
 pydantic_core

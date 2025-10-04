@@ -5,19 +5,54 @@
 ** fetch
 */
 
+import axios from 'axios'
+
+const Calls = axios.create({
+    baseURL: "http://localhost:8080",
+    // withCredentials: true
+})
+
+export async function fetchLogin(email: string, password: string)
+{
+    try {
+        const res = await Calls.post("/auth/login", {
+            name: "",
+            email: email,
+            password: password,
+            role: "user"
+        });
+        if (res.status != 200)
+            return;
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+}
+
+export async function fetchRegister(email: string, password: string)
+{
+    try {
+        const res = await Calls.post("/auth/register", {
+            email: email,
+            password: password,
+        });
+
+        if (res.status != 200)
+            return false;
+        return true 
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+    return false
+}
+
 export async function fetchServices(setServices: (data: any) => void)
 {
     try {
-        const res = await fetch("http://localhost:8080/services",
-        {
-            method: "GET",
-            headers: { "Content-type": "application/json" },
-        });
+        const res = await Calls.get("/services");
 
-        if (!res.ok)
-            return ("");
-        const data = await res.json();
-        setServices(data);
+        if (res.status != 200)
+            return;
+        setServices(res.data);
     } catch (err) {
         console.log("Error: ", err);
     }

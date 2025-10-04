@@ -9,30 +9,42 @@
 
 import facebook from "@/public/images/Facebook_logo.png"
 import { Password, Mail } from "../components/Forms"
+import { fetchRegister } from "../functions/fetch"
 import { Button } from "@/components/ui/button"
 import { redirect } from 'next/navigation'
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
+
 export default function Register()
 {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    async function sendForm()
+    {
+        const success : boolean = await fetchRegister(email, password);
+
+        if (success)
+            redirect("/login");
+    }
+
     return (
         <div className="bg-[#FFFFFF] h-screen font-bold">
             <div>
                 <Link href="/" className="flex justify-center text-[100px] text-black hover:text-[#424242]">Area</Link>
                 <h1 className="flex justify-center text-[50px] text-black mb-10">Register</h1>
-                <form>
+                <form onSubmit={sendForm}>
                     <div className="flex justify-center">
-                        <Mail/>
+                        <Mail onChange={setEmail}/>
                     </div>
                     <div className="flex justify-center">
-                        <Password w={"300px"}/>
+                        <Password w={"300px"} onChange={setPassword}/>
                     </div>
                     <div className="flex justify-center">
-                        <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] pt-2.5">
-                            <Link href="/login">
-                                Get started
-                            </Link>
+                        <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] pt-2.5 hover:cursor-pointer" type="submit">
+                            Get started
                         </Button>
                     </div>
                     <p className="flex justify-center">Or</p>
