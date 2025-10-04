@@ -6,6 +6,5 @@ import sys
 action_id = sys.argv[1]
 
 data = {"action_id": int(action_id)}
-print(data)
 
 requests.post("http://localhost:8080/actions_process", json=data)

@@ -1,8 +1,8 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Any
 
-from reactions import debug_reaction
+from reactions.debug_reaction import debug_reaction
 
 
-reaction: List[Dict[str, Callable[[str], None]]] = [
-    {"Debug_reaction": debug_reaction},
-]
+reaction_list: Dict[str, Callable[[Any, str], None]] = {
+    "Debug_reaction": debug_reaction
+}
