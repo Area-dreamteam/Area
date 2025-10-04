@@ -19,7 +19,7 @@ def register(user: UserCreate, session: SessionDep):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     new_user = User(
-        name=user.name,
+        name=user.email.split("@")[0],
         email=user.email,
         password=hash_password(user.password)
     )

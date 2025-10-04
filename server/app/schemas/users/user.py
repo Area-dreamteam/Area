@@ -3,10 +3,8 @@ from pathlib import Path
 from .role import Role
 
 class UserCreate(BaseModel):
-    name: str
     email: EmailStr
     password: str
-    role: Role = Role.USER
 
 class TokenResponse(BaseModel):
     token_type: str = "bearer"
