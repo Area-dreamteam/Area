@@ -15,6 +15,6 @@ class Service(SQLModel, table=True):
     category: str
     color: str = "#000000"
 
-    actions: List["Action"] = Relationship(back_populates="service")
-    reactions: List["Reaction"] = Relationship(back_populates="service")
+    actions: List["Action"] = Relationship(back_populates="service", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    reactions: List["Reaction"] = Relationship(back_populates="service", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     users: List["UserService"] = Relationship(back_populates="service")

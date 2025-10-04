@@ -19,3 +19,7 @@ class ReactionShortInfo(BaseModel):
     id: int
     name: str
     description: str
+
+class CreateAreaReaction(BaseModel):
+    reaction_id: int
+    config: Any

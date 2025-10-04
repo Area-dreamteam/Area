@@ -13,5 +13,5 @@ class User(SQLModel, table=True):
     password: Optional[str] = None
     role: str = "user"
 
-    services: List["UserService"] = Relationship(back_populates="user")
-    areas: List["Area"] = Relationship(back_populates="user")
+    services: List["UserService"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    areas: List["Area"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
