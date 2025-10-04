@@ -1,13 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
-
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 
 from core.loader import load_services_catalog, load_services_config
 from core.db import init_db
 from core.logger import logger
-from api import about
-from api import auth
+from api import about, auth, heroes, services
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,13 +21,37 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Server shutting down...")
 
+
+
+templates = Jinja2Templates(directory="templates")
+
 app = FastAPI(lifespan=lifespan, title="AREA API", version="1.0.0")
- 
 app.mount("/images", StaticFiles(directory="/images"), name='images')
+
+
 
 @app.get("/")
 async def root():
     return {"message": "Welcome to AREA API"}
 
+
+@app.get("/callback")
+def callback(code: str):
+    return RedirectResponse(f"/auth/login/oauth_token?code={code}")
+
+
+@app.get("/index", response_class=HTMLResponse)
+def index(request: Request):
+    return templates.TemplateResponse(request=request, name="index.html", context={"id": 1})
+
+
+@app.post("/temp")
+def temp():
+    return "temp"
+
+
+
 app.include_router(about.router, tags=["about"])
 app.include_router(auth.router, tags=["auth"], prefix="/auth")
+app.include_router(heroes.router, tags=["heroes"])
+app.include_router(services.router)
