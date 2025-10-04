@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
-from models import Service, Action
+from models import Service, Action, Reaction
 from schemas import ServiceGet, ServiceIdGet, ActionShortInfo, ReactionShortInfo
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser
@@ -39,10 +39,10 @@ def get_actions_of_service(id: int, session: SessionDep, _: CurrentUser) -> list
 
 @router.get("/services/{id}/reactions", response_model=list[ReactionShortInfo])
 def get_reactions_of_service(id: int, session: SessionDep, _: CurrentUser) -> list[ReactionShortInfo]:
-    reactions_data: list[ActionShortInfo] = []
+    reactions_data: list[ReactionShortInfo] = []
 
-    reactions: list[Action] = session.exec(select(Action).where(Action.service_id == id)).all()
+    reactions: list[Reaction] = session.exec(select(Reaction).where(Reaction.service_id == id)).all()
     for reaction in reactions:
-        reaction_data = ActionShortInfo(id=reaction.id, name=reaction.name, description=reaction.description)
+        reaction_data = ReactionShortInfo(id=reaction.id, name=reaction.name, description=reaction.description)
         reactions_data.append(reaction_data)
     return reactions_data
