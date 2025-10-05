@@ -12,7 +12,7 @@ import { fetchServices, fetchApplets } from "@/app/functions/fetch"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react" 
-import Service from "@/app/types/service"
+import { Service } from "@/app/types/service"
 import Image from "next/image"
 import Link from "next/link"
 import {

@@ -5,9 +5,18 @@
 ** service
 */
 
-export default interface Service {
+export interface Service {
     id: number;
     name: string;
+    image_url: string;
+    logo: string;
+    color: string;
+}
+
+export interface SpecificService {
+    id: number;
+    name: string;
+    description: string;
     image_url: string;
     logo: string;
     color: string;
