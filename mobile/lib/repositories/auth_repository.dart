@@ -1,0 +1,67 @@
+import 'package:dio/dio.dart';
+import 'package:mobile/services/api_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class AuthRepository {
+  final ApiService _apiService;
+
+  AuthRepository({required ApiService apiService}) : _apiService = apiService;
+
+  Future<String?> loginWithEmailPassword(String email, String password) async {
+    try {
+      final response = await _apiService.loginWithEmail(email, password);
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        if (response.headers.map['set-cookie'] != null) {
+          String cookie = response.headers.map['set-cookie']![0];
+          const storage = FlutterSecureStorage();
+          await storage.write(key: 'session_cookie', value: cookie);
+        }
+        return null;
+      }
+      if (response.data is Map<String, dynamic> &&
+          response.data.containsKey('detail')) {
+        return response.data['detail'];
+      }
+      return "invalid email or password.";
+    } on DioException catch (e) {
+      return _handleDioError(e, "Connexion error");
+    } catch (e) {
+      return "Unknown error.";
+    }
+  }
+
+  Future<String?> register({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await _apiService.register(
+        email: email,
+        password: password,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return null;
+      }
+      return "Creation account failed";
+    } on DioException catch (e) {
+      return _handleDioError(e, "Impossible to create account");
+    } catch (e) {
+      return "Unknown error";
+    }
+  }
+
+  Future<void> logout() async {
+    await _apiService.logout();
+  }
+
+  String _handleDioError(DioException e, String defaultMessage) {
+    if (e.response != null && e.response?.data is Map) {
+      return e.response?.data['detail'] ?? defaultMessage;
+    } else if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.unknown) {
+      return "Error connexion to server";
+    }
+    return defaultMessage;
+  }
+}
