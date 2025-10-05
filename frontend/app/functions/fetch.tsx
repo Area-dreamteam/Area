@@ -6,43 +6,62 @@
 */
 
 import axios from 'axios'
+import getCookies from './cookies';
 
 const Calls = axios.create({
     baseURL: "http://localhost:8080",
-    // withCredentials: true
+    withCredentials: true
 })
+
+Calls.interceptors.request.use(
+    (config) => {
+      const token = getCookies('access_token');
+      
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
 export async function fetchLogin(email: string, password: string)
 {
     try {
         const res = await Calls.post("/auth/login", {
-            name: "",
+            // name: "",
             email: email,
             password: password,
-            role: "user"
+            // role: "user"
         });
         if (res.status != 200)
-            return;
+            return false;
+        return true;
     } catch (err) {
         console.log("Error: ", err);
     }
+    return false;
 }
 
 export async function fetchRegister(email: string, password: string)
 {
     try {
         const res = await Calls.post("/auth/register", {
+            name: email.split("@")[0],
             email: email,
             password: password,
+            // role: "user"
         });
 
         if (res.status != 200)
             return false;
-        return true 
+        return true;
     } catch (err) {
-        console.log("Error: ", err);
+        console.log("An error occured: ", err)
     }
-    return false
+    return false;
 }
 
 export async function fetchServices(setServices: (data: any) => void)

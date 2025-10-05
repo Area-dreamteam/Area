@@ -10,24 +10,34 @@
 import facebook from "@/public/images/Facebook_logo.png"
 import { Password, Mail } from "../components/Forms"
 import { fetchRegister } from "../functions/fetch"
+import { AlertCircleIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-
+import {
+    Alert,
+    AlertDescription,
+    AlertTitle,
+} from "@/components/ui/alert"
 
 export default function Register()
 {
+    const router = useRouter();
     const [email, setEmail] = useState("");
+    const [error, setError] = useState(false);
     const [password, setPassword] = useState("");
-
-    async function sendForm()
+    
+    async function sendRegisterForm(e: React.FormEvent<HTMLFormElement>)
     {
+        e.preventDefault();
         const success : boolean = await fetchRegister(email, password);
 
         if (success)
-            redirect("/login");
+            router.push("/login");
+        else
+            setError(true);
     }
 
     return (
@@ -35,15 +45,28 @@ export default function Register()
             <div>
                 <Link href="/" className="flex justify-center text-[100px] text-black hover:text-[#424242]">Area</Link>
                 <h1 className="flex justify-center text-[50px] text-black mb-10">Register</h1>
-                <form onSubmit={sendForm}>
+                <form onSubmit={(e) => sendRegisterForm(e)}>
                     <div className="flex justify-center">
                         <Mail onChange={setEmail}/>
                     </div>
                     <div className="flex justify-center">
                         <Password w={"300px"} onChange={setPassword}/>
                     </div>
+                    {error &&
+                        (<Alert variant="destructive" className="bg-red-100 rounded-4xl mb-[20px] mr-[20px] w-[300px] mx-auto">
+                            <AlertCircleIcon />
+                            <AlertTitle>Informations incorrect.</AlertTitle>
+                            <AlertDescription>
+                            <p>Please check your informations.</p>
+                            <ul className="list-inside list-disc text-sm">
+                                <li>Password longer than 8 characters</li>
+                                <li>email following the format: [mail]@[domain].[ext]</li>
+                            </ul>
+                            </AlertDescription>
+                        </Alert>)
+                    }
                     <div className="flex justify-center">
-                        <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] pt-2.5 hover:cursor-pointer" type="submit">
+                        <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] font-bold pt-2.5 hover:cursor-pointer" type="submit">
                             Get started
                         </Button>
                     </div>
