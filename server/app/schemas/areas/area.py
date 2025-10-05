@@ -1,14 +1,13 @@
 from pydantic import BaseModel
 from datetime import datetime
-from ..services.action import ActionBasicInfo
-from ..services.reaction import ReactionBasicInfo
-from ..users.user import UserBasicInfo
+from ..services import ActionBasicInfo, ReactionBasicInfo, CreateAreaAction, CreateAreaReaction
+from ..users import UserShortInfo
 
 class AreaGet(BaseModel):
     id: int
     name: str
     description: str
-    user: UserBasicInfo
+    user: UserShortInfo
     enable: bool
     created_at: datetime
     color: str
@@ -16,17 +15,25 @@ class AreaGet(BaseModel):
 class AreaIdGet(BaseModel):
     area_info: AreaGet
     action: ActionBasicInfo
-    reaction: ReactionBasicInfo
+    reactions: list[ReactionBasicInfo]
 
 class AreaGetPublic(BaseModel):
     id: int
     name: str
     description: str
-    user: UserBasicInfo
+    user: UserShortInfo
     created_at: datetime
     color: str
 
 class AreaIdGetPublic(BaseModel):
     area_info: AreaGetPublic
     action: ActionBasicInfo
-    reaction: ReactionBasicInfo
+    reactions: list[ReactionBasicInfo]
+
+class CreateArea(BaseModel):
+    name: str
+    description: str
+    enable: bool
+    is_public: bool
+    action: CreateAreaAction
+    reactions: list[CreateAreaReaction]
