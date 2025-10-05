@@ -1,5 +1,5 @@
 from typing import List, Any
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from sqlmodel import select, join
 
 from reactions.reaction_list import reaction_list
