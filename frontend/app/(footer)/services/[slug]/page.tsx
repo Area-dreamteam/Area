@@ -7,9 +7,9 @@
 
 'use client'
 
-import { use, useState } from 'react';
 import Image from "next/image";
 import { useEffect } from 'react';
+import { use, useState } from 'react';
 import { notFound } from 'next/navigation';
 import BackButton from '@/app/components/Back';
 import { Button } from '@/components/ui/button';

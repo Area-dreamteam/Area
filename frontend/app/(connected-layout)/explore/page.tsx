@@ -99,7 +99,7 @@ function Services({search = "", services = null}: SearchProp)
         service.name.toLowerCase().includes(search.toLowerCase()) ?
         (
             <Link href={`/services/${service.name}`} key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
-                { service.logo == "" || service.logo == null ? "" : (<Image alt="service's logo" src={service.logo} width={4000} height={4000} className="rounded-xl w-[250px] h-[250px]"/>)}
+                { service.logo == "" || service.logo == null ? "" : (<Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[250px] h-[250px]"/>)}
                 <div className="flex justify-center">
                     <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
                 </div>

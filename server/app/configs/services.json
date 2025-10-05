@@ -3,7 +3,7 @@
     "name": "gmail",
     "description": "Service email de Google",
     "image_url": "https://logo.clearbit.com/gmail.com",
-    "color": "#111111",
+    "color": "#FF0000",
     "category": "Email",
     "actions": [
       {
