@@ -23,9 +23,9 @@ services:
       - area_net
     depends_on:
       - db
-      - server
+      - backend
 
-  server:
+  backend:
     env_file: "./server/.env"
     ports:
       - "8080:8080"
@@ -33,7 +33,7 @@ services:
       context: "./server"
     volumes:
       - "./server/app:/server/app"
-      - "./server/images:/images"
+      - "./server/images:/server/app/images"
     restart: always
     networks:
       - area_net
@@ -56,7 +56,6 @@ services:
 
 volumes:
   pgdata:
-  shared-volume:
 
 networks:
   area_net:
