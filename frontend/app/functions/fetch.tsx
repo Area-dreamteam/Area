@@ -6,26 +6,11 @@
 */
 
 import axios from 'axios'
-import getCookies from './cookies';
 
 const Calls = axios.create({
     baseURL: "http://localhost:8080",
     withCredentials: true
 })
-
-Calls.interceptors.request.use(
-    (config) => {
-      const token = getCookies('access_token');
-      
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
 
 export async function fetchLogin(email: string, password: string)
 {
@@ -80,16 +65,11 @@ export async function fetchServices(setServices: (data: any) => void)
 export async function fetchApplets(setApplets: (data: any) => void)
 {
     try {
-        const res = await fetch("http://localhost:8080/areas",
-        {
-            method: "GET",
-            headers: { "Content-type": "application/json" },
-        });
+        const res = await Calls.get("/areas/public");
 
-        if (!res.ok)
-            return ("");
-        const data = await res.json();
-        setApplets(data);
+        if (res.status != 200)
+            return;
+        setApplets(res.data);
     } catch (err) {
         console.log("Error: ", err);
     }
