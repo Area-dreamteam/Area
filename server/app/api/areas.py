@@ -62,7 +62,7 @@ def get_areas(session: SessionDep, _: CurrentUser) -> list[AreaGet]:
 
 @router.post("/areas")
 def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
-    new_area = Area(user_id=user.id, name=area.name, description=area.description, enable=area.enable, created_at=None, is_public=area.is_public)
+    new_area = Area(user_id=user.id, name=area.name, description=area.description, enable=False, created_at=None, is_public=False)
     session.add(new_area)
     session.commit()
     session.refresh(new_area)
