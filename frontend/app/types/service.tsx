@@ -21,3 +21,9 @@ export interface SpecificService {
     logo: string;
     color: string;
 }
+
+export interface Acts {
+    id: number;
+    name: string;
+    description: string;
+}

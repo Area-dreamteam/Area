@@ -16,10 +16,8 @@ export async function fetchLogin(email: string, password: string)
 {
     try {
         const res = await Calls.post("/auth/login", {
-            // name: "",
             email: email,
             password: password,
-            // role: "user"
         });
         if (res.status != 200)
             return false;
@@ -37,7 +35,6 @@ export async function fetchRegister(email: string, password: string)
             name: email.split("@")[0],
             email: email,
             password: password,
-            // role: "user"
         });
 
         if (res.status != 200)
@@ -49,18 +46,37 @@ export async function fetchRegister(email: string, password: string)
     return false;
 }
 
+export async function fetchActs(id: number,
+    type: string, setActs: (data: any) => void)
+{
+    try {
+        const res = await Calls.get(`/services/${id}/${type}`);
+
+        if (res.status != 200)
+            return false;
+        setActs(res.data);
+        return true;
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+    return false;
+}
+
 export async function fetchServices(setServices: (data: any) => void)
 {
     try {
         const res = await Calls.get("/services");
 
-        if (res.status != 200)
+        if (res.status != 200) {
+            setServices(null);
             return false;
+        }
         setServices(res.data);
         return true;
     } catch (err) {
         console.log("Error: ", err);
     }
+    setServices(null);
     return false;
 }
 
@@ -87,10 +103,13 @@ export async function fetchApplets(setApplets: (data: any) => void)
     try {
         const res = await Calls.get("/areas/public");
 
-        if (res.status != 200)
+        if (res.status != 200) {
+            setApplets(null);
             return;
+        }
         setApplets(res.data);
     } catch (err) {
         console.log("Error: ", err);
     }
+    setApplets(null);
 }
