@@ -12,11 +12,11 @@ import { fetchServices, fetchApplets } from "@/app/functions/fetch"
 import taskbarButton from "@/app/components/TaskBarButtons"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
+import Applets from "@/app/components/Applets"
 import { Service } from "@/app/types/service"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import {
 DropdownMenu,
     DropdownMenuTrigger,
@@ -75,45 +75,6 @@ interface SearchProp {
     applets?: Applet[] | null
 }
 
-function Applets({search = "", applets = null}: SearchProp)
-{
-    if (applets == null)
-        return (
-            <p className="flex justify-center text-[20px] mt-[20px]">
-                No applet found.
-            </p>
-        )
-    const filteredApplets = applets.filter(applet =>
-        applet.name.toLowerCase().includes(search.toLowerCase())
-    );
-    const nbApplets = filteredApplets.length;
-    const appletBlocks = Object.values(applets).map((applet) => (
-        applet.name.toLowerCase().includes(search.toLowerCase()) ?
-        (
-            <Link href={`/applets/${applet.name}`} key={applet.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: applet.color }}>
-                <div className="flex justify-center">
-                    <p className="font-bold text-white text-[20px] m-[20px]">{applet.name}</p>
-                </div>
-            </Link>
-        ) : (
-        ""
-    )))
-
-    return (
-        <div>
-            {nbApplets != 0 ? (
-                <div className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
-                {appletBlocks}
-            </div>
-            ) : (
-                <p className="flex justify-center text-[20px] mt-[20px]">
-                    No applet found.
-                </p>
-            )}
-        </div>
-    )
-}
-
 function All({search = "", services = null, applets = null}: SearchProp)
 {
     return (
@@ -122,7 +83,7 @@ function All({search = "", services = null, applets = null}: SearchProp)
             <Services search={search} widgets={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToService}/>
             <br/>
             <h1 className="flex justify-center font-bold text-[25px]"> Applets </h1>
-            <Applets search={search} applets={applets}/>
+            <Applets search={search} widgets={applets}  className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToApplet}/>
         </div>
     )
 }
@@ -130,6 +91,11 @@ function All({search = "", services = null, applets = null}: SearchProp)
 function redirectToService(service: Service)
 {
     redirect(`/services/${service.name}`);
+}
+
+function redirectToApplet(applet: Applet)
+{
+    redirect(`/applets/${applet.name}`);
 }
 
 export default function Explore()
@@ -160,7 +126,7 @@ export default function Explore()
             {page == "Services"  && <Filter/>}
             <div className="flex justify-center">
                 {page == "Services" && <Services search={searched} widgets={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToService}/>}
-                {page == "Applets" && <Applets search={searched} applets={applets}/>}
+                {page == "Applets" && <Applets search={searched} widgets={applets}  className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToApplet}/>}
                 {page == "All" && <All search={searched} services={services} applets={applets}/>}
             </div>
         </div>

@@ -105,13 +105,33 @@ export async function fetchApplets(setApplets: (data: any) => void)
 
         if (res.status != 200) {
             setApplets(null);
-            return;
+            return false;
         }
         setApplets(res.data);
+        return true;
     } catch (err) {
         console.log("Error: ", err);
     }
     setApplets(null);
+    return false
+}
+
+export async function fetchSpecificApplet(setApplet: (data: any) => void, id: number)
+{
+    try {
+        const res = await Calls.get(`/areas/public/${id}`);
+
+        if (res.status != 200) {
+            setApplet(null);
+            return false;
+        }
+        setApplet(res.data);
+        return true;
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+    setApplet(null);
+    return true;
 }
 
 export async function fetchPersonalApplets(setPersonalApplets: (data: any) => void)

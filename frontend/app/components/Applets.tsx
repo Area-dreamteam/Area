@@ -5,7 +5,6 @@
 ** Applets
 */
 
-import Image from "next/image"
 import { SearchProp } from "../interface/search";
 
 export default function Applets({search = "", widgets = null,
@@ -18,7 +17,6 @@ export default function Applets({search = "", widgets = null,
             </p>
         )
     }
-
     const filteredServices = widgets.filter(applet =>
         applet.name.toLowerCase().includes(search.toLowerCase())
     );
@@ -27,7 +25,6 @@ export default function Applets({search = "", widgets = null,
         applet.name.toLowerCase().includes(search.toLowerCase()) ?
         (
             <div key={applet.id} className={boxClassName} style={{ backgroundColor: applet.color }} onClick={() => onClick(applet)}>
-                { applet.logo == "" || applet.logo == null ? "" : (<Image alt="applet's logo" src={applet.logo} width={200} height={200} className="rounded-xl w-[200px] h-[200px]"/>)}
                 <div className="flex justify-center">
                     <p className="font-bold text-white text-[20px] m-[20px]">{applet.name}</p>
                 </div>

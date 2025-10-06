@@ -9,13 +9,13 @@
 
 import { fetchPersonalApplets } from "@/app/functions/fetch";
 import taskbarButton from "@/app/components/TaskBarButtons";
+import { PrivateApplet } from "@/app/types/applet";
 import Applets from "@/app/components/Applets";
 import { Input } from "@/components/ui/input";
-import { Applet } from "@/app/types/applet";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
 
-function redirectToApplet(applet: Applet)
+function redirectToApplet(applet: PrivateApplet)
 {
     redirect(`/applets/${applet.name}`);
 }

@@ -10,7 +10,8 @@
 import Image from "next/image";
 import { useEffect } from 'react';
 import { use, useState } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import { Button } from '@/components/ui/button';
 import { fetchServices } from '@/app/functions/fetch';
@@ -78,7 +79,7 @@ export default function ServicePage({ params }: ServiceProp) {
                             <SettingsButton/>
                         </div>
                     </div>
-                    <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" disabled>
+                    <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={() => redirect("/create")}>
                         Create applet
                     </Button>
                 </div>

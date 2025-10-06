@@ -7,8 +7,8 @@ from contextlib import asynccontextmanager
 from core.loader import load_services_catalog, load_services_config
 from core.db import init_db
 from core.logger import logger
+from fastapi.middleware.cors import CORSMiddleware
 from api import about, auth, services, actions, reactions, areas, users, actions_process
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
