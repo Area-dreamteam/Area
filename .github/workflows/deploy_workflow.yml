@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-deploy-front:
-    name: Build, Test and Push Docker Image
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -25,13 +25,6 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: ${{ runner.os }}-buildx-
 
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-npm-
-
       - name: Extract metadata
         id: meta
         run: |
@@ -47,8 +40,8 @@ jobs:
       - name: Build and push production image
         uses: docker/build-push-action@v6
         with:
-          context: ./frontend
-          file: Dockerfile.prod
+          context: "./frontend"
+          file: "Dockerfile.prod"
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |

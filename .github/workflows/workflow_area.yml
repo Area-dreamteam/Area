@@ -4,6 +4,7 @@ on:
   push:
     branches: ["main"]
 
+jobs:
   push_to_mirror:
     if: ${{ github.event_name == 'push' }}
 
