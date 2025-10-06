@@ -48,3 +48,6 @@ websockets==15.0.1
 colorlog==6.8.2
 logger==1.4
 pydantic_settings
+anyio
+python-crontab
+requests
