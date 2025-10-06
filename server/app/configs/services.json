@@ -8,19 +8,43 @@
     "actions": [
       {
         "name": "new_email",
+        "interval": "15 * * * *",
         "description": "Déclenché lorsqu’un nouvel email arrive.",
-        "config_schema": {
-          "fields": ["from", "subject", "has_attachment"]
-        }
+        "config_schema": [
+          {
+            "name": "from",
+            "type": "input",
+            "values": [""]
+          },
+          {
+            "name": "subject",
+            "type": "input",
+            "values": [""]
+          }
+        ]
       }
     ],
     "reactions": [
       {
         "name": "send_email",
         "description": "Permet d’envoyer un email.",
-        "config_schema": {
-          "fields": ["to", "subject", "body"]
-        }
+        "config_schema": [
+          {
+            "name": "to",
+            "type": "input",
+            "values": [""]
+          },
+          {
+            "name": "subject",
+            "type": "input",
+            "values": [""]
+          },
+          {
+            "name": "body",
+            "type": "input",
+            "values": [""]
+          }
+        ]
       }
     ]
   },
@@ -33,19 +57,33 @@
     "actions": [
       {
         "name": "new_issue",
+        "interval": "15 * * * *",
         "description": "Déclenché lorsqu’une nouvelle issue est créée.",
-        "config_schema": {
-          "fields": ["repository"]
-        }
+        "config_schema": [
+          {
+            "name": "repository",
+            "type": "input",
+            "values": [""]
+          }
+        ]
       }
     ],
     "reactions": [
       {
         "name": "create_issue",
         "description": "Permet de créer une issue dans un dépôt.",
-        "config_schema": {
-          "fields": ["repository", "title", "body"]
-        }
+        "config_schema": [
+          {
+            "name": "repository",
+            "type": "input",
+            "values": [""]
+          },
+          {
+            "name": "issue name",
+            "type": "input",
+            "values": [""]
+          }
+        ]
       }
     ]
   },
@@ -60,9 +98,13 @@
         "name": "Every hour at",
         "interval": "15 * * * *",
         "description": "Déclenché toutes les 15m, 30m, 45m, ou 1H.",
-        "config_schema": {
-          "fields": ["time_interval"]
-        }
+        "config_schema": [
+          {
+            "name": "select_interval",
+            "type": "select",
+            "values": ["15m", "30m", "45m", "1h"]
+          }
+        ]
       }
     ],
     "reactions": []
@@ -78,9 +120,24 @@
       {
         "name": "Debug_reaction",
         "description": "calls feilds",
-        "config_schema": {
-          "fields": ["repository", "title", "body"]
-        }
+        "config_schema": [
+          { "name": "input_example", "type": "input", "values": [] },
+          {
+            "name": "select_example",
+            "type": "select",
+            "values": ["15m", "30m", "45m", "1h"]
+          },
+          {
+            "name": "check_list_example",
+            "type": "check_list",
+            "values": [
+              { "15m": true },
+              { "30m": true },
+              { "45m": false },
+              { "1h": false }
+            ]
+          }
+        ]
       }
     ]
   }

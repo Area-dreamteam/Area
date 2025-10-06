@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     config: list[dict] = load_services_config()
     app.state.services_config = config
     init_db(catalog)
-    startupCron()
+    # startupCron()
     yield
     logger.info("Server shutting down...")
 

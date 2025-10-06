@@ -70,12 +70,14 @@ def sync_actions_for_service(session: Session, service_data: dict, service_id: i
             values=dict(
                 service_id=service_id,
                 name=action["name"],
+                interval=action["interval"],
                 description=action.get("description"),
                 config_schema=action.get("config_schema"),
             ),
             conflict_target="uq_action_service_name",
             update_fields=dict(
                 description=action.get("description"),
+                interval=action["interval"],
                 config_schema=action.get("config_schema"),
             )
         )

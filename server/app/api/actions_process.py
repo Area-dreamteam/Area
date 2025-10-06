@@ -9,12 +9,14 @@ from core.logger import logger
 
 router = APIRouter()
 
+
 @router.post("/actions_process")
 def process_action(action_id: int, session: SessionDep):
     action_data: tuple[Action, Service] = session.exec(
         select(Action, Service)
         .join(Service, Service.id == Action.service_id)
-        .where(Action.id == action_id)).first()
+        .where(Action.id == action_id)
+    ).first()
     if not action_data:
         raise HTTPException(status_code=404, detail="Data not found")
 
@@ -23,7 +25,11 @@ def process_action(action_id: int, session: SessionDep):
         select(AreaAction)
         .join(Action, Action.id == AreaAction.action_id)
         .join(Area, Area.id == AreaAction.area_id)
-        .where(AreaAction.action_id == action_id, Area.enable == True, Area.is_public == True)
+        .where(
+            AreaAction.action_id == action_id,
+            Area.enable == True,
+            Area.is_public == False,
+        )
     ).all()
 
     for action_config in actions_config:
@@ -32,8 +38,7 @@ def process_action(action_id: int, session: SessionDep):
         #   continue
 
         area: Area = session.exec(
-            select(Area)
-            .where(Area.id == action_config.area_id)
+            select(Area).where(Area.id == action_config.area_id)
         ).first()
         if not area:
             continue

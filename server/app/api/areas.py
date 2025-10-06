@@ -72,7 +72,7 @@ def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
     session.add(new_area_action)
     session.commit()
     session.refresh(new_area_action)
-    newJob(new_area_action.id) # si action n'a pas de cron
+    newJob(new_area_action.action_id) # si action n'a pas de cron
 
     for reaction in area.reactions:
         new_area_reaction = AreaReaction(area_id=new_area.id, reaction_id=reaction.reaction_id, config=reaction.config)
