@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="AREA API", version="1.0.0")
 
-app.mount("/images", StaticFiles(directory="/images"), name="images")
+app.mount("/images", StaticFiles(directory="./images"), name="images")
 
 
 @app.get("/")
