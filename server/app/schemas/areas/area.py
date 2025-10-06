@@ -33,7 +33,5 @@ class AreaIdGetPublic(BaseModel):
 class CreateArea(BaseModel):
     name: str
     description: str
-    enable: bool
-    is_public: bool
     action: CreateAreaAction
     reactions: list[CreateAreaReaction]
