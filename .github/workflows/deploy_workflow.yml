@@ -4,6 +4,7 @@ on:
   push:
     branches: ["deployement_ci"]
 
+jobs:
   build-deploy-front:
     name: Build, Test and Push Docker Image
     runs-on: ubuntu-latest
