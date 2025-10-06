@@ -1,38 +1,40 @@
 services:
-  client_web:
-    container_name: client_web
+  frontend:
+    container_name: frontend
     env_file: "./frontend/.env"
     ports:
-      - "8081:3000"
+      - "3000:3000"
+    volumes:
+      - "./frontend:/app"
+      - /app/node_modules
+      - /app/.next
     restart: always
     build:
       context: "./frontend"
-      dockerfile: "Dockerfile.prod"
-    volumes:
-      - shared-volume:/prod/public/files
+    develop:
+      watch:
+        - path: ./frontend/src
+          action: sync
+          target: /app
+        - path: ./frontend
+          action: rebuild
+          ignore:
+            - ./frontend/app
     networks:
       - area_net
     depends_on:
       - db
-      - server
-      - client_mobile
+      - backend
 
-  client_mobile:
-    container_name: client_mobile
-    #env_file: "./mobile/.env"
-    build:
-      context: ./mobile
-      dockerfile: "Dockerfile.prod"
-    volumes:
-      - shared-volume:/app/target
-
-  server:
+  backend:
     env_file: "./server/.env"
     ports:
-      - "8080:8000"
+      - "8080:8080"
     build:
       context: "./server"
-      dockerfile: "Dockerfile.prod"
+    volumes:
+      - "./server/app:/server/app"
+      - "./server/images:/server/app/images"
     restart: always
     networks:
       - area_net
@@ -55,7 +57,6 @@ services:
 
 volumes:
   pgdata:
-  shared-volume: 
 
 networks:
   area_net:
