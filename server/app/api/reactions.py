@@ -17,6 +17,6 @@ def get_reaction_by_id(id: int, session: SessionDep, _: CurrentUser) -> Reaction
     if not service:
         raise HTTPException(status_code=404, detail="Data not found")
 
-    service_data = ServiceGet(id=service.id, name=service.name, image_url=service.image_url, color=service.color)
+    service_data = ServiceGet(id=service.id, name=service.name, image_url=service.image_url, category=service.category, color=service.color)
     reaction_data = ReactionIdGet(id=reaction.id, name=reaction.name, description=reaction.description, config_schema=reaction.config_schema, service=service_data)
     return reaction_data
