@@ -9,6 +9,7 @@
 
 import { fetchServices, fetchActs } from "@/app/functions/fetch"
 import { Service, Acts } from "@/app/types/service"
+import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
@@ -158,57 +159,6 @@ function ActionsPage({service, setService, setAction,
     )
 }
 
-interface SearchProp {
-    search?: string
-    services?: Service[] | null,
-    className?: string,
-    onClick?: (param: any) => void
-}
-
-function Services({search = "", services = null,
-    className = "", onClick = () => ""}: SearchProp)
-{
-    if (services == null) {
-        return (
-            <p className="flex justify-center text-[20px] mt-[20px]">
-                No service found.
-            </p>
-        )
-    }
-
-    const filteredServices = services.filter(service =>
-        service.name.toLowerCase().includes(search.toLowerCase())
-    );
-    const nbServices = filteredServices.length;
-    const serviceBlocks = services.map((service) => ((
-        service.name.toLowerCase().includes(search.toLowerCase()) ?
-        (
-            <div key={service.id} className="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative" style={{ backgroundColor: service.color }} onClick={() => onClick(service)}>
-                { service.logo == "" || service.logo == null ? "" : (<Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[200px] h-[200px]"/>)}
-                <div className="flex justify-center">
-                    <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
-                </div>
-            </div>
-        ) : (
-            ""
-        )
-    )))
-
-    return (
-        <div className="w-full">
-            {nbServices != 0 ? (
-                <div className={className}>
-                    {serviceBlocks} 
-                </div>
-            ) : (
-                <p className="flex justify-center text-[20px] mt-[20px]">
-                    No service found.
-                </p>
-            )}
-        </div>
-    )
-}
-
 interface ChooseActProp
 {
     type: string,
@@ -238,7 +188,7 @@ function ChooseAct({choosingAction, setChoosingAction, setAction, type}: ChooseA
                         </p>
                     </div>
                     <Input className="w-[400px] mx-auto block mt-[50px] border-[4px] h-[50px] text-[20px] placeholder:text-[20px]" placeholder="Search services" onChange={(e) => setSearch(e.target.value)}/>
-                    <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 w-fit mx-auto" onClick={setSelected}/>
+                    <Services search={search} widgets={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 w-fit mx-auto" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative" onClick={setSelected}/>
                 </div>
             }
             {selected &&

@@ -9,11 +9,13 @@
 
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types"
 import { fetchServices, fetchApplets } from "@/app/functions/fetch"
+import taskbarButton from "@/app/components/TaskBarButtons"
+import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useState, useEffect } from "react" 
 import { Service } from "@/app/types/service"
-import Image from "next/image"
+import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import {
 DropdownMenu,
@@ -22,16 +24,6 @@ DropdownMenu,
     DropdownMenuLabel,
     DropdownMenuCheckboxItem,
 } from "@radix-ui/react-dropdown-menu"
-
-function taskbarButton(buttonName: string, selected: string,
-    setPage: (str: string) => void, enable: boolean)
-{
-    return (
-        <Button className="bg-white hover:bg-white hover:text-[#424242] text-black font-bold text-[15px]" onClick={() => setPage(buttonName)} style={{ textDecoration: (selected == buttonName ? "underline" : "") }} disabled={!enable}>
-            {buttonName}
-        </Button>
-    )
-}
 
 function customDropdown(text: string)
 {
@@ -83,47 +75,6 @@ interface SearchProp {
     applets?: Applet[] | null
 }
 
-function Services({search = "", services = null}: SearchProp)
-{
-    if (services == null)
-        return (
-            <p className="flex justify-center text-[20px] mt-[20px]">
-                No service found.
-            </p>
-        )
-    const filteredServices = services.filter(service =>
-        service.name.toLowerCase().includes(search.toLowerCase())
-    );
-    const nbServices = filteredServices.length;
-    const serviceBlocks = services.map((service) => ((
-        service.name.toLowerCase().includes(search.toLowerCase()) ?
-        (
-            <Link href={`/services/${service.name}`} key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
-                { service.logo == "" || service.logo == null ? "" : (<Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[250px] h-[250px]"/>)}
-                <div className="flex justify-center">
-                    <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
-                </div>
-            </Link>
-        ) : (
-            ""
-        )
-    )))
-
-    return (
-        <div>
-            {nbServices != 0 ? (
-                <div className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
-                    {serviceBlocks} 
-                </div>
-            ) : (
-                <p className="flex justify-center text-[20px] mt-[20px]">
-                    No service found.
-                </p>
-            )}
-        </div>
-    )
-}
-
 function Applets({search = "", applets = null}: SearchProp)
 {
     if (applets == null)
@@ -168,12 +119,17 @@ function All({search = "", services = null, applets = null}: SearchProp)
     return (
         <div>
             <h1 className="flex justify-center font-bold text-[25px]"> Services </h1>
-            <Services search={search} services={services}/>
+            <Services search={search} widgets={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToService}/>
             <br/>
             <h1 className="flex justify-center font-bold text-[25px]"> Applets </h1>
             <Applets search={search} applets={applets}/>
         </div>
     )
+}
+
+function redirectToService(service: Service)
+{
+    redirect(`/services/${service.name}`);
 }
 
 export default function Explore()
@@ -199,13 +155,11 @@ export default function Explore()
                 </div>
             </div>
             <br/>
-            <div className="flex justify-center">
-                <Input className="w-[400px]" placeholder="Search Applets or Services" onChange={(e) => setSearched(e.target.value)}/>
-            </div>
+            <Input className="mx-auto block w-[400px]" placeholder="Search Applets or Services" onChange={(e) => setSearched(e.target.value)}/>
             <br/>
             {page == "Services"  && <Filter/>}
             <div className="flex justify-center">
-                {page == "Services" && <Services search={searched} services={services}/>}
+                {page == "Services" && <Services search={searched} widgets={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToService}/>}
                 {page == "Applets" && <Applets search={searched} applets={applets}/>}
                 {page == "All" && <All search={searched} services={services} applets={applets}/>}
             </div>

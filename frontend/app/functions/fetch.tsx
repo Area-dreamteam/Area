@@ -113,3 +113,19 @@ export async function fetchApplets(setApplets: (data: any) => void)
     }
     setApplets(null);
 }
+
+export async function fetchPersonalApplets(setPersonalApplets: (data: any) => void)
+{
+    try {
+        const res = await Calls.get("/areas/");
+
+        if (res.status != 200) {
+            setPersonalApplets(null);
+            return;
+        }
+        setPersonalApplets(res.data);
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+    setPersonalApplets(null);
+}
