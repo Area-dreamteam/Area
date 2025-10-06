@@ -1,10 +1,10 @@
 from cron.cron import newJob
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
-from models import Area, User, Action, AreaAction, Service, AreaReaction
+from models import Area, User, Action, AreaAction, Service, AreaReaction, Reaction
 from schemas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic, UserShortInfo, ActionBasicInfo, ReactionBasicInfo, ServiceGet, CreateArea, Role
 from dependencies.db import SessionDep
-from dependencies.roles import CurrentUser, CurrentAdmin
+from dependencies.roles import CurrentUser
 
 router = APIRouter()
 
@@ -62,6 +62,21 @@ def get_areas(session: SessionDep, user: CurrentUser) -> list[AreaGet]:
 
 @router.post("/areas")
 def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
+    action: Action = session.exec(
+        select(Action)
+        .where(Action.id == area.action.action_id)
+    ).first()
+    if not action:
+        raise HTTPException(status_code=404, detail="Data not found")
+
+    for area_reaction in area.reactions:
+        reaction: Reaction = session.exec(
+            select(Reaction)
+            .where(Reaction.id == area_reaction.reaction_id)
+        ).first()
+        if not reaction:
+            raise HTTPException(status_code=404, detail="Data not found")
+
     new_area = Area(user_id=user.id, name=area.name, description=area.description, enable=False, created_at=None, is_public=False)
     session.add(new_area)
     session.commit()
