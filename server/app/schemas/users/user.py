@@ -23,6 +23,7 @@ class UserServiceGet(BaseModel):
     name: str
     image_url: Path
     color: str
+    connected: bool
 
 
 class UserIdGet(BaseModel):
