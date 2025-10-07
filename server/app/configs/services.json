@@ -140,5 +140,37 @@
         ]
       }
     ]
+  },
+  {
+    "name": "todoist",
+    "description": "tododlist",
+    "image_url": "https://logo.clearbit.com/github.com",
+    "color": "#ebcaaa",
+    "category": "Dev",
+    "actions": [],
+    "reactions": [
+      {
+        "name": "Debug_reaction",
+        "description": "calls feilds",
+        "config_schema": [
+          { "name": "input_example", "type": "input", "values": [] },
+          {
+            "name": "select_example",
+            "type": "select",
+            "values": ["15m", "30m", "45m", "1h"]
+          },
+          {
+            "name": "check_list_example",
+            "type": "check_list",
+            "values": [
+              { "15m": true },
+              { "30m": true },
+              { "45m": false },
+              { "1h": false }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
