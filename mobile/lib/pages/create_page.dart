@@ -46,9 +46,6 @@ class _CreatePageState extends State<CreatePage> {
       backgroundColor: const Color(0xFF212121),
       body: Consumer<CreateViewModel>(
         builder: (context, viewModel, child) {
-          print(
-            "--- CREATE PAGE: Le Consumer se redessine. L'action sélectionnée est : ${viewModel.selectedAction?.item.name} ---",
-          );
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (viewModel.name.isEmpty && _nameController.text.isNotEmpty) {
               _nameController.clear();
