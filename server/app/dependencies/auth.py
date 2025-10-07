@@ -1,18 +1,14 @@
-from fastapi.security import APIKeyHeader
-from fastapi import HTTPException, Security, Depends
-from typing import Annotated
+from fastapi.security import APIKeyCookie
+from fastapi import HTTPException, Security
+from typing import Optional
 from dependencies.db import SessionDep
-from sqlmodel import Session
 
 from core.security import decode_jwt
 from models import User
 
+cookie_scheme = APIKeyCookie(name="access_token", auto_error=False)
 
-api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
-
-
-
-def get_current_user(session: SessionDep, token: str = Security( api_key_header)) -> User:
+def get_current_user(session: SessionDep, token: Optional[str] = Security(cookie_scheme)) -> User:
     if not token:
         raise HTTPException(status_code=403, detail="Token missing.")
 

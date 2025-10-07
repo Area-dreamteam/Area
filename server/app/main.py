@@ -1,3 +1,4 @@
+from cron.startup_cron import startupCron
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -6,7 +7,7 @@ from contextlib import asynccontextmanager
 from core.loader import load_services_catalog, load_services_config
 from core.db import init_db
 from core.logger import logger
-from api import about, auth, services, actions, reactions, areas, users
+from api import about, auth, services, actions, reactions, areas, users, actions_process
 
 
 @asynccontextmanager
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
     config: list[dict] = load_services_config()
     app.state.services_config = config
     init_db(catalog)
+    # startupCron()
     yield
     logger.info("Server shutting down...")
 
@@ -37,3 +39,4 @@ app.include_router(actions.router, tags=["actions"])
 app.include_router(reactions.router, tags=["reactions"])
 app.include_router(areas.router, tags=["areas"])
 app.include_router(users.router, tags=["users"])
+app.include_router(actions_process.router, tags=["actions_process"])

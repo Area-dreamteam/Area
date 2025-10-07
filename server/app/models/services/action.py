@@ -10,6 +10,7 @@ class Action(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     service_id: int = Field(foreign_key="service.id")
     name: str
+    interval: str
     description: Optional[str] = None
     config_schema: Optional[dict] = Field(default=None, sa_column=Column(JSON))
     __table_args__ = (UniqueConstraint("service_id", "name", name="uq_action_service_name"),)
