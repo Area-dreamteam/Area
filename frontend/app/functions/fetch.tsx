@@ -6,6 +6,7 @@
 */
 
 import axios from 'axios'
+import { Act } from '../types/service';
 
 const Calls = axios.create({
     baseURL: "http://localhost:8080",
@@ -46,8 +47,7 @@ export async function fetchRegister(email: string, password: string)
     return false;
 }
 
-export async function fetchActs(id: number,
-    type: string, setActs: (data: any) => void)
+export async function fetchActs(id: number, type: string, setActs: (data: any) => void)
 {
     try {
         const res = await Calls.get(`/services/${id}/${type}`);
@@ -134,6 +134,24 @@ export async function fetchSpecificApplet(setApplet: (data: any) => void, id: nu
     return true;
 }
 
+export async function fetchAction(id: number, type: string, setAction: (data: any) => void)
+{
+    try {
+        const res = await Calls.get(`/${type}/${id}`);
+
+        if (res.status != 200) {
+            setAction(null);
+            return false;
+        }
+        setAction(res.data);
+        return true;
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+    setAction(null);
+    return true;
+}
+
 export async function fetchPersonalApplets(setPersonalApplets: (data: any) => void)
 {
     try {
@@ -148,4 +166,30 @@ export async function fetchPersonalApplets(setPersonalApplets: (data: any) => vo
         console.log("Error: ", err);
     }
     setPersonalApplets(null);
+}
+
+export async function fetchCreateApplet(action: Act, reaction: Act, title: string)
+{
+    try {
+        const res = await Calls.post("/areas", {
+            name: title,
+            description: "",
+            action: {
+                action_id: action.id,
+                config: ""
+            },
+            reaction: {
+                reaction_id: reaction.id,
+                config: ""
+            }
+        });
+
+        if (res.status != 200) {
+            return false;
+        }
+        return true;
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+    return false;
 }
