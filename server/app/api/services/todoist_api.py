@@ -6,7 +6,6 @@ import json
 
 from schemas.services.todoist import Task, Project
 from core.utils import generate_state
-from ..temp_db import user_data
 
 
 class TodoistOAuthTokenRes(BaseModel):

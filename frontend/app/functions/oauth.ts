@@ -1,6 +1,6 @@
 const handleGithubLogin = () => {
   const authWindow = window.open(
-    "http://127.0.0.1:8080/services/github/index",
+    "http://localhost:8080/services/github/index",
     "GitHub Login",
     "width=600,height=700",
   );
@@ -23,7 +23,7 @@ export async function redirectOauthGithub() {
 
 const handleTodoistLogin = () => {
   const authWindow = window.open(
-    "http://127.0.0.1:8080/services/todoist/index",
+    "http://localhost:8080/services/todoist/index",
     "GitHub Login",
     "width=600,height=700",
   );

@@ -26,7 +26,7 @@ def github_index():
         headers={
             "Location": github_api.get_oauth_link(
                 settings.GITHUB_CLIENT_ID,
-                "http://127.0.0.1:8080/services/github/login_oauth_token",
+                "http://localhost:8080/services/github/login_oauth_token",
             )
         },
     )

@@ -18,7 +18,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import { AlertCircleIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Calls, fetchLogin } from "../functions/fetch"
+import { fetchLogin } from "../functions/fetch"
 import { Password, Mail } from "../components/Forms"
 import facebook from "@/public/images/Facebook_logo.png"
 import { redirectOauthGithub, redirectOauthTodoist } from "../functions/oauth"
@@ -61,17 +61,17 @@ export default function Login() {
             </Alert>)
           }
 
+          <div className="flex justify-center">
+            <Link href="/passwords/forgot" className="flex justify-center mb-[30px] text-black text-center text-[20px] hover:text-[#676767] underline">
+              Forgot your password ?
+            </Link>
+          </div>
+          <div className="flex justify-center">
+            <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] font-bold pt-2.5 hover:cursor-pointer" type="submit">
+              Log in
+            </Button>
+          </div>
         </form>
-        <div className="flex justify-center">
-          <Link href="/passwords/forgot" className="flex justify-center mb-[30px] text-black text-center text-[20px] hover:text-[#676767] underline">
-            Forgot your password ?
-          </Link>
-        </div>
-        <div className="flex justify-center">
-          <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] font-bold pt-2.5 hover:cursor-pointer" type="submit">
-            Log in
-          </Button>
-        </div>
         <p className="flex justify-center">Or</p>
         <div className="flex justify-center">
           <hr className="w-[350px] outline-[1px] mb-[30px]" style={{ color: "#4400ff" }} />

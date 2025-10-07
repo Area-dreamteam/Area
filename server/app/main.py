@@ -44,23 +44,6 @@ async def root():
     return {"message": "Welcome to AREA API"}
 
 
-@app.get("/callback")
-def callback(code: str):
-    return RedirectResponse(f"/auth/login/oauth_token?code={code}")
-
-
-@app.get("/index", response_class=HTMLResponse)
-def index(request: Request):
-    return templates.TemplateResponse(
-        request=request, name="index.html", context={"id": 1}
-    )
-
-
-@app.post("/temp")
-def temp():
-    return "temp"
-
-
 app.include_router(services.router)
 app.include_router(about.router, tags=["about"])
 app.include_router(auth.router, tags=["auth"], prefix="/auth")

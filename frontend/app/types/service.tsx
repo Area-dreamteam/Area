@@ -5,6 +5,12 @@
 ** service
 */
 
+export interface Act {
+    id: number;
+    name: string;
+    description: string;
+}
+
 export interface Service {
     id: number;
     name: string;
@@ -20,10 +26,4 @@ export interface SpecificService {
     image_url: string;
     logo: string;
     color: string;
-}
-
-export interface Acts {
-    id: number;
-    name: string;
-    description: string;
 }
