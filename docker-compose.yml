@@ -13,7 +13,8 @@ services:
     networks:
       - area_net
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   # client_web:
   #   container_name: client_web
@@ -59,6 +60,11 @@ services:
       - 5432:5432
     networks:
       - area_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 1s
+      retries: 20
 
 volumes:
   pgdata:
