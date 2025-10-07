@@ -9,8 +9,8 @@ from contextlib import asynccontextmanager
 from core.loader import load_services_catalog, load_services_config
 from core.db import init_db
 from core.logger import logger
+from fastapi.middleware.cors import CORSMiddleware
 from api import about, auth, services, actions, reactions, areas, users, actions_process
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,8 +28,15 @@ templates = Jinja2Templates(directory="templates")
 
 app = FastAPI(lifespan=lifespan, title="AREA API", version="1.0.0")
 
-app.mount("/images", StaticFiles(directory="./images"), name="images")
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+ 
+app.mount("/images", StaticFiles(directory="./images"), name='images')
 
 @app.get("/")
 async def root():

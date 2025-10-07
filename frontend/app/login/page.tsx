@@ -7,32 +7,68 @@
 
 'use client'
 
+import {
+    Alert,
+    AlertDescription,
+    AlertTitle,
+} from "@/components/ui/alert"
 import Link from "next/link"
 import Image from "next/image"
+import { useState } from "react"
+import { useRouter } from 'next/navigation'
+import { AlertCircleIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { fetchLogin } from "../functions/fetch"
 import { Password, Mail } from "../components/Forms"
 import facebook from "@/public/images/Facebook_logo.png"
 
-export default function Register()
+export default function Login()
 {
+    const router = useRouter();
+    const [email, setEmail] = useState("");
+    const [error, setError] = useState(false);
+    const [password, setPassword] = useState("");
+
+    async function sendLoginForm(e: React.FormEvent<HTMLFormElement>)
+    {
+        e.preventDefault();
+        const success : boolean = await fetchLogin(email, password);
+
+        if (success) {
+            router.push("/explore");
+        } else
+            setError(true);
+    }
+
     return (
         <div className="bg-[#FFFFFF] h-screen font-bold">
             <div>
                 <Link href="/" className="flex justify-center text-[100px] text-black hover:text-[#424242]">Area</Link>
                 <h1 className="flex justify-center text-[50px] text-black mb-10">Log in</h1>
-                <form>
-                    <Mail/>
-                    <Password/>
+                <form onSubmit={(e) => sendLoginForm(e)}>
+                    <div className="flex justify-center">
+                        <Mail onChange={setEmail}/>
+                    </div>
+                    <div className="flex justify-center">
+                        <Password w={"300px"} onChange={setPassword}/>
+                    </div>
+                    {error &&
+                        (<Alert variant="destructive" className="bg-red-100 rounded-4xl mb-[20px] mr-[20px] w-[300px] mx-auto">
+                            <AlertCircleIcon />
+                            <AlertTitle>Logins incorrect.</AlertTitle>
+                            <AlertDescription>
+                            <p>Your email or password seems to be wrong. Please try again.</p>
+                            </AlertDescription>
+                        </Alert>)
+                    }
                     <div className="flex justify-center">
                         <Link href="/passwords/forgot" className="flex justify-center mb-[30px] text-black text-center text-[20px] hover:text-[#676767] underline">
                             Forgot your password ?
                         </Link>
                     </div>
                     <div className="flex justify-center">
-                        <Button className="flex justify-center mb-3 bg-[#000000] text-white text-[40px] hover:bg-[#383838] rounded-full w-[350px] h-[100px] pt-2.5 font-bold">
-                            <Link href="/explore">
-                                Log in
-                            </Link>
+                        <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] font-bold pt-2.5 hover:cursor-pointer" type="submit">
+                            Log in
                         </Button>
                     </div>
                     <p className="flex justify-center">Or</p>

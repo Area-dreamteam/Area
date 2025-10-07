@@ -9,26 +9,65 @@
 
 import facebook from "@/public/images/Facebook_logo.png"
 import { Password, Mail } from "../components/Forms"
+import { fetchRegister } from "../functions/fetch"
+import { AlertCircleIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import {
+    Alert,
+    AlertDescription,
+    AlertTitle,
+} from "@/components/ui/alert"
 
 export default function Register()
 {
+    const router = useRouter();
+    const [email, setEmail] = useState("");
+    const [error, setError] = useState(false);
+    const [password, setPassword] = useState("");
+    
+    async function sendRegisterForm(e: React.FormEvent<HTMLFormElement>)
+    {
+        e.preventDefault();
+        const success : boolean = await fetchRegister(email, password);
+
+        if (success)
+            router.push("/login");
+        else
+            setError(true);
+    }
+
     return (
         <div className="bg-[#FFFFFF] h-screen font-bold">
             <div>
                 <Link href="/" className="flex justify-center text-[100px] text-black hover:text-[#424242]">Area</Link>
                 <h1 className="flex justify-center text-[50px] text-black mb-10">Register</h1>
-                <form>
-                    <Mail/>
-                    <Password/>
+                <form onSubmit={(e) => sendRegisterForm(e)}>
                     <div className="flex justify-center">
-                        <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] pt-2.5">
-                            <Link href="/login">
-                                Get started
-                            </Link>
+                        <Mail onChange={setEmail}/>
+                    </div>
+                    <div className="flex justify-center">
+                        <Password w={"300px"} onChange={setPassword}/>
+                    </div>
+                    {error &&
+                        (<Alert variant="destructive" className="bg-red-100 rounded-4xl mb-[20px] mr-[20px] w-[300px] mx-auto">
+                            <AlertCircleIcon />
+                            <AlertTitle>Informations incorrect.</AlertTitle>
+                            <AlertDescription>
+                            <p>Please check your informations.</p>
+                            <ul className="list-inside list-disc text-sm">
+                                <li>Password longer than 8 characters</li>
+                                <li>email following the format: [mail]@[domain].[ext]</li>
+                            </ul>
+                            </AlertDescription>
+                        </Alert>)
+                    }
+                    <div className="flex justify-center">
+                        <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] font-bold pt-2.5 hover:cursor-pointer" type="submit">
+                            Get started
                         </Button>
                     </div>
                     <p className="flex justify-center">Or</p>
@@ -47,8 +86,8 @@ export default function Register()
                     </div>
                     <div className="flex justify-center">
                         <Link href="https://google.com" className="flex justify-center mb-[20px] bg-black text-white text-[30px] hover:bg-[#3a3a3a] rounded-full w-[450px] h-[70px]  border-[2px] pt-[10px] pl-[25px] pr-[25px]">
-                        <Image alt="Facebook logo" src={facebook} sizes="100vw" style={{ width: '30px', height: '30px', marginRight: "25px" }}/>
-                        Continue with Facebook
+                            <Image alt="Facebook logo" src={facebook} sizes="100vw" style={{ width: '30px', height: '30px', marginRight: "25px" }}/>
+                            Continue with Facebook
                         </Link>
                     </div>
                     <div className="flex justify-center">
