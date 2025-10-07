@@ -6,16 +6,16 @@ import 'package:mobile/viewmodels/login_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/scaffolds/main_scaffold.dart';
 import 'package:mobile/repositories/service_repository.dart';
-import 'package:mobile/viewmodels/my_service_viewmodel.dart';
-//import 'package:mobile/viewmodels/create_viewmodel.dart';
-//import 'package:mobile/viewmodels/select_service_viewmodel.dart';
+import 'package:mobile/viewmodels/create_viewmodel.dart';
+import 'package:mobile/viewmodels/select_service_viewmodel.dart';
+import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final apiService = ApiService();
   final authRepository = AuthRepository(apiService: apiService);
-  final appletRepository = ServiceRepository(apiService: apiService);
+  final servicesRepository = ServiceRepository(apiService: apiService);
 
   runApp(
     MultiProvider(
@@ -28,12 +28,18 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(
           create: (_) =>
-              MyServiceViewModel(serviceRepository: appletRepository),
+              MyAppletViewModel(serviceRepository: servicesRepository),
         ),
-  //      ChangeNotifierProvider(create: (_) => CreateViewmodel()),
-    //    ChangeNotifierProvider(create: (_) => SelectServiceViewModel()),
-        Provider.value(value: AuthRepository),
+        ChangeNotifierProvider(
+          create: (_) => CreateViewModel(serviceRepository: servicesRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              SelectServiceViewmodel(serviceRepository: servicesRepository),
+        ),
+        Provider.value(value: authRepository),
         Provider.value(value: apiService),
+        Provider.value(value: servicesRepository),
       ],
       child: const MyApp(),
     ),
