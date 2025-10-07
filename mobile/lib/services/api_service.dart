@@ -63,7 +63,7 @@ class ApiService {
     return _dio.get('/services');
   }
 
-  Future<Response> deleteArea(String areaId) {
+  Future<Response> deleteArea(int areaId) {
     return _dio.delete('/areas/$areaId');
   }
 

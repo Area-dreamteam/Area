@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import '../widgets/navbar.dart';
 import '../pages/account.dart';
-import '../pages/my_service.dart';
+import 'package:mobile/pages/my_activity.dart';
 import '../scaffolds/main_scaffold.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-  final String userName = 'boris cheng';
   final List<String> menuOptions = const ['Account', 'My services', 'Sign out'];
 
   @override

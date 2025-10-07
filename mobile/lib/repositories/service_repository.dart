@@ -115,7 +115,7 @@ class ServiceRepository {
     }
   }
 
-  Future<void> deleteArea(String areaId) async {
+  Future<void> deleteArea(int areaId) async {
     try {
       final response = await _apiService.deleteArea(areaId);
 
