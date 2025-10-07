@@ -1,38 +1,65 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/home_page.dart';
-import 'register.dart';
+import 'package:mobile/pages/my_area.dart';
+import 'package:mobile/pages/register.dart';
+import 'package:mobile/viewmodels/login_viewmodel.dart';
+import 'package:provider/provider.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _onLoginSuccess() {
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const MyAreaPage()));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        backgroundColor: const Color(0xFF212121),
-        body: Container(
-          margin: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _header(context),
-              _inputFields(context),
-              _signup(context),
-            ],
+    final loginViewModel = context.watch<LoginViewModel>();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF212121),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _header(),
+                  const SizedBox(height: 50),
+                  _inputFields(loginViewModel),
+                  const SizedBox(height: 30),
+                  _signup(),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _header(BuildContext context) {
+  Widget _header() {
     return const Column(
       children: [
         Text(
@@ -47,11 +74,13 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _inputFields(BuildContext context) {
+  Widget _inputFields(LoginViewModel viewModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
+        TextFormField(
+          controller: _emailController,
+          style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
             hintText: "E-mail",
             border: OutlineInputBorder(borderSide: BorderSide.none),
@@ -59,10 +88,18 @@ class _LoginState extends State<Login> {
             filled: true,
             prefixIcon: const Icon(Icons.person),
           ),
+          validator: (value) {
+            if (value == null || !value.contains('@')) {
+              return 'Email not valid.';
+            }
+            return null;
+          },
         ),
         const SizedBox(height: 10),
-        TextField(
+        TextFormField(
+          controller: _passwordController,
           obscureText: _obscurePassword,
+          style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
             hintText: "Password",
             border: OutlineInputBorder(borderSide: BorderSide.none),
@@ -80,31 +117,59 @@ class _LoginState extends State<Login> {
               },
             ),
           ),
-        ),
-        const SizedBox(height: 40),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
-            );
+          validator: (value) {
+            if (value == null) {
+              return 'Enter your password.';
+            }
+            return null;
           },
-          style: ElevatedButton.styleFrom(
-            shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.white,
+        ),
+        const SizedBox(height: 20),
+
+        if (viewModel.state == LoginState.error)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15),
+            child: Text(
+              viewModel.errorMessage,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 15),
+            ),
           ),
-          child: const Text(
-            "Login",
-            style: TextStyle(fontSize: 20, color: Colors.black),
-          ),
+
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: viewModel.isLoading
+              ? null
+              : () async {
+                  if (_formKey.currentState!.validate()) {
+                    final success = await viewModel.loginWithEmailPassword(
+                      _emailController.text.trim(),
+                      _passwordController.text.trim(),
+                    );
+                    if (success) {
+                      _onLoginSuccess();
+                    }
+                  }
+                },
+          child: viewModel.isLoading
+              ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.black,
+                    strokeWidth: 3,
+                  ),
+                )
+              : const Text(
+                  "Login",
+                  style: TextStyle(fontSize: 20, color: Colors.black),
+                ),
         ),
       ],
     );
   }
 
-  Widget _signup(BuildContext context) {
+  Widget _signup() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -114,10 +179,9 @@ class _LoginState extends State<Login> {
         ),
         TextButton(
           onPressed: () {
-            Navigator.of(context).pop();
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Register()),
+              MaterialPageRoute(builder: (context) => const RegisterPage()),
             );
           },
           child: const Text("Sign Up", style: TextStyle(color: Colors.white)),

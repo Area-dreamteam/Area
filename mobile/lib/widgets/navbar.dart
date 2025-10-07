@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/home_page.dart';
+import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/pages/explore_page.dart';
 import 'package:mobile/pages/create_page.dart';
 import 'package:mobile/pages/history.dart';
@@ -14,7 +14,7 @@ class MyBottomNavigationBar extends StatelessWidget {
     if (index == selectedIndex) return;
 
     final pages = [
-      const HomePage(),
+      const MyAreaPage(),
       const ExplorePage(),
       const CreatePage(),
       const AreaPage(),

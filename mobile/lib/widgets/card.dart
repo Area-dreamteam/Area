@@ -5,10 +5,8 @@ class BigCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String byText;
-  final String usersText;
-  final VoidCallback? onTap; // optionnel: action au clic
-  final double borderRadius;
-  final double padding;
+  final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   const BigCard({
     super.key,
@@ -16,87 +14,77 @@ class BigCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.byText,
-    required this.usersText,
     this.onTap,
-    this.borderRadius = 14.0,
-    this.padding = 22.0,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     final textColor = Colors.white;
 
-    final card = Material(
-      borderRadius: BorderRadius.circular(borderRadius),
-      elevation: 2,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        width: double.infinity,
-        padding: EdgeInsets.all(padding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.white24,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: textColor, size: 20),
+    final cardContent = Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Colors.white24,
+                  shape: BoxShape.circle,
                 ),
-                const Spacer(),
-              ],
-            ),
-            const SizedBox(height: 18),
-            Text(
-              title,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 26,
-                fontWeight: FontWeight.w800,
-                height: 1.02,
+                child: Icon(icon, color: textColor, size: 20),
               ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              byText,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                const Icon(Icons.person, color: Colors.white70, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  usersText,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w700,
-                  ),
+              const Spacer(),
+              if (onDelete != null)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.white70),
+                  onPressed: onDelete,
                 ),
-              ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            byText,
+            style: TextStyle(fontSize: 14),
+          ),
+        ],
       ),
     );
+
     if (onTap != null) {
       return InkWell(
-        borderRadius: BorderRadius.circular(borderRadius),
         onTap: onTap,
-        child: card,
+        child: Material(
+          color: Colors.transparent,
+          elevation: 2,
+          borderRadius: BorderRadius.circular(12),
+          child: cardContent,
+        ),
       );
     }
 
-    return card;
+    return Material(
+      color: Colors.transparent,
+      elevation: 2,
+      borderRadius: BorderRadius.circular(12),
+      child: cardContent,
+    );
   }
 }
