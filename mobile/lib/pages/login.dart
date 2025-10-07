@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/my_service.dart';
+import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/pages/register.dart';
 import 'package:mobile/viewmodels/login_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   void _onLoginSuccess() {
     Navigator.of(
       context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const MyService()));
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const MyAreaPage()));
   }
 
   @override
