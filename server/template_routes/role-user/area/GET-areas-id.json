@@ -5,37 +5,31 @@
     "enable": false,
     "created_at": "ajd",
     "user": {
+        "id": 1,
         "name": "example_name"
     },
     "action": {
-        "id": 1,
         "name": "example_name",
         "description": "example description",
         "service": {
-            "id": 8,
             "name": "example_name",
-            "description": "example description"
+            "description": "example description",
+            "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg"
         }
     },
     "reaction": [
         {
-            "id": 1,
             "name": "example_name",
             "description": "example description",
             "service": {
-                "id": 10,
-                "name": "example_name",
-                "description": "example description"
+                "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg"
             }
         },
         {
-            "id": 1,
             "name": "example_name",
             "description": "example description",
             "service": {
-                "id": 14,
-                "name": "example_name",
-                "description": "example description"
+                "image_url": "https://blog.bioware.com/wp-content/uploads/2020/07/TEMP-IMAGE.jpg"
             }
         }
     ]

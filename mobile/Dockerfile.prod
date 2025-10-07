@@ -1,0 +1,21 @@
+FROM instrumentisto/flutter
+
+WORKDIR /app
+RUN git config --global --add safe.directory /home/mobiledevops/.flutter-sdk
+
+COPY . .
+
+RUN flutter create .
+
+
+ARG CACHEBUST=1 
+RUN mkdir -p target
+
+RUN flutter build apk --release
+
+RUN mkdir -p ./build/app/outputs/flutter-apk/
+
+
+RUN mv ./build/app/outputs/apk/release/app-release.apk /app/target/client.apk || \
+    mv ./build/app/outputs/flutter-apk/app-release.apk /app/target/client.apk
+

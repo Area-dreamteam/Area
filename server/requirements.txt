@@ -1,6 +1,6 @@
 annotated-types==0.7.0
 anyio==4.11.0
-bcrypt==4.3.0
+bcrypt==4.0.1
 certifi==2025.8.3
 charset-normalizer==3.4.3
 click==8.3.0
@@ -57,3 +57,6 @@ uvicorn==0.37.0
 uvloop==0.21.0
 watchfiles==1.1.0
 websockets==15.0.1
+colorlog==6.8.2
+logger==1.4
+python-crontab

@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Request, Response
+from requests import Request
+from cron.startup_cron import startupCron
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -7,27 +9,26 @@ from contextlib import asynccontextmanager
 from core.loader import load_services_catalog, load_services_config
 from core.db import init_db
 from core.logger import logger
-from api import about, auth, heroes, services
-
+from api import about, auth, services, actions, reactions, areas, users, actions_process
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Server starting...")
-    catalog: list[dict]= load_services_catalog()
+    catalog: list[dict] = load_services_catalog()
     config: list[dict] = load_services_config()
     app.state.services_config = config
     init_db(catalog)
+    # startupCron()
     yield
     logger.info("Server shutting down...")
-
 
 
 templates = Jinja2Templates(directory="templates")
 
 app = FastAPI(lifespan=lifespan, title="AREA API", version="1.0.0")
-app.mount("/images", StaticFiles(directory="/images"), name='images')
 
+app.mount("/images", StaticFiles(directory="./images"), name="images")
 
 
 @app.get("/")
@@ -42,7 +43,9 @@ def callback(code: str):
 
 @app.get("/index", response_class=HTMLResponse)
 def index(request: Request):
-    return templates.TemplateResponse(request=request, name="index.html", context={"id": 1})
+    return templates.TemplateResponse(
+        request=request, name="index.html", context={"id": 1}
+    )
 
 
 @app.post("/temp")
@@ -50,8 +53,12 @@ def temp():
     return "temp"
 
 
-
+app.include_router(services.router)
 app.include_router(about.router, tags=["about"])
 app.include_router(auth.router, tags=["auth"], prefix="/auth")
-app.include_router(heroes.router, tags=["heroes"])
-app.include_router(services.router)
+app.include_router(services.router, tags=["services"])
+app.include_router(actions.router, tags=["actions"])
+app.include_router(reactions.router, tags=["reactions"])
+app.include_router(areas.router, tags=["areas"])
+app.include_router(users.router, tags=["users"])
+app.include_router(actions_process.router, tags=["actions_process"])

@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, HTTPException, Cookie, Response
 from sqlmodel import select
 from urllib.parse import urlencode
 from pydantic_core import ValidationError
@@ -8,14 +8,13 @@ import requests
 
 
 from models import User
-from schemas.user import UserCreate, TokenResponse
+from schemas import UserCreate, TokenResponse
 from core.security import hash_password, verify_password, sign_jwt
 from dependencies.db import SessionDep
-
+from core.config import settings
 
 
 router = APIRouter()
-
 
 
 @router.post("/register")
@@ -25,9 +24,9 @@ def register(user: UserCreate, session: SessionDep):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     new_user = User(
-        name=user.name,
+        name=user.email.split("@")[0],
         email=user.email,
-        password=hash_password(user.password)
+        password=hash_password(user.password),
     )
     session.add(new_user)
     session.commit()
@@ -35,51 +34,25 @@ def register(user: UserCreate, session: SessionDep):
     return {"message": "User registered", "id": new_user.id, "email": new_user.email}
 
 
-@router.post("/login", response_model=TokenResponse)
-def login(user: UserCreate, session: SessionDep):
+@router.post("/login")
+def login(user: UserCreate, session: SessionDep, response: Response):
     db_user = session.exec(select(User).where(User.email == user.email)).first()
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     token = sign_jwt(db_user.id)
-    return TokenResponse(access_token=token)
+
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        secure=True,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+    )
+    return {"message": "Logged successfully"}
 
 
-@router.get("/login/oauth")
-def login_oauth():
-    base_url = "https://github.com/login/oauth/authorize"
-    params = {
-        "client_id": settings.GITHUB_CLIENT_ID,
-        "redirect_uri": "http://127.0.0.1:8080/callback"
-    }
-    
-    return RedirectResponse(f"{base_url}?{urlencode(params)}")
-
-from pydantic import BaseModel
-class OAuthTokenRes(BaseModel):
-    access_token: str
-    expires_in: int
-    refresh_token: str
-    refresh_token_expires_in: int
-
-@router.get("/login/oauth_token")
-def login_oauth_token(code: str):
-    base_url = "https://github.com/login/oauth/access_token"
-    params = {
-        "client_id": settings.GITHUB_CLIENT_ID,
-        "client_secret": settings.GITHUB_CLIENT_SECRET,
-        "code": code
-    }
-    
-    r = requests.post(f"{base_url}?{urlencode(params)}", headers={"Accept": "application/json"})
-    if not r:
-        return HTTPException(status_code=400, detail="Invalid code")
-    
-    try:
-        data = OAuthTokenRes.model_validate(r.json())
-        base_url = "https://api.github.com/user/emails"
-        r = requests.get(f"{base_url}", headers={"Authorization": f"token {data.access_token}", "Accept": "application/json"})
-        
-        return f"test {r.json()}"
-    except ValidationError:
-        return HTTPException(status_code=400, detail="Invalid oauth return")
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key="access_token")
+    return {"message": "Logged out successfully"}
