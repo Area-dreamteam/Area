@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
+import { Calls } from "./fetch";
+
+export interface UserInfos {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
 
 export function useAuth() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserInfos | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/user/me", {
-          credentials: "include", // send cookies
-        });
+        const res = await Calls.get("/users/me");
 
-        if (!res.ok) {
+        if (res.status != 200) {
           setUser(null);
         } else {
-          const data = await res.json();
+          const data = await res.data;
           setUser(data);
         }
       } catch (err) {

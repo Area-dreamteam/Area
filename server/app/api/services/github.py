@@ -1,3 +1,4 @@
+from dependencies.roles import CurrentUserNoFail
 from core.security import sign_jwt
 from models.services.service import Service
 from models.users.user_service import UserService
@@ -52,7 +53,7 @@ def windowCloseAndCookie(token: str) -> Response:
 
 
 @router.get("/login_oauth_token")
-def login_oauth_token(session: SessionDep, code: str):
+def login_oauth_token(session: SessionDep, code: str, user: CurrentUserNoFail):
     try:
         token_res = github_api.get_token(
             settings.GITHUB_CLIENT_ID, settings.GITHUB_CLIENT_SECRET, code
@@ -62,10 +63,12 @@ def login_oauth_token(session: SessionDep, code: str):
 
     try:
         user_info = github_api.get_email(token_res.access_token)[0]
-        print(user_info)
-        existing = session.exec(
-            select(User).where(User.email == user_info["email"])
-        ).first()
+        if user is None:
+            existing = session.exec(
+                select(User).where(User.email == user_info["email"])
+            ).first()
+        else:
+            existing = session.exec(select(User).where(User.id == user.id)).first()
         if not existing:
             """User Register with oauth"""
             new_user = User(

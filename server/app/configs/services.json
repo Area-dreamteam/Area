@@ -134,7 +134,7 @@
               "15m": true,
               "30m": true,
               "45m": false,
-              "1h": false 
+              "1h": false
             }
           }
         ]
@@ -150,19 +150,11 @@
     "actions": [],
     "reactions": [
       {
-<<<<<<< Updated upstream
         "name": "create_task",
         "description": "create task",
         "config_schema": [
-            { "name": "content", "type": "input", "values": "" },
-            { "name": "project_name", "type": "input", "values": "" }
-=======
-        "name": "Create Task",
-        "description": "Create a new task",
-        "config_schema": [
-          { "name": "content", "type": "input", "values": [] },
-          { "name": "project_name", "type": "input", "values": [] }
->>>>>>> Stashed changes
+          { "name": "content", "type": "input", "values": "" },
+          { "name": "project_name", "type": "input", "values": "" }
         ]
       }
     ]

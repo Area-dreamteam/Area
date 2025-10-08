@@ -11,6 +11,7 @@ from core.utils import generate_state
 class TodoistOAuthTokenRes(BaseModel):
     access_token: str
     token_type: str
+    state: str
 
 
 class TodoistApiError(Exception):
@@ -30,12 +31,13 @@ class TodoistApi:
         except TodoistApiError:
             return False
 
-    def get_oauth_link(self, client_id):
+    def get_oauth_link(self, client_id, user_id):
         base_url = "https://todoist.com/oauth/authorize"
         params = {
             "client_id": client_id,
             "scope": "data:read_write,data:delete,project:delete,backups:read",
             "state": generate_state(),
+            "user_id": user_id,
         }
         return f"{base_url}?{urlencode(params)}"
 

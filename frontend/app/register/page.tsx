@@ -21,7 +21,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert"
-import { redirectOauthGithub, redirectOauthTodoist } from "../functions/oauth"
+import { redirectOauth } from "../functions/oauth"
 
 export default function Register() {
   const router = useRouter();
@@ -76,13 +76,8 @@ export default function Register() {
         <hr className="w-[350px] outline-[1px] mb-[25px]" style={{ color: "#4400ff" }} />
       </div>
       <div className="flex justify-center">
-        <Button onClick={redirectOauthGithub} className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]">
+        <Button onClick={() => redirectOauth("github")} className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]">
           Continue with Github
-        </Button>
-      </div>
-      <div className="flex justify-center">
-        <Button onClick={redirectOauthTodoist} className="flex justify-center mb-[20px] bg-black text-white text-[30px] hover:bg-[#3a3a3a] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]">
-          Continue with Todoist
         </Button>
       </div>
       <div className="flex justify-center">
