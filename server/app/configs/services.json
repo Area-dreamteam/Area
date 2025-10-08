@@ -134,7 +134,7 @@
               "15m": true,
               "30m": true,
               "45m": false,
-              "1h": false 
+              "1h": false
             }
           }
         ]
@@ -153,8 +153,8 @@
         "name": "create_task",
         "description": "create task",
         "config_schema": [
-            { "name": "content", "type": "input", "values": "" },
-            { "name": "project_name", "type": "input", "values": "" }
+          { "name": "content", "type": "input", "values": "" },
+          { "name": "project_name", "type": "input", "values": "" }
         ]
       }
     ]

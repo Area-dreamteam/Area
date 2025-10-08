@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button"
 import { fetchLogin } from "../functions/fetch"
 import { Password, Mail } from "../components/Forms"
 import facebook from "@/public/images/Facebook_logo.png"
-import { redirectOauthGithub, redirectOauthTodoist } from "../functions/oauth"
+import { redirectOauth } from "../functions/oauth"
 
 export default function Login() {
   const router = useRouter();
@@ -77,13 +77,8 @@ export default function Login() {
           <hr className="w-[350px] outline-[1px] mb-[30px]" style={{ color: "#4400ff" }} />
         </div>
         <div className="flex justify-center">
-          <Button className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]" onClick={redirectOauthGithub}>
+          <Button onClick={() => { redirectOauth("github") }} className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]" >
             Continue with Github
-          </Button>
-        </div>
-        <div className="flex justify-center">
-          <Button onClick={redirectOauthTodoist} className="flex justify-center mb-[20px] bg-black text-white text-[30px] hover:bg-[#3a3a3a] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]">
-            Continue with Todoist
           </Button>
         </div>
         <p className="flex justify-center mb-3 text-black text-center text-[20px]">

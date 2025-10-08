@@ -1,9 +1,10 @@
+from models.users.user_service import UserService
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from models import Service, Action, Reaction
 from schemas import ServiceGet, ServiceIdGet, ActionShortInfo, ReactionShortInfo
 from dependencies.db import SessionDep
-from dependencies.roles import CurrentUser
+from dependencies.roles import CurrentUser, CurrentUserNoFail
 
 
 router = APIRouter(tags=["services"], prefix="")
@@ -68,3 +69,23 @@ def get_reactions_of_service(
         )
         reactions_data.append(reaction_data)
     return reactions_data
+
+
+@router.get("/{id}/is_connected", response_model=bool)
+def is_service_connected(
+    id: int | str, session: SessionDep, user: CurrentUserNoFail
+) -> bool:
+    if id.isnumeric():
+        service = session.exec(
+            select(UserService).where(
+                UserService.service_id == id, UserService.user_id == user.id
+            )
+        ).first()
+    elif isinstance(id, str):
+        service = session.exec(
+            select(UserService)
+            .join(Service, Service.id == UserService.service_id)
+            .where(Service.name == id, UserService.user_id == user.id)
+        ).first()
+    print("is connected: ", service is not None, "to :", id, "---", user)
+    return service is not None

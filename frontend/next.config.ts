@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     ];
   },
   output: "standalone",
+  allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
 };
 
 module.exports = nextConfig;
