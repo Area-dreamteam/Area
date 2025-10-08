@@ -175,6 +175,7 @@ export async function fetchPersonalApplets(setPersonalApplets: (data: any) => vo
       return;
     }
     setPersonalApplets(res.data);
+    return;
   } catch (err) {
     console.log("Error: ", err);
   }

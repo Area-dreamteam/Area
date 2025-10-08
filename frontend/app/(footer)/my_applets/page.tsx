@@ -29,6 +29,7 @@ export default function My_applet()
     useEffect(() => {
         fetchPersonalApplets(setApplets);
     }, [])
+    console.log(applets);
 
     return (
         <div className="w-screen">

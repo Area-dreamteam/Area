@@ -100,7 +100,7 @@ interface CreationProp {
 
 function createApplet(action: Act, reaction: Act, title: string, actConfig: ConfigRespAct[], reactConfig: ConfigRespAct[]) {
     fetchCreateApplet(action, reaction, title, actConfig, reactConfig);
-  // redirect to the page created then
+    redirect("/my_applets");
 }
 
 //-- Creation page --//
