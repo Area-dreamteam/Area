@@ -19,14 +19,12 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter(tags=["todoist"], prefix="/todoist")
 
 
-@router.get("/index/{id}")
-def todoist_index(id: int):
+@router.get("/index")
+def todoist_index():
     raise HTTPException(
         status_code=302,
         detail="Redirecting to Todoist OAuth",
-        headers={
-            "Location": todoist_api.get_oauth_link(settings.TODOIST_CLIENT_ID, id)
-        },
+        headers={"Location": todoist_api.get_oauth_link(settings.TODOIST_CLIENT_ID)},
     )
 
 

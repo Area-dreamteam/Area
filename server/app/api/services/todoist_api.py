@@ -30,7 +30,7 @@ class TodoistApi:
         except TodoistApiError:
             return False
 
-    def get_oauth_link(self, client_id, user_id):
+    def get_oauth_link(self, client_id):
         base_url = "https://todoist.com/oauth/authorize"
         params = {
             "client_id": client_id,
