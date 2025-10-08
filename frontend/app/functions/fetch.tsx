@@ -8,10 +8,31 @@
 import axios from 'axios'
 import { Act } from '../types/service';
 
-const Calls = axios.create({
+export const Calls = axios.create({
   baseURL: "http://localhost:8080",
   withCredentials: true
 })
+
+Calls.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      Calls.post("/auth/logout").catch(() => { });
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export async function fetchUser() {
+  return Calls.get("/users/me").then((res) => {
+    if (res.status != 200)
+      return false;
+    return true;
+  });
+}
+
 
 export async function fetchLogin(email: string, password: string) {
   try {
