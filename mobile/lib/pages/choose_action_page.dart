@@ -48,7 +48,7 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
       backgroundColor: const Color(0xFF212121),
       appBar: AppBar(
         title: Text(isAction ? 'Choose a trigger' : 'Choose an action'),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF333333),
       ),
       body: Column(
         children: [
@@ -105,7 +105,7 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
                         style: const TextStyle(color: Colors.white70),
                       ),
                       onTap: () async {
-                        final simpleItem = items[index];
+                        final simpleItem = items[index]; 
                         List<dynamic> finalConfig = [];
                         dynamic detailedItem;
 
@@ -113,40 +113,35 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
                           showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (BuildContext context) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                            builder: (BuildContext context) => const Center(child: CircularProgressIndicator()),
                           );
 
                           if (widget.type == 'trigger') {
-                            detailedItem = await widget.serviceRepository
-                                .fetchActionDetails(simpleItem.id);
+                            detailedItem = await widget.serviceRepository.fetchActionDetails(simpleItem.id);
                           } else {
-                            detailedItem = await widget.serviceRepository
-                                .fetchReactionDetails(simpleItem.id);
+                            detailedItem = await widget.serviceRepository.fetchReactionDetails(simpleItem.id);
                           }
-                          if (!context.mounted) return;
-                          Navigator.pop(context);
+                          
+                          Navigator.pop(context); 
 
                           if (detailedItem.configSchema.isNotEmpty) {
                             final result = await Navigator.push<List<dynamic>>(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ConfigurationPage(
-                                  configSchema: detailedItem.configSchema,
+                                  configSchema: detailedItem.configSchema, 
                                   serviceName: widget.service.name,
                                   itemName: detailedItem.name,
                                 ),
                               ),
                             );
-                            if (!context.mounted) return;
+                            
                             if (result != null) {
                               finalConfig = result;
                             } else {
                               return;
                             }
                           }
-
                           if (widget.type == 'trigger') {
                             final selectedItem = ConfiguredItem<ActionModel>(
                               service: widget.service,
@@ -162,10 +157,12 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
                             );
                             Navigator.pop(context, selectedItem);
                           }
+
                         } catch (e) {
-                          if (Navigator.canPop(context)) {
+                          if(Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
+                          // Afficher une erreur à l'utilisateur
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Error fetching details: $e'),
