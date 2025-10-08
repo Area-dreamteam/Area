@@ -7,59 +7,23 @@
 
 'use client'
 
+import { Timestamp } from "next/dist/server/lib/cache-handlers/types"
+import { fetchServices, fetchApplets } from "@/app/functions/fetch"
+import taskbarButton from "@/app/components/TaskBarButtons"
+import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
+import Applets from "@/app/components/Applets"
+import { Service } from "@/app/types/service"
 import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react"
+import { redirect } from "next/navigation"
 import {
-    DropdownMenu,
+DropdownMenu,
     DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuLabel,
     DropdownMenuCheckboxItem,
 } from "@radix-ui/react-dropdown-menu"
-import { useState } from "react"
-import Image from "next/image"
-
-const services = [
-    {
-        id: "5896",
-        user_id: "0454226",
-        name: "Discord",
-        desc: "no caption yet",
-        color: "#85bcf9",
-        logo: "/images/Discord_icon.png"
-    },
-    {
-        id: "8794",
-        user_id: "046576",
-        name: "Snapchat",
-        desc: "stupid invention",
-        color: "#dbda82",
-        logo: "/images/Snapchat_icon.png"
-    },
-    {
-        id: "3221",
-        user_id: "0454226",
-        name: "Instagram",
-        desc: "no caption yet",
-        color: "#880729",
-        logo: "/images/Instagram_icon.webp"
-    }
-]
-
-const applets = [
-    {
-        title: "",
-    }
-]
-
-function taskbarButton(buttonName: string, selected: string, setPage: (str: string) => void)
-{
-    return (
-        <Button className="bg-white hover:bg-white hover:text-[#424242] text-black font-bold text-[15px]" onClick={() => setPage(buttonName)} style={{ textDecoration: (selected == buttonName ? "underline" : "") }}>
-            {buttonName}
-        </Button>
-    )
-}
 
 function customDropdown(text: string)
 {
@@ -70,63 +34,101 @@ function customDropdown(text: string)
     )
 }
 
-function Services()
+function Filter()
 {
-    const serviceBlocks = services.map((service) => (
-        <div key={service.id} className="rounded-xl w-[250px] h-[300px]" style={{ backgroundColor: service.color }}>
-            <Image alt="service's logo" src={service.logo} width={4000} height={4000} className="rounded-xl w-[250px] h-[250px]"/>
-            <div className="flex justify-center">
-                <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
-            </div>
-        </div>
-    ))
-
     return (
-        <div>
-            <div className="flex justify-center">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">All services</Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-white rounded-md border-1 pl-[5px] pr-[5px]">
-                    <DropdownMenuLabel className="font-bold pb-[10px]">Filters</DropdownMenuLabel>
-                    {customDropdown("All services")}
-                    {customDropdown("New services")}
-                    {customDropdown("Popular services")}
-                    <DropdownMenuLabel className="font-bold pb-[1px]">Categories</DropdownMenuLabel>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-            <div className="flex justify-center">
-                <div className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
-                    {serviceBlocks}
-                </div>
-            </div>
+        <div className="flex justify-center">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">
+                        All services
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white rounded-md border-1 pl-[5px] pr-[5px]">
+                <DropdownMenuLabel className="font-bold pb-[10px]">Filters</DropdownMenuLabel>
+                {customDropdown("All services")}
+                {customDropdown("New services")}
+                {customDropdown("Popular services")}
+                <DropdownMenuLabel className="font-bold pb-[1px]">Categories</DropdownMenuLabel>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     )
+}
+
+interface Applet {
+    id: number,
+    name: string,
+    description: string,
+    user: {
+      id: number,
+      name: string
+    },
+    enable: boolean,
+    created_at: Timestamp,
+    color: string
+}
+
+interface SearchProp {
+    search?: string
+    services?: Service[] | null
+    applets?: Applet[] | null
+}
+
+function All({search = "", services = null, applets = null}: SearchProp)
+{
+    return (
+        <div>
+            <h1 className="flex justify-center font-bold text-[25px]"> Services </h1>
+            <Services search={search} widgets={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToService}/>
+            <br/>
+            <h1 className="flex justify-center font-bold text-[25px]"> Applets </h1>
+            <Applets search={search} widgets={applets}  className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToApplet}/>
+        </div>
+    )
+}
+
+function redirectToService(service: Service)
+{
+    redirect(`/services/${service.name}`);
+}
+
+function redirectToApplet(applet: Applet)
+{
+    redirect(`/applets/${applet.name}`);
 }
 
 export default function Explore()
 {
     const [page, setPage] = useState("All");
+    const [searched, setSearched] = useState("");
+    const [services, setServices] = useState(null);
+    const [applets, setApplets] = useState(null);
+
+    useEffect(() => {
+        fetchServices(setServices);
+        fetchApplets(setApplets);
+    }, [])
 
     return (
         <div>
             <h1 className="font-bold text-[100px] flex justify-center"> Explore </h1>
             <div className="flex justify-center">
                 <div className="flex justify-around w-1/2">
-                    {taskbarButton("All", page, setPage)}
-                    {taskbarButton("Applets", page, setPage)}
-                    {taskbarButton("Services", page, setPage)}
-                    {taskbarButton("Stories", page, setPage)}
+                    {taskbarButton("All", page, setPage, true)}
+                    {taskbarButton("Applets", page, setPage, true)}
+                    {taskbarButton("Services", page, setPage, true)}
                 </div>
             </div>
             <br/>
-            <div className="flex justify-center">
-                <Input className="w-[400px]" placeholder="Search Apllets or Services"/>
-            </div>
+            <Input className="mx-auto block w-[400px]" placeholder="Search Applets or Services" onChange={(e) => setSearched(e.target.value)}/>
             <br/>
-            {page == "Services" && <Services/>}
+            {page == "Services"  && <Filter/>}
+            <div className="flex justify-center">
+                {page == "Services" && <Services search={searched} widgets={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToService}/>}
+                {page == "Applets" && <Applets search={searched} widgets={applets}  className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToApplet}/>}
+                {page == "All" && <All search={searched} services={services} applets={applets}/>}
+            </div>
         </div>
     )
 }

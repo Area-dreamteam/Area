@@ -8,7 +8,10 @@ from models import User
 
 cookie_scheme = APIKeyCookie(name="access_token", auto_error=False)
 
-def get_current_user(session: SessionDep, token: Optional[str] = Security(cookie_scheme)) -> User:
+
+def get_current_user(
+    session: SessionDep, token: Optional[str] = Security(cookie_scheme)
+) -> User:
     if not token:
         raise HTTPException(status_code=403, detail="Token missing.")
 

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class Reaction(SQLModel, table=True):
     __tablename__ = "reaction"
     id: int = Field(default=None, primary_key=True)
-    service_id: int = Field(foreign_key="service.id")
+    service_id: int = Field(foreign_key="service.id", ondelete="CASCADE")
     name: str
     description: Optional[str] = None
     config_schema: Optional[dict] = Field(default=None, sa_column=Column(JSON))

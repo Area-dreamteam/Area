@@ -1,25 +1,25 @@
-from cron.cron import newJob
+from cron.cron import newJob, isCronExists
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
-from models import Area, User, Action, AreaAction, Service, AreaReaction
+from models import Area, User, Action, AreaAction, Service, AreaReaction, Reaction
 from schemas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic, UserShortInfo, ActionBasicInfo, ReactionBasicInfo, ServiceGet, CreateArea, Role
 from dependencies.db import SessionDep
-from dependencies.roles import CurrentUser, CurrentAdmin
+from dependencies.roles import CurrentUser
 
 router = APIRouter()
 
 def get_area_action_info(session: SessionDep, area: Area) -> ActionBasicInfo:
     action_area: AreaAction = session.exec(select(AreaAction).where(AreaAction.area_id == area.id)).first()
     if not action_area:
-        raise HTTPException(status_code=404, detail="Data not found")
+        raise HTTPException(status_code=404, detail="Action area not found")
 
     action: Action = session.exec(select(Action).where(Action.id == action_area.action_id)).first()
     if not action:
-        raise HTTPException(status_code=404, detail="Data not found")
+        raise HTTPException(status_code=404, detail="Action not found")
 
     service: Service = session.exec(select(Service).where(Service.id == action.service_id)).first()
     if not service:
-        raise HTTPException(status_code=404, detail="Data not found")
+        raise HTTPException(status_code=404, detail="Service not found")
 
     service = ServiceGet(id=service.id, name=service.name, image_url=service.image_url, category=service.category, color=service.color)
     area_action_data = ActionBasicInfo(id=action.id, name=action.name, description=action.description, service=service)
@@ -28,11 +28,11 @@ def get_area_action_info(session: SessionDep, area: Area) -> ActionBasicInfo:
 def get_area_reactions_info(session: SessionDep, area: Area) -> ReactionBasicInfo:
     reactions_area: AreaReaction = session.exec(select(AreaReaction).where(AreaReaction.area_id == area.id)).all()
     if not reactions_area:
-        raise HTTPException(status_code=404, detail="Data not found")
+        raise HTTPException(status_code=404, detail="Reaction area not found")
 
     area_reactions_data: list[ReactionBasicInfo] = []
     for reaction_area in reactions_area:
-        reaction: Action = session.exec(select(Action).where(Action.id == reaction_area.reaction_id)).first()
+        reaction: Reaction = session.exec(select(Reaction).where(Reaction.id == reaction_area.reaction_id)).first()
         if not reaction:
             raise HTTPException(status_code=404, detail="Data not found")
 
@@ -62,7 +62,22 @@ def get_areas(session: SessionDep, user: CurrentUser) -> list[AreaGet]:
 
 @router.post("/areas")
 def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
-    new_area = Area(user_id=user.id, name=area.name, description=area.description, enable=False, created_at=None, is_public=False)
+    action: Action = session.exec(
+        select(Action)
+        .where(Action.id == area.action.action_id)
+    ).first()
+    if not action:
+        raise HTTPException(status_code=404, detail="Data not found")
+
+    for area_reaction in area.reactions:
+        reaction: Reaction = session.exec(
+            select(Reaction)
+            .where(Reaction.id == area_reaction.reaction_id)
+        ).first()
+        if not reaction:
+            raise HTTPException(status_code=404, detail="Data not found")
+
+    new_area = Area(user_id=user.id, name=area.name, description=area.description, enable=True, created_at=None, is_public=False)
     session.add(new_area)
     session.commit()
     session.refresh(new_area)
@@ -71,7 +86,8 @@ def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
     session.add(new_area_action)
     session.commit()
     session.refresh(new_area_action)
-    newJob(new_area_action.action_id) # si action n'a pas de cron
+    if (isCronExists(new_area_action.action_id) == False):
+        newJob(new_area_action.action_id)
 
     for reaction in area.reactions:
         new_area_reaction = AreaReaction(area_id=new_area.id, reaction_id=reaction.reaction_id, config=reaction.config)
@@ -86,10 +102,10 @@ def delete_area(id: int, session: SessionDep,  user: CurrentUser):
         select(Area)
         .where(Area.id == id)
     ).first()
-    if area.user_id != user.id and user.role != Role.ADMIN:
-        raise HTTPException(status_code=403, detail="Permission Denied")
     if not area:
         raise HTTPException(status_code=404, detail="Data not found")
+    if area.user_id != user.id and user.role != Role.ADMIN:
+        raise HTTPException(status_code=403, detail="Permission Denied")
     session.delete(area)
     session.commit()
     return {"message": "Area deleted", "area_id": area.id, "user_id": user.id}
@@ -113,10 +129,10 @@ def get_areas_public(session: SessionDep) -> list[AreaGetPublic]:
 @router.get("/areas/{id}", response_model=AreaIdGet)
 def get_area_by_id(id: int, session: SessionDep, user: CurrentUser) -> AreaIdGet:
     area: Area = session.exec(select(Area).where(Area.id == id)).first()
-    if area.user_id != user.id and user.role != Role.ADMIN:
-        raise HTTPException(status_code=403, detail="Permission Denied")
     if not area:
         raise HTTPException(status_code=404, detail="Data not found")
+    if area.user_id != user.id and user.role != Role.ADMIN:
+        raise HTTPException(status_code=403, detail="Permission Denied")
 
     action_data: ActionBasicInfo = get_area_action_info(session, area)
     reactions_data : list[ReactionBasicInfo] = get_area_reactions_info(session, area)
