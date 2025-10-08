@@ -32,5 +32,21 @@
       "supported": true,
       "path": "/webhooks/github"
     }
+  },
+  "todoist": {
+    "auth": {
+      "type": "oauth2",
+      "auth_url": "https://todoist.com/oauth/authorize",
+      "token_url": "https://todoist.com/oauth/authorize"
+    },
+    "api": {
+      "root_url": "https://github.com"
+    },
+    "polling": {
+      "enabled": false
+    },
+    "webhooks": {
+      "supported": false
+    }
   }
 }

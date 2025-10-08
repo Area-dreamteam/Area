@@ -94,7 +94,7 @@ export function ConnectedNavbar()
 {
   return (
     <div className="flex justify-between ml-[10px] mt-[10px]">
-      <p className="font-bold text-[35px]"> Area </p>
+      <Link href="/explore" className="font-bold text-[35px]"> Area </Link>
     <Menubar className="flex flex-row-reverse">
       <MenubarMenu >
         {ProfileDropdown()}

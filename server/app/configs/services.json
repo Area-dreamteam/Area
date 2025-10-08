@@ -3,7 +3,7 @@
     "name": "gmail",
     "description": "Service email de Google",
     "image_url": "https://logo.clearbit.com/gmail.com",
-    "color": "#111111",
+    "color": "#FF0000",
     "category": "Email",
     "actions": [
       {
@@ -14,12 +14,12 @@
           {
             "name": "from",
             "type": "input",
-            "values": [""]
+            "values": ""
           },
           {
             "name": "subject",
             "type": "input",
-            "values": [""]
+            "values": ""
           }
         ]
       }
@@ -32,17 +32,17 @@
           {
             "name": "to",
             "type": "input",
-            "values": [""]
+            "values": ""
           },
           {
             "name": "subject",
             "type": "input",
-            "values": [""]
+            "values": ""
           },
           {
             "name": "body",
             "type": "input",
-            "values": [""]
+            "values": ""
           }
         ]
       }
@@ -63,7 +63,7 @@
           {
             "name": "repository",
             "type": "input",
-            "values": [""]
+            "values": ""
           }
         ]
       }
@@ -76,12 +76,12 @@
           {
             "name": "repository",
             "type": "input",
-            "values": [""]
+            "values": ""
           },
           {
             "name": "issue name",
             "type": "input",
-            "values": [""]
+            "values": ""
           }
         ]
       }
@@ -96,7 +96,7 @@
     "actions": [
       {
         "name": "Every hour at",
-        "interval": "15 * * * *",
+        "interval": "* * * * *",
         "description": "Déclenché toutes les 15m, 30m, 45m, ou 1H.",
         "config_schema": [
           {
@@ -130,13 +130,39 @@
           {
             "name": "check_list_example",
             "type": "check_list",
-            "values": [
-              { "15m": true },
-              { "30m": true },
-              { "45m": false },
-              { "1h": false }
-            ]
+            "values": {
+              "15m": true,
+              "30m": true,
+              "45m": false,
+              "1h": false 
+            }
           }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "todoist",
+    "description": "tododlist",
+    "image_url": "https://logo.clearbit.com/github.com",
+    "color": "#ebcaaa",
+    "category": "Life Style",
+    "actions": [],
+    "reactions": [
+      {
+<<<<<<< Updated upstream
+        "name": "create_task",
+        "description": "create task",
+        "config_schema": [
+            { "name": "content", "type": "input", "values": "" },
+            { "name": "project_name", "type": "input", "values": "" }
+=======
+        "name": "Create Task",
+        "description": "Create a new task",
+        "config_schema": [
+          { "name": "content", "type": "input", "values": [] },
+          { "name": "project_name", "type": "input", "values": [] }
+>>>>>>> Stashed changes
         ]
       }
     ]
