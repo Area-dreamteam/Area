@@ -5,16 +5,18 @@
 ** config
 */
 
+export type triggerValue = { [key: string]: boolean }[] | string
+
 export interface ConfigRespAct
 {
     name: string,
     type: string,
-    values: { key: string, val: boolean }[] | string
+    values: triggerValue
 }
 
 export interface ConfigReqAct
 {
     name: string,
     type: string,
-    values: { key: string, val: boolean }[] | string[] | string
+    values: triggerValue | string[]
 }

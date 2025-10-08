@@ -7,6 +7,7 @@
 
 import axios from 'axios'
 import { Act } from '../types/service';
+import { ConfigRespAct } from '../types/config';
 
 export const Calls = axios.create({
   baseURL: "http://localhost:8080",
@@ -180,18 +181,19 @@ export async function fetchPersonalApplets(setPersonalApplets: (data: any) => vo
   setPersonalApplets(null);
 }
 
-export async function fetchCreateApplet(action: Act, reaction: Act, title: string) {
+export async function fetchCreateApplet(action: Act, reaction: Act,
+    title: string, actConfig: ConfigRespAct[], reactConfig: ConfigRespAct[]) {
   try {
     const res = await Calls.post("/areas", {
       name: title,
       description: "",
       action: {
         action_id: action.id,
-        config: ""
+        config: actConfig
       },
       reaction: {
         reaction_id: reaction.id,
-        config: ""
+        config: reactConfig
       }
     });
 
