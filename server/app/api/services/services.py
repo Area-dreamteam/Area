@@ -78,16 +78,14 @@ def is_service_connected(
     if id.isnumeric():
         service = session.exec(
             select(UserService).where(
-                UserService.id == id, UserService.user_id == user.id
+                UserService.service_id == id, UserService.user_id == user.id
             )
         ).first()
     elif isinstance(id, str):
         service = session.exec(
             select(UserService)
-            .join(Service, Service.id == UserService.id)
+            .join(Service, Service.id == UserService.service_id)
             .where(Service.name == id, UserService.user_id == user.id)
         ).first()
-    else:
-        return False
-    print(user)
+    print("is connected: ", service is not None, "to :", id, "---", user)
     return service is not None

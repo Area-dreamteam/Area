@@ -11,7 +11,6 @@ from core.utils import generate_state
 class TodoistOAuthTokenRes(BaseModel):
     access_token: str
     token_type: str
-    state: str
 
 
 class TodoistApiError(Exception):
@@ -37,7 +36,6 @@ class TodoistApi:
             "client_id": client_id,
             "scope": "data:read_write,data:delete,project:delete,backups:read",
             "state": generate_state(),
-            "user_id": user_id,
         }
         return f"{base_url}?{urlencode(params)}"
 

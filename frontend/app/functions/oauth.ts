@@ -15,13 +15,9 @@ const handleOauthLogin = (service: string, destination: string) => {
   });
 };
 
-const handleOauthAddService = (
-  service: string,
-  destination: string,
-  id: number | string,
-) => {
+const handleOauthAddService = (service: string, destination: string) => {
   const authWindow = window.open(
-    `http://localhost:8080/services/${service}/index/${id}`,
+    `http://localhost:8080/services/${service}/index/`,
     "GitHub Login",
     "width=600,height=700",
   );
@@ -51,7 +47,7 @@ export async function redirectOauthAddService(
   destination: string = "/explore",
 ) {
   try {
-    handleOauthAddService(service, destination, id);
+    handleOauthAddService(service, destination);
   } catch (err) {
     console.log("Error: ", err);
   }

@@ -1,4 +1,4 @@
-from dependencies.roles import CurrentUserNoFail
+from dependencies.roles import CurrentUser, CurrentUserNoFail
 from core.security import sign_jwt
 from models.services.service import Service
 from models.users.user_service import UserService
@@ -50,8 +50,8 @@ def windowCloseAndCookie(token: str) -> Response:
 
 
 @router.get("/login_oauth_token")
-def login_oauth_token(session: SessionDep, code: str, user_id: int = Query(None)):
-    print("user id: ", user_id)
+def login_oauth_token(session: SessionDep, code: str, user: CurrentUser):
+    print("user id: ", user)
     try:
         token_res = todoist_api.get_token(
             settings.TODOIST_CLIENT_ID,
@@ -61,11 +61,9 @@ def login_oauth_token(session: SessionDep, code: str, user_id: int = Query(None)
     except TodoistApiError as e:
         raise HTTPException(status_code=400, detail=e.message)
 
-    print(user_id)
+    print(user)
     try:
-        existing = session.exec(
-            select(User).where(User.id == int(token_res["state"]))
-        ).first()
+        existing = session.exec(select(User).where(User.id == user.id)).first()
 
         service = session.exec(
             select(UserService)
@@ -88,12 +86,12 @@ def login_oauth_token(session: SessionDep, code: str, user_id: int = Query(None)
             session.commit()
 
             token = sign_jwt(existing.id)
-            return  # windowCloseAndCookie(token)
+            return windowCloseAndCookie(token)
         """Already existing user, connecting to service"""
         service.access_token = token_res.access_token
         session.commit()
         token = sign_jwt(existing.id)
 
-        return  # windowCloseAndCookie(token)
+        return windowCloseAndCookie(token)
     except TodoistApiError as e:
         return HTTPException(status_code=400, detail=e.message)
