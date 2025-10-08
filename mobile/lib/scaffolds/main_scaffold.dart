@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/todoist.dart';
 import '../pages/login.dart';
 
 class MainPageApp extends StatelessWidget {
@@ -52,7 +53,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: const Color(0xFF212121),
       body: SafeArea(
@@ -134,24 +134,28 @@ void _showConnectionOptions(BuildContext context) {
               context,
               'Continue with Google',
               'assets/icons/logo_google.png',
+              'google',
             ),
             const SizedBox(height: 10),
             _buildOptionButton(
               context,
               'Continue with Facebook',
               'assets/icons/logo_facebook.png',
+              'facebook',
             ),
             const SizedBox(height: 10),
             _buildOptionButton(
               context,
               'Continue with GitHub',
               'assets/icons/github.png',
+              'github',
             ),
             const SizedBox(height: 10),
             _buildOptionButton(
               context,
               'Continue with Email',
               'assets/icons/logo_email.png',
+              'email',
             ),
           ],
         ),
@@ -160,14 +164,44 @@ void _showConnectionOptions(BuildContext context) {
   );
 }
 
-Widget _buildOptionButton(BuildContext context, String text, String iconPath) {
+Widget _buildOptionButton(
+  BuildContext context,
+  String text,
+  String iconPath,
+  String name,
+) {
   return ElevatedButton.icon(
     onPressed: () {
       Navigator.of(context).pop();
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      if (name == 'email') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      } else if (name == 'github') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else if (name == 'facebook') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else if (name == 'google') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else if (name == 'todoist') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                RedirectPage(url: 'http://10.68.253.134:8080/services/todoist/index'),
+          ),
+        );
+      }
     },
     icon: Image.asset(iconPath, height: 24.0, width: 24.0),
     label: Text(
