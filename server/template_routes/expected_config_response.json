@@ -8,11 +8,11 @@
   {
     "name": "check_list_example",
     "type": "check_list",
-    "values": [
-      { "15m": true },
-      { "30m": true },
-      { "45m": false },
-      { "1h": false }
-    ]
+    "values": {
+      "15m": true,
+      "30m": true,
+      "45m": false, 
+      "1h": false
+    }
   }
 ]

@@ -1,4 +1,4 @@
-from cron.cron import newJob
+from cron.cron import newJob, isCronExists
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from models import Area, User, Action, AreaAction, Service, AreaReaction, Reaction
@@ -77,7 +77,7 @@ def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
         if not reaction:
             raise HTTPException(status_code=404, detail="Data not found")
 
-    new_area = Area(user_id=user.id, name=area.name, description=area.description, enable=False, created_at=None, is_public=False)
+    new_area = Area(user_id=user.id, name=area.name, description=area.description, enable=True, created_at=None, is_public=False)
     session.add(new_area)
     session.commit()
     session.refresh(new_area)
@@ -86,7 +86,8 @@ def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
     session.add(new_area_action)
     session.commit()
     session.refresh(new_area_action)
-    newJob(new_area_action.action_id) # si action n'a pas de cron
+    if (isCronExists(new_area_action.action_id) == False):
+        newJob(new_area_action.action_id)
 
     for reaction in area.reactions:
         new_area_reaction = AreaReaction(area_id=new_area.id, reaction_id=reaction.reaction_id, config=reaction.config)
@@ -101,10 +102,10 @@ def delete_area(id: int, session: SessionDep,  user: CurrentUser):
         select(Area)
         .where(Area.id == id)
     ).first()
-    if area.user_id != user.id and user.role != Role.ADMIN:
-        raise HTTPException(status_code=403, detail="Permission Denied")
     if not area:
         raise HTTPException(status_code=404, detail="Data not found")
+    if area.user_id != user.id and user.role != Role.ADMIN:
+        raise HTTPException(status_code=403, detail="Permission Denied")
     session.delete(area)
     session.commit()
     return {"message": "Area deleted", "area_id": area.id, "user_id": user.id}
@@ -128,10 +129,10 @@ def get_areas_public(session: SessionDep) -> list[AreaGetPublic]:
 @router.get("/areas/{id}", response_model=AreaIdGet)
 def get_area_by_id(id: int, session: SessionDep, user: CurrentUser) -> AreaIdGet:
     area: Area = session.exec(select(Area).where(Area.id == id)).first()
-    if area.user_id != user.id and user.role != Role.ADMIN:
-        raise HTTPException(status_code=403, detail="Permission Denied")
     if not area:
         raise HTTPException(status_code=404, detail="Data not found")
+    if area.user_id != user.id and user.role != Role.ADMIN:
+        raise HTTPException(status_code=403, detail="Permission Denied")
 
     action_data: ActionBasicInfo = get_area_action_info(session, area)
     reactions_data : list[ReactionBasicInfo] = get_area_reactions_info(session, area)
