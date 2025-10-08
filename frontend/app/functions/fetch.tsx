@@ -149,6 +149,20 @@ export async function fetchSpecificApplet(setApplet: (data: any) => void, id: nu
   return true;
 }
 
+export async function fetchDeletePersonApplet(id: number) {
+  try {
+    const res = await Calls.delete(`/areas/${id}`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return true;
+}
+
 export async function fetchPrivateApplet(setApplet: (data: any) => void, id: number) {
   try {
     const res = await Calls.get(`/areas/${id}`);

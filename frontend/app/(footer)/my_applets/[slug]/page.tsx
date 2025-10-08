@@ -13,14 +13,20 @@ import { notFound } from "next/navigation";
 import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import { Button } from '@/components/ui/button';
-import { fetchPersonalApplets } from '@/app/functions/fetch';
 import SettingsButton from '@/app/components/Settings';
-import { fetchPrivateApplet } from '@/app/functions/fetch';
+import { fetchPersonalApplets } from '@/app/functions/fetch';
 import { PrivateApplet, SpecificPublicApplet } from "@/app/types/applet";
+import { fetchPrivateApplet, fetchDeletePersonApplet } from '@/app/functions/fetch';
 
 type AppletProp = {
   params: Promise<{ slug: string }>;
 };
+
+async function deleteApplet(id: number)
+{
+    await fetchDeletePersonApplet(id);
+    redirect("/my_applets");
+}
 
 export default function AppletPage({ params }: AppletProp)
 {
@@ -58,12 +64,12 @@ export default function AppletPage({ params }: AppletProp)
     }, [myApplet]);
 
     return (
-        <form>
+        <div>
             {loading ? (
                 <p className="h-[700px] w-screen text-[50px] flex items-center justify-center">
                     Loading...
                 </p>
-            ) : myApplet ? (
+            ) : (myApplet && currApplet) ? (
                 <div>
                     <div className="grid grid-cols-4 text-white w-screen h-[500px] rounded-b-xl" style={{ background: myApplet.area_info.color }}>
                     <div className="ml-[20px] pt-[50px]">
@@ -77,11 +83,11 @@ export default function AppletPage({ params }: AppletProp)
                             <SettingsButton/>
                         </div>
                     </div>
-                    <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" disabled>
-                        Edit applet
+                    <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={() => deleteApplet(currApplet.id)}>
+                        Delete applet
                     </Button>
                 </div>
             ) : notFound()}
-        </form>
+        </div>
     );
 }
