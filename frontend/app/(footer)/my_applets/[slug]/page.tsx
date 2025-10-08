@@ -77,8 +77,8 @@ export default function AppletPage({ params }: AppletProp)
                             <SettingsButton/>
                         </div>
                     </div>
-                    <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={() => redirect("/create")}>
-                        Create applet
+                    <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" disabled>
+                        Edit applet
                     </Button>
                 </div>
             ) : notFound()}
