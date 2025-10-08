@@ -11,15 +11,15 @@ router = APIRouter()
 def get_area_action_info(session: SessionDep, area: Area) -> ActionBasicInfo:
     action_area: AreaAction = session.exec(select(AreaAction).where(AreaAction.area_id == area.id)).first()
     if not action_area:
-        raise HTTPException(status_code=404, detail="Data not found")
+        raise HTTPException(status_code=404, detail="Action area not found")
 
     action: Action = session.exec(select(Action).where(Action.id == action_area.action_id)).first()
     if not action:
-        raise HTTPException(status_code=404, detail="Data not found")
+        raise HTTPException(status_code=404, detail="Action not found")
 
     service: Service = session.exec(select(Service).where(Service.id == action.service_id)).first()
     if not service:
-        raise HTTPException(status_code=404, detail="Data not found")
+        raise HTTPException(status_code=404, detail="Service not found")
 
     service = ServiceGet(id=service.id, name=service.name, image_url=service.image_url, category=service.category, color=service.color)
     area_action_data = ActionBasicInfo(id=action.id, name=action.name, description=action.description, service=service)
@@ -28,11 +28,11 @@ def get_area_action_info(session: SessionDep, area: Area) -> ActionBasicInfo:
 def get_area_reactions_info(session: SessionDep, area: Area) -> ReactionBasicInfo:
     reactions_area: AreaReaction = session.exec(select(AreaReaction).where(AreaReaction.area_id == area.id)).all()
     if not reactions_area:
-        raise HTTPException(status_code=404, detail="Data not found")
+        raise HTTPException(status_code=404, detail="Reaction area not found")
 
     area_reactions_data: list[ReactionBasicInfo] = []
     for reaction_area in reactions_area:
-        reaction: Action = session.exec(select(Action).where(Action.id == reaction_area.reaction_id)).first()
+        reaction: Reaction = session.exec(select(Reaction).where(Reaction.id == reaction_area.reaction_id)).first()
         if not reaction:
             raise HTTPException(status_code=404, detail="Data not found")
 
