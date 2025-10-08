@@ -17,6 +17,16 @@ import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
 import Image from "next/image"
 import { SpecificAction, SpecificReaction } from "@/app/types/actions"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
+  import { Checkbox } from "@/components/ui/checkbox"
 
 //-- Buttons --//
 
@@ -151,6 +161,65 @@ function Creation({action, reaction,
     )
 }
 
+//-- Affichage des triggers --//
+
+interface SelectElementProp
+{
+    content: string[]
+}
+
+function SelectElement({content}: SelectElementProp)
+{
+    const selectItemsBlock = content.map((value) =>
+        <SelectItem key={value} value={value}>{value}</SelectItem>
+    );
+    const [selectedValue, setSelectedValue] = useState<string>(content[0]);
+// create the selected value before and stop displaying the display trigger and go back to create principale page with all infos
+    return (
+        <Select onValueChange={setSelectedValue} value={selectedValue}>
+            <SelectTrigger className="w-[250px] text-black bg-white">
+                <SelectValue placeholder={selectedValue}/>
+            </SelectTrigger>
+            <SelectContent className="text-black">
+                <SelectGroup>
+                    {selectItemsBlock}
+                </SelectGroup>
+            </SelectContent>
+        </Select>
+    )
+}
+
+interface TriggerProp
+{
+    config: string | ConfigReqAct[]
+}
+
+function DisplayTrigger({config}: TriggerProp)
+{
+    if (typeof config === "string")
+        return ("");
+    return (
+        <div>
+            <p className="mt-[20px] text-[20px] text-center">
+                {config[0].name}
+            </p>
+            {(config[0].type == "select" && Array.isArray(config[0].values)
+                && config[0].values.every(v => typeof v === "string")) &&
+                <div className="flex justify-center">
+                    <SelectElement content={config[0].values}/>
+                </div>
+            }
+            {config[0].type == "input" &&
+                <Input/>
+            }
+            {/* {(config.type == "check_list" && Array.isArray(config.values)
+            && typeof config.values[0] === "object") &&
+                <CheckBox/>
+            } */}
+        </div>
+    )
+}
+
 //-- Choosing the trigger --//
 
 interface chooseTriggerProp
@@ -160,31 +229,6 @@ interface chooseTriggerProp
     service: Service,
     setChoosingTrigger: (arg: boolean) => void,
     setConfig: (arg: ConfigRespAct | null) => (void)
-}
-
-interface TriggerProp
-{
-    config: string | ConfigReqAct
-}
-
-function DisplayTrigger({config}: TriggerProp)
-{
-    if (typeof config === "string")
-        return ("")
-    return (
-        <div>
-            {config.name}
-            {config.type == "select" &&
-                <Select/>
-            }
-            {config.type == "input" &&
-                <Input/>
-            }
-            {config.type == "check_list" &&
-                <CheckList/>
-            }
-        </div>
-    )
 }
 
 function ChooseTrigger({act, service, type, setConfig, setChoosingTrigger}: chooseTriggerProp)
