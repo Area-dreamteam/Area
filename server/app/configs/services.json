@@ -146,15 +146,23 @@
     "description": "tododlist",
     "image_url": "https://logo.clearbit.com/github.com",
     "color": "#ebcaaa",
-    "category": "Dev",
+    "category": "Life Style",
     "actions": [],
     "reactions": [
       {
+<<<<<<< Updated upstream
         "name": "create_task",
         "description": "create task",
         "config_schema": [
             { "name": "content", "type": "input", "values": "" },
             { "name": "project_name", "type": "input", "values": "" }
+=======
+        "name": "Create Task",
+        "description": "Create a new task",
+        "config_schema": [
+          { "name": "content", "type": "input", "values": [] },
+          { "name": "project_name", "type": "input", "values": [] }
+>>>>>>> Stashed changes
         ]
       }
     ]
