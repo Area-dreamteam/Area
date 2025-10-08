@@ -1,10 +1,11 @@
+from dependencies.roles import CurrentUser, CurrentUserNoFail
 from core.security import sign_jwt
 from models.services.service import Service
 from models.users.user_service import UserService
 from models.users.user import User
 from dependencies.db import SessionDep
 from sqlmodel import select
-from fastapi import APIRouter, Request, HTTPException, Depends, Response
+from fastapi import APIRouter, Request, HTTPException, Depends, Response, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from core.config import settings
@@ -23,11 +24,7 @@ def todoist_index():
     raise HTTPException(
         status_code=302,
         detail="Redirecting to Todoist OAuth",
-        headers={
-            "Location": todoist_api.get_oauth_link(
-                settings.TODOIST_CLIENT_ID,
-            )
-        },
+        headers={"Location": todoist_api.get_oauth_link(settings.TODOIST_CLIENT_ID)},
     )
 
 
@@ -51,46 +48,20 @@ def windowCloseAndCookie(token: str) -> Response:
 
 
 @router.get("/login_oauth_token")
-def login_oauth_token(session: SessionDep, code: str):
+def login_oauth_token(session: SessionDep, code: str, user: CurrentUser):
+    print("user id: ", user)
     try:
         token_res = todoist_api.get_token(
-            settings.TODOIST_CLIENT_ID, settings.TODOIST_CLIENT_SECRET, code
+            settings.TODOIST_CLIENT_ID,
+            settings.TODOIST_CLIENT_SECRET,
+            code,
         )
     except TodoistApiError as e:
         raise HTTPException(status_code=400, detail=e.message)
 
+    print(user)
     try:
-        user_info = todoist_api.get_user_info(token_res.access_token)
-        print(user_info)
-        existing = session.exec(
-            select(User).where(User.email == user_info["email"])
-        ).first()
-        print(existing)
-        if not existing:
-            """User Register with oauth"""
-            new_user = User(
-                name=user_info["email"].split("@")[0],
-                email=user_info["email"],
-            )
-
-            session.add(new_user)
-            session.commit()
-            session.refresh(new_user)
-
-            service = session.exec(
-                select(Service).where(Service.name == "todoist")
-            ).first()
-            new_user_service = UserService(
-                user_id=new_user.id,
-                service_id=service.id,
-                access_token=token_res.access_token,
-            )
-            session.add(new_user_service)
-            session.commit()
-            token = sign_jwt(new_user.id)
-
-            return windowCloseAndCookie(token)
-        """User login with new oauth"""
+        existing = session.exec(select(User).where(User.id == user.id)).first()
 
         service = session.exec(
             select(UserService)

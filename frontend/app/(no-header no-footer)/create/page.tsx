@@ -8,7 +8,7 @@
 'use client'
 
 import { fetchCreateApplet, fetchServices, fetchAction, fetchActs } from "@/app/functions/fetch"
-import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
+import { ConfigRespAct, ConfigReqAct, triggerValue } from "@/app/types/config"
 import { Service, Act } from "@/app/types/service"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
@@ -88,23 +88,26 @@ function ValidateButton({ text, setValidating }: ValidationProp) {
 }
 
 interface CreationProp {
-  action: any | null,
-  reaction: any | null,
-  setChoosingAction: (data: boolean) => void,
-  setChoosingReaction: (data: boolean) => void,
+    action: any | null,
+    reaction: any | null,
+    actConfig: ConfigRespAct[],
+    reactConfig: ConfigRespAct[],
+    setChoosingAction: (data: boolean) => void,
+    setChoosingReaction: (data: boolean) => void,
 }
 
 //-- Send form --//
 
-function createApplet(action: Act, reaction: Act, title: string) {
-  fetchCreateApplet(action, reaction, title);
-  // redirect to the page created then
+function createApplet(action: Act, reaction: Act, title: string, actConfig: ConfigRespAct[], reactConfig: ConfigRespAct[]) {
+    fetchCreateApplet(action, reaction, title, actConfig, reactConfig);
+    redirect("/my_applets");
 }
 
 //-- Creation page --//
 
-function Creation({ action, reaction,
-  setChoosingAction, setChoosingReaction }: CreationProp) {
+function Creation({ action, reaction, actConfig, reactConfig,
+  setChoosingAction, setChoosingReaction }: CreationProp)
+{
   const [validating, setValidating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(`if ${action?.name}, then ${reaction?.name}`);
 
@@ -124,7 +127,7 @@ function Creation({ action, reaction,
             <Input className="block mx-auto w-[500px] h-[70px] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="flex justify-center mt-[30px]">
-            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => createApplet(action, reaction, title)}>
+            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => createApplet(action, reaction, title, actConfig, reactConfig)}>
               Finish
             </Button>
           </div>
@@ -155,66 +158,91 @@ function Creation({ action, reaction,
 //-- Affichage des triggers --//
 
 interface SelectElementProp {
-  content: string[]
+  content: string[],
+  config: ConfigReqAct,
+  handleChange: (newTrigg: ConfigRespAct) => void
 }
 
-function SelectElement({ content }: SelectElementProp) {
-  const selectItemsBlock = content.map((value) =>
-    <SelectItem key={value} value={value}>{value}</SelectItem>
-  );
-  const [selectedValue, setSelectedValue] = useState<string>(content[0]);
-  // create the selected value before and stop displaying the display trigger and go back to create principale page with all infos
-  return (
-    <Select onValueChange={setSelectedValue} value={selectedValue}>
-      <SelectTrigger className="w-[250px] text-black bg-white">
-        <SelectValue placeholder={selectedValue} />
-      </SelectTrigger>
-      <SelectContent className="text-black">
-        <SelectGroup>
-          {selectItemsBlock}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  )
+function defineChoice(val: string, setVal: (str: string) => void,
+    handleChange: (newTrigg: ConfigRespAct) => void, config: ConfigReqAct)
+{
+    setVal(val);
+    handleChange({
+        name: config.name,
+        type: config.type,
+        values: val
+    })
+}
+
+function SelectElement({ content, config, handleChange }: SelectElementProp) {
+
+    const [val, setVal] = useState<string>(content[0]);
+    const selectItemsBlock = content.map((value) =>
+        <SelectItem key={value} value={value}>{value}</SelectItem>
+    );
+
+    return (
+        <Select onValueChange={(v) => defineChoice(v, setVal, handleChange, config)}
+            value={val}>
+        <SelectTrigger className="w-[250px] text-black bg-white">
+            <SelectValue placeholder={val} />
+        </SelectTrigger>
+        <SelectContent className="text-black">
+            <SelectGroup>
+            {selectItemsBlock}
+            </SelectGroup>
+        </SelectContent>
+        </Select>
+    )
 }
 
 interface TriggerProp {
-  config: ConfigReqAct
+  config: ConfigReqAct,
+  handleChange: (newTrigg: ConfigRespAct) => void
 }
-function DisplayTrigger({ config }: TriggerProp) {
-  if (typeof config === "string")
-    return ("");
-  return (
-    <div>
-      <p className="mt-[20px] text-[20px] text-center">
-        {config.name}
-      </p>
-      {(config.type == "select" && Array.isArray(config.values)
-        && config.values.every(v => typeof v === "string")) &&
-        <div className="flex justify-center">
-          <SelectElement content={config.values} />
+
+function DisplayTrigger({ config, handleChange }: TriggerProp)
+{
+    return (
+        <div key={config.name}>
+            <p className="mt-[20px] text-[20px] text-center">
+                {config.name}
+            </p>
+            {(config.type == "select" && Array.isArray(config.values)
+                && config.values.every(v => typeof v === "string")) &&
+                <div className="flex justify-center">
+                    <SelectElement content={config.values}
+                    config={config} handleChange={handleChange}/>
+                </div>
+            }
+            {config.type == "input" &&
+                <Input onChange={(e) => defineChoice(e.target.value, () => "", handleChange, config)}/>
+            }
+            {/* {(config.type == "check_list" && Array.isArray(config.values)
+                    && typeof config.values === "object") &&
+                        <CheckBox/>
+                    } */}
+
         </div>
-      }
-      {config.type == "input" &&
-        <Input />
-      }
-      {/* {(config.type == "check_list" && Array.isArray(config.values)
-            && typeof config.values === "object") &&
-                <CheckBox/>
-            } */}
-
-    </div>
-  )
+    )
 }
+
 interface AllTriggerProp {
-  config: ConfigReqAct[]
-}
-function DisplayAllTrigger({ config }: AllTriggerProp) {
-  return config.map((c) => {
-    return DisplayTrigger({ config: c });
-  })
+  config: ConfigReqAct[],
+  configResp: ConfigRespAct[],
+  setConfigResp: (arg: ConfigRespAct[]) => void
 }
 
+function DisplayAllTrigger({ config, configResp, setConfigResp }: AllTriggerProp)
+{
+    const handleTriggerChange = (newTrigg: ConfigRespAct) => {
+        setConfigResp(newTrigg ? [...configResp, newTrigg] : [...configResp]);
+    }
+
+    return config.map((c) => {
+        return <DisplayTrigger key={c.name} config={c} handleChange={handleTriggerChange}/>;
+    })
+}
 
 //-- Choosing the trigger --//
 
@@ -222,13 +250,32 @@ interface chooseTriggerProp {
   act: Act,
   type: string,
   service: Service,
+  configResp: ConfigRespAct[],
+  setAction: (arg: Act | null) => void
+  setService: (arg: Service | null) => void,
   setChoosingTrigger: (arg: boolean) => void,
-  setConfig: (arg: ConfigRespAct | null) => (void)
+  setChoosingAction: (data: boolean) => void,
+  setConfig: (arg: ConfigRespAct[]) => (void)
 }
 
-function ChooseTrigger({ act, service, type, setConfig, setChoosingTrigger }: chooseTriggerProp) {
+function reinitAll(setService: (arg: any) => void, setAction: (arg: any) => void) {
+    setService(null);
+    setAction(null);
+}
+
+function unsetChoosingTime(setAction: (arg: Act | null) => void, setService:
+    (arg: Service | null) => void, setChoosingTrigger: (arg: boolean) => void,
+    setChoosingAction: (arg: boolean) => void)
+{
+    setService(null);
+    setChoosingAction(false);
+    setChoosingTrigger(false);
+}
+
+function ChooseTrigger({ act, service, type, setConfig,
+    setChoosingTrigger, setAction, setService, configResp, setChoosingAction }: chooseTriggerProp)
+{
   const [trigger, setTrigger] = useState<SpecificAction | SpecificReaction | null>(null);
-  const [tmpConfig, setTmpConfig] = useState<ConfigRespAct | null>(null);
 
   useEffect(() => {
     fetchAction(service.id, type, setTrigger);
@@ -236,27 +283,30 @@ function ChooseTrigger({ act, service, type, setConfig, setChoosingTrigger }: ch
 
   return (
     <div className="text-white w-screen h-screen" style={{ background: service.color }}>
-      <div className="grid grid-cols-4 " >
-        <LeftUpButton text="Back" act={setChoosingTrigger} param={false} color="white" />
-        <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-3 text-center">
-          Complete trigger fields
-        </p>
-        <hr className="col-span-4 mb-[20px]" />
-        <div className="flex flex-col text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-          {service.logo &&
-            <Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-          }
-          <p className="text-center text-[60px] mb-[20px]">
-            {act?.name}
-          </p>
-          <p className="text-center text-[18px] mb-[20px]">
-            {act?.description}
-          </p>
-          {trigger ? (
-            <DisplayAllTrigger config={trigger.config_schema} />
-          ) : (
-            "No trigger available"
-          )}
+        <div className="grid grid-cols-4 " >
+            <LeftUpButton text="Back" act={setChoosingTrigger} param={false} color="white" />
+            <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-3 text-center">
+            Complete trigger fields
+            </p>
+            <hr className="col-span-4 mb-[20px]" />
+            <div className="flex flex-col text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
+            {service.logo &&
+                <Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            }
+            <p className="text-center text-[60px] mb-[20px]">
+                {act?.name}
+            </p>
+            <p className="text-center text-[18px] mb-[20px]">
+                {act?.description}
+            </p>
+            {trigger ? (
+                <DisplayAllTrigger config={trigger.config_schema} configResp={configResp} setConfigResp={setConfig}/>
+            ) : (
+                "No trigger available"
+            )}
+            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
+                Create trigger
+            </Button>
         </div>
       </div>
     </div>
@@ -279,13 +329,8 @@ interface ActionPageProp extends ChooseActProp {
   setService: (arg: Service | null) => void
 }
 
-function reinitAll(setService: (arg: any) => void, setAction: (arg: any) => void) {
-  setService(null);
-  setAction(null);
-}
-
 function ChooseAct({ service, setService, setAction,
-  setChoosingAction, setConfig, type, act }: ActionPageProp) {
+  setChoosingAction, setConfig, type, act, configResp }: ActionPageProp) {
   const [acts, setActs] = useState<Act[] | null>(null);
   const [choosingTrigger, setChoosingTrigger] = useState<boolean>(false);
 
@@ -297,7 +342,7 @@ function ChooseAct({ service, setService, setAction,
     <div>
       {choosingTrigger && act ? (
         <ChooseTrigger act={act} type={type} service={service} setConfig={setConfig}
-          setChoosingTrigger={setChoosingTrigger} />
+          setChoosingTrigger={setChoosingTrigger} setService={setService} setAction={setAction} configResp={configResp} setChoosingAction={setChoosingAction}/>
       ) : (
         <div>
           <div className="grid grid-cols-4 text-white w-screen h-[450px] rounded-b-xl" style={{ background: service.color }}>
@@ -342,13 +387,14 @@ interface ChooseActProp {
   type: string,
   act: Act | null,
   choosingAction: boolean,
+  configResp: ConfigRespAct[],
   setAction: (arg: Act | null) => void,
   setChoosingAction: (data: boolean) => void,
-  setConfig: (arg: ConfigRespAct | null) => void
+  setConfig: (arg: ConfigRespAct[]) => void
 }
 
 function ChooseService({ choosingAction, setChoosingAction,
-  setConfig, setAction, type, act }: ChooseActProp) {
+  setConfig, setAction, type, act, configResp }: ChooseActProp) {
   const [search, setSearch] = useState<string>("");
   const [services, setServices] = useState<Service[] | null>(null);
   const [selected, setSelected] = useState<Service | null>(null);
@@ -374,7 +420,8 @@ function ChooseService({ choosingAction, setChoosingAction,
       {selected &&
         <ChooseAct act={act} service={selected} setService={setSelected}
           choosingAction={choosingAction} setAction={setAction}
-          setChoosingAction={setChoosingAction} type={type} setConfig={setConfig} />
+          setChoosingAction={setChoosingAction} type={type}
+          setConfig={setConfig} configResp={configResp}/>
       }
     </div>
   )
@@ -387,26 +434,27 @@ export default function Create() {
   const [reaction, setReaction] = useState<Act | null>(null);
   const [choosingAction, setChoosingAction] = useState(false);
   const [choosingReaction, setChoosingReaction] = useState(false);
-  const [actConfig, setActConfig] = useState<ConfigRespAct | null>(null);
-  const [reacConfig, setReacConfig] = useState<ConfigRespAct | null>(null);
+  const [actConfig, setActConfig] = useState<ConfigRespAct[]>([]);
+  const [reactConfig, setReactConfig] = useState<ConfigRespAct[]>([]);
 
   return (
     <div>
       {(!choosingAction && !choosingReaction) &&
         <Creation action={action} reaction={reaction}
           setChoosingReaction={setChoosingReaction}
-          setChoosingAction={setChoosingAction} />
+          setChoosingAction={setChoosingAction}
+          actConfig={actConfig} reactConfig={reactConfig}/>
       }
       {choosingAction &&
         <ChooseService act={action} setAction={setAction} type="actions"
           setConfig={setActConfig} choosingAction={choosingAction}
-          setChoosingAction={setChoosingAction}
+          setChoosingAction={setChoosingAction} configResp={actConfig}
         />
       }
       {choosingReaction &&
         <ChooseService act={reaction} setAction={setReaction} type="reactions"
-          choosingAction={choosingReaction} setConfig={setReacConfig}
-          setChoosingAction={setChoosingReaction}
+          choosingAction={choosingReaction} setConfig={setReactConfig}
+          setChoosingAction={setChoosingReaction} configResp={reactConfig}
         />
       }
     </div>

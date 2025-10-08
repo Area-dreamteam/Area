@@ -7,6 +7,7 @@
 
 import axios from 'axios'
 import { Act } from '../types/service';
+import { ConfigRespAct } from '../types/config';
 
 export const Calls = axios.create({
   baseURL: "http://localhost:8080",
@@ -148,6 +149,37 @@ export async function fetchSpecificApplet(setApplet: (data: any) => void, id: nu
   return true;
 }
 
+export async function fetchDeletePersonApplet(id: number) {
+  try {
+    const res = await Calls.delete(`/areas/${id}`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return true;
+}
+
+export async function fetchPrivateApplet(setApplet: (data: any) => void, id: number) {
+  try {
+    const res = await Calls.get(`/areas/${id}`);
+
+    if (res.status != 200) {
+      setApplet(null);
+      return false;
+    }
+    setApplet(res.data);
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  setApplet(null);
+  return true;
+}
+
 export async function fetchAction(id: number, type: string, setAction: (data: any) => void) {
   try {
     const res = await Calls.get(`/${type}/${id}`);
@@ -166,33 +198,36 @@ export async function fetchAction(id: number, type: string, setAction: (data: an
 }
 
 export async function fetchPersonalApplets(setPersonalApplets: (data: any) => void) {
-  try {
-    const res = await Calls.get("/areas/");
+    try {
+      const res = await Calls.get("/areas/");
 
-    if (res.status != 200) {
-      setPersonalApplets(null);
-      return;
+      if (res.status != 200) {
+        setPersonalApplets(null);
+        return false;
+      }
+      setPersonalApplets(res.data);
+      return true;
+    } catch (err) {
+      console.log("Error: ", err);
     }
-    setPersonalApplets(res.data);
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-  setPersonalApplets(null);
+    setPersonalApplets(null);
+    return false;
 }
 
-export async function fetchCreateApplet(action: Act, reaction: Act, title: string) {
+export async function fetchCreateApplet(action: Act, reaction: Act,
+    title: string, actConfig: ConfigRespAct[], reactConfig: ConfigRespAct[]) {
   try {
     const res = await Calls.post("/areas", {
       name: title,
       description: "",
       action: {
         action_id: action.id,
-        config: ""
+        config: actConfig
       },
-      reaction: {
+      reactions: [{
         reaction_id: reaction.id,
-        config: ""
-      }
+        config: reactConfig
+      }]
     });
 
     if (res.status != 200) {
