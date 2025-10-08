@@ -191,10 +191,10 @@ export async function fetchCreateApplet(action: Act, reaction: Act,
         action_id: action.id,
         config: actConfig
       },
-      reaction: {
+      reactions: [{
         reaction_id: reaction.id,
         config: reactConfig
-      }
+      }]
     });
 
     if (res.status != 200) {
