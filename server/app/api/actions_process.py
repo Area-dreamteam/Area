@@ -18,17 +18,16 @@ def reaction_process(session: SessionDep, area_id: int):
         return
 
     logger.debug(f"area_id: {area.id}")
-    reactions_data: list[tuple[Any, str, str]] = session.exec(
-        select(AreaReaction.config, Reaction.name, Service.name)
+    reactions_data: list[tuple[Any, str]] = session.exec(
+        select(AreaReaction.config, Reaction.name)
         .join(Reaction, Reaction.id == AreaReaction.reaction_id)
-        .join(Service, Service.id == Reaction.service_id)
         .where(AreaReaction.area_id == area.id)
     ).all()
     if not reactions_data:
         return
 
-    for reaction_config, reaction_name, service_name in reactions_data:
-        reaction_list[reaction_name](reaction_config, service_name)
+    for reaction_config, reaction_name in reactions_data:
+        reaction_list[reaction_name](session, area.user_id, reaction_config)
 
 def compare_action_data(session: SessionDep, user_actions_config: dict[int, list[AreaAction]], action_data: tuple[Action, Service]):
     for user_id, user_actions in user_actions_config.items():

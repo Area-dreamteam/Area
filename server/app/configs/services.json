@@ -1,25 +1,25 @@
 [
   {
-    "name": "Email",
-    "description": "Service email",
+    "name": "gmail",
+    "description": "Service email de Google",
     "image_url": "https://logo.clearbit.com/gmail.com",
     "color": "#FF0000",
     "category": "Email",
     "actions": [
       {
         "name": "new_email",
-        "interval": "* * * * *",
+        "interval": "15 * * * *",
         "description": "Déclenché lorsqu’un nouvel email arrive.",
         "config_schema": [
           {
             "name": "from",
             "type": "input",
-            "values": [""]
+            "values": ""
           },
           {
             "name": "subject",
             "type": "input",
-            "values": [""]
+            "values": ""
           }
         ]
       }
@@ -32,24 +32,24 @@
           {
             "name": "to",
             "type": "input",
-            "values": [""]
+            "values": ""
           },
           {
             "name": "subject",
             "type": "input",
-            "values": [""]
+            "values": ""
           },
           {
             "name": "body",
             "type": "input",
-            "values": [""]
+            "values": ""
           }
         ]
       }
     ]
   },
   {
-    "name": "Github",
+    "name": "github",
     "description": "Gestion de dépôts Git et collaboration",
     "image_url": "https://logo.clearbit.com/github.com",
     "color": "#111111",
@@ -57,13 +57,13 @@
     "actions": [
       {
         "name": "new_issue",
-        "interval": "* * * * *",
+        "interval": "15 * * * *",
         "description": "Déclenché lorsqu’une nouvelle issue est créée.",
         "config_schema": [
           {
             "name": "repository",
             "type": "input",
-            "values": [""]
+            "values": ""
           }
         ]
       }
@@ -76,12 +76,12 @@
           {
             "name": "repository",
             "type": "input",
-            "values": [""]
+            "values": ""
           },
           {
             "name": "issue name",
             "type": "input",
-            "values": [""]
+            "values": ""
           }
         ]
       }
@@ -121,7 +121,7 @@
         "name": "Debug_reaction",
         "description": "calls feilds",
         "config_schema": [
-          { "name": "input_example", "type": "input", "values": "" },
+          { "name": "input_example", "type": "input", "values": [] },
           {
             "name": "select_example",
             "type": "select",
@@ -134,7 +134,7 @@
               "15m": true,
               "30m": true,
               "45m": false,
-              "1h": false
+              "1h": false 
             }
           }
         ]
@@ -150,25 +150,11 @@
     "actions": [],
     "reactions": [
       {
-        "name": "Debug_reaction",
-        "description": "calls feilds",
+        "name": "create_task",
+        "description": "create task",
         "config_schema": [
-          { "name": "input_example", "type": "input", "values": [] },
-          {
-            "name": "select_example",
-            "type": "select",
-            "values": ["15m", "30m", "45m", "1h"]
-          },
-          {
-            "name": "check_list_example",
-            "type": "check_list",
-            "values": [
-              { "15m": true },
-              { "30m": true },
-              { "45m": false },
-              { "1h": false }
-            ]
-          }
+            { "name": "content", "type": "input", "values": "" },
+            { "name": "project_name", "type": "input", "values": "" }
         ]
       }
     ]
