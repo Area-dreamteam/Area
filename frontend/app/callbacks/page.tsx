@@ -7,8 +7,9 @@ export default function Page() {
 
   useEffect(() => {
     const code = searchParams.get("code");
+    const service = searchParams.get("service");
     if (code) {
-      window.location.href = `http://localhost:8080/services/todoist/login_oauth_token?code=${code}`
+      window.location.href = `http://localhost:8080/services/todoist/login_oauth_token${service}/?code=${code}`
     }
   }, [searchParams])
 
