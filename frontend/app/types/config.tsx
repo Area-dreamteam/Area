@@ -18,5 +18,5 @@ export interface ConfigReqAct
 {
     name: string,
     type: string,
-    values: triggerValue | string[]
+    values: string | string[]
 }

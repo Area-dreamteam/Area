@@ -196,6 +196,54 @@ function SelectElement({ content, config, handleChange }: SelectElementProp) {
     )
 }
 
+function modifySelection(checkboxes : { [key: string]: boolean }[],
+  config: ConfigReqAct, handleChange: (newTrigg: ConfigRespAct) => void)
+{
+  handleChange({
+    name: config.name,
+    type: config.type,
+    values: checkboxes
+  });
+}
+
+function CheckboxElement({ content, config, handleChange }: SelectElementProp)
+{
+  const initialBoxes: { [key: string]: boolean }[] = content.map((chk) => ({
+    [chk]: false,
+  }));
+
+  const [checkboxes, setCheckboxes] = useState<{ [key: string]: boolean }[]>(initialBoxes);
+  
+  const handleChecking = (key: string, newValue: boolean) => {
+    const updatedCheckboxes = checkboxes.map((item) =>
+      key in item ? { [key]: newValue } : item
+    );
+    setCheckboxes(updatedCheckboxes);
+    modifySelection(updatedCheckboxes, config, handleChange);
+  };
+
+  return (
+    <div>
+      {content.map((value) => {
+        const checkbox = checkboxes.find((item) => value in item);
+        const checked = checkbox ? checkbox[value] : false;
+
+        return (<div className="flex items-center space-x-2">
+          <Checkbox
+            id={value}
+            checked={checked}
+            onCheckedChange={() => handleChecking(value, !checked)}/>
+          <label
+            htmlFor={value}
+            className="text-sm font-medium">
+              {value}
+          </label>
+        </div>)
+      })}
+    </div>
+  )
+}
+
 interface TriggerProp {
   config: ConfigReqAct,
   handleChange: (newTrigg: ConfigRespAct) => void
@@ -218,11 +266,10 @@ function DisplayTrigger({ config, handleChange }: TriggerProp)
             {config.type == "input" &&
                 <Input onChange={(e) => defineChoice(e.target.value, () => "", handleChange, config)}/>
             }
-            {/* {(config.type == "check_list" && Array.isArray(config.values)
-                    && typeof config.values === "object") &&
-                        <CheckBox/>
-                } */}
-
+            {(config.type == "check_list" && Array.isArray(config.values) && typeof config.values === "object") && 
+                <CheckboxElement content={config.values}
+                config={config} handleChange={handleChange}/>
+            }
         </div>
     )
 }
