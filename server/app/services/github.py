@@ -48,6 +48,9 @@ class GithubApiError(Exception):
 
 
 class github_oauth(oauth_service):
+    def __init__(self) -> None:
+        super().__init__()
+
     def _get_token(self, client_id, client_secret, code):
         base_url = "https://github.com/login/oauth/access_token"
         params = {"client_id": client_id, "client_secret": client_secret, "code": code}
@@ -162,5 +165,3 @@ class github_oauth(oauth_service):
             return windowCloseAndCookie(token)
         except GithubApiError as e:
             return HTTPException(status_code=400, detail=e.message)
-            pass
-

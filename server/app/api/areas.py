@@ -86,7 +86,7 @@ def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
     session.add(new_area_action)
     session.commit()
     session.refresh(new_area_action)
-    if (isCronExists(new_area_action.action_id) == False):
+    if isCronExists(new_area_action.action_id) is False:
         newJob(new_area_action.action_id)
 
     for reaction in area.reactions:

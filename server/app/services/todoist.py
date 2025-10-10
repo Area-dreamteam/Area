@@ -1,9 +1,10 @@
 from typing import Dict, Any
+from models.areas import AreaAction, AreaReaction
+from services.services_classes import Service, Action, Reaction
 from schemas.services.todoist import Task, Project
 from core.config import settings
 from models.users.user import User
 from sqlmodel import Session
-from test import Action, Reaction, Service
 from core.utils import generate_state
 from pydantic import BaseModel
 from pydantic_core import ValidationError
@@ -53,11 +54,8 @@ class Todoist(Service):
             config = [{"name": "task_id", "type": "input", "values": []}]
             super().__init__("checks when a task is completed", config)
 
-        def check(self, params: Dict[str, Any] = None):
-            if params:
-                print(f"Checking task completion: {params}")
-            else:
-                print("Checking if a task was completed!")
+        def check(self, session: Session, area_action: AreaAction, user_id: int):
+            print(f"Checking task completion: {area_action.config}")
 
     class create_task(Reaction):
         def __init__(self) -> None:
@@ -76,14 +74,11 @@ class Todoist(Service):
             ]
             super().__init__("creates a new task", config)
 
-        def execute(self, params: Dict[str, Any] = None):
-            if params:
-                print(f"Creating task with params: {params}")
-            else:
-                print("Creating a new task in Todoist!")
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
+            print(f"Creating task with params: {area_action.config}")
 
     def __init__(self) -> None:
-        super().__init__("A modern interconnected todolist")
+        super().__init__("A modern interconnected todolist", "LifeStyle")
 
     def _is_token_valid(self, token):
         try:

@@ -1,18 +1,34 @@
+import json
 from sqlmodel import SQLModel, select, Session
 from sqlalchemy.dialects.postgresql import insert
 from models import Service, Action, Reaction
 from core.engine import engine
 from core.logger import logger
 
-def upsert_data(session: Session, model, values: dict, conflict_target, update_fields: dict, returning_column=None):
-    stmt = insert(model).values(**values).on_conflict_do_update(
-        index_elements=conflict_target if isinstance(conflict_target, list) else None,
-        constraint=conflict_target if isinstance(conflict_target, str) else None,
-        set_=update_fields
+
+def upsert_data(
+    session: Session,
+    model,
+    values: dict,
+    conflict_target,
+    update_fields: dict,
+    returning_column=None,
+):
+    stmt = (
+        insert(model)
+        .values(**values)
+        .on_conflict_do_update(
+            index_elements=conflict_target
+            if isinstance(conflict_target, list)
+            else None,
+            constraint=conflict_target if isinstance(conflict_target, str) else None,
+            set_=update_fields,
+        )
     )
     if returning_column is not None:
         stmt = stmt.returning(returning_column)
     return session.exec(stmt)
+
 
 def sync_reactions_for_service(session: Session, service_data: dict, service_id: int):
     existing_reactions = session.exec(
@@ -28,7 +44,9 @@ def sync_reactions_for_service(session: Session, service_data: dict, service_id:
         for reaction in existing_reactions:
             if reaction.name in reactions_to_delete:
                 session.delete(reaction)
-                logger.info(f"Deleted reaction: {reaction.name} from service {service_id}")
+                logger.info(
+                    f"Deleted reaction: {reaction.name} from service {service_id}"
+                )
 
     for reaction in json_reactions:
         upsert_data(
@@ -44,8 +62,9 @@ def sync_reactions_for_service(session: Session, service_data: dict, service_id:
             update_fields=dict(
                 description=reaction.get("description"),
                 config_schema=reaction.get("config_schema"),
-            )
+            ),
         )
+
 
 def sync_actions_for_service(session: Session, service_data: dict, service_id: int):
     existing_actions = session.exec(
@@ -79,14 +98,15 @@ def sync_actions_for_service(session: Session, service_data: dict, service_id: i
                 description=action.get("description"),
                 interval=action["interval"],
                 config_schema=action.get("config_schema"),
-            )
+            ),
         )
 
-def sync_services_catalog_to_db(session: Session, catalog: list[dict]):
+
+def sync_services_catalog_to_db(session: Session, catalog: dict):
     existing_services = session.exec(select(Service)).all()
     existing_service_names = {service.name for service in existing_services}
 
-    json_services = {service_data["name"]: service_data for service_data in catalog}
+    json_services = catalog
     json_service_names = set(json_services.keys())
 
     services_to_delete = existing_service_names - json_service_names
@@ -106,9 +126,11 @@ def sync_services_catalog_to_db(session: Session, catalog: list[dict]):
                     session.delete(reaction)
 
                 session.delete(service)
-                logger.info(f"Deleted service: {service.name} with {len(actions_to_delete)} actions and {len(reactions_to_delete)} reactions")
+                logger.info(
+                    f"Deleted service: {service.name} with {len(actions_to_delete)} actions and {len(reactions_to_delete)} reactions"
+                )
 
-    for service_data in catalog:
+    for service_data in catalog.values():
         result = upsert_data(
             session=session,
             model=Service,
@@ -117,16 +139,16 @@ def sync_services_catalog_to_db(session: Session, catalog: list[dict]):
                 description=service_data.get("description"),
                 image_url=service_data.get("image_url"),
                 color=service_data.get("color"),
-                category=service_data.get("category")
+                category=service_data.get("category"),
             ),
             conflict_target=["name"],
             update_fields=dict(
                 description=service_data.get("description"),
                 image_url=service_data.get("image_url"),
                 color=service_data.get("color"),
-                category=service_data.get("category")
+                category=service_data.get("category"),
             ),
-            returning_column=Service.id
+            returning_column=Service.id,
         )
 
         service_id = result.scalar_one()
@@ -136,7 +158,9 @@ def sync_services_catalog_to_db(session: Session, catalog: list[dict]):
     session.commit()
     logger.info("Database synchronization completed")
 
-def init_db(catalog: list[dict]):
+
+def init_db(catalog: dict):
+    print(json.dumps(catalog, indent=2))
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         sync_services_catalog_to_db(session, catalog)
