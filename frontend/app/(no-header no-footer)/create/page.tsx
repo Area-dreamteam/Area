@@ -127,7 +127,7 @@ function Creation({ action, reaction, actConfig, reactConfig,
             <Input className="block mx-auto w-[500px] h-[70px] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="flex justify-center mt-[30px]">
-            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => createApplet(action, reaction, title, actConfig, reactConfig)}>
+            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => createApplet(action, reaction, title, actConfig, reactConfig)} disabled={title === ""}>
               Finish
             </Button>
           </div>
@@ -221,7 +221,7 @@ function DisplayTrigger({ config, handleChange }: TriggerProp)
             {/* {(config.type == "check_list" && Array.isArray(config.values)
                     && typeof config.values === "object") &&
                         <CheckBox/>
-                    } */}
+                } */}
 
         </div>
     )
@@ -236,7 +236,10 @@ interface AllTriggerProp {
 function DisplayAllTrigger({ config, configResp, setConfigResp }: AllTriggerProp)
 {
     const handleTriggerChange = (newTrigg: ConfigRespAct) => {
-        setConfigResp(newTrigg ? [...configResp, newTrigg] : [...configResp]);
+      const updatedConfig = configResp.map(cfg =>
+          cfg.name === newTrigg.name ? newTrigg : cfg
+        );
+        setConfigResp(updatedConfig);
     }
 
     return config.map((c) => {
@@ -272,6 +275,16 @@ function unsetChoosingTime(setAction: (arg: Act | null) => void, setService:
     setChoosingTrigger(false);
 }
 
+function allTriggersValid(configResp: ConfigRespAct[])
+{
+  const allValid = configResp.every(cfg => {
+    if (cfg.type === "check_list")
+      return Array.isArray(cfg.values) && cfg.values.length != 0;
+    return (typeof cfg.values === "string" && cfg.values.trim() !== "");
+  });
+  return allValid;
+}
+
 function ChooseTrigger({ act, service, type, setConfig,
     setChoosingTrigger, setAction, setService, configResp, setChoosingAction }: chooseTriggerProp)
 {
@@ -280,6 +293,17 @@ function ChooseTrigger({ act, service, type, setConfig,
   useEffect(() => {
     fetchAction(service.id, type, setTrigger);
   }, []);
+
+  useEffect(() => {
+    if (trigger) {
+      const initialConfig = trigger.config_schema.map(cfg => ({
+        name: cfg.name,
+        type: cfg.type,
+        values: cfg.type === "check_list" ? [] : (cfg.type === "select" ? (typeof cfg.values[0] === "string" ? cfg.values[0] : "") : ""),
+      }));
+      setConfig(initialConfig);
+    }
+  }, [trigger]);
 
   return (
     <div className="text-white w-screen h-screen" style={{ background: service.color }}>
@@ -304,7 +328,7 @@ function ChooseTrigger({ act, service, type, setConfig,
             ) : (
                 "No trigger available"
             )}
-            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
+            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp)} onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
                 Create trigger
             </Button>
         </div>

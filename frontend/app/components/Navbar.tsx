@@ -56,7 +56,7 @@ function ProfileDropdown()
           <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/explore")}>
             Explore
           </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/settings")}>
+          <DropdownMenuItem className="hover:cursor-pointer" onClick={() => redirect("/settings")}>
             Account
             <DropdownMenuShortcut>User#84395</DropdownMenuShortcut>
           </DropdownMenuItem>
