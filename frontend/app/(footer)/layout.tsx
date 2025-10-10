@@ -9,7 +9,7 @@ import Link from "next/link"
 
 function Footer() {
   return (
-    <div className="bg-black text-white font-bold pl-[10px]">
+    <div className="bg-black text-white w-full font-bold pl-[10px] fixed bottom-0">
       <Link href="/explore" className="mt-[50px] text-[50px]">Area</Link>
       <div className="grid grid-cols-3 pb-[25px]">
         <div className="flex flex-col mt-[10px] gap-[10px] text-[20px]">
@@ -31,9 +31,9 @@ export default function ExploreLayout({
 }>) {
   return (
     <div>
-      <ConnectedNavbar />
+      <ConnectedNavbar/>
       {children}
-      <Footer />
+      <Footer/>
     </div>
   );
 }

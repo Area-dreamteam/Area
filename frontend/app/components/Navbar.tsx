@@ -5,42 +5,35 @@
 ** Navbar
 */
 
+'use client'
+
 import {
-    Menubar,
-    MenubarMenu,
-} from "@/components/ui/menubar"
-import Image from "next/image";
+  NavigationMenu,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu"
 import MenuButton from "./MenuButtons"
 import { Button } from "@/components/ui/button"
-import profile from "../../public/images/Profile.jpg"
 import Link from "next/link"
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
+import { redirect } from "next/navigation";
 
 export default function NavigationBar()
 {
   return (
-    <Menubar className="flex flex-row-reverse">
-      <MenubarMenu>
+    <NavigationMenu className="flex flex-row-reverse">
+      <NavigationMenuList>
         {MenuButton("Explore", "/explore")}
         {MenuButton("Login", "/login")}
         {MenuButton("Register", "/register")}
-      </MenubarMenu>
-    </Menubar>
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 }
 
@@ -48,22 +41,24 @@ function ProfileDropdown()
 {
   return (
     <div className="overflow-hidden rounded-full">
-      {/* <Image alt="Profile picture" src={profile}/> */}
       <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">:::</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-          <Link href="/settings">Account</Link>
+          <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/create")}>
+            Create
+          </DropdownMenuItem>
+          <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/my_applets")}>
+            My applets
+          </DropdownMenuItem>
+          <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/explore")}>
+            Explore
+          </DropdownMenuItem>
+          <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/settings")}>
+            Account
             <DropdownMenuShortcut>User#84395</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            Refer a friend
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            Billing
           </DropdownMenuItem>
           <DropdownMenuItem disabled>
             My services
@@ -74,14 +69,11 @@ function ProfileDropdown()
           <DropdownMenuItem disabled>
             Archive
           </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            Plans
+          <DropdownMenuItem className="hover:cursor-pointer" onClick={() => redirect("/help")}>
+            Help
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/help">Help</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link href="/">Log out</Link>
+          <DropdownMenuItem className="hover:cursor-pointer" onClick={() => redirect("/")}>
+            Log out
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
@@ -93,16 +85,16 @@ function ProfileDropdown()
 export function ConnectedNavbar()
 {
   return (
-    <div className="flex justify-between ml-[10px] mt-[10px]">
+    <div className="flex justify-between pb-[5px] ml-[10px] mt-[10px] shadow-xl">
       <Link href="/explore" className="font-bold text-[35px]"> Area </Link>
-    <Menubar className="flex flex-row-reverse">
-      <MenubarMenu >
+      <NavigationMenu className="flex flex-row-reverse border-1 rounded-xl pl-[5px]">
         {ProfileDropdown()}
-        {MenuButton("Create", "/create")}
-        {MenuButton("My applets", "/my_applets")}
-        {MenuButton("Explore", "/explore")}
-      </MenubarMenu>
-    </Menubar>
+        <NavigationMenuList className="hidden md:flex">
+          {MenuButton("Create", "/create")}
+          {MenuButton("My applets", "/my_applets")}
+          {MenuButton("Explore", "/explore")}
+        </NavigationMenuList>
+      </NavigationMenu>
     </div>
   );
 }

@@ -57,6 +57,7 @@ export async function fetchRegister(email: string, password: string) {
       email: email,
       password: password,
     });
+    console.log(res)
 
     if (res.status != 200)
       return false;
