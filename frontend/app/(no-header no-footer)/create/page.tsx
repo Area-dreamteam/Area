@@ -8,7 +8,7 @@
 'use client'
 
 import { fetchCreateApplet, fetchServices, fetchAction, fetchActs } from "@/app/functions/fetch"
-import { ConfigRespAct, ConfigReqAct, triggerValue } from "@/app/types/config"
+import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
 import { Service, Act } from "@/app/types/service"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
@@ -361,9 +361,9 @@ function ChooseTrigger({ act, service, type, setConfig,
             </p>
             <hr className="col-span-4 mb-[20px]" />
             <div className="flex flex-col text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-            {service.logo &&
-                <Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-            }
+            {/* {service.image_url &&
+                <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            } */}
             <p className="text-center text-[60px] mb-[20px]">
                 {act?.name}
             </p>
@@ -425,9 +425,9 @@ function ChooseAct({ service, setService, setAction,
             </p>
             <hr className="col-span-4 mb-[120px]" />
             <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-              {service.logo &&
-                <Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-              }
+              {/* {service.image_url &&
+                <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+              } */}
               <p className="text-[60px] mb-[20px]">{service.name}</p>
             </div>
           </div>
@@ -485,7 +485,7 @@ function ChooseService({ choosingAction, setChoosingAction,
             </p>
           </div>
           <Input className="w-[400px] mx-auto block mt-[50px] border-[4px] h-[50px] text-[20px] placeholder:text-[20px]" placeholder="Search services" onChange={(e) => setSearch(e.target.value)} />
-          <Services search={search} widgets={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 w-fit mx-auto" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative" onClick={setSelected} />
+          <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 w-fit mx-auto" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative" onClick={setSelected} />
         </div>
       }
       {selected &&

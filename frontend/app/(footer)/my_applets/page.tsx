@@ -40,7 +40,7 @@ export default function My_applet()
                     {taskbarButton("Published", page, setPage, true)}
                 </div>
             </div>
-            <Applets search={searched} widgets={applets} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer mb-[20px]" onClick={redirectToApplet}/>
+            <Applets search={searched} applets={applets} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer mb-[20px]" onClick={redirectToApplet}/>
         </div>
     )
 }

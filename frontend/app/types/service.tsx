@@ -15,7 +15,7 @@ export interface Service {
     id: number;
     name: string;
     image_url: string;
-    logo: string;
+    category: string;
     color: string;
 }
 

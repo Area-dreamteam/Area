@@ -5,23 +5,23 @@
 ** Applets
 */
 
-import { SearchProp } from "../interface/search";
+import { AppletSearchProp } from "../interface/search";
 
-export default function Applets({search = "", widgets = null,
-    className = "", boxClassName = "", onClick = () => ""}: SearchProp)
+export default function Applets({search = "", applets = null,
+    className = "", boxClassName = "", onClick = () => ""}: AppletSearchProp)
 {
-    if (widgets == null) {
+    if (applets == null) {
         return (
             <p className="flex justify-center text-[20px] mt-[20px] mb-[20px]">
                 No applet found.
             </p>
         )
     }
-    const filteredServices = widgets.filter(applet =>
+    const filteredServices = applets.filter(applet =>
         applet.name.toLowerCase().includes(search.toLowerCase())
     );
     const nbServices = filteredServices.length;
-    const serviceBlocks = widgets.map((applet) => ((
+    const serviceBlocks = applets.map((applet) => ((
         applet.name.toLowerCase().includes(search.toLowerCase()) ?
         (
             <div key={applet.id} className={boxClassName} style={{ backgroundColor: applet.color }} onClick={() => onClick(applet)}>
