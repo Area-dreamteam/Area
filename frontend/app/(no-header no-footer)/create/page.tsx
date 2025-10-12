@@ -32,6 +32,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 interface ChoiceButtonProp {
   setIsChoosing: (data: boolean) => void,
+  setChosen: (arg: Act | null) => void,
   replacementText?: string,
   buttonText?: string,
   disable?: boolean,
@@ -39,9 +40,9 @@ interface ChoiceButtonProp {
 }
 
 function ActionButton({ buttonText = "", replacementText = "", disable = false,
-  setIsChoosing, chosen = null }: ChoiceButtonProp) {
+  setIsChoosing, setChosen, chosen = null }: ChoiceButtonProp) {
   return (
-    <div className="mx-auto mt-[75px] w-[600px] h-[130px] rounded-xl text-white flex items-center justify-between px-[10px]" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
+    <div className="mx-auto mt-[75px] w-[650px] h-[130px] rounded-xl text-white flex items-center justify-between px-[10px]" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
       <h1 className="flex-1 flex justify-center text-[80px]">
         {buttonText}
         {chosen ?
@@ -54,6 +55,17 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
         <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setIsChoosing(true)}>
           Add
         </Button>
+      }
+      {/* add a delete/edit button for each box (if and then) */}
+      {chosen &&
+        <div>
+          <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setIsChoosing(true)}>
+            Edit
+          </Button>
+          <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setChosen(null)}>
+            Delete
+          </Button>
+        </div>
       }
     </div>
   )
@@ -92,6 +104,8 @@ interface CreationProp {
     reaction: any | null,
     actConfig: ConfigRespAct[],
     reactConfig: ConfigRespAct[],
+    setAction: (arg: Act | null) => void,
+    setReaction:(arg: Act | null) => void,
     setChoosingAction: (data: boolean) => void,
     setChoosingReaction: (data: boolean) => void,
 }
@@ -105,8 +119,8 @@ function createApplet(action: Act, reaction: Act, title: string, actConfig: Conf
 
 //-- Creation page --//
 
-function Creation({ action, reaction, actConfig, reactConfig,
-  setChoosingAction, setChoosingReaction }: CreationProp)
+function Creation({ action, reaction, setAction, setReaction, actConfig,
+  reactConfig, setChoosingAction, setChoosingReaction }: CreationProp)
 {
   const [validating, setValidating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(`if ${action?.name}, then ${reaction?.name}`);
@@ -141,11 +155,11 @@ function Creation({ action, reaction, actConfig, reactConfig,
             </p>
           </div>
           <ActionButton buttonText="If " replacementText="This"
-            setIsChoosing={setChoosingAction} chosen={action} />
+            setIsChoosing={setChoosingAction} setChosen={setAction} chosen={action} />
           <ActionButton buttonText="Then " replacementText="That" disable={action == null}
-            setIsChoosing={setChoosingReaction} chosen={reaction} />
+            setIsChoosing={setChoosingReaction} setChosen={setReaction} chosen={reaction} />
           <div className="flex justify-center mt-[100px]">
-            {reaction != null &&
+            {(action != null && reaction != null) &&
               <ValidateButton setValidating={setValidating} text="Continue" />
             }
           </div>
@@ -512,6 +526,7 @@ export default function Create() {
     <div>
       {(!choosingAction && !choosingReaction) &&
         <Creation action={action} reaction={reaction}
+          setAction={setAction} setReaction={setReaction}
           setChoosingReaction={setChoosingReaction}
           setChoosingAction={setChoosingAction}
           actConfig={actConfig} reactConfig={reactConfig}/>
