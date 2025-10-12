@@ -14,9 +14,8 @@ import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import { Button } from '@/components/ui/button';
 import SettingsButton from '@/app/components/Settings';
-import { fetchPersonalApplets } from '@/app/functions/fetch';
 import { PrivateApplet, SpecificPublicApplet } from "@/app/types/applet";
-import { fetchPrivateApplet, fetchDeletePersonApplet } from '@/app/functions/fetch';
+import { fetchPrivateApplet, fetchPersonalApplets, fetchDeletePersonApplet } from '@/app/functions/fetch';
 
 type AppletProp = {
   params: Promise<{ slug: string }>;
@@ -80,7 +79,7 @@ export default function AppletPage({ params }: AppletProp)
                             <p className="text-[20px]">{myApplet.area_info.name}</p>
                         </div>
                         <div className="flex justify-end pt-[50px] mr-[20px]">
-                            <SettingsButton/>
+                            <SettingsButton link={`/my_applets/${myApplet.area_info.name}/edit`}/>
                         </div>
                     </div>
                     <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={() => deleteApplet(currApplet.id)}>

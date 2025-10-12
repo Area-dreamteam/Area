@@ -9,6 +9,7 @@
 
 import { fetchCreateApplet, fetchServices, fetchAction, fetchActs } from "@/app/functions/fetch"
 import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
+import ValidateButton from "@/app/components/Validation"
 import { Service, Act } from "@/app/types/service"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
@@ -86,19 +87,6 @@ function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
   )
 }
 
-interface ValidationProp {
-  text: string,
-  setValidating: (status: boolean) => void
-}
-
-function ValidateButton({ text, setValidating }: ValidationProp) {
-  return (
-    <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => setValidating(true)}>
-      {text}
-    </Button>
-  )
-}
-
 interface CreationProp {
     action: any | null,
     reaction: any | null,
@@ -158,11 +146,9 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
             setIsChoosing={setChoosingAction} setChosen={setAction} chosen={action} />
           <ActionButton buttonText="Then " replacementText="That" disable={action == null}
             setIsChoosing={setChoosingReaction} setChosen={setReaction} chosen={reaction} />
-          <div className="flex justify-center mt-[100px]">
             {(action != null && reaction != null) &&
-              <ValidateButton setValidating={setValidating} text="Continue" />
+              <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px]"}/>
             }
-          </div>
         </div>
       )}
     </div>
