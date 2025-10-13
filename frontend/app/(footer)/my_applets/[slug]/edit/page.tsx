@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, use, useState } from "react";
 import ValidateButton from "@/app/components/Validation";
-import { PrivateApplet, SpecificPublicApplet } from "@/app/types/applet";
+import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
 import { fetchPrivateApplet, fetchPersonalApplets, fetchDeletePersonApplet } from '@/app/functions/fetch';
 import redirectToPage from "@/app/functions/redirections";
 
@@ -24,14 +24,19 @@ function editApplet(appletName: string)
     redirectToPage(`/my_applets/${appletName}`);
 }
 
+function modifyApplet(applet: SpecificPrivateApplet)
+{
+    
+}
+
 export default function Edit({ params }: AppletProp)
 {
     const slug = decodeURIComponent(use(params).slug);
     const [loading, setLoading] = useState(true);
-    const [modifiedApplet, setModifiedApplet] = useState(null);
     const [applets, setApplets] = useState<PrivateApplet[] | null>(null);
-    const [myApplet, setMyApplet] = useState<SpecificPublicApplet | null>(null);
+    const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null);
     const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(undefined);
+    const [modifiedApplet, setModifiedApplet] = useState<SpecificPrivateApplet | null>(null);
 
     useEffect(() => {
         const loadApplets = async () => {
@@ -56,8 +61,10 @@ export default function Edit({ params }: AppletProp)
     }, [currApplet])
 
     useEffect(() => {
-        if (myApplet != null)
+        if (myApplet != null) {
             setLoading(false);
+            setModifiedApplet(myApplet);
+        }
     }, [myApplet]);
 
     return (
@@ -65,7 +72,7 @@ export default function Edit({ params }: AppletProp)
             {loading ?  (
                 ""
                ) : (
-                (myApplet !== null &&
+                (myApplet && modifiedApplet &&
                     <div className="mx-[50px] py-[50px]">
                         <h1 className="flex justify-center text-[40px] font-bold">
                             {myApplet?.area_info.name}
@@ -76,9 +83,9 @@ export default function Edit({ params }: AppletProp)
                             At: {new Date(myApplet.area_info.created_at).toLocaleDateString()}
                         </p>
                         <Input className="bg-white text-black w-[600px]" defaultValue={myApplet.area_info.description ? myApplet.area_info.description : ""} placeholder="description"/>
-                        <Input className="bg-white text-black w-[600px]" defaultValue={myApplet.area_info.color} placeholder="color"/>
+                        <Input className="bg-white text-black w-[600px]" defaultValue={myApplet.area_info.color} placeholder="color" onChange={() => modifyApplet(modifiedApplet)}/>
                         <br/>
-                        <ValidateButton clickAct={() => editApplet(myApplet.area_info.name)} arg={modifiedApplet} text="Validate" addToClass="mt-[50px]"/>
+                        <ValidateButton clickAct={() => editApplet(modifiedApplet.area_info.name)} arg={modifiedApplet} text="Validate" addToClass="mt-[50px]"/>
                     </div>
                 )
             )}

@@ -14,7 +14,7 @@ import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import { Button } from '@/components/ui/button';
 import SettingsButton from '@/app/components/Settings';
-import { PrivateApplet, SpecificPublicApplet } from "@/app/types/applet";
+import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
 import { fetchPrivateApplet, fetchPersonalApplets, fetchDeletePersonApplet } from '@/app/functions/fetch';
 
 type AppletProp = {
@@ -32,7 +32,7 @@ export default function AppletPage({ params }: AppletProp)
     const slug = decodeURIComponent(use(params).slug);
     const [loading, setLoading] = useState(true);
     const [applets, setApplets] = useState<PrivateApplet[] | null>(null);
-    const [myApplet, setMyApplet] = useState<SpecificPublicApplet | null>(null);
+    const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null);
     const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(undefined);
 
     useEffect(() => {
@@ -74,9 +74,9 @@ export default function AppletPage({ params }: AppletProp)
                     <div className="ml-[20px] pt-[50px]">
                     <BackButton/>
                     </div>
-                    <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-2 mx-auto">
+                    <div className="flex flex-col mt-[50px] text-[35px] mb-[20px] font-bold col-span-2 mx-auto">
+                            <p className="text-[30px]">{myApplet.area_info.name}</p>
                             <p className="mb-[20px]">{myApplet.area_info.description}</p>
-                            <p className="text-[20px]">{myApplet.area_info.name}</p>
                         </div>
                         <div className="flex justify-end pt-[50px] mr-[20px]">
                             <SettingsButton link={`/my_applets/${myApplet.area_info.name}/edit`}/>

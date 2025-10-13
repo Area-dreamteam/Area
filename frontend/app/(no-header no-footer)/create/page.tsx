@@ -16,14 +16,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
-import Image from "next/image"
+// import Image from "next/image"
 import { SpecificAction, SpecificReaction } from "@/app/types/actions"
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
@@ -57,7 +56,6 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
           Add
         </Button>
       }
-      {/* add a delete/edit button for each box (if and then) */}
       {chosen &&
         <div>
           <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setIsChoosing(true)}>
