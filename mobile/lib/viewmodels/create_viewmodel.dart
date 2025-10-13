@@ -33,6 +33,8 @@ class CreateViewModel extends ChangeNotifier {
   ConfiguredItem<ActionModel>? get selectedAction => _selectedAction;
   ConfiguredItem<Reaction>? get selectedReaction => _selectedReaction;
 
+  bool get isActionAndReactionSelected => _selectedAction != null && _selectedReaction != null;
+
   String get name => _name;
   String get description => _description;
   CreateState get state => _state;
