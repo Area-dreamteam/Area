@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from ..services import ActionBasicInfo, ReactionBasicInfo, CreateAreaAction, CreateAreaReaction
 from ..users import UserShortInfo
+from typing import Optional
 
 class AreaGet(BaseModel):
     id: int
@@ -35,3 +36,9 @@ class CreateArea(BaseModel):
     description: str
     action: CreateAreaAction
     reactions: list[CreateAreaReaction]
+
+class UpdateArea(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    action: Optional[CreateAreaAction] = None
+    reactions: Optional[list[CreateAreaReaction]] = None
