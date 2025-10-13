@@ -56,13 +56,19 @@ class Reaction:
 
 class Service:
     def __init__(
-        self, description: str, category: str, color: str = "#000000", img_url: str = ""
+        self,
+        description: str,
+        category: str,
+        color: str = "#000000",
+        img_url: str = "",
+        oauth: str = False,
     ) -> None:
         self.name: str = self.__class__.__name__
         self.description: str = description
         self.color: str = color
         self.image_url: str = img_url
         self.category: str = category
+        self.oauth: bool = oauth
         self.actions: Dict[str, Action] = {}
         self.reactions: Dict[str, Reaction] = {}
         self._auto_register()
@@ -123,6 +129,7 @@ class Service:
             "category": self.category,
             "actions": self.get_actions_dict(),
             "reactions": self.get_reactions_dict(),
+            "aouth_required": self.oauth,
         }
 
     def toJSON(self):
@@ -139,14 +146,27 @@ class Service:
 
 
 class oauth_service:
-    def __init__(self) -> None:
+    def __init__(self, color: str = "#000000", img_url: str = "") -> None:
         self.name: str = self.__class__.__name__
+        self.color: str = color
+        self.image_url: str = img_url
 
     def oauth_link(self) -> str:
         pass
 
     def oauth_callback(self, session: Session, code: str, user: User) -> None:
         pass
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the entire service to a dictionary representation."""
+        return {
+            "name": self.name,
+            "color": self.color,
+            "image_url": self.image_url,
+        }
+
+    def toJSON(self):
+        return json.dump(self.to_dict())
 
 
 def create_service_dictionnary(

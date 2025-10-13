@@ -160,7 +160,7 @@ def sync_services_catalog_to_db(session: Session, catalog: dict):
 
 
 def init_db(catalog: dict):
-    print(json.dumps(catalog, indent=2))
+    # print(json.dumps(catalog, indent=2))
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         sync_services_catalog_to_db(session, catalog)

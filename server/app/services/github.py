@@ -10,7 +10,6 @@ from fastapi.responses import HTMLResponse
 from core.config import settings
 
 from pydantic import BaseModel
-from core.config import Settings
 from services.services_classes import oauth_service
 from sqlmodel import Session
 from pydantic_core import ValidationError
@@ -84,7 +83,7 @@ class github_oauth(oauth_service):
         base_url = "https://github.com/login/oauth/authorize"
         redirect = "http://localhost:8080/services/github/login_oauth_token"
         params = {
-            "client_id": Settings.GITHUB_CLIENT_ID,
+            "client_id": settings.GITHUB_CLIENT_ID,
             "redirect_uri": redirect,
             "prompt": "select_account",
             "allow_signup": "true",

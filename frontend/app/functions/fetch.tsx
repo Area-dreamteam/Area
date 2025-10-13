@@ -198,24 +198,24 @@ export async function fetchAction(id: number, type: string, setAction: (data: an
 }
 
 export async function fetchPersonalApplets(setPersonalApplets: (data: any) => void) {
-    try {
-      const res = await Calls.get("/areas/");
+  try {
+    const res = await Calls.get("/areas/");
 
-      if (res.status != 200) {
-        setPersonalApplets(null);
-        return false;
-      }
-      setPersonalApplets(res.data);
-      return true;
-    } catch (err) {
-      console.log("Error: ", err);
+    if (res.status != 200) {
+      setPersonalApplets(null);
+      return false;
     }
-    setPersonalApplets(null);
-    return false;
+    setPersonalApplets(res.data);
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  setPersonalApplets(null);
+  return false;
 }
 
 export async function fetchCreateApplet(action: Act, reaction: Act,
-    title: string, actConfig: ConfigRespAct[], reactConfig: ConfigRespAct[]) {
+  title: string, actConfig: ConfigRespAct[], reactConfig: ConfigRespAct[]) {
   try {
     const res = await Calls.post("/areas", {
       name: title,

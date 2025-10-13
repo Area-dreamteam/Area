@@ -14,3 +14,10 @@ def get_json_services():
     for service_name, service in services_dico.items():
         json_services[service_name] = service.to_dict()
     return json_services
+
+
+def get_json_services_login():
+    json_services = {}
+    for service_name, service in services_oauth.items():
+        json_services[service_name] = service.to_dict()
+    return list(json_services.values())

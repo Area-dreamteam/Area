@@ -6,24 +6,30 @@
 */
 
 export interface Act {
-    id: number;
-    name: string;
-    description: string;
+  id: number;
+  name: string;
+  description: string;
 }
 
 export interface Service {
-    id: number;
-    name: string;
-    image_url: string;
-    logo: string;
-    color: string;
+  id: number;
+  name: string;
+  image_url: string;
+  logo: string;
+  color: string;
 }
 
 export interface SpecificService {
-    id: number;
-    name: string;
-    description: string;
-    image_url: string;
-    logo: string;
-    color: string;
+  id: number;
+  name: string;
+  description: string;
+  image_url: string;
+  logo: string;
+  color: string;
+}
+
+export interface OAuth_login {
+  name: string
+  color: string
+  image_url: string
 }
