@@ -5,16 +5,15 @@
 ** page
 */
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+'use client'
+
 import Link from "next/link"
+import { use, useState, useEffect } from "react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { fetchMyself } from "@/app/functions/fetch"
+import redirectToPage from "@/app/functions/redirections"
+import MyProfileProp from "@/app/types/profile"
 
 function profileButton(text: string, enable: boolean)
 {
@@ -53,7 +52,12 @@ function LinkedAccount(text: string, button: string, link: string)
     )
 }
 
-export default function Settings()
+interface PersonnalInfoProp
+{
+    profile: MyProfileProp | null;
+}
+
+function Profile({profile}: PersonnalInfoProp)
 {
     return (
         <div className="mx-auto mt-[40px] w-[700px] font-bold">
@@ -71,18 +75,18 @@ export default function Settings()
             <h3>
                 Username
             </h3>
-            <Input defaultValue="Pseudo"/>
+            <Input defaultValue={profile?.name}/>
             <br/><br/>
             <h3>
                 Password
             </h3>
-            <Input defaultValue="Password" type="password" readOnly/>
+            <Input defaultValue="********" type="password" readOnly/>
             {profileLink("Change password", "/settings/change_password", "#0099ff")}
             <br/><br/>
             <h3>
                 Email
             </h3>
-            <Input defaultValue="Email"/>
+            <Input defaultValue={profile?.email}/>
             <br/><br/>
             {profileLabels("Linked accounts")}
             {LinkedAccount("Apple is not linked", "Link your account", "https://apple.com")}
@@ -92,6 +96,34 @@ export default function Settings()
             <Button className="block mx-auto text-[40px] mt-[70px] text-white w-[300px] h-[100px] rounded-full font-bold mb-[20px]" disabled>
                 Update
             </Button>
+        </div>
+    )
+}
+
+export default function Settings()
+{
+    const [available, setAvailable] = useState<boolean>(false);
+    const [profile, setProfile] = useState<MyProfileProp | null>(null);
+
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            const succeed = await (fetchMyself(setProfile));
+            console.log(profile);
+            if (succeed)
+                setAvailable(true);
+            else
+                redirectToPage("/login");
+        }
+        fetchProfileData();
+    }, []);
+
+    return (
+        <div>
+            {available ?
+                <Profile profile={profile}/>
+            :
+                <p className="text-[50px]">Loading...</p>
+            }
         </div>
     )
 }

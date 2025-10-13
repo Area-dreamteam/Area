@@ -8,11 +8,10 @@
 'use client'
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useEffect, use, useState } from "react";
 import ValidateButton from "@/app/components/Validation";
 import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
-import { fetchPrivateApplet, fetchPersonalApplets, fetchDeletePersonApplet } from '@/app/functions/fetch';
+import { fetchPrivateApplet, fetchPersonalApplets, fetchDeletePersonalApplet } from '@/app/functions/fetch';
 import redirectToPage from "@/app/functions/redirections";
 
 type AppletProp = {

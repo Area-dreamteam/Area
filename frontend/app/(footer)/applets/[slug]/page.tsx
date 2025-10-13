@@ -71,9 +71,6 @@ export default function AppletPage({ params }: AppletProp) {
                             <p className="mb-[20px]">{myApplet.area_info.description}</p>
                             <p className="text-[20px]">{myApplet.area_info.name}</p>
                         </div>
-                        <div className="flex justify-end pt-[50px] mr-[20px]">
-                            <SettingsButton/>
-                        </div>
                     </div>
                     <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={() => redirect("/create")}>
                         Create applet

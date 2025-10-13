@@ -15,7 +15,7 @@ import BackButton from '@/app/components/Back';
 import { Button } from '@/components/ui/button';
 import SettingsButton from '@/app/components/Settings';
 import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
-import { fetchPrivateApplet, fetchPersonalApplets, fetchDeletePersonApplet } from '@/app/functions/fetch';
+import { fetchPrivateApplet, fetchPersonalApplets, fetchDeletePersonalApplet } from '@/app/functions/fetch';
 
 type AppletProp = {
   params: Promise<{ slug: string }>;
@@ -23,7 +23,7 @@ type AppletProp = {
 
 async function deleteApplet(id: number)
 {
-    await fetchDeletePersonApplet(id);
+    await fetchDeletePersonalApplet(id);
     redirect("/my_applets");
 }
 
