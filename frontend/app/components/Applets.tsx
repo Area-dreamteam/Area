@@ -25,7 +25,7 @@ export default function Applets({search = "", applets = null,
         applet.name.toLowerCase().includes(search.toLowerCase()) ?
         (
             <div key={applet.id} className={boxClassName} style={{ backgroundColor: applet.color }} onClick={() => onClick(applet)}>
-                <div className="flex justify-center">
+                <div className="flex justify-center bg-black rounded-t-lg">
                     <p className="font-bold text-white text-[20px] m-[20px]">{applet.name}</p>
                 </div>
             </div>

@@ -37,7 +37,7 @@ export default function Services({search = "", filter = null, services = null,
             ) : ( ""
                 // <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[200px] h-[200px]"/>
             )}
-            <div className="flex justify-center">
+            <div className="flex justify-center bg-black rounded-t-lg">
                 <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
             </div>
         </div>

@@ -60,7 +60,7 @@ export default function My_applet()
                     {taskbarButton("Enabled", page, setPage, true)}
                 </div>
             </div>
-            <Applets search={searched} applets={FilterApplets(page, applets)} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer mb-[20px]" onClick={redirectToApplet}/>
+            <Applets search={searched} applets={FilterApplets(page, applets)} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer mb-[20px] border-black border-[2px]" onClick={redirectToApplet}/>
         </div>
     )
 }

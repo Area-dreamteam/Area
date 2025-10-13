@@ -94,10 +94,10 @@ function All({search = "", services = null, applets = null}: SearchProp)
     return (
         <div>
             <h1 className="flex justify-center font-bold text-[25px]"> Services </h1>
-            <Services search={search} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToService}/>
+            <Services search={search} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToService}/>
             <br/>
             <h1 className="flex justify-center font-bold text-[25px]"> Applets </h1>
-            <Applets search={search} applets={applets}  className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToApplet}/>
+            <Applets search={search} applets={applets}  className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToApplet}/>
         </div>
     )
 }
@@ -141,7 +141,7 @@ export default function Explore()
             {page == "Services"  && <Filter filter={filter} setFilter={setFilter}/>}
             <div className="flex justify-center">
                 <div>
-                    {page == "Services" && <Services filter={filter} search={searched} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToService}/>}
+                    {page == "Services" && <Services filter={filter} search={searched} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToService}/>}
                     {page == "Applets" && <Applets search={searched} applets={applets}  className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToApplet}/>}
                 </div>
                 {page == "All" && <All search={searched} services={services} applets={applets}/>}
