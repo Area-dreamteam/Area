@@ -44,6 +44,19 @@ export async function fetchMyself(setMyProfile: (arg: MyProfileProp | null) => v
   return false;
 }
 
+export async function fetchDeleteMyself()
+{
+    try {
+        const res = await Calls.delete("/users/me");
+        if (res.status != 200)
+            return false;
+        return true;
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+    return false;
+}
+
 export async function fetchLogin(email: string, password: string)
 {
   try {
