@@ -15,9 +15,9 @@ export default function Page({ params }: CallbackProps) {
     const service = oauth_name
     if (code) {
       if (oauth_type == "login") {
-        window.location.href = `${process.env.NEXT_PUBLIC_BACK_URL}/oauth/login_oauth_token/${service}?code=${code}`
+        window.location.href = `/api/backend/oauth/login_oauth_token/${service}?code=${code}`
       } else if (oauth_type == "link") {
-        window.location.href = `${process.env.NEXT_PUBLIC_BACK_URL}/oauth/oauth_token/${service}?code=${code}`
+        window.location.href = `/api/backend/oauth/oauth_token/${service}?code=${code}`
       } else {
         console.error("unkown oauth method")
       }

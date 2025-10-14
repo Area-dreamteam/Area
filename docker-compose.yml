@@ -1,6 +1,7 @@
 services:
   client_web:
     container_name: client_web
+    env_file: "./frontend/.env.production"
     ports:
       - "8081:3000"
     restart: always
