@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
-const API_URL = process.env.BACKEND_URL;
+const API_URL =
+  process.env.BACKEND_URL || "https://area-prod-back.onrender.com/register";
 
 const nextConfig: NextConfig = {
   async rewrites() {
