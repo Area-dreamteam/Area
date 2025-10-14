@@ -45,4 +45,4 @@ class Google(Service):
             print(f"Body: {area_action.config.get('body')}")
 
     def __init__(self) -> None:
-        super().__init__("Service email de Google", "mail")
+        super().__init__("Service email de Google", "mail", "#000000", "", True)
