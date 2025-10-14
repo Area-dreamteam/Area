@@ -44,6 +44,8 @@ jobs:
           file: "./frontend/Dockerfile.prod"
           push: true
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            BACKEND_URL=${{ secrets.BACKEND_URL }}
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROD_REPO }}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROD_REPO }}:${{ steps.meta.outputs.SHORT_SHA }}

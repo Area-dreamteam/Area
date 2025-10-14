@@ -18,6 +18,8 @@ FROM base AS runner
 WORKDIR /prod
 
 ENV NODE_ENV=production
+ARG BACKEND_URL
+ENV NEXT_PUBLIC_BACKEND_URL=$BACKEND_URL
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
