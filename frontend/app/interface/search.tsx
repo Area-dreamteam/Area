@@ -5,13 +5,25 @@
 ** search
 */
 
-import { Applet } from "../types/applet"
+import { Timestamp } from "next/dist/server/lib/cache-handlers/types"
 import { Service } from "../types/service"
 
-export interface SearchProp {
-    search?: string
-    widgets?: Applet[] | Service[] | null,
-    className?: string,
-    boxClassName?: string,
-    onClick?: (param: any) => void
+export interface Applet {
+  id: number,
+  name: string,
+  description: string,
+  user: {
+    id: number,
+    name: string
+  },
+  enable: boolean,
+  created_at: Timestamp,
+  color: string
 }
+
+export interface SearchProp {
+  search?: string
+  services?: Service[] | null
+  applets?: Applet[] | null
+}
+
