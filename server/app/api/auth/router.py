@@ -14,7 +14,7 @@ from dependencies.db import SessionDep
 from core.config import settings
 
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register")

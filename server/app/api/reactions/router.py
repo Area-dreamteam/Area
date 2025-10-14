@@ -5,9 +5,9 @@ from schemas import ReactionIdGet, ServiceGet
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser
 
-router = APIRouter()
+router = APIRouter(prefix="/reactions", tags=["reactions"])
 
-@router.get("/reactions/{id}", response_model=ReactionIdGet)
+@router.get("/{id}", response_model=ReactionIdGet)
 def get_reaction_by_id(id: int, session: SessionDep, _: CurrentUser) -> ReactionIdGet:
     reaction: Reaction = session.exec(select(Reaction).where(Reaction.id == id)).first()
     if not reaction:

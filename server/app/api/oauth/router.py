@@ -3,15 +3,13 @@ from services.services import get_json_services_login
 from dependencies.roles import CurrentUser, CurrentUserNoFail
 from sqlmodel import select
 from models.oauth.oauth_login import OAuthLogin
-from pathlib import Path
-from pydantic import BaseModel
 from services.services import services_oauth, services_dico
 from dependencies.db import SessionDep
 from fastapi import APIRouter, HTTPException
 from schemas import OauthLoginGet
 
 
-router = APIRouter()
+router = APIRouter(prefix="/oauth", tags=["oauth"])
 
 
 @router.get("/index/{service}")
@@ -58,9 +56,14 @@ def login_oauth_token(
 @router.get("/available_oauths")
 def get_oauths(session: SessionDep) -> list[OauthLoginGet]:
     oauths = session.exec(select(Service)).all()
+    if not oauths:
+        raise HTTPException(status_code=404, detail="Data not found")
     return oauths
 
 
 @router.get("/available_oauths_login")
 def get_oauths_login(session: SessionDep) -> list[OauthLoginGet]:
-    return list(get_json_services_login().values())
+    oauths = session.exec(select(OAuthLogin)).all()
+    if not oauths:
+        raise HTTPException(status_code=404, detail="Data not found")
+    return oauths

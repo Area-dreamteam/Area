@@ -7,14 +7,14 @@ from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser, CurrentUserNoFail
 
 
-router = APIRouter(tags=["services"], prefix="")
+router = APIRouter(prefix="/services", tags=["services"])
 
 
 @router.get("/", response_model=list[ServiceGet])
 def get_service(session: SessionDep) -> list[ServiceGet]:
     services: list[Service] = session.exec(
         select(
-            Service.id, Service.name, Service.image_url, Service.category, Service.color, Service.oauth_required
+            Service.id, Service.name, Service.image_url, Service.category, Service.color
         )
     ).all()
     return services

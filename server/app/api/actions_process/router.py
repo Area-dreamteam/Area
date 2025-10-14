@@ -17,7 +17,7 @@ from dependencies.db import SessionDep
 from core.logger import logger
 from cron.cron import deleteJob
 
-router = APIRouter()
+router = APIRouter(prefix="/actions_process", tags=["actions_process"])
 
 
 def reaction_process(session: SessionDep, area_id: int):
@@ -68,7 +68,7 @@ def compare_action_data(
             reaction_process(session, user_action.area_id)
 
 
-@router.post("/actions_process")
+@router.post("/")
 def process_action(action_id: int, session: SessionDep):
     action_data: tuple[Action, Service] = session.exec(
         select(Action, Service)
