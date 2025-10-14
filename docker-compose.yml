@@ -14,20 +14,20 @@ services:
     depends_on:
       - db
       - server
-      - client_mobile
+#      - client_mobile
 
-  client_mobile:
-    container_name: client_mobile
-    build:
-      context: ./mobile
-      dockerfile: "Dockerfile.prod"
-    volumes:
-      - shared-volume:/app/target
+#  client_mobile:
+#    container_name: client_mobile
+#    build:
+#      context: ./mobile
+#      dockerfile: "Dockerfile.prod"
+#    volumes:
+#      - shared-volume:/app/target
 
   server:
-    env_file: "./server/.env"
+    env_file: "./server/.env.production"
     ports:
-      - "8080:8000"
+      - "8080:8080"
     build:
       context: "./server"
       dockerfile: "Dockerfile.prod"

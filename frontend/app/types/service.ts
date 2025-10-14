@@ -1,9 +1,9 @@
 /*
-** EPITECH PROJECT, 2025
-** Area_Mirroring
-** File description:
-** service
-*/
+ ** EPITECH PROJECT, 2025
+ ** Area_Mirroring
+ ** File description:
+ ** service
+ */
 
 export interface Act {
   id: number;
@@ -16,6 +16,7 @@ export interface Service {
   name: string;
   image_url: string;
   logo: string;
+  category: string;
   color: string;
 }
 
@@ -29,7 +30,7 @@ export interface SpecificService {
 }
 
 export interface OAuth_login {
-  name: string
-  color: string
-  image_url: string
+  name: string;
+  color: string;
+  image_url: string;
 }
