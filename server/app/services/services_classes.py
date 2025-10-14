@@ -129,7 +129,7 @@ class Service:
             "category": self.category,
             "actions": self.get_actions_dict(),
             "reactions": self.get_reactions_dict(),
-            "aouth_required": self.oauth,
+            "oauth_required": self.oauth,
         }
 
     def toJSON(self):

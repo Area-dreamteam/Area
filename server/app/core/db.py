@@ -176,6 +176,7 @@ def sync_services_catalog_to_db(session: Session, catalog: dict):
                 image_url=service_data.get("image_url"),
                 color=service_data.get("color"),
                 category=service_data.get("category"),
+                oauth_required=service_data.get("oauth_required"),
             ),
             conflict_target=["name"],
             update_fields=dict(
@@ -183,6 +184,7 @@ def sync_services_catalog_to_db(session: Session, catalog: dict):
                 image_url=service_data.get("image_url"),
                 color=service_data.get("color"),
                 category=service_data.get("category"),
+                oauth_required=service_data.get("oauth_required"),
             ),
             returning_column=Service.id,
         )

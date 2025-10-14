@@ -14,7 +14,7 @@ router = APIRouter(tags=["services"], prefix="")
 def get_service(session: SessionDep) -> list[ServiceGet]:
     services: list[Service] = session.exec(
         select(
-            Service.id, Service.name, Service.image_url, Service.category, Service.color
+            Service.id, Service.name, Service.image_url, Service.category, Service.color, Service.oauth_required
         )
     ).all()
     return services
@@ -33,6 +33,7 @@ def get_service_by_id(id: int, session: SessionDep, _: CurrentUser) -> ServiceId
         image_url=service.image_url,
         category=service.category,
         color=service.color,
+        oauth_required=service.oauth_required,
     )
     return service_data
 

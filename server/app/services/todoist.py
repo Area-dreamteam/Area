@@ -60,7 +60,7 @@ class Todoist(ServiceClass):
             print(f"Creating task with params: {area_action.config}")
 
     def __init__(self) -> None:
-        super().__init__("A modern interconnected todolist", "LifeStyle")
+        super().__init__("A modern interconnected todolist", "LifeStyle", "#000000", "", True)
 
     def _is_token_valid(self, token):
         try:
