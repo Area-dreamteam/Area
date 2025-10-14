@@ -1,3 +1,4 @@
+from core.config import settings
 from cron.cron import print_jobs
 from services.services import get_json_services, get_json_services_login
 from fastapi import FastAPI, Request
@@ -38,7 +39,7 @@ app = FastAPI(lifespan=lifespan, title="AREA API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[settings.FRONT_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

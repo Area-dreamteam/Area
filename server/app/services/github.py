@@ -62,7 +62,7 @@ class github_oauth(oauth_service):
 
     def oauth_link(self) -> str:
         base_url = "https://github.com/login/oauth/authorize"
-        redirect = "http://localhost:3000/callbacks/login/github_oauth"
+        redirect = f"{settings.FRONT_URL}/callbacks/login/github_oauth"
         params = {
             "client_id": settings.GITHUB_CLIENT_ID,
             "redirect_uri": redirect,
