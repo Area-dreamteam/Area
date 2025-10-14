@@ -109,7 +109,7 @@ export async function fetchActs(
 
 export async function fetchServices(setServices: (data: any) => void) {
   try {
-    const res = await Calls.get("/services");
+    const res = await Calls.get("/services/list");
 
     if (res.status != 200) {
       setServices(null);
