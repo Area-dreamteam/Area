@@ -72,7 +72,7 @@ export default function AppletPage({ params }: AppletProp)
                 <div>
                     <div className="grid grid-cols-4 text-white w-screen h-[500px] rounded-b-xl" style={{ background: myApplet.area_info.color }}>
                     <div className="ml-[20px] pt-[50px]">
-                    <BackButton/>
+                    <BackButton dir={"/my_applets"}/>
                     </div>
                     <div className="flex flex-col mt-[50px] text-[35px] mb-[20px] font-bold col-span-2 mx-auto">
                             <p className="text-[30px]">{myApplet.area_info.name}</p>
