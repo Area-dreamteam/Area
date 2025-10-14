@@ -1,6 +1,6 @@
 from models.services.service import Service
 from services.services import get_json_services_login
-from dependencies.roles import CurrentUserNoFail
+from dependencies.roles import CurrentUser, CurrentUserNoFail
 from sqlmodel import select
 from models.oauth.oauth_login import OAuthLogin
 from pathlib import Path
@@ -44,7 +44,7 @@ def login_index(service: str):
 
 
 @router.get("/oauth_token/{service}")
-def oauth_token(service: str, code: str, session: SessionDep, user: CurrentUserNoFail):
+def oauth_token(service: str, code: str, session: SessionDep, user: CurrentUser):
     return services_dico[service].oauth_callback(session, code, user)
 
 

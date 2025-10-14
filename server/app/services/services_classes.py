@@ -3,6 +3,7 @@ from typing import Dict, Optional, Any, Union
 from core.logger import logger
 from models import User, AreaAction, AreaReaction
 from sqlmodel import Session
+from fastapi import Response
 
 
 class Action:
@@ -132,16 +133,13 @@ class Service:
             "aouth_required": self.oauth,
         }
 
-    def toJSON(self):
-        return json.dump(self.to_dict())
-
     def is_connected(self, session: Session) -> bool:
-        pass
+        return False
 
     def oauth_link(self) -> str:
-        pass
+        return ""
 
-    def oauth_callback(self, session: Session, code: str, user: User) -> None:
+    def oauth_callback(self, session: Session, code: str, user: User) -> Response:
         pass
 
 
@@ -152,9 +150,11 @@ class oauth_service:
         self.image_url: str = img_url
 
     def oauth_link(self) -> str:
-        pass
+        return ""
 
-    def oauth_callback(self, session: Session, code: str, user: User) -> None:
+    def oauth_callback(
+        self, session: Session, code: str, user: User | None
+    ) -> Response:
         pass
 
     def to_dict(self) -> Dict[str, Any]:
@@ -164,9 +164,6 @@ class oauth_service:
             "color": self.color,
             "image_url": self.image_url,
         }
-
-    def toJSON(self):
-        return json.dump(self.to_dict())
 
 
 def create_service_dictionnary(

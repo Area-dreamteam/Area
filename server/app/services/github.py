@@ -1,3 +1,4 @@
+from services.oauth_lib import oauth_add_login
 from core.security import sign_jwt
 import requests
 from urllib.parse import urlencode
@@ -73,96 +74,19 @@ class github_oauth(oauth_service):
         }
         return f"{base_url}?{urlencode(params)}"
 
-    def oauth_callback(self, session: Session, code: str, user: User) -> None:
-        def windowCloseAndCookie(token: str) -> Response:
-            html = f"""
-            <script>
-              window.opener.postMessage({{type: "{self.name}_login_complete" }}, "http://localhost:3000/");
-              window.close();
-            </script>
-            """
-            response = HTMLResponse(content=html)
-            response.set_cookie(
-                key="access_token",
-                value=f"Bearer {token}",
-                httponly=True,
-                secure=True,
-                max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
-                samesite="none",
-            )
-            return response
-
+    def oauth_callback(
+        self, session: Session, code: str, user: User | None
+    ) -> Response:
         try:
             token_res = self._get_token(
                 settings.GITHUB_CLIENT_ID, settings.GITHUB_CLIENT_SECRET, code
             )
         except GithubApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
-
         try:
             user_info = self._get_email(token_res.access_token)[0]
-            if user is None:
-                existing = session.exec(
-                    select(User).where(User.email == user_info["email"])
-                ).first()
-            else:
-                existing = session.exec(select(User).where(User.id == user.id)).first()
-            if not existing:
-                """User Register with oauth"""
-                new_user = User(
-                    name=user_info["email"].split("@")[0],
-                    email=user_info["email"],
-                )
-
-                session.add(new_user)
-                session.commit()
-                session.refresh(new_user)
-
-                service = session.exec(
-                    select(OAuthLogin).where(OAuthLogin.name == self.name)
-                ).first()
-
-                new_user_service = UserOAuthLogin(
-                    user_id=new_user.id,
-                    oauth_login_id=service.id,
-                    access_token=token_res.access_token,
-                )
-                session.add(new_user_service)
-                session.commit()
-                token = sign_jwt(new_user.id)
-
-                return windowCloseAndCookie(token)
-            """User login with new oauth"""
-
-            service = session.exec(
-                select(UserOAuthLogin)
-                .join(OAuthLogin, OAuthLogin.id == UserOAuthLogin.oauth_login_id)
-                .where(
-                    OAuthLogin.name == self.name,
-                    UserOAuthLogin.user_id == existing.id,
-                )
-            ).first()
-            if not service:
-                """Already existing user, First time connecting to service"""
-
-                service = session.exec(
-                    select(OAuthLogin).where(OAuthLogin.name == self.name)
-                ).first()
-                new_user_service = UserOAuthLogin(
-                    user_id=existing.id,
-                    oauth_login_id=service.id,
-                    access_token=token_res.access_token,
-                )
-                session.add(new_user_service)
-                session.commit()
-
-                token = sign_jwt(existing.id)
-                return windowCloseAndCookie(token)
-            """Already existing user, connecting to service"""
-            service.access_token = token_res.access_token
-            session.commit()
-            token = sign_jwt(existing.id)
-
-            return windowCloseAndCookie(token)
         except GithubApiError as e:
             return HTTPException(status_code=400, detail=e.message)
+        return oauth_add_login(
+            session, self.name, user, token_res.access_token, user_info["email"]
+        )

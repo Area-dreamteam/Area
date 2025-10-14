@@ -1,4 +1,5 @@
 from typing import Dict, Any
+from services.oauth_lib import oauth_add_link
 from models.areas import AreaAction, AreaReaction
 from services.services_classes import Service as ServiceClass, Action, Reaction
 from models.services.service import Service
@@ -198,25 +199,7 @@ class Todoist(ServiceClass):
         }
         return f"{base_url}?{urlencode(params)}"
 
-    def oauth_callback(self, session: Session, code: str, user: User) -> None:
-        def windowCloseAndCookie(token: str) -> Response:
-            html = f"""
-            <script>
-              window.opener.postMessage({{ type: "{self.name}_login_complete" }}, "*");
-              window.close();
-            </script>
-            """
-            response = HTMLResponse(content=html)
-            response.set_cookie(
-                key="access_token",
-                value=f"Bearer {token}",
-                httponly=True,
-                secure=True,
-                max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
-                samesite="none",
-            )
-            return response
-
+    def oauth_callback(self, session: Session, code: str, user: User) -> Response:
         try:
             token_res = self._get_token(
                 settings.TODOIST_CLIENT_ID,
@@ -226,36 +209,4 @@ class Todoist(ServiceClass):
         except TodoistApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        try:
-            existing = session.exec(select(User).where(User.id == user.id)).first()
-
-            service = session.exec(
-                select(UserService)
-                .join(Service, Service.id == UserService.service_id)
-                .where(Service.name == self.name, UserService.user_id == existing.id)
-            ).first()
-            if not service:
-                """Already existing user, First time connecting to service"""
-
-                service = session.exec(
-                    select(Service).where(Service.name == self.name)
-                ).first()
-                print(service)
-                new_user_service = UserService(
-                    user_id=existing.id,
-                    service_id=service.id,
-                    access_token=token_res.access_token,
-                )
-                session.add(new_user_service)
-                session.commit()
-
-                token = sign_jwt(existing.id)
-                return windowCloseAndCookie(token)
-            """Already existing user, connecting to service"""
-            service.access_token = token_res.access_token
-            session.commit()
-            token = sign_jwt(existing.id)
-
-            return windowCloseAndCookie(token)
-        except TodoistApiError as e:
-            return HTTPException(status_code=400, detail=e.message)
+        return oauth_add_link(session, self.name, user, token_res.access_token)

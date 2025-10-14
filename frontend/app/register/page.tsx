@@ -13,7 +13,7 @@ import { fetchRegister } from "../functions/fetch"
 import { AlertCircleIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -21,13 +21,18 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert"
-import { redirectOauth } from "../functions/oauth"
+import { fetchAvailableOAuth, OAuthInfo, redirectOauth } from "../functions/oauth"
 
 export default function Register() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
   const [password, setPassword] = useState("");
+  const [logins, setLogins] = useState<[OAuthInfo]>()
+  useEffect(() => {
+    fetchAvailableOAuth(setLogins)
+  }, [])
+
 
   async function sendRegisterForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -75,11 +80,18 @@ export default function Register() {
       <div className="flex justify-center">
         <hr className="w-[350px] outline-[1px] mb-[25px]" style={{ color: "#4400ff" }} />
       </div>
-      <div className="flex justify-center">
-        <Button onClick={() => redirectOauth("github")} className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]">
-          Continue with Github
-        </Button>
-      </div>
+      <li>
+        {logins && logins.map((l) => {
+          return (
+            <ul className="flex justify-center" key={l.name}>
+              <Button onClick={() => { redirectOauth(l.name) }} className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]" >
+                Continue with {l.name}
+              </Button>
+            </ul>
+
+          )
+        })}
+      </li>
       <div className="flex justify-center">
         <p className="mb-3 text-black text-center text-[20px]">
           Already have an account ? <Link href="/login" className="hover:text-[#4400ff] underline">Log in here.</Link>
