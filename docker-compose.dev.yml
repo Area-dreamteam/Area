@@ -23,8 +23,10 @@ services:
     networks:
       - area_net
     depends_on:
-      - db
-      - backend
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
 
   backend:
     container_name: area-backend-dev
@@ -40,7 +42,8 @@ services:
     networks:
       - area_net
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:17.6
@@ -55,10 +58,14 @@ services:
       - 5432:5432
     networks:
       - area_net
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"]
+      interval: 2s
+      timeout: 1s
+      retries: 20
 
 volumes:
   pgdata:
 
 networks:
   area_net:
-

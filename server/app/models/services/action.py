@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 class Action(SQLModel, table=True):
     __tablename__ = "action"
     id: int = Field(default=None, primary_key=True)
-    service_id: int = Field(foreign_key="service.id")
+    service_id: int = Field(foreign_key="service.id", ondelete="CASCADE")
     name: str
     interval: str
     description: Optional[str] = None

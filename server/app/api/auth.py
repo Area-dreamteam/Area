@@ -1,5 +1,11 @@
+from fastapi.responses import RedirectResponse
 from fastapi import APIRouter, HTTPException, Cookie, Response
 from sqlmodel import select
+from urllib.parse import urlencode
+from pydantic_core import ValidationError
+from core.config import settings
+import requests
+
 
 from models import User
 from schemas import UserCreate, TokenResponse
@@ -11,7 +17,6 @@ from core.config import settings
 router = APIRouter()
 
 
-
 @router.post("/register")
 def register(user: UserCreate, session: SessionDep):
     existing = session.exec(select(User).where(User.email == user.email)).first()
@@ -21,12 +26,13 @@ def register(user: UserCreate, session: SessionDep):
     new_user = User(
         name=user.email.split("@")[0],
         email=user.email,
-        password=hash_password(user.password)
+        password=hash_password(user.password),
     )
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
     return {"message": "User registered", "id": new_user.id, "email": new_user.email}
+
 
 @router.post("/login")
 def login(user: UserCreate, session: SessionDep, response: Response):
@@ -35,14 +41,16 @@ def login(user: UserCreate, session: SessionDep, response: Response):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     token = sign_jwt(db_user.id)
+
     response.set_cookie(
         key="access_token",
         value=f"Bearer {token}",
         httponly=True,
         secure=True,
-        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600
+        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
     )
     return {"message": "Logged successfully"}
+
 
 @router.post("/logout")
 def logout(response: Response):

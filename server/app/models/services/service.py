@@ -14,6 +14,7 @@ class Service(SQLModel, table=True):
     image_url: str
     category: str
     color: str = "#000000"
+    oauth_required: bool
 
     actions: List["Action"] = Relationship(back_populates="service", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     reactions: List["Reaction"] = Relationship(back_populates="service", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
