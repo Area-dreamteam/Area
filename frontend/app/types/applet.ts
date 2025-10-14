@@ -7,8 +7,21 @@
 
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
-export interface PublicApplet
-{
+export interface Applet {
+  id: number,
+  name: string,
+  description: string,
+  user: {
+    id: number,
+    name: string
+  },
+  enable: boolean,
+  created_at: Timestamp,
+  color: string
+}
+
+
+export interface PublicApplet {
   id: number,
   name: string,
   description: string,
@@ -20,8 +33,7 @@ export interface PublicApplet
   color: string
 }
 
-export interface PrivateApplet
-{
+export interface PrivateApplet {
   id: number,
   name: string,
   description: string,
@@ -34,8 +46,7 @@ export interface PrivateApplet
   color: string
 }
 
-export interface SpecificPublicApplet
-{
+export interface SpecificPublicApplet {
   area_info: {
     id: number,
     name: string,
@@ -75,8 +86,7 @@ export interface SpecificPublicApplet
   ]
 }
 
-export interface SpecificPrivateApplet
-{
+export interface SpecificPrivateApplet {
   area_info: {
     id: number,
     name: string,
