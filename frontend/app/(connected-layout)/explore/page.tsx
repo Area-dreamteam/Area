@@ -26,10 +26,10 @@ DropdownMenu,
 } from "@radix-ui/react-dropdown-menu"
 
 function customDropdown(text: string | null, disable: boolean, 
-    setFilter: (str: string | null) => void)
+    setFilter: (str: string | null) => void, id: number)
 {
     return (
-        <DropdownMenuCheckboxItem className={`hover:bg-[#9ca2ff] hover:text-white pl-[5px] ${disable ? "bg-[#0084ff] text-white" : ""} rounded-md`} onClick={(e) => setFilter(text)}>
+        <DropdownMenuCheckboxItem key={id} className={`hover:bg-[#9ca2ff] hover:text-white pl-[5px] ${disable ? "bg-[#0084ff] text-white" : ""} rounded-md`} onClick={(e) => setFilter(text)}>
             {text ? text : "All services"}
         </DropdownMenuCheckboxItem>
     )
@@ -37,12 +37,20 @@ function customDropdown(text: string | null, disable: boolean,
 
 interface FilterProp
 {
-    filter: string | null
+    filter: string | null,
+    services: Service[] | null,
     setFilter: (str: string | null) => void
 }
 
-function Filter({filter, setFilter}: FilterProp)
+function Filter({services, filter, setFilter}: FilterProp)
 {
+    const dropdownFilters = (services? services.map(service => {
+        return (
+            customDropdown(service.category, filter == service.category, setFilter, service.id)
+        )
+    }
+    ) : "");
+
     return (
         <div className="flex justify-center">
             <DropdownMenu>
@@ -55,15 +63,11 @@ function Filter({filter, setFilter}: FilterProp)
                 <DropdownMenuLabel className="font-bold pb-[10px]">
                     Filters
                 </DropdownMenuLabel>
-                {customDropdown(null, filter == null, setFilter)}
+                {customDropdown(null, filter == null, setFilter, -1)}
                 <DropdownMenuLabel className="font-bold pb-[10px]">
                     Categories
                 </DropdownMenuLabel>
-                {customDropdown("Email", filter == "Email", setFilter)}
-                {customDropdown("Developer tools", filter == "Developer tools", setFilter)}
-                {customDropdown("Everyday life", filter == "Everyday life", setFilter)}
-                {customDropdown("Dev", filter == "Dev", setFilter)}
-                {customDropdown("Life Style", filter == "Life Style", setFilter)}
+                {dropdownFilters}
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
@@ -116,9 +120,9 @@ export default function Explore()
 {
     const [page, setPage] = useState("All");
     const [searched, setSearched] = useState("");
-    const [services, setServices] = useState(null);
-    const [applets, setApplets] = useState(null);
     const [filter, setFilter] = useState<string | null>(null);
+    const [applets, setApplets] = useState<Applet[] | null>(null);
+    const [services, setServices] = useState<Service[] | null>(null);
 
     useEffect(() => {
         fetchServices(setServices);
@@ -138,7 +142,7 @@ export default function Explore()
             <br/>
             <Input className="mx-auto block w-[400px]" placeholder="Search Applets or Services" onChange={(e) => setSearched(e.target.value)}/>
             <br/>
-            {page == "Services"  && <Filter filter={filter} setFilter={setFilter}/>}
+            {page == "Services"  && <Filter services={services} filter={filter} setFilter={setFilter}/>}
             <div className="flex justify-center">
                 <div>
                     {page == "Services" && <Services filter={filter} search={searched} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToService}/>}
