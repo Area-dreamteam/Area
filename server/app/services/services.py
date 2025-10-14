@@ -20,4 +20,4 @@ def get_json_services_login():
     json_services = {}
     for service_name, service in services_oauth.items():
         json_services[service_name] = service.to_dict()
-    return list(json_services.values())
+    return json_services

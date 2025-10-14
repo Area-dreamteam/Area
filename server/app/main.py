@@ -25,7 +25,7 @@ from api import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Server starting...")
-    init_db(get_json_services())
+    init_db(get_json_services(), get_json_services_login())
     print_jobs()
     logger.debug(get_json_services_login())
     yield

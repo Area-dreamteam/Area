@@ -1,8 +1,8 @@
 from core.security import sign_jwt
 import requests
 from urllib.parse import urlencode
-from models.services.service import Service
-from models.users.user_service import UserService
+from models.oauth.oauth_login import OAuthLogin
+from models.users.user_oauth_login import UserOAuthLogin
 from models.users.user import User
 from sqlmodel import select
 from fastapi import HTTPException, Response
@@ -13,25 +13,6 @@ from pydantic import BaseModel
 from services.services_classes import oauth_service
 from sqlmodel import Session
 from pydantic_core import ValidationError
-
-
-def windowCloseAndCookie(token: str) -> Response:
-    html = """
-    <script>
-      window.opener.postMessage({ type: "github_login_complete" }, "*");
-      window.close();
-    </script>
-    """
-    response = HTMLResponse(content=html)
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {token}",
-        httponly=True,
-        secure=True,
-        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
-        samesite="none",
-    )
-    return response
 
 
 class GithubOAuthTokenRes(BaseModel):
@@ -61,7 +42,6 @@ class github_oauth(oauth_service):
         if r.status_code != 200:
             raise GithubApiError("Invalid code or failed to retrieve token")
 
-        print(r.json())
         try:
             return GithubOAuthTokenRes(**r.json())
         except ValidationError:
@@ -81,7 +61,7 @@ class github_oauth(oauth_service):
 
     def oauth_link(self) -> str:
         base_url = "https://github.com/login/oauth/authorize"
-        redirect = "http://localhost:8080/services/github/login_oauth_token"
+        redirect = "http://localhost:3000/callbacks/login/github_oauth"
         params = {
             "client_id": settings.GITHUB_CLIENT_ID,
             "redirect_uri": redirect,
@@ -94,6 +74,24 @@ class github_oauth(oauth_service):
         return f"{base_url}?{urlencode(params)}"
 
     def oauth_callback(self, session: Session, code: str, user: User) -> None:
+        def windowCloseAndCookie(token: str) -> Response:
+            html = f"""
+            <script>
+              window.opener.postMessage({{type: "{self.name}_login_complete" }}, "http://localhost:3000/");
+              window.close();
+            </script>
+            """
+            response = HTMLResponse(content=html)
+            response.set_cookie(
+                key="access_token",
+                value=f"Bearer {token}",
+                httponly=True,
+                secure=True,
+                max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+                samesite="none",
+            )
+            return response
+
         try:
             token_res = self._get_token(
                 settings.GITHUB_CLIENT_ID, settings.GITHUB_CLIENT_SECRET, code
@@ -121,11 +119,12 @@ class github_oauth(oauth_service):
                 session.refresh(new_user)
 
                 service = session.exec(
-                    select(Service).where(Service.name == "github")
+                    select(OAuthLogin).where(OAuthLogin.name == self.name)
                 ).first()
-                new_user_service = UserService(
+
+                new_user_service = UserOAuthLogin(
                     user_id=new_user.id,
-                    service_id=service.id,
+                    oauth_login_id=service.id,
                     access_token=token_res.access_token,
                 )
                 session.add(new_user_service)
@@ -136,19 +135,22 @@ class github_oauth(oauth_service):
             """User login with new oauth"""
 
             service = session.exec(
-                select(UserService)
-                .join(Service, Service.id == UserService.service_id)
-                .where(Service.name == "github", UserService.user_id == existing.id)
+                select(UserOAuthLogin)
+                .join(OAuthLogin, OAuthLogin.id == UserOAuthLogin.oauth_login_id)
+                .where(
+                    OAuthLogin.name == self.name,
+                    UserOAuthLogin.user_id == existing.id,
+                )
             ).first()
             if not service:
                 """Already existing user, First time connecting to service"""
 
                 service = session.exec(
-                    select(Service).where(Service.name == "github")
+                    select(OAuthLogin).where(OAuthLogin.name == self.name)
                 ).first()
-                new_user_service = UserService(
+                new_user_service = UserOAuthLogin(
                     user_id=existing.id,
-                    service_id=service.id,
+                    oauth_login_id=service.id,
                     access_token=token_res.access_token,
                 )
                 session.add(new_user_service)

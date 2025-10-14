@@ -1,6 +1,7 @@
 from typing import Dict, Any
 from models.areas import AreaAction, AreaReaction
-from services.services_classes import Service, Action, Reaction
+from services.services_classes import Service as ServiceClass, Action, Reaction
+from models.services.service import Service
 from schemas.services.todoist import Task, Project
 from core.config import settings
 from models.users.user import User
@@ -29,26 +30,7 @@ class TodoistApiError(Exception):
         super().__init__(self.message)
 
 
-def windowCloseAndCookie(token: str) -> Response:
-    html = """
-    <script>
-      window.opener.postMessage({ type: "todoist_login_complete" }, "*");
-      window.close();
-    </script>
-    """
-    response = HTMLResponse(content=html)
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {token}",
-        httponly=True,
-        secure=True,
-        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
-        samesite="none",
-    )
-    return response
-
-
-class Todoist(Service):
+class Todoist(ServiceClass):
     class task_completed(Action):
         def __init__(self) -> None:
             config = [{"name": "task_id", "type": "input", "values": []}]
@@ -217,7 +199,24 @@ class Todoist(Service):
         return f"{base_url}?{urlencode(params)}"
 
     def oauth_callback(self, session: Session, code: str, user: User) -> None:
-        print("user id: ", user)
+        def windowCloseAndCookie(token: str) -> Response:
+            html = f"""
+            <script>
+              window.opener.postMessage({{ type: "{self.name}_login_complete" }}, "*");
+              window.close();
+            </script>
+            """
+            response = HTMLResponse(content=html)
+            response.set_cookie(
+                key="access_token",
+                value=f"Bearer {token}",
+                httponly=True,
+                secure=True,
+                max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+                samesite="none",
+            )
+            return response
+
         try:
             token_res = self._get_token(
                 settings.TODOIST_CLIENT_ID,
@@ -227,20 +226,19 @@ class Todoist(Service):
         except TodoistApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        print(user)
         try:
             existing = session.exec(select(User).where(User.id == user.id)).first()
 
             service = session.exec(
                 select(UserService)
                 .join(Service, Service.id == UserService.service_id)
-                .where(Service.name == "todoist", UserService.user_id == existing.id)
+                .where(Service.name == self.name, UserService.user_id == existing.id)
             ).first()
             if not service:
                 """Already existing user, First time connecting to service"""
 
                 service = session.exec(
-                    select(Service).where(Service.name == "todoist")
+                    select(Service).where(Service.name == self.name)
                 ).first()
                 print(service)
                 new_user_service = UserService(

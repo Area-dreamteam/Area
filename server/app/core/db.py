@@ -1,4 +1,5 @@
 import json
+from models.oauth.oauth_login import OAuthLogin
 from sqlmodel import SQLModel, select, Session
 from sqlalchemy.dialects.postgresql import insert
 from models import Service, Action, Reaction
@@ -102,6 +103,41 @@ def sync_actions_for_service(session: Session, service_data: dict, service_id: i
         )
 
 
+def sync_services_oauth_catalog_to_db(session: Session, catalog: dict):
+    existing_services = session.exec(select(OAuthLogin)).all()
+    existing_service_names = {service.name for service in existing_services}
+
+    json_services = catalog
+    json_service_names = set(json_services.keys())
+
+    services_to_delete = existing_service_names - json_service_names
+    if services_to_delete:
+        for service in existing_services:
+            if service.name in services_to_delete:
+                session.delete(service)
+                logger.info(f"Deleted service: {service.name}")
+
+    for service_data in catalog.values():
+        result = upsert_data(
+            session=session,
+            model=OAuthLogin,
+            values=dict(
+                name=service_data["name"],
+                image_url=service_data.get("image_url"),
+                color=service_data.get("color"),
+            ),
+            conflict_target=["name"],
+            update_fields=dict(
+                image_url=service_data.get("image_url"),
+                color=service_data.get("color"),
+            ),
+            returning_column=OAuthLogin.id,
+        )
+
+    session.commit()
+    logger.info("Database synchronization completed")
+
+
 def sync_services_catalog_to_db(session: Session, catalog: dict):
     existing_services = session.exec(select(Service)).all()
     existing_service_names = {service.name for service in existing_services}
@@ -159,8 +195,9 @@ def sync_services_catalog_to_db(session: Session, catalog: dict):
     logger.info("Database synchronization completed")
 
 
-def init_db(catalog: dict):
+def init_db(catalog: dict, oauths_catalog: dict):
     # print(json.dumps(catalog, indent=2))
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         sync_services_catalog_to_db(session, catalog)
+        sync_services_oauth_catalog_to_db(session, oauths_catalog)

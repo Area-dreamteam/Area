@@ -2,12 +2,13 @@ import { Calls } from "./fetch";
 
 const handleOauthLogin = (service: string, destination: string) => {
   const authWindow = window.open(
-    `http://localhost:8080/services/${service}/index`,
+    `http://localhost:8080/oauth/login_index/${service}`,
     "GitHub Login",
     "width=600,height=700",
   );
 
   window.addEventListener("message", (event) => {
+    console.log(event.data);
     if (event.data.type === `${service}_login_complete`) {
       console.log(`${service} login finished. Cookie should now be set.`);
       window.location.href = destination;
@@ -17,7 +18,7 @@ const handleOauthLogin = (service: string, destination: string) => {
 
 const handleOauthAddService = (service: string, destination: string) => {
   const authWindow = window.open(
-    `http://localhost:8080/services/${service}/index/`,
+    `http://localhost:8080/oauth/index/${service}`,
     "GitHub Login",
     "width=600,height=700",
   );
@@ -62,6 +63,27 @@ export async function fetchIsConnected(
 
     if (res.status != 200) return false;
     setIsConnected(res.data);
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export interface OAuthInfo {
+  name: string;
+  image_url: string;
+  color: string;
+}
+
+export async function fetchAvailableOAuth(
+  setLogins: (data: [OAuthInfo]) => void,
+) {
+  try {
+    const res = await Calls.get(`/oauth/available_oauths_login`);
+
+    if (res.status != 200) return false;
+    setLogins(res.data);
     return true;
   } catch (err) {
     console.log("Error: ", err);
