@@ -2,7 +2,7 @@ from cron.cron import newJob, isCronExists
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from models import Area, User, Action, AreaAction, Service, AreaReaction, Reaction
-from schemas import AreaGet, UserShortInfo, ActionBasicInfo, ServiceGet, CreateArea, UpdateArea, AreaIdGet, Role
+from schemas import AreaGet, UserShortInfo, ActionBasicInfo, ServiceGet, CreateArea, UpdateArea, AreaIdGet, Role, CreateAreaAction, CreateAreaReaction
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser
 
@@ -89,8 +89,8 @@ def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
         session.refresh(new_area_reaction)
     return {"message": "Area created", "area_id": new_area.id, "user_id": user.id}
 
-@router.patch("/{id}", response_model=AreaIdGet)
-def update_user_area(id: int, areaUpdate: UpdateArea, session: SessionDep,  user: CurrentUser):
+@router.patch("/{id}")
+def update_user_area(id: int, newArea: CreateArea, session: SessionDep,  user: CurrentUser):
     area: Area = session.exec(
         select(Area)
         .where(Area.id == id)
@@ -99,12 +99,9 @@ def update_user_area(id: int, areaUpdate: UpdateArea, session: SessionDep,  user
         raise HTTPException(status_code=404, detail="Data not found")
     if area.user_id != user.id and user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Permission Denied")
-    
-    # Update que les configs ou tout ?
-    session.add(area)
-    session.commit()
-    session.refresh(area)
-    return area
+
+    session.delete(area)
+    return create_area(newArea, session, user)
 
 @router.patch("/{id}/enable")
 def enable_user_area(id: int, session: SessionDep, user: CurrentUser, response_model=AreaIdGet):
@@ -144,7 +141,7 @@ def unpublished_user_public_area(id: int, session: SessionDep, user: CurrentUser
         raise HTTPException(status_code=404, detail="Data not found")
     if area.user_id != user.id and user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Permission Denied")
-    if Area.is_public == False and user.role != Role.ADMIN:
+    if Area.is_public == False:
         raise HTTPException(status_code=403, detail="Permission Denied")
     session.delete(area)
     session.commit()
