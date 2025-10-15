@@ -1,25 +1,28 @@
 class Service {
   final int id;
   final String name;
-  final String category;
-  final String? iconUrl;
-  final String color;
+  final String? description;
+  final String imageUrl;
+  final String? category;
+  final String? color;
 
   Service({
     required this.id,
     required this.name,
-    required this.iconUrl,
-    required this.category,
-    required this.color,
+    this.description,
+    required this.imageUrl,
+    this.category,
+    this.color,
   });
 
   factory Service.fromJson(Map<String, dynamic> json) {
     return Service(
-      id: json['id'],
-      name: json['name'],
-      category: json['category'],
-      color: json['color'],
-      iconUrl: json['icon'],
+      id: json['id'] as int,
+      name: json['name'] as String,
+      description: json['description'] as String?, 
+      imageUrl: json['image_url'] as String,
+      category: json['category'] as String?,
+      color: json['color'] as String?,
     );
   }
 }

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class CardDetails {
   final String serviceName;
   final String actionName;
-  final String? iconUrl;
+  final String? imageUrl;
 
   CardDetails({
     required this.serviceName,
     required this.actionName,
-    this.iconUrl,
+    this.imageUrl,
   });
 }
 
@@ -78,9 +78,9 @@ class CreateCard extends StatelessWidget {
   Widget _buildSelectionDetails(CardDetails details) {
     return Row(
       children: [
-        if (details.iconUrl != null)
+        if (details.imageUrl != null)
           Image.network(
-            details.iconUrl!,
+            details.imageUrl!,
             width: 40,
             height: 40,
           )

@@ -131,12 +131,12 @@ class _ExplorePageState extends State<ExplorePage> {
           //            onTap: () {},
           //          );
             //      } else {
-                    return ServiceCard(
-                      color: Color(color),
-                      icon: Icons.cloud,
-                      title: item['title']!,
-                      onTap: () {},
-                    );
+  //                  return ServiceCard(
+    //                  color: Color(color),
+      ///                icon: Icons.cloud,
+         ///             title: item['title']!,
+            //          onTap: () {},
+    //                );
                   }
  //               },
               ),
