@@ -39,6 +39,7 @@ export function Password({w = "100%", onChange = (() => "")}: PasswordProps)
         setPsswdType(psswdType == "password" ? "text" : "password");
         setIsPsswdVisible(!isPsswdVisible);
     }
+
     return (
         <div className="flex justify-items h-[50px] flex-row outline-[1px] rounded-xl mb-[15px]" style={{ width: w}}>
             {isPsswdVisible && (
@@ -47,7 +48,7 @@ export function Password({w = "100%", onChange = (() => "")}: PasswordProps)
             {!isPsswdVisible && (
                 <RiEyeOffFill className="ml-[5px] h-[50px]" onClick={() => swapPsswdComponents()}/>
             )}
-            <Input className="text-black h-[50px] w-[250px] pl-2 ml-[10px] mb-[20px] border-none focus-visible:outline-none focus-visible:ring-0 focus-visible:border-transparent" placeholder="Password" type={psswdType} onChange={(e) => onChange(e.target.value)} required/>
+            <Input className="text-black h-[50px] w-[250px] pl-2 ml-[10px] mb-[20px] border-none focus-visible:outline-none focus-visible:ring-0 focus-visible:border-transparent" placeholder="Password" type={psswdType} onChange={(e) => onChange(e.target.value)} pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$" required/>
         </div>
     )
 }
