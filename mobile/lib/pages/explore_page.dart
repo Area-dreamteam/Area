@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 //import '../widgets/card.dart';
 import '../widgets/service_card.dart';
 import '../widgets/navbar.dart';
@@ -148,3 +148,4 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 }
+*/
