@@ -4,6 +4,7 @@ from sqlmodel import SQLModel, Field, Relationship
 if TYPE_CHECKING:
     from .user_service import UserService
     from ..areas.area import Area
+    from ..oauth.oauth_login import UserOAuthLogin
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -15,3 +16,4 @@ class User(SQLModel, table=True):
 
     services: List["UserService"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     areas: List["Area"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    oauth_logins: List["UserOAuthLogin"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})

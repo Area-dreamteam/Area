@@ -1,6 +1,7 @@
 from .services import Service, Action, Reaction
-from .users import User, UserService
+from .users import User, UserService, UserOAuthLogin
 from .areas import Area, AreaAction, AreaReaction, ReactionCondition
+from .oauth import OAuthLogin
 
 __all__ = [
     "Service",
@@ -12,4 +13,6 @@ __all__ = [
     "AreaAction",
     "AreaReaction",
     "ReactionCondition",
+    "OAuthLogin",
+    "UserOAuthLogin"
 ]

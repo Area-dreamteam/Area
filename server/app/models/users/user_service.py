@@ -8,8 +8,8 @@ if TYPE_CHECKING:
 class UserService(SQLModel, table=True):
     __tablename__ = "user_service"
     id: int = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="users.id")
-    service_id: int = Field(foreign_key="service.id")
+    user_id: int = Field(foreign_key="users.id", ondelete="CASCADE")
+    service_id: int = Field(foreign_key="service.id", ondelete="CASCADE")
     access_token: str
     refresh_token: Optional[str] = None
 

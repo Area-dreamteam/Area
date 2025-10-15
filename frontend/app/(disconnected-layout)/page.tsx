@@ -21,7 +21,7 @@ export default function Home()
 {
   return (
     <div className="bg-[#FFFFFF] h-screen font-bold">
-      <div className="bg-[#000000] h-5/7">
+      <div className="bg-[#000000] h-[750px] rounded-b-2xl">
         <h1 className="text-white text-[50px]">Area</h1>
         <h1 className="flex text-white justify-center text-center text-[90px] pt-[70px]">Automation for business and home</h1>
         <h2 className="flex text-white justify-center text-[25px]">Build your own chain of reactions</h2>
