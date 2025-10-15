@@ -68,9 +68,7 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
               );
               viewModel.clearSelection();
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (context) => const MyAreaPage(),
-                ),
+                MaterialPageRoute(builder: (context) => const MyAreaPage()),
                 (Route<dynamic> route) => false,
               );
             }
@@ -101,13 +99,11 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
                       CircleAvatar(
                         radius: 30,
                         backgroundColor: Colors.white24,
-                        child: actionService.iconUrl != null
-                            ? Image.network(
-                                actionService.iconUrl!,
-                                width: 40,
-                                height: 40,
-                              )
-                            : const Icon(Icons.error, color: Colors.white),
+                        child: Image.network(
+                          actionService.imageUrl,
+                          width: 40,
+                          height: 40,
+                        ),
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -115,13 +111,11 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
                       CircleAvatar(
                         radius: 30,
                         backgroundColor: Colors.white24,
-                        child: reactionService.iconUrl != null
-                            ? Image.network(
-                                reactionService.iconUrl!,
-                                width: 40,
-                                height: 40,
-                              )
-                            : const Icon(Icons.error, color: Colors.white),
+                        child: Image.network(
+                          reactionService.imageUrl,
+                          width: 40,
+                          height: 40,
+                        ),
                       ),
                     ],
                   ),

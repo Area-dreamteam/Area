@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/todoist.dart';
 import '../pages/login.dart';
 
 class MainPageApp extends StatelessWidget {
@@ -192,14 +191,6 @@ Widget _buildOptionButton(
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else if (name == 'todoist') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                RedirectPage(url: 'http://10.68.253.134:8080/services/todoist/index'),
-          ),
         );
       }
     },

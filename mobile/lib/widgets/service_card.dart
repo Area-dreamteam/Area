@@ -1,76 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/widgets/hex_convert.dart';
 
 class ServiceCard extends StatelessWidget {
-  final Color color;
-  final IconData icon;
-  final String title;
+  final int id;
+  final String name;
+  final String? description;
+  final String? imageUrl;
+  final String? category;
+  final String? colorHex;
   final VoidCallback? onTap;
-  final double borderRadius;
-  final double padding;
 
   const ServiceCard({
     super.key,
-    required this.color,
-    required this.icon,
-    required this.title,
+    required this.id,
+    required this.name,
+    this.description,
+    this.imageUrl,
+    this.category,
+    this.colorHex,
     this.onTap,
-    this.borderRadius = 14.0,
-    this.padding = 22.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Colors.white;
+    final cardColor = hexToColor(colorHex);
+    final safeImageUrl = imageUrl ?? 'https://via.placeholder.com/20';
 
-    final card = Material(
-      borderRadius: BorderRadius.circular(borderRadius),
-      elevation: 2,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        width: double.infinity,
-        padding: EdgeInsets.all(padding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.white24,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: textColor, size: 20),
-                ),
-                const Spacer(),
-              ],
+    final cardContent = Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+        const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 18),
-            Text(
-              title,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                height: 1.1,
+            child: ClipOval(
+              child: Image.network(
+                safeImageUrl,
+                width: 20,
+                height: 20,
+                fit: BoxFit.cover,
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            name,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              height: 1,
+            ),
+          ),
+        ],
       ),
     );
 
-    if (onTap != null) {
-      return InkWell(
-        borderRadius: BorderRadius.circular(borderRadius),
-        onTap: onTap,
-        child: card,
-      );
-    }
-
-    return card;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Material(
+        borderRadius: BorderRadius.circular(14),
+        elevation: 4,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: cardContent,
+        ),
+      ),
+    );
   }
 }
