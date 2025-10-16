@@ -52,16 +52,11 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: const Color(0xFF212121),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.10,
-            vertical: screenWidth * 0.15,
-          ),
+          padding: EdgeInsets.all(25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -70,7 +65,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 child: Text(
                   'AREA',
                   style: TextStyle(
-                    fontSize: 36,
+                    fontSize: 50,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 4,
                     color: Colors.white,
@@ -138,18 +133,28 @@ void _showConnectionOptions(BuildContext context) {
               context,
               'Continue with Google',
               'assets/icons/logo_google.png',
+              'google',
             ),
             const SizedBox(height: 10),
             _buildOptionButton(
               context,
               'Continue with Facebook',
               'assets/icons/logo_facebook.png',
+              'facebook',
+            ),
+            const SizedBox(height: 10),
+            _buildOptionButton(
+              context,
+              'Continue with GitHub',
+              'assets/icons/github.png',
+              'github',
             ),
             const SizedBox(height: 10),
             _buildOptionButton(
               context,
               'Continue with Email',
               'assets/icons/logo_email.png',
+              'email',
             ),
           ],
         ),
@@ -158,14 +163,36 @@ void _showConnectionOptions(BuildContext context) {
   );
 }
 
-Widget _buildOptionButton(BuildContext context, String text, String iconPath) {
+Widget _buildOptionButton(
+  BuildContext context,
+  String text,
+  String iconPath,
+  String name,
+) {
   return ElevatedButton.icon(
     onPressed: () {
       Navigator.of(context).pop();
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Login()),
-      );
+      if (name == 'email') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      } else if (name == 'github') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else if (name == 'facebook') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else if (name == 'google') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
     },
     icon: Image.asset(iconPath, height: 24.0, width: 24.0),
     label: Text(

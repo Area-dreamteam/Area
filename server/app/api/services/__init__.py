@@ -1,17 +1,6 @@
 from fastapi import APIRouter
 
+from .router import router as services_router
 
-router = APIRouter(prefix="/services")
-
-
-from . import github
-
-router.include_router(github.router)
-
-from . import todoist
-
-router.include_router(todoist.router)
-
-from . import services
-
-router.include_router(services.router)
+router = APIRouter()
+router.include_router(services_router)

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import '../widgets/card.dart';
+/*import 'package:flutter/material.dart';
+//import '../widgets/card.dart';
 import '../widgets/service_card.dart';
 import '../widgets/navbar.dart';
 
@@ -120,26 +120,25 @@ class _ExplorePageState extends State<ExplorePage> {
                 itemBuilder: (context, index) {
                   final item = items[index];
                   final color = int.parse(item['color']!);
-                  final type = item['type'];
+             //     final type = item['type'];
 
-                  if (type == 'Applet') {
-                    return BigCard(
-                      color: Color(color),
-                      icon: Icons.extension,
-                      title: item['title']!,
-                      byText: item['by']!,
-                      usersText: item['users']!,
-                      onTap: () {},
-                    );
-                  } else {
-                    return ServiceCard(
-                      color: Color(color),
-                      icon: Icons.cloud,
-                      title: item['title']!,
-                      onTap: () {},
-                    );
+        //          if (type == 'Applet') {
+           //         return BigCard(
+             //         color: Color(color),
+               //       icon: Icons.extension,
+         //             title: item['title']!,
+       //               byText: item['by']!,
+          //            onTap: () {},
+          //          );
+            //      } else {
+  //                  return ServiceCard(
+    //                  color: Color(color),
+      ///                icon: Icons.cloud,
+         ///             title: item['title']!,
+            //          onTap: () {},
+    //                );
                   }
-                },
+ //               },
               ),
             ),
           ],
@@ -149,3 +148,4 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 }
+*/
