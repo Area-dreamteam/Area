@@ -7,6 +7,7 @@
 
 import axios from 'axios'
 import { Act } from '../types/service';
+import MyProfileProp from '../types/profile';
 import { ConfigRespAct } from '../types/config';
 
 export const Calls = axios.create({
@@ -26,16 +27,38 @@ Calls.interceptors.response.use(
   }
 );
 
-export async function fetchUser() {
-  return Calls.get("/users/me").then((res) => {
-    if (res.status != 200)
+export async function fetchMyself(setMyProfile: (arg: MyProfileProp | null) => void)
+{
+  try {
+    const res = await Calls.get("/users/me");
+    if (res.status != 200) {
+      setMyProfile(null);
       return false;
+    }
+    setMyProfile(res.data);
     return true;
-  });
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  setMyProfile(null);
+  return false;
 }
 
+export async function fetchDeleteMyself()
+{
+    try {
+        const res = await Calls.delete("/users/me");
+        if (res.status != 200)
+            return false;
+        return true;
+    } catch (err) {
+        console.log("Error: ", err);
+    }
+    return false;
+}
 
-export async function fetchLogin(email: string, password: string) {
+export async function fetchLogin(email: string, password: string)
+{
   try {
     const res = await Calls.post("/auth/login", {
       email: email,
@@ -57,6 +80,7 @@ export async function fetchRegister(email: string, password: string) {
       email: email,
       password: password,
     });
+    console.log(res)
 
     if (res.status != 200)
       return false;
@@ -149,7 +173,7 @@ export async function fetchSpecificApplet(setApplet: (data: any) => void, id: nu
   return true;
 }
 
-export async function fetchDeletePersonApplet(id: number) {
+export async function fetchDeletePersonalApplet(id: number) {
   try {
     const res = await Calls.delete(`/areas/${id}`);
 

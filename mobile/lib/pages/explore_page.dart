@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 //import '../widgets/card.dart';
 import '../widgets/service_card.dart';
 import '../widgets/navbar.dart';
@@ -131,12 +131,12 @@ class _ExplorePageState extends State<ExplorePage> {
           //            onTap: () {},
           //          );
             //      } else {
-                    return ServiceCard(
-                      color: Color(color),
-                      icon: Icons.cloud,
-                      title: item['title']!,
-                      onTap: () {},
-                    );
+  //                  return ServiceCard(
+    //                  color: Color(color),
+      ///                icon: Icons.cloud,
+         ///             title: item['title']!,
+            //          onTap: () {},
+    //                );
                   }
  //               },
               ),
@@ -148,3 +148,4 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 }
+*/

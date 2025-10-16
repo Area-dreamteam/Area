@@ -130,7 +130,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           onSaved: (value) => _configData[name] = value ?? '',
         ),
         'select' => DropdownButtonFormField<String>(
-          value: _configData[name] as String?,
+          initialValue: _configData[name] as String?,
           decoration: InputDecoration(
             labelText: name,
             labelStyle: const TextStyle(color: Colors.white70),

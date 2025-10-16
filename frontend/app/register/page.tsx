@@ -7,7 +7,6 @@
 
 'use client'
 
-import facebook from "@/public/images/Facebook_logo.png"
 import { Password, Mail } from "../components/Forms"
 import { fetchRegister } from "../functions/fetch"
 import { AlertCircleIcon } from "lucide-react"
@@ -57,17 +56,10 @@ export default function Register() {
             <Password w={"300px"} onChange={setPassword} />
           </div>
           {error &&
-            (<Alert variant="destructive" className="bg-red-100 rounded-4xl mb-[20px] mr-[20px] w-[300px] mx-auto">
+            <Alert variant="destructive" className="bg-red-100 rounded-4xl mb-[20px] mr-[20px] w-[300px] mx-auto">
               <AlertCircleIcon />
-              <AlertTitle>Informations incorrect.</AlertTitle>
-              <AlertDescription>
-                <p>Please check your informations.</p>
-                <ul className="list-inside list-disc text-sm">
-                  <li>Password longer than 8 characters</li>
-                  <li>email following the format: [mail]@[domain].[ext]</li>
-                </ul>
-              </AlertDescription>
-            </Alert>)
+              <AlertTitle>Sorry, this account already exist.</AlertTitle>
+            </Alert>
           }
           <div className="flex justify-center">
             <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] font-bold pt-2.5 hover:cursor-pointer" type="submit">

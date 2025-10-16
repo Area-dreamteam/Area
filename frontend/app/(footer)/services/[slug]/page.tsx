@@ -13,13 +13,12 @@ import { use, useState } from 'react';
 import { notFound } from "next/navigation";
 import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
+import { useAuth } from "@/app/functions/hooks";
 import { Button } from '@/components/ui/button';
 import { fetchServices } from '@/app/functions/fetch';
-import SettingsButton from '@/app/components/Settings';
 import { fetchSpecificService } from '@/app/functions/fetch';
 import { Service, SpecificService } from "@/app/types/service";
-import { fetchIsConnected, redirectOauth, redirectOauthAddService } from "@/app/functions/oauth";
-import { useAuth } from "@/app/functions/hooks";
+import { fetchIsConnected, redirectOauthAddService } from "@/app/functions/oauth";
 
 type ServiceProp = {
   params: Promise<{ slug: string }>;
@@ -88,9 +87,6 @@ export default function ServicePage({ params }: ServiceProp) {
               }
               <p className="mb-[20px]">{myService.description}</p>
               <p className="text-[20px]">{myService.name}</p>
-            </div>
-            <div className="flex justify-end pt-[50px] mr-[20px]">
-              <SettingsButton />
             </div>
           </div>
           {serviceConnected ? (
