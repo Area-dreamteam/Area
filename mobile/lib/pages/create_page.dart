@@ -105,7 +105,7 @@ class _CreatePageState extends State<CreatePage> {
       details: selectedAction != null
           ? CardDetails(
               serviceName: selectedAction.service.name,
-              iconUrl: selectedAction.service.iconUrl,
+              imageUrl: selectedAction.service.imageUrl,
               actionName: selectedAction.item.name,
             )
           : null,
@@ -134,7 +134,7 @@ class _CreatePageState extends State<CreatePage> {
           ? CardDetails(
               serviceName: selectedReaction.service.name,
               actionName: selectedReaction.item.name,
-              iconUrl: selectedReaction.service.iconUrl,
+              imageUrl: selectedReaction.service.imageUrl,
             )
           : null,
       onTap: () async {
@@ -157,19 +157,25 @@ class _CreatePageState extends State<CreatePage> {
     BuildContext context,
     CreateViewModel viewModel,
   ) {
+    final bool isReady = viewModel.isActionAndReactionSelected;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
+        // ignore: deprecated_member_use
+        backgroundColor: isReady ? Colors.blue : Colors.blue.withOpacity(0.5),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: isReady ? 2 : 0,
       ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const CreateAreaPage()),
-        );
-      },
+      onPressed: isReady
+          ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateAreaPage()),
+              );
+            }
+          : null,
       child: const Text('Continue', style: TextStyle(fontSize: 18)),
     );
   }

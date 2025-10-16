@@ -4,7 +4,7 @@ from models import Service, Action, Reaction
 from dependencies.db import SessionDep
 from datetime import datetime
 
-router = APIRouter()
+router = APIRouter(tags=["about"])
 
 @router.get("/about.json")
 def get_about(request: Request, session: SessionDep):

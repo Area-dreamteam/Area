@@ -7,7 +7,7 @@ from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser, CurrentUserNoFail
 
 
-router = APIRouter(tags=["services"], prefix="")
+router = APIRouter(prefix="/services", tags=["services"])
 
 
 @router.get("/list", response_model=list[ServiceGet])

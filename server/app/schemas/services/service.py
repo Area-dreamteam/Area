@@ -7,7 +7,6 @@ class ServiceGet(BaseModel):
     image_url: Path
     category: str
     color: str
-    oauth_required: bool
 
 class ServiceIdGet(BaseModel):
     id: int

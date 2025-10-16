@@ -2,11 +2,11 @@ from cron.cron import newJob, isCronExists
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from models import Area, User, Action, AreaAction, Service, AreaReaction, Reaction
-from schemas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic, UserShortInfo, ActionBasicInfo, ReactionBasicInfo, ServiceGet, CreateArea, Role
+from schemas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic, UserShortInfo, ActionBasicInfo, ReactionBasicInfo, ServiceGet, CreateArea, Role, UpdateArea
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser
 
-router = APIRouter()
+router = APIRouter(prefix="/areas", tags=["areas"])
 
 def get_area_action_info(session: SessionDep, area: Area) -> ActionBasicInfo:
     action_area: AreaAction = session.exec(select(AreaAction).where(AreaAction.area_id == area.id)).first()
@@ -45,72 +45,7 @@ def get_area_reactions_info(session: SessionDep, area: Area) -> ReactionBasicInf
         area_reactions_data.append(area_reaction_data)
     return area_reactions_data
 
-@router.get("/areas", response_model=list[AreaGet])
-def get_areas(session: SessionDep, user: CurrentUser) -> list[AreaGet]:
-    areas: list[Area] = session.exec(
-        select(Area)
-        .where(Area.user_id == user.id, Area.is_public == False)
-    ).all()
-
-    areas_data: list[AreaGet] = []
-    for area in areas:
-        action_data: ActionBasicInfo = get_area_action_info(session, area)
-        user_data = UserShortInfo(id=user.id, name=user.name)
-        area_data = AreaGet(id=area.id, name=area.name, description=area.description, user=user_data, enable=area.enable, created_at=area.created_at, color=action_data.service.color)
-        areas_data.append(area_data)
-    return areas_data
-
-@router.post("/areas")
-def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
-    action: Action = session.exec(
-        select(Action)
-        .where(Action.id == area.action.action_id)
-    ).first()
-    if not action:
-        raise HTTPException(status_code=404, detail="Data not found")
-
-    for area_reaction in area.reactions:
-        reaction: Reaction = session.exec(
-            select(Reaction)
-            .where(Reaction.id == area_reaction.reaction_id)
-        ).first()
-        if not reaction:
-            raise HTTPException(status_code=404, detail="Data not found")
-
-    new_area = Area(user_id=user.id, name=area.name, description=area.description, enable=True, created_at=None, is_public=False)
-    session.add(new_area)
-    session.commit()
-    session.refresh(new_area)
-
-    new_area_action = AreaAction(area_id=new_area.id, action_id=area.action.action_id, config=area.action.config)
-    session.add(new_area_action)
-    session.commit()
-    session.refresh(new_area_action)
-    if isCronExists(new_area_action.action_id) is False:
-        newJob(new_area_action.action_id)
-
-    for reaction in area.reactions:
-        new_area_reaction = AreaReaction(area_id=new_area.id, reaction_id=reaction.reaction_id, config=reaction.config)
-        session.add(new_area_reaction)
-        session.commit()
-        session.refresh(new_area_reaction)
-    return {"message": "Area created", "area_id": new_area.id, "user_id": user.id}
-
-@router.delete("/areas/{id}")
-def delete_area(id: int, session: SessionDep,  user: CurrentUser):
-    area: Area = session.exec(
-        select(Area)
-        .where(Area.id == id)
-    ).first()
-    if not area:
-        raise HTTPException(status_code=404, detail="Data not found")
-    if area.user_id != user.id and user.role != Role.ADMIN:
-        raise HTTPException(status_code=403, detail="Permission Denied")
-    session.delete(area)
-    session.commit()
-    return {"message": "Area deleted", "area_id": area.id, "user_id": user.id}
-
-@router.get("/areas/public", response_model=list[AreaGetPublic])
+@router.get("/public", response_model=list[AreaGetPublic])
 def get_areas_public(session: SessionDep) -> list[AreaGetPublic]:
     areas: list[Area] = session.exec(select(Area).where(Area.is_public == True)).all()
 
@@ -126,7 +61,7 @@ def get_areas_public(session: SessionDep) -> list[AreaGetPublic]:
         areas_data.append(area_data)
     return areas_data
 
-@router.get("/areas/{id}", response_model=AreaIdGet)
+@router.get("/{id}", response_model=AreaIdGet)
 def get_area_by_id(id: int, session: SessionDep, user: CurrentUser) -> AreaIdGet:
     area: Area = session.exec(select(Area).where(Area.id == id)).first()
     if not area:
@@ -143,7 +78,21 @@ def get_area_by_id(id: int, session: SessionDep, user: CurrentUser) -> AreaIdGet
     area_data = AreaIdGet(area_info=area_info, action=action_data, reactions=reactions_data)
     return area_data
 
-@router.get("/areas/public/{id}", response_model=AreaIdGetPublic)
+@router.delete("/{id}")
+def delete_area(id: int, session: SessionDep,  user: CurrentUser):
+    area: Area = session.exec(
+        select(Area)
+        .where(Area.id == id)
+    ).first()
+    if not area:
+        raise HTTPException(status_code=404, detail="Data not found")
+    if area.user_id != user.id and user.role != Role.ADMIN:
+        raise HTTPException(status_code=403, detail="Permission Denied")
+    session.delete(area)
+    session.commit()
+    return {"message": "Area deleted", "area_id": area.id, "user_id": user.id}
+
+@router.get("/public/{id}", response_model=AreaIdGetPublic)
 def get_area_public_by_id(id: int, session: SessionDep) -> AreaIdGetPublic:
     area: Area = session.exec(select(Area).where(Area.id == id, Area.is_public == True)).first()
     if not area:

@@ -5,9 +5,9 @@ from schemas import ActionIdGet, ServiceGet
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser
 
-router = APIRouter()
+router = APIRouter(prefix="/actions", tags=["actions"])
 
-@router.get("/actions/{id}", response_model=ActionIdGet)
+@router.get("/{id}", response_model=ActionIdGet)
 def get_action_by_id(id: int, session: SessionDep, _: CurrentUser) -> ActionIdGet:
     action: Action = session.exec(select(Action).where(Action.id == id)).first()
     if not action:
