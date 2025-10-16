@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -13,8 +14,10 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_SECRET: str
     TODOIST_CLIENT_ID: str
     TODOIST_CLIENT_SECRET: str
+    FRONT_URL: str
 
     class Config:
         env_file = ".env"
+
 
 settings = Settings()
