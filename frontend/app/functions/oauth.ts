@@ -2,7 +2,7 @@ import { Calls } from "./fetch";
 
 const handleOauthLogin = (service: string, destination: string) => {
   const authWindow = window.open(
-    `${process.env.NEXT_PUBLIC_BACK_URL}/oauth/login_index/${service}`,
+    `/api/backend/oauth/login_index/${service}`,
     "GitHub Login",
     "width=600,height=700",
   );
@@ -18,7 +18,7 @@ const handleOauthLogin = (service: string, destination: string) => {
 
 const handleOauthAddService = (service: string, destination: string) => {
   const authWindow = window.open(
-    `${process.env.NEXT_PUBLIC_BACK_URL}/oauth/index/${service}`,
+    `/api/backend/oauth/index/${service}`,
     "GitHub Login",
     "width=600,height=700",
   );
