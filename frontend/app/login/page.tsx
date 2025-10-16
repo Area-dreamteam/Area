@@ -22,6 +22,7 @@ import { fetchLogin } from "../functions/fetch"
 import { Password, Mail } from "../components/Forms"
 import facebook from "@/public/images/Facebook_logo.png"
 import { redirectOauth } from "../functions/oauth"
+import redirectToPage from "../functions/redirections"
 
 export default function Login() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function Login() {
   return (
     <div className="bg-[#FFFFFF] h-screen font-bold">
       <div>
-        <Link href="/" className="flex justify-center text-[100px] text-black hover:text-[#424242]">Area</Link>
+        <p onClick={() => redirectToPage("/")} className="w-[200px] mx-auto flex justify-center text-[100px] text-black hover:text-[#424242] hover:cursor-pointer">Area</p>
         <h1 className="flex justify-center text-[50px] text-black mb-10">Log in</h1>
         <form onSubmit={(e) => sendLoginForm(e)}>
           <div className="flex justify-center">
