@@ -141,11 +141,45 @@ def unpublished_user_public_area(id: int, session: SessionDep, user: CurrentUser
         raise HTTPException(status_code=404, detail="Data not found")
     if area.user_id != user.id and user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Permission Denied")
-    if Area.is_public == False:
+    if area.is_public == False:
         raise HTTPException(status_code=403, detail="Permission Denied")
     session.delete(area)
     session.commit()
     return {"message": "Area deleted", "area_id": area.id, "user_id": user.id}
+
+def create_copy_area_action(session: SessionDep, new_area: int, area_action: AreaAction):
+    new_area_action = AreaAction(area_id=new_area, action_id=area_action.action_id, config=area_action.config)
+    session.add(new_area_action)
+    session.commit()
+
+def create_copy_area_reaction(session: SessionDep, new_area: int, area_reactions: list[AreaReaction]):
+    for area_reaction in area_reactions:
+        new_area_reaction = AreaReaction(area_id=new_area.id, reaction_id=area_reaction.reaction_id, config=area_reaction.config)
+        session.add(new_area_reaction)
+        session.commit()
+        session.refresh(new_area_reaction)
+
+def create_public_copy_area(session: SessionDep, area: Area):
+    new_area = Area(user_id=area.user_id, name=area.name, description=area.description, enable=False, created_at=None, is_public=True)
+    session.add(new_area)
+    session.commit()
+    session.refresh(new_area)
+
+    area_action: AreaAction = session.exec(
+        select(AreaAction)
+        .where(AreaAction.area_id == area.id)
+    ).first()
+    if not area_action:
+        raise HTTPException(status_code=404, detail="Area action not found")
+    create_copy_area_action(session, new_area.id, area_action);
+    
+    area_reactions: list[AreaReaction] = session.exec(
+        select(AreaReaction)
+        .where(AreaReaction.area_id == area.id)
+    ).all()
+    if not area_reactions:
+        raise HTTPException(status_code=404, detail="Area reactions not found")
+    create_copy_area_reaction(session, new_area, area_reactions);
 
 @router.post("/{id}/publish")
 def publish_user_area(id: int, session: SessionDep, user: CurrentUser):
@@ -158,11 +192,5 @@ def publish_user_area(id: int, session: SessionDep, user: CurrentUser):
     if area.user_id != user.id and user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Permission Denied")
 
-    # A faire: Créer une nouvelle area privée avec public=True et enable=False
-    # area.is_public = True
-    # area.enable = False
-
-    # session.add(area)
-    # session.commit()
-    # session.refresh(area)
-    return {}
+    create_public_copy_area(session, area)
+    return {"message": "Area publish", "area_id": area.id, "user_id": user.id}

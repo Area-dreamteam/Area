@@ -45,6 +45,22 @@ def get_area_reactions_info(session: SessionDep, area: Area) -> ReactionBasicInf
         area_reactions_data.append(area_reaction_data)
     return area_reactions_data
 
+@router.get("/public", response_model=list[AreaGetPublic])
+def get_areas_public(session: SessionDep) -> list[AreaGetPublic]:
+    areas: list[Area] = session.exec(select(Area).where(Area.is_public == True)).all()
+
+    areas_data: list[AreaGetPublic] = []
+    for area in areas:
+        user: User = session.exec(select(User).where(User.id == area.user_id)).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="Data not found")
+
+        action_data: ActionBasicInfo = get_area_action_info(session, area)
+        user_data = UserShortInfo(id=user.id, name=user.name)
+        area_data = AreaGetPublic(id=area.id, name=area.name, description=area.description, user=user_data, created_at=area.created_at, color=action_data.service.color)
+        areas_data.append(area_data)
+    return areas_data
+
 @router.get("/{id}", response_model=AreaIdGet)
 def get_area_by_id(id: int, session: SessionDep, user: CurrentUser) -> AreaIdGet:
     area: Area = session.exec(select(Area).where(Area.id == id)).first()
@@ -75,22 +91,6 @@ def delete_area(id: int, session: SessionDep,  user: CurrentUser):
     session.delete(area)
     session.commit()
     return {"message": "Area deleted", "area_id": area.id, "user_id": user.id}
-
-@router.get("/public", response_model=list[AreaGetPublic])
-def get_areas_public(session: SessionDep) -> list[AreaGetPublic]:
-    areas: list[Area] = session.exec(select(Area).where(Area.is_public == True)).all()
-
-    areas_data: list[AreaGetPublic] = []
-    for area in areas:
-        user: User = session.exec(select(User).where(User.id == area.user_id)).first()
-        if not user:
-            raise HTTPException(status_code=404, detail="Data not found")
-
-        action_data: ActionBasicInfo = get_area_action_info(session, area)
-        user_data = UserShortInfo(id=user.id, name=user.name)
-        area_data = AreaGetPublic(id=area.id, name=area.name, description=area.description, user=user_data, created_at=area.created_at, color=action_data.service.color)
-        areas_data.append(area_data)
-    return areas_data
 
 @router.get("/public/{id}", response_model=AreaIdGetPublic)
 def get_area_public_by_id(id: int, session: SessionDep) -> AreaIdGetPublic:
