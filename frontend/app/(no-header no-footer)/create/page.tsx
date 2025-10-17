@@ -8,21 +8,21 @@
 'use client'
 
 import { fetchCreateApplet, fetchServices, fetchAction, fetchActs } from "@/app/functions/fetch"
-import { ConfigRespAct, ConfigReqAct, triggerValue } from "@/app/types/config"
+import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
+import ValidateButton from "@/app/components/Validation"
 import { Service, Act } from "@/app/types/service"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
-import Image from "next/image"
+// import Image from "next/image"
 import { SpecificAction, SpecificReaction } from "@/app/types/actions"
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
@@ -32,6 +32,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 interface ChoiceButtonProp {
   setIsChoosing: (data: boolean) => void,
+  setChosen: (arg: Act | null) => void,
   replacementText?: string,
   buttonText?: string,
   disable?: boolean,
@@ -39,9 +40,9 @@ interface ChoiceButtonProp {
 }
 
 function ActionButton({ buttonText = "", replacementText = "", disable = false,
-  setIsChoosing, chosen = null }: ChoiceButtonProp) {
+  setIsChoosing, setChosen, chosen = null }: ChoiceButtonProp) {
   return (
-    <div className="mx-auto mt-[75px] w-[600px] h-[130px] rounded-xl text-white flex items-center justify-between px-[10px]" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
+    <div className="mx-auto mt-[75px] w-[650px] h-[130px] rounded-xl text-white flex items-center justify-between px-[10px]" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
       <h1 className="flex-1 flex justify-center text-[80px]">
         {buttonText}
         {chosen ?
@@ -54,6 +55,16 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
         <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setIsChoosing(true)}>
           Add
         </Button>
+      }
+      {chosen &&
+        <div>
+          <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setIsChoosing(true)}>
+            Edit
+          </Button>
+          <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setChosen(null)}>
+            Delete
+          </Button>
+        </div>
       }
     </div>
   )
@@ -74,24 +85,13 @@ function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
   )
 }
 
-interface ValidationProp {
-  text: string,
-  setValidating: (status: boolean) => void
-}
-
-function ValidateButton({ text, setValidating }: ValidationProp) {
-  return (
-    <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => setValidating(true)}>
-      {text}
-    </Button>
-  )
-}
-
 interface CreationProp {
     action: any | null,
     reaction: any | null,
     actConfig: ConfigRespAct[],
     reactConfig: ConfigRespAct[],
+    setAction: (arg: Act | null) => void,
+    setReaction:(arg: Act | null) => void,
     setChoosingAction: (data: boolean) => void,
     setChoosingReaction: (data: boolean) => void,
 }
@@ -105,8 +105,8 @@ function createApplet(action: Act, reaction: Act, title: string, actConfig: Conf
 
 //-- Creation page --//
 
-function Creation({ action, reaction, actConfig, reactConfig,
-  setChoosingAction, setChoosingReaction }: CreationProp)
+function Creation({ action, reaction, setAction, setReaction, actConfig,
+  reactConfig, setChoosingAction, setChoosingReaction }: CreationProp)
 {
   const [validating, setValidating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(`if ${action?.name}, then ${reaction?.name}`);
@@ -127,7 +127,7 @@ function Creation({ action, reaction, actConfig, reactConfig,
             <Input className="block mx-auto w-[500px] h-[70px] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="flex justify-center mt-[30px]">
-            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => createApplet(action, reaction, title, actConfig, reactConfig)}>
+            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => createApplet(action, reaction, title, actConfig, reactConfig)} disabled={title === ""}>
               Finish
             </Button>
           </div>
@@ -141,14 +141,12 @@ function Creation({ action, reaction, actConfig, reactConfig,
             </p>
           </div>
           <ActionButton buttonText="If " replacementText="This"
-            setIsChoosing={setChoosingAction} chosen={action} />
+            setIsChoosing={setChoosingAction} setChosen={setAction} chosen={action} />
           <ActionButton buttonText="Then " replacementText="That" disable={action == null}
-            setIsChoosing={setChoosingReaction} chosen={reaction} />
-          <div className="flex justify-center mt-[100px]">
-            {reaction != null &&
-              <ValidateButton setValidating={setValidating} text="Continue" />
+            setIsChoosing={setChoosingReaction} setChosen={setReaction} chosen={reaction} />
+            {(action != null && reaction != null) &&
+              <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px]"}/>
             }
-          </div>
         </div>
       )}
     </div>
@@ -196,6 +194,54 @@ function SelectElement({ content, config, handleChange }: SelectElementProp) {
     )
 }
 
+function modifySelection(checkboxes : { [key: string]: boolean }[],
+  config: ConfigReqAct, handleChange: (newTrigg: ConfigRespAct) => void)
+{
+  handleChange({
+    name: config.name,
+    type: config.type,
+    values: checkboxes
+  });
+}
+
+function CheckboxElement({ content, config, handleChange }: SelectElementProp)
+{
+  const initialBoxes: { [key: string]: boolean }[] = content.map((chk) => ({
+    [chk]: false,
+  }));
+
+  const [checkboxes, setCheckboxes] = useState<{ [key: string]: boolean }[]>(initialBoxes);
+  
+  const handleChecking = (key: string, newValue: boolean) => {
+    const updatedCheckboxes = checkboxes.map((item) =>
+      key in item ? { [key]: newValue } : item
+    );
+    setCheckboxes(updatedCheckboxes);
+    modifySelection(updatedCheckboxes, config, handleChange);
+  };
+
+  return (
+    <div>
+      {content.map((value) => {
+        const checkbox = checkboxes.find((item) => value in item);
+        const checked = checkbox ? checkbox[value] : false;
+
+        return (<div className="flex items-center space-x-2">
+          <Checkbox
+            id={value}
+            checked={checked}
+            onCheckedChange={() => handleChecking(value, !checked)}/>
+          <label
+            htmlFor={value}
+            className="text-sm font-medium">
+              {value}
+          </label>
+        </div>)
+      })}
+    </div>
+  )
+}
+
 interface TriggerProp {
   config: ConfigReqAct,
   handleChange: (newTrigg: ConfigRespAct) => void
@@ -218,11 +264,10 @@ function DisplayTrigger({ config, handleChange }: TriggerProp)
             {config.type == "input" &&
                 <Input onChange={(e) => defineChoice(e.target.value, () => "", handleChange, config)}/>
             }
-            {/* {(config.type == "check_list" && Array.isArray(config.values)
-                    && typeof config.values === "object") &&
-                        <CheckBox/>
-                    } */}
-
+            {(config.type == "check_list" && Array.isArray(config.values) && typeof config.values === "object") && 
+                <CheckboxElement content={config.values}
+                config={config} handleChange={handleChange}/>
+            }
         </div>
     )
 }
@@ -236,7 +281,10 @@ interface AllTriggerProp {
 function DisplayAllTrigger({ config, configResp, setConfigResp }: AllTriggerProp)
 {
     const handleTriggerChange = (newTrigg: ConfigRespAct) => {
-        setConfigResp(newTrigg ? [...configResp, newTrigg] : [...configResp]);
+      const updatedConfig = configResp.map(cfg =>
+          cfg.name === newTrigg.name ? newTrigg : cfg
+        );
+        setConfigResp(updatedConfig);
     }
 
     return config.map((c) => {
@@ -272,6 +320,16 @@ function unsetChoosingTime(setAction: (arg: Act | null) => void, setService:
     setChoosingTrigger(false);
 }
 
+function allTriggersValid(configResp: ConfigRespAct[])
+{
+  const allValid = configResp.every(cfg => {
+    if (cfg.type === "check_list")
+      return Array.isArray(cfg.values) && cfg.values.length != 0;
+    return (typeof cfg.values === "string" && cfg.values.trim() !== "");
+  });
+  return allValid;
+}
+
 function ChooseTrigger({ act, service, type, setConfig,
     setChoosingTrigger, setAction, setService, configResp, setChoosingAction }: chooseTriggerProp)
 {
@@ -280,6 +338,17 @@ function ChooseTrigger({ act, service, type, setConfig,
   useEffect(() => {
     fetchAction(service.id, type, setTrigger);
   }, []);
+
+  useEffect(() => {
+    if (trigger) {
+      const initialConfig = trigger.config_schema.map(cfg => ({
+        name: cfg.name,
+        type: cfg.type,
+        values: cfg.type === "check_list" ? [] : (cfg.type === "select" ? (typeof cfg.values[0] === "string" ? cfg.values[0] : "") : ""),
+      }));
+      setConfig(initialConfig);
+    }
+  }, [trigger]);
 
   return (
     <div className="text-white w-screen h-screen" style={{ background: service.color }}>
@@ -290,9 +359,9 @@ function ChooseTrigger({ act, service, type, setConfig,
             </p>
             <hr className="col-span-4 mb-[20px]" />
             <div className="flex flex-col text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-            {service.logo &&
-                <Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-            }
+            {/* {service.image_url &&
+                <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            } */}
             <p className="text-center text-[60px] mb-[20px]">
                 {act?.name}
             </p>
@@ -304,7 +373,7 @@ function ChooseTrigger({ act, service, type, setConfig,
             ) : (
                 "No trigger available"
             )}
-            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
+            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp)} onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
                 Create trigger
             </Button>
         </div>
@@ -354,9 +423,9 @@ function ChooseAct({ service, setService, setAction,
             </p>
             <hr className="col-span-4 mb-[120px]" />
             <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-              {service.logo &&
-                <Image alt="service's logo" src={service.logo} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-              }
+              {/* {service.image_url &&
+                <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+              } */}
               <p className="text-[60px] mb-[20px]">{service.name}</p>
             </div>
           </div>
@@ -414,7 +483,7 @@ function ChooseService({ choosingAction, setChoosingAction,
             </p>
           </div>
           <Input className="w-[400px] mx-auto block mt-[50px] border-[4px] h-[50px] text-[20px] placeholder:text-[20px]" placeholder="Search services" onChange={(e) => setSearch(e.target.value)} />
-          <Services search={search} widgets={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 w-fit mx-auto" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative" onClick={setSelected} />
+          <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected} />
         </div>
       }
       {selected &&
@@ -441,6 +510,7 @@ export default function Create() {
     <div>
       {(!choosingAction && !choosingReaction) &&
         <Creation action={action} reaction={reaction}
+          setAction={setAction} setReaction={setReaction}
           setChoosingReaction={setChoosingReaction}
           setChoosingAction={setChoosingAction}
           actConfig={actConfig} reactConfig={reactConfig}/>

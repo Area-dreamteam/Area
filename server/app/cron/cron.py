@@ -9,8 +9,14 @@ from core.logger import logger
 from models.services.action import Action
 
 
+def print_jobs():
+    cron = CronTab()
+    for job in cron:
+        logger.info(job)
+
+
 def newJob(action_id: int):
-    cron = CronTab(user="root")
+    cron = CronTab()
 
     job = cron.new(
         command=f"python {Path(__file__).resolve().parent}/cron_scripts/time.py {action_id}"
@@ -29,11 +35,11 @@ def newJob(action_id: int):
     cron.write()
     logger.debug(f"Cron: new cron for action {action_id}")
 
-    for job in cron:
-        print(job)
+    print_jobs()
+
 
 def deleteJob(action_id: int):
-    cron = CronTab(user="root")
+    cron = CronTab()
 
     jobs_to_remove = [job for job in cron if str(action_id) in job.command]
 
@@ -45,10 +51,11 @@ def deleteJob(action_id: int):
         cron.remove(job)
     cron.write()
 
+
 def isCronExists(action_id: int):
-    cron = CronTab(user="root")
-    
-    existing_jobs: list = [job for job in cron if str(action_id) in job.command]
+    cron = CronTab()
+
+    existing_jobs: list = [job for job in cron if " " + str(action_id) in job.command]
     if len(existing_jobs) == 0:
         return False
     return True

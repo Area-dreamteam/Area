@@ -5,11 +5,19 @@ class ConfigurationPage extends StatefulWidget {
   final String serviceName;
   final String itemName;
 
+  final String itemDescription;
+  final String imageUrl;
+  final String itemType;
+
   const ConfigurationPage({
     super.key,
     required this.configSchema,
     required this.serviceName,
     required this.itemName,
+
+    required this.itemDescription,
+    required this.imageUrl,
+    required this.itemType,
   });
 
   @override
@@ -24,14 +32,12 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   void initState() {
     super.initState();
 
-    // Initialisation selon le type de champ
     for (var field in widget.configSchema) {
       final name = field['name'] as String;
       final type = field['type'] as String;
       final values = field['values'];
 
       if (type == 'check_list' && values is List) {
-        // Convertir la liste [{key: bool}, ...] en Map<String, bool>
         _configData[name] = Map<String, bool>.fromEntries(
           values
               .map((e) => (e as Map<String, dynamic>).entries.first)
@@ -50,55 +56,46 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF212121),
       appBar: AppBar(
-        title: Text(widget.itemName),
-        backgroundColor: Colors.white,
+        title: Text(
+          widget.itemName,
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF212121),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Form(
         key: _formKey,
         child: Column(
           children: [
+            const SizedBox(height: 60),
+            _buildHeader(),
+
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16.0),
                 itemCount: widget.configSchema.length,
                 itemBuilder: (context, index) {
-                  final field = widget.configSchema[index] as Map<String, dynamic>;
+                  final field =
+                      widget.configSchema[index] as Map<String, dynamic>;
                   return _buildFormField(field);
                 },
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                   backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-
-                    // On reconstruit le payload final
-                    final List<Map<String, dynamic>> finalPayload = [];
-
-                    for (var field in widget.configSchema) {
-                      final name = field['name'];
-                      final type = field['type'];
-                      final value = _configData[name];
-
-                      finalPayload.add({
-                        'name': name,
-                        'type': type,
-                        'values': value,
-                      });
-                    }
-
-                    Navigator.pop(context, finalPayload);
-                  }
-                },
-                child: const Text(
-                  'Confirm Configuration',
-                  style: TextStyle(color: Colors.white),
+                onPressed: _handleConfirmation,
+                child: Text(
+                  'Create ${widget.itemType}',
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
             ),
@@ -108,79 +105,175 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     );
   }
 
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15.0),
+              child: Image.network(
+                widget.imageUrl,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: Text(
+              widget.itemName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.itemDescription,
+            style: const TextStyle(color: Colors.white70, fontSize: 16),
+            textAlign: TextAlign.start,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleConfirmation() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      final List<Map<String, dynamic>> finalPayload = [];
+
+      for (var field in widget.configSchema) {
+        final name = field['name'];
+        final type = field['type'];
+        final value = _configData[name];
+
+        finalPayload.add({'name': name, 'type': type, 'values': value});
+      }
+
+      Navigator.pop(context, finalPayload);
+    }
+  }
+
   Widget _buildFormField(Map<String, dynamic> field) {
     final String type = field['type'];
     final String name = field['name'];
     final dynamic values = field['values'];
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: switch (type) {
-        'input' => TextFormField(
-          initialValue: _configData[name] as String?,
-          decoration: InputDecoration(
-            labelText: name,
-            labelStyle: const TextStyle(color: Colors.white70),
-            border: const OutlineInputBorder(),
-          ),
-          style: const TextStyle(color: Colors.white),
-          validator: (value) => (value?.isEmpty ?? true)
-              ? 'This field is required'
-              : null,
-          onSaved: (value) => _configData[name] = value ?? '',
-        ),
-        'select' => DropdownButtonFormField<String>(
-          value: _configData[name] as String?,
-          decoration: InputDecoration(
-            labelText: name,
-            labelStyle: const TextStyle(color: Colors.white70),
-            border: const OutlineInputBorder(),
-          ),
-          dropdownColor: Colors.black87,
-          style: const TextStyle(color: Colors.white),
-          items: (values as List<dynamic>).map((option) {
-            return DropdownMenuItem(
-              value: option.toString(),
-              child: Text(option.toString()),
-            );
-          }).toList(),
-          onChanged: (value) => setState(() {
-            _configData[name] = value ?? '';
-          }),
-          validator: (value) =>
-              (value == null || value.isEmpty) ? 'Please select a value' : null,
-        ),
-        'check_list' => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (type != 'check_list')
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
               name,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight
+                    .bold,
+              ),
             ),
-            const SizedBox(height: 8),
-            ...(values as List<dynamic>).map((item) {
-              final map = item as Map<String, dynamic>;
-              final key = map.keys.first;
-              final initialValue = (_configData[name] as Map<String, bool>)[key] ?? false;
+          ),
 
-              return CheckboxListTile(
-                title: Text(key, style: const TextStyle(color: Colors.white)),
-                value: initialValue,
-                onChanged: (bool? newValue) {
-                  setState(() {
-                    (_configData[name] as Map<String, bool>)[key] = newValue ?? false;
-                  });
-                },
-                controlAffinity: ListTileControlAffinity.leading,
-              );
-            }),
-          ],
+        Padding(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: switch (type) {
+            'input' => TextFormField(
+              initialValue: _configData[name] as String?,
+              decoration: InputDecoration(
+                labelStyle: const TextStyle(color: Colors.white70),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white54),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                border: const OutlineInputBorder(),
+              ),
+              style: const TextStyle(color: Colors.white),
+              validator: (value) =>
+                  (value?.isEmpty ?? true) ? 'This field is required' : null,
+              onSaved: (value) => _configData[name] = value ?? '',
+            ),
+
+            'select' => DropdownButtonFormField<String>(
+              initialValue: _configData[name] as String?,
+              decoration: InputDecoration(
+                labelStyle: const TextStyle(color: Colors.white70),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white54),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                border: const OutlineInputBorder(),
+              ),
+              dropdownColor: Colors.black87,
+              style: const TextStyle(color: Colors.white),
+              items: (values as List<dynamic>).map((option) {
+                return DropdownMenuItem(
+                  value: option.toString(),
+                  child: Text(option.toString()),
+                );
+              }).toList(),
+              onChanged: (value) => setState(() {
+                _configData[name] = value ?? '';
+              }),
+              validator: (value) => (value == null || value.isEmpty)
+                  ? 'Please select a value'
+                  : null,
+            ),
+
+            'check_list' => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                ...(values as List<dynamic>).map((item) {
+                  final map = item as Map<String, dynamic>;
+                  final key = map.keys.first;
+                  final initialValue =
+                      (_configData[name] as Map<String, bool>)[key] ?? false;
+
+                  return CheckboxListTile(
+                    title: Text(
+                      key,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    value: initialValue,
+                    onChanged: (bool? newValue) {
+                      setState(() {
+                        (_configData[name] as Map<String, bool>)[key] =
+                            newValue ?? false;
+                      });
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                    checkColor: Colors.white,
+                    activeColor: Colors.blue,
+                  );
+                }),
+              ],
+            ),
+            _ => Text(
+              'Unsupported field type: $type',
+              style: const TextStyle(color: Colors.red),
+            ),
+          },
         ),
-        _ => Text(
-          'Unsupported field type: $type',
-          style: const TextStyle(color: Colors.red),
-        ),
-      },
+      ],
     );
   }
 }

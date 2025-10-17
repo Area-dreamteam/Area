@@ -23,6 +23,8 @@ class CreateViewModel extends ChangeNotifier {
   CreateViewModel({required ServiceRepository serviceRepository})
     : _serviceRepository = serviceRepository;
 
+  ServiceRepository get serviceRepository => _serviceRepository;
+
   ConfiguredItem<ActionModel>? _selectedAction;
   ConfiguredItem<Reaction>? _selectedReaction;
   String _name = '';
@@ -33,7 +35,8 @@ class CreateViewModel extends ChangeNotifier {
   ConfiguredItem<ActionModel>? get selectedAction => _selectedAction;
   ConfiguredItem<Reaction>? get selectedReaction => _selectedReaction;
 
-  bool get isActionAndReactionSelected => _selectedAction != null && _selectedReaction != null;
+  bool get isActionAndReactionSelected =>
+      _selectedAction != null && _selectedReaction != null;
 
   String get name => _name;
   String get description => _description;

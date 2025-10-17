@@ -20,14 +20,14 @@ import { AlertCircleIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { fetchLogin } from "../functions/fetch"
 import { Password, Mail } from "../components/Forms"
-import facebook from "@/public/images/Facebook_logo.png"
-import { redirectOauth } from "../functions/oauth"
+import { fetchAvailableOAuth, OAuthInfo, redirectOauth } from "../functions/oauth"
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
   const [password, setPassword] = useState("");
+  const [logins, setLogins] = useState<[OAuthInfo]>()
 
   async function sendLoginForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -38,6 +38,9 @@ export default function Login() {
     } else
       setError(true);
   }
+  useEffect(() => {
+    fetchAvailableOAuth(setLogins)
+  }, [])
 
   return (
     <div className="bg-[#FFFFFF] h-screen font-bold">
@@ -76,11 +79,18 @@ export default function Login() {
         <div className="flex justify-center">
           <hr className="w-[350px] outline-[1px] mb-[30px]" style={{ color: "#4400ff" }} />
         </div>
-        <div className="flex justify-center">
-          <Button onClick={() => { redirectOauth("github") }} className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]" >
-            Continue with Github
-          </Button>
-        </div>
+        <li>
+          {logins && logins.map((l) => {
+            return (
+              <ul className="flex justify-center" key={l.name}>
+                <Button onClick={() => { redirectOauth(l.name) }} className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]" >
+                  Continue with {l.name}
+                </Button>
+              </ul>
+
+            )
+          })}
+        </li>
         <p className="flex justify-center mb-3 text-black text-center text-[20px]">
           New to Area ? <Link href="/register" className="hover:text-[#4400ff] underline">Sign up here.</Link>
         </p>
