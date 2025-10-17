@@ -61,6 +61,10 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
         );
       }
 
+      final String itemDescription =
+          detailedItem.description ??
+          'No description';
+
       if (detailedItem.configSchema.isNotEmpty) {
         final result = await Navigator.push<List<dynamic>>(
           context,
@@ -69,6 +73,9 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
               configSchema: detailedItem.configSchema,
               serviceName: widget.service.name,
               itemName: detailedItem.name,
+              itemDescription: itemDescription,
+              imageUrl: widget.service.imageUrl,
+              itemType: widget.type,
             ),
           ),
         );
@@ -96,9 +103,6 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
         Navigator.pop(context, selectedItem);
       }
     } catch (e) {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error fetching details: $e'),
@@ -118,13 +122,23 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF212121),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(180.0),
-        child: ServiceHeader(service: service, title: title),
+      appBar: AppBar(
+        title: Text(title, style: TextStyle(color: Colors.white)),
+        backgroundColor: serviceColor,
+        iconTheme: const IconThemeData(color: Colors.white),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(180),
+          child: ServiceHeader(service: service, title: ''),
+        ),
       ),
       body: FutureBuilder<List<dynamic>>(
         future: _itemsFuture,
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.blue),
+            );
+          }
           final items = snapshot.data ?? [];
           return Padding(
             padding: const EdgeInsets.all(16.0),

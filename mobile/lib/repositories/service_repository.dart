@@ -3,6 +3,7 @@ import 'package:mobile/models/action_model.dart';
 import 'package:mobile/services/api_service.dart';
 import 'package:mobile/models/reaction_model.dart';
 import 'package:mobile/models/applet_model.dart';
+import 'package:mobile/models/user_model.dart';
 import 'dart:convert';
 
 class ServiceRepository {
@@ -135,6 +136,22 @@ class ServiceRepository {
         return data.map((json) => AppletModel.fromJson(json)).toList();
       }
       throw Exception('Failed to load areas');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<UserModel> fetchCurrentUser() async {
+    try {
+      final response = await _apiService.getCurrentUser();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.data);
+        return UserModel.fromJson(data);
+      }
+      throw Exception(
+        'Failed to load current user: Status ${response.statusCode}',
+      );
     } catch (e) {
       rethrow;
     }

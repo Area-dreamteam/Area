@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/user_model.dart';
 import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/viewmodels/create_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -13,17 +14,24 @@ class CreateAreaPage extends StatefulWidget {
 class _CreateAreaPageState extends State<CreateAreaPage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  late Future<UserModel> _currentUser; // Déclaration du Future
 
   @override
   void initState() {
     super.initState();
     final viewModel = context.read<CreateViewModel>();
-    _nameController.addListener(() => viewModel.setName(_nameController.text));
 
     _nameController.addListener(() {
       viewModel.setName(_nameController.text);
       viewModel.setDescription("AREA: ${_nameController.text}");
     });
+
+    try {
+      final serviceRepository = viewModel.serviceRepository;
+      _currentUser = serviceRepository.fetchCurrentUser();
+    } catch (e) {
+      _currentUser = Future.error('error user');
+    }
   }
 
   @override
@@ -51,7 +59,7 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
           );
         } else {
           buttonChild = const Text(
-            'Create Applet',
+            'Create AREA',
             style: TextStyle(fontSize: 18),
           );
         }
@@ -62,7 +70,7 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
             if (success && context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("Applet create"),
+                  content: Text("Applet created"),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -83,64 +91,84 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
         return Scaffold(
           backgroundColor: const Color(0xFF212121),
           appBar: AppBar(
-            title: const Text("Create AREA"),
-            backgroundColor: Colors.white,
+            title: const Text(
+              "Review and finish",
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: const Color(0xFF212121),
+            iconTheme: const IconThemeData(color: Colors.white),
           ),
           body: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 40),
                 if (actionService != null && reactionService != null)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white24,
-                        child: Image.network(
-                          actionService.imageUrl,
-                          width: 40,
-                          height: 40,
-                        ),
-                      ),
+                      _buildServiceImage(actionService.imageUrl),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                       ),
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white24,
-                        child: Image.network(
-                          reactionService.imageUrl,
-                          width: 40,
-                          height: 40,
-                        ),
-                      ),
+                      _buildServiceImage(reactionService.imageUrl),
                     ],
                   ),
                 const SizedBox(height: 50),
                 const Text(
                   'Applet Title',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  textAlign: TextAlign.left,
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+
                 TextField(
                   controller: _nameController,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                  style: const TextStyle(color: Colors.black, fontSize: 18),
                   decoration: InputDecoration(
                     hintText: 'Add a title',
-                    hintStyle: const TextStyle(color: Colors.white),
-                    border: OutlineInputBorder(),
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 90,
+                    ),
                   ),
                 ),
+                const SizedBox(height: 24),
+
+                FutureBuilder<UserModel>(
+                  future: _currentUser,
+                  builder: (context, snapshot) {
+                    String userName = 'Loading...';
+
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData) {
+                        userName = snapshot.data!.name;
+                      } else if (snapshot.hasError) {
+                        userName = 'Error: user not found';
+                      }
+                    }
+
+                    return Text(
+                      'By $userName',
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    );
+                  },
+                ),
+
                 const Spacer(),
+
                 if (viewModel.state == CreateState.error)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 15),
@@ -153,13 +181,18 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
                       ),
                     ),
                   ),
+
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(
+                      double.infinity,
+                      50,
+                    ),
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                     disabledBackgroundColor: Colors.grey.shade800,
                   ),
@@ -171,6 +204,18 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildServiceImage(String imageUrl) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(15.0),
+      child: Image.network(
+        imageUrl,
+        width: 60,
+        height: 60,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }

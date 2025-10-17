@@ -36,9 +36,12 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Choose a service"),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
+        title: const Text(
+          "Choose a service",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Color(0xFF212121),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: const Color(0xFF212121),
       body: Consumer<SelectServiceViewmodel>(
@@ -46,14 +49,6 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
           if (viewModel.isLoading) {
             return const Center(
               child: CircularProgressIndicator(color: Colors.white),
-            );
-          }
-          if (viewModel.state == SelectServiceState.error) {
-            return Center(
-              child: Text(
-                viewModel.errorMessage,
-                style: const TextStyle(color: Colors.red),
-              ),
             );
           }
 

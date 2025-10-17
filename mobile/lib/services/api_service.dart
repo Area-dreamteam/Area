@@ -60,7 +60,7 @@ class ApiService {
   }
 
   Future<Response> getServices() {
-    return _dio.get('/services');
+    return _dio.get('/services/list');
   }
 
   Future<Response> deleteArea(int areaId) {
@@ -81,6 +81,10 @@ class ApiService {
 
   Future<Response> getReactionDetails(int reactionId) {
     return _dio.get('/reactions/$reactionId');
+  }
+
+  Future<Response> getCurrentUser() {
+    return _dio.get('/users/me');
   }
 
   Future<Response> createApplet({
