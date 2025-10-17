@@ -90,3 +90,16 @@ def is_service_connected(
         ).first()
     print("is connected: ", service is not None, "to :", id, "---", user)
     return service is not None
+
+@router.get("/{id}/disconnect")
+def disconnect_service(id: int, session: SessionDep, user: CurrentUser):
+    user_service: UserService = session.exec(
+        select(UserService)
+        .where(UserService.service_id == id, UserService.user_id == user.id)
+    ).first()
+    if not user_service:
+        raise HTTPException(status_code=400, detail="User service not found")
+
+    session.delete(user_service)
+    session.commit()
+    return {"message": "Service disconnected", "service_id": user_service.id, "user_id": user.id}
