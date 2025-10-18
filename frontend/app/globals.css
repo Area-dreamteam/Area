@@ -114,15 +114,21 @@
 
 @layer components
 {
+  :root {
+    --common-color: black;
+    --common-bg: white;
+    --common-hover: #CCCCCC;
+  }
+
   .title {
     @media (width >= 40rem) {
-      color: var(--color-white);
+      color: var(--common-color);
       text-align: center;
       font-size: 600%;
       padding-top: 5%;
     }
     @media (width < 40rem) {
-      color: var(--color-white);
+      color: var(--common-color);
       text-align: center;
       font-size: 200%;
       padding-top: 10%;
@@ -157,16 +163,17 @@
 
   .logo {
     @media (width >= 40rem) {
-      color: var(--color-white);
+      color: var(--common-color);
       font-size: 250%;
     }
     @media (width < 40rem) {
-      color: var(--color-white);
+      color: var(--common-color);
       font-size: 100%;
     }
     &:hover {
       @media (hover: hover) {
           cursor: pointer;
+          color: #424242;
       }
     }
     margin-left: 2%;
@@ -180,18 +187,77 @@
     justify-content: center;
   }
 
-  /* .roundedButton {
-    background-color: var(--color-white);
-    border-radius: calc(infinity * 1px);
-    color: var(--color-black);
-    font-size: 200%;
-    padding: 5%;
+  .activate-link {
     &:hover {
       @media (hover: hover) {
-          background-color: #CCCCCC;
+          color: #4400ff;
+          text-decoration-line: underline;
       }
     }
-  } */
+  }
+
+  .simple-text {
+    @media (width >= 40rem) {
+      color: var(--color-black);
+      font-size: 130%;
+    }
+    @media (width < 40rem) {
+      color: var(--color-black);
+      font-size: 70%;
+    }
+  }
+  
+  .rounded-button {
+    background-color: var(--common-bg);
+    border-radius: calc(infinity * 1px);
+    color: var(--common-color);
+    padding-top: 2%;
+    padding-bottom: 2%;
+    padding-left: 3%;
+    padding-right: 3%;
+    cursor: pointer;
+  
+    @media (width >= 40rem) {
+      font-size: 200%;
+    }
+    @media (width < 40rem) {
+      font-size: 80%;
+    }
+
+    &:hover {
+      @media (hover: hover) {
+          background-color: var(--common-hover);
+      }
+    }
+  }
+
+  .logins-container {
+    @media (width >= 40rem) {
+      height: 50px;
+      width: 300px;
+      border-radius: calc(var(--radius) + 4px);
+    }
+    @media (width < 40rem) {
+      height: 25px;
+      width: 100px;
+      border-radius: calc(var(--radius) - 2px);
+      
+    }
+    /* md:w-[300px] w-[100px] outline-[1px] md:rounded-xl rounded-md mb-4 */
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
+
+  @property --tw-outline-style {
+      syntax: "*";
+      inherits: false;
+      initial-value: solid;
+  }
+  .inverted {
+    --common-bg: var(--color-black);
+    --common-color: var(--color-white);
+    --common-hover: #555555;
+  }
 }
 
 @layer base {

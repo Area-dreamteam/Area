@@ -1,8 +1,15 @@
 import type { NextConfig } from "next";
 
+const API_URL =
+  process.env.BACKEND_URL || "https://area-prod-back.onrender.com";
+
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
+      {
+        source: "/api/backend/:path*",
+        destination: `${API_URL}/:path*`,
+      },
       {
         source: "/client.apk",
         destination: "/api/download/client",

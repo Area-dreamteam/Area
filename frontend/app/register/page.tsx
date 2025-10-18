@@ -28,7 +28,8 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
   const [password, setPassword] = useState("");
-  const [logins, setLogins] = useState<[OAuthInfo]>()
+  const [logins, setLogins] = useState<[OAuthInfo]>();
+
   useEffect(() => {
     fetchAvailableOAuth(setLogins)
   }, [])
@@ -45,49 +46,51 @@ export default function Register() {
   }
 
   return (
-    <div className="bg-[#FFFFFF] h-screen font-bold">
+    <div className="bg-white h-screen font-bold">
       <div>
-        <p onClick={() => redirectToPage("/")} className="w-[200px] mx-auto flex justify-center text-[100px] text-black hover:text-[#424242] hover:cursor-pointer">Area</p>
-        <h1 className="flex justify-center text-[50px] text-black mb-10">Register</h1>
+        <p onClick={() => redirectToPage("/")} className="w-[200px] mx-auto centered title logo">Area</p>
+        <h1 className="title text-black md:mb-10 mb-5">Register</h1>
         <form onSubmit={(e) => sendRegisterForm(e)}>
-          <div className="flex justify-center">
+          <div className="centered md:mb-3 mb-1">
             <Mail onChange={setEmail} />
           </div>
-          <div className="flex justify-center">
+          <div className="centered">
             <Password w={"300px"} onChange={setPassword} />
           </div>
           {error &&
-            <Alert variant="destructive" className="bg-red-100 rounded-4xl mb-[20px] mr-[20px] w-[300px] mx-auto">
+            <Alert variant="destructive" className="bg-red-100 rounded-4xl mb-5 mr-[20px] w-[300px] mx-auto">
               <AlertCircleIcon />
               <AlertTitle>Sorry, this account already exist.</AlertTitle>
             </Alert>
           }
-          <div className="flex justify-center">
-            <Button className="flex justify-center mb-3 bg-[#000000] text-white hover:text-black text-[40px] hover:bg-[#73bbff] rounded-full w-[350px] h-[100px] font-bold pt-2.5 hover:cursor-pointer" type="submit">
+          <div className="centered">
+            <button className="rounded-button inverted m-[5%]" type="submit">
               Get started
-            </Button>
+            </button>
           </div >
         </form>
       </div>
-      <p className="flex justify-center">Or</p>
-      <div className="flex justify-center">
-        <hr className="w-[350px] outline-[1px] mb-[25px]" style={{ color: "#4400ff" }} />
+      <p className="centered mb-[2%] simple-text">Or</p>
+      <div className="centered">
+        <hr className="w-[40%] mb-[2%]" style={{ color: "#4400ff" }} />
       </div>
       <li>
         {logins && logins.map((l) => {
           return (
-            <ul className="flex justify-center" key={l.name}>
-              <Button onClick={() => { redirectOauth(l.name) }} className="flex justify-center mb-[20px] bg-white text-black text-[30px] hover:bg-[#e4e4e4] rounded-full w-[450px] h-[70px] hover:border-[#000000] border-[#e4e4e4] border-[2px] outline-[1px] pt-[10px]" >
+            <ul className="centered" key={l.name}>
+              <button onClick={() => { redirectOauth(l.name) }} className="rounded-button border-1 m-[5%]" >
                 Continue with {l.name}
-              </Button>
+              </button>
             </ul>
-
           )
         })}
       </li>
-      <div className="flex justify-center">
-        <p className="mb-3 text-black text-center text-[20px]">
-          Already have an account ? <Link href="/login" className="hover:text-[#4400ff] underline">Log in here.</Link>
+      <div className="centered">
+        <p className="mb-[10%] text-black text-center simple-text">
+          Already have an account ?
+          <Link href="/login" className="activate-link">
+            Log in here.
+          </Link>
         </p>
       </div>
     </div>

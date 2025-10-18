@@ -24,20 +24,20 @@ export default function Home()
 {
   return (
     <div className="font-bold">
-      <div className="bg-[#000000] rounded-b-2xl">
-        <h1 onClick={() => redirectToPage("/explore")} className="logo">
+      <div className="bg-black rounded-b-2xl">
+        <h1 onClick={() => redirectToPage("/explore")} className="logo inverted">
           Area
         </h1>
-        <h1 className="title centered">
+        <h1 className="title inverted centered">
           Automation for business and home
         </h1>
         <h2 className="subtitle centered">
           Build your own chain of reactions
         </h2>
         <div className="centered mt-[10%]">
-          <Button onClick={() => redirectToPage("/register")} className="hover:bg-[#CCCCCC] bg-white text-black rounded-full md:text-[200%] p-[5%] m-[5%]">
+          <button onClick={() => redirectToPage("/register")} className="rounded-button m-[5%]">
             Start now
-          </Button>
+          </button>
         </div>
       </div>
       <h3 className="mt-[5%] title-part text-black">
