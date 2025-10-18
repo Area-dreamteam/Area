@@ -19,7 +19,7 @@ export function Mail({onChange = (() => "")} : Information)
     return (
         <div className="logins-container">
             <Input
-            className="text-black h-[100%] w-5/6 border-none focus-visible:ring-0 md:placeholder:text-sm placeholder:text-xs"
+            className="text-black h-[100%] w-5/6 border-none focus-visible:ring-0 md:placeholder:text-sm placeholder:text-xs md:text-sm text-xs"
             pattern="[a-zA-Z0-9._\-]+@[a-zA-Z0-9_\-]+\.[a-z]{2,}$"
             placeholder="Email" type="email"
             onChange={(e) => onChange(e.target.value)}
@@ -53,7 +53,7 @@ export function Password({onChange = (() => "")}: PasswordProps)
                 <RiEyeOffFill className="ml-[5px] md:h-[50px] h-[25px]" onClick={() => swapPsswdComponents()}/>
             )}
             <Input
-            className="text-black h-[100%] w-5/6 border-none focus-visible:ring-0 md:placeholder:text-sm placeholder:text-xs"
+            className="text-black h-[100%] w-5/6 border-none focus-visible:ring-0 md:placeholder:text-sm placeholder:text-xs md:text-sm text-xs"
             placeholder="Password"
             type={psswdType}
             onChange={(e) => onChange(e.target.value)}
