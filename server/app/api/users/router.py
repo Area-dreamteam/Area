@@ -1,30 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from schemas import UserIdGet, UserOauthLoginGet, UserUpdate, Role
+from schemas import UserIdGet, UserUpdate, Role
 
-from models import User, Service, UserService, UserOAuthLogin, OAuthLogin
+from models import User
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser, CurrentAdmin
+from db import get_user_data
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-def get_user_data(session: SessionDep, user: User) -> UserIdGet:
-    oauths_login: list[OAuthLogin] = session.exec(
-        select(OAuthLogin)
-    ).all()
-
-    if not oauths_login:
-        raise HTTPException(status_code=404, detail="Oauth login not found")
-    oauth_login_list: list[UserOauthLoginGet] = []
-    for oauth_login in oauths_login:
-        connected: bool = False
-        user_oauth_login: UserOAuthLogin = session.exec(select(UserOAuthLogin).where(UserOAuthLogin.oauth_login_id == oauth_login.id, UserOAuthLogin.user_id == user.id)).first()
-        if user_oauth_login:
-            connected = True
-        oauth_data: UserOauthLoginGet = UserOauthLoginGet(id=oauth_login.id, name=oauth_login.name, image_url=oauth_login.image_url, color=oauth_login.color, connected=connected)
-        oauth_login_list.append(oauth_data)
-    user_data = UserIdGet(id=user.id, name=user.name, email=user.email, role=user.role, oauth_login=oauth_login_list)
-    return user_data
 
 @router.get("/me", response_model=UserIdGet)
 def get_current_user(session: SessionDep, user: CurrentUser) -> UserIdGet:

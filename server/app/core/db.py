@@ -198,7 +198,9 @@ def sync_services_catalog_to_db(session: Session, catalog: dict):
 
 
 def init_db(catalog: dict, oauths_catalog: dict):
-    # print(json.dumps(catalog, indent=2))
+    # logger.error(json.dumps(catalog, indent=2))
+    # logger.error(json.dumps(oauths_catalog, indent=2))
+    
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         sync_services_catalog_to_db(session, catalog)
