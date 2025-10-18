@@ -62,8 +62,7 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
       }
 
       final String itemDescription =
-          detailedItem.description ??
-          'No description';
+          detailedItem.description ?? 'No description';
 
       if (detailedItem.configSchema.isNotEmpty) {
         final result = await Navigator.push<List<dynamic>>(
@@ -82,8 +81,6 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
 
         if (result != null) {
           finalConfig = result;
-        } else {
-          return;
         }
       }
 

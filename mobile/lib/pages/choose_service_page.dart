@@ -59,8 +59,7 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
             filteredServices = viewModel.services;
           } else {
             filteredServices = viewModel.services.where((service) {
-              return service.name.toLowerCase().contains(search) ||
-                  (service.category?.toLowerCase().contains(search) ?? false);
+              return service.name.toLowerCase().contains(search);
             }).toList();
           }
           return Column(

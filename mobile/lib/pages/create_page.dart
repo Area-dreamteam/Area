@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/action_model.dart';
 import 'package:mobile/models/reaction_model.dart';
 import 'package:mobile/pages/choose_service_page.dart';
-import 'package:mobile/pages/create_area.dart';
 import 'package:mobile/viewmodels/create_viewmodel.dart';
 import 'package:mobile/widgets/create_card.dart';
 import 'package:mobile/widgets/navbar.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/pages/review_and_finish_page.dart';
 
 class CreatePage extends StatefulWidget {
   const CreatePage({super.key});
@@ -16,8 +16,6 @@ class CreatePage extends StatefulWidget {
 }
 
 class _CreatePageState extends State<CreatePage> {
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
 
   @override
   void initState() {
@@ -25,18 +23,10 @@ class _CreatePageState extends State<CreatePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CreateViewModel>().clearSelection();
     });
-
-    final viewModel = context.read<CreateViewModel>();
-    _nameController.addListener(() => viewModel.setName(_nameController.text));
-    _descriptionController.addListener(
-      () => viewModel.setDescription(_descriptionController.text),
-    );
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -46,15 +36,6 @@ class _CreatePageState extends State<CreatePage> {
       backgroundColor: const Color(0xFF212121),
       body: Consumer<CreateViewModel>(
         builder: (context, viewModel, child) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (viewModel.name.isEmpty && _nameController.text.isNotEmpty) {
-              _nameController.clear();
-            }
-            if (viewModel.description.isEmpty &&
-                _descriptionController.text.isNotEmpty) {
-              _descriptionController.clear();
-            }
-          });
           return Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -161,18 +142,20 @@ class _CreatePageState extends State<CreatePage> {
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        // ignore: deprecated_member_use
-        backgroundColor: isReady ? Colors.blue : Colors.blue.withOpacity(0.5),
+        backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        elevation: isReady ? 2 : 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
       ),
       onPressed: isReady
           ? () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const CreateAreaPage()),
+                MaterialPageRoute(
+                  builder: (context) => const ReviewAndFinishPage(),
+                ),
               );
             }
           : null,

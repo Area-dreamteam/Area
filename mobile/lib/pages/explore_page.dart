@@ -1,7 +1,10 @@
-/*import 'package:flutter/material.dart';
-//import '../widgets/card.dart';
-import '../widgets/service_card.dart';
-import '../widgets/navbar.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/viewmodels/explore_viewmodel.dart';
+import 'package:mobile/models/service_model.dart';
+import 'package:mobile/widgets/card.dart';
+import 'package:mobile/widgets/service_card.dart';
+import 'package:mobile/widgets/navbar.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -12,41 +15,26 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   final TextEditingController _searchCtrl = TextEditingController();
-
-  final List<Map<String, String>> _allItems = [
-    {
-      'title': 'Super Applet',
-      'type': 'Applet',
-      'by': 'IFTTT',
-      'users': '12k',
-      'color': '0xFFE86E66',
-    },
-    {
-      'title': 'Weather Service',
-      'type': 'Service',
-      'by': 'Community',
-      'users': '8k',
-      'color': '0xFF2B2140',
-    },
-    {
-      'title': 'Smart Home Applet',
-      'type': 'Applet',
-      'by': 'IFTTT',
-      'users': '20k',
-      'color': '0xFFE86E66',
-    },
-  ];
-
   String _selectedCategory = 'All';
 
-  List<Map<String, String>> get _filteredItems {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ExploreViewModel>().fetchExploreItems();
+    });
+    _searchCtrl.addListener(() => setState(() {}));
+  }
+
+  List<ExploreItem> get _filteredItems {
+    final viewModel = context.read<ExploreViewModel>();
     final searchText = _searchCtrl.text.trim().toLowerCase();
-    return _allItems.where((word) {
+
+    return viewModel.allItems.where((item) {
       final matchesCategory =
-          _selectedCategory == 'All' || word['type'] == _selectedCategory;
+          _selectedCategory == 'All' || item.type == _selectedCategory;
       final matchesQuery =
-          searchText.isEmpty ||
-          word['title']!.toLowerCase().contains(searchText);
+          searchText.isEmpty || item.title.toLowerCase().contains(searchText);
       return matchesCategory && matchesQuery;
     }).toList();
   }
@@ -84,8 +72,6 @@ class _ExplorePageState extends State<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
-    final items = _filteredItems;
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -109,36 +95,44 @@ class _ExplorePageState extends State<ExplorePage> {
             const SizedBox(height: 12),
 
             Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.70,
-                ),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  final color = int.parse(item['color']!);
-             //     final type = item['type'];
-
-        //          if (type == 'Applet') {
-           //         return BigCard(
-             //         color: Color(color),
-               //       icon: Icons.extension,
-         //             title: item['title']!,
-       //               byText: item['by']!,
-          //            onTap: () {},
-          //          );
-            //      } else {
-  //                  return ServiceCard(
-    //                  color: Color(color),
-      ///                icon: Icons.cloud,
-         ///             title: item['title']!,
-            //          onTap: () {},
-    //                );
+              child: Consumer<ExploreViewModel>(
+                builder: (context, viewModel, child) {
+                  if (viewModel.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
                   }
- //               },
+                  final items = _filteredItems;
+
+                  return ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+
+                      if (item.type == 'Applet') {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: AppletCard(
+                            colorHex: item.colorHex,
+                            title: item.title,
+                            byText: item.byText ?? 'By Unknown',
+                            onTap: () {},
+                          ),
+                        );
+                      } else {
+                        final serviceData = item.data as Service;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: ServiceCard(
+                            id: serviceData.id,
+                            name: serviceData.name,
+                            colorHex: serviceData.color,
+                            imageUrl: serviceData.imageUrl,
+                            onTap: () {},
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -148,4 +142,3 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 }
-*/

@@ -56,7 +56,7 @@ class ApiService {
   }
 
   Future<Response> getMyAreas() {
-    return _dio.get('/areas');
+    return _dio.get('/users/areas/');
   }
 
   Future<Response> getServices() {
@@ -87,6 +87,10 @@ class ApiService {
     return _dio.get('/users/me');
   }
 
+  Future<Response> getPublicAreas() {
+    return _dio.get('/areas/public');
+  }
+
   Future<Response> createApplet({
     required String name,
     required String description,
@@ -96,7 +100,7 @@ class ApiService {
     required List<dynamic> reactionConfig,
   }) {
     return _dio.post(
-      '/areas',
+      '/users/areas/',
       data: {
         'name': name,
         'description': description,

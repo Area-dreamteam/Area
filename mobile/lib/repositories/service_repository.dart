@@ -130,7 +130,8 @@ class ServiceRepository {
 
   Future<List<AppletModel>> fetchMyAreas() async {
     try {
-      final response = await _apiService.getMyAreas();
+      final response = await _apiService
+          .getMyAreas();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.data);
         return data.map((json) => AppletModel.fromJson(json)).toList();
@@ -152,6 +153,19 @@ class ServiceRepository {
       throw Exception(
         'Failed to load current user: Status ${response.statusCode}',
       );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<AppletModel>> fetchPublicAreas() async {
+    try {
+      final response = await _apiService.getPublicAreas();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.data);
+        return data.map((json) => AppletModel.fromJson(json)).toList();
+      }
+      throw Exception('Failed to load public areas');
     } catch (e) {
       rethrow;
     }
