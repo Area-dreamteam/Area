@@ -5,7 +5,7 @@ from schemas import UserIdGet, UserUpdate, Role
 from models import User
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser, CurrentAdmin
-from db import get_user_data
+from api.users.db import get_user_data
 
 router = APIRouter(prefix="/users", tags=["users"])
 
