@@ -21,25 +21,29 @@ from sqlmodel import select
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 
-def windowCloseAndCookie(id: int, name: str) -> Response:
-    html = f"""
-    <script>
-      window.opener.postMessage({{ type: "{name}_login_complete" }}, "*");
-      window.close();
-    </script>
-    """
-    response = HTMLResponse(content=html)
-
-    token = sign_jwt(id)
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {token}",
-        httponly=True,
-        secure=True,
-        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
-        samesite="none",
-    )
-    return response
+def windowCloseAndCookie(id: int, name: str, is_mobile: bool = False) -> Response:
+    if is_mobile:
+        token = sign_jwt(id)
+        redirect_url = f"{settings.FRONT_URL}/oauth-callback?success=true&token={token}"
+        return RedirectResponse(url=redirect_url)
+    else:
+        html = f"""
+        <script>
+          window.opener.postMessage({{ type: "{name}_login_complete" }}, "*");
+          window.close();
+        </script>
+        """
+        response = HTMLResponse(content=html)
+        token = sign_jwt(id)
+        response.set_cookie(
+            key="access_token",
+            value=f"Bearer {token}",
+            httponly=True,
+            secure=True,
+            max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+            samesite="none",
+        )
+        return response
 
 
 class OAuthApiError(Exception):

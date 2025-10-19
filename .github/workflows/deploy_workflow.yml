@@ -2,7 +2,7 @@ name: Github Action Deploy
 
 on:
   push:
-    branches: ["deployement_ci"]
+    branches: ["main", "deployement_ci"]
 
 jobs:
   build-deploy-front:

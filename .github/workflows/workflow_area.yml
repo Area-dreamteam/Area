@@ -1,4 +1,4 @@
-name: Github Action 
+name: Mirror push to epitech
 
 on:
   push:

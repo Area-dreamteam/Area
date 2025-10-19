@@ -18,7 +18,7 @@ class UserShortInfo(BaseModel):
     name: str
 
 
-class UserServiceGet(BaseModel):
+class UserOauthLoginGet(BaseModel):
     id: int
     name: str
     image_url: Path
@@ -31,4 +31,9 @@ class UserIdGet(BaseModel):
     name: str
     email: EmailStr
     role: Role
-    user_services: list[UserServiceGet]
+    oauth_login: list[UserOauthLoginGet]
+
+class UserUpdate(BaseModel):
+    name: str
+    email: EmailStr
+    password: str

@@ -38,5 +38,6 @@ EXPOSE 8000
 #
 ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
+ENV ENV=prod
 
 CMD crond && uvicorn main:app --host ${HOSTNAME} --port ${PORT}

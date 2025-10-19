@@ -1,4 +1,4 @@
-name: Github Action Mobile
+name: Mobile workflow
 
 on:
   push:

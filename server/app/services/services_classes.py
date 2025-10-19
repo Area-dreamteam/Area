@@ -19,6 +19,7 @@ class Action:
         self.config_schema: list[Dict[str, Any]] = (
             config_schema if config_schema is not None else []
         )
+        self.service: Service = None
 
     def check(self, session: Session, area_action: AreaAction, user_id: int) -> bool:
         pass
@@ -42,6 +43,7 @@ class Reaction:
         self.config_schema: list[Dict[str, Any]] = (
             config_schema if config_schema is not None else []
         )
+        self.service: Service = None
 
     def execute(self, session: Session, area_action: AreaReaction, user_id: int):
         pass
@@ -81,9 +83,11 @@ class Service:
             if isinstance(attr, type):
                 if issubclass(attr, Action) and attr is not Action:
                     instance = attr()
+                    instance.service = self
                     self.actions[instance.name] = instance
                 elif issubclass(attr, Reaction) and attr is not Reaction:
                     instance = attr()
+                    instance.service = self
                     self.reactions[instance.name] = instance
 
     def check(
@@ -184,3 +188,11 @@ def create_service_dictionnary(
         service_dict[instance.name] = instance
 
     return service_dict
+
+def get_component(config: list, name: str, key: str):
+    for comp in config:
+        if comp.get("name") == name:
+            if key:
+                return comp.get(key, None)
+            return comp
+    return None
