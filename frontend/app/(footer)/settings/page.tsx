@@ -72,7 +72,7 @@ function Profile({profile}: PersonnalInfoProp)
 
     return (
         <div className="mx-auto mt-[40px] w-[700px] font-bold">
-            <h1 className="flex justify-center text-[50px] mt-[40px] font-bold">
+            <h1 className="centered text-[50px] mt-[40px] font-bold">
                 Account Settings
             </h1>
             <hr/>
@@ -128,7 +128,7 @@ export default function Settings()
             {available ?
                 <Profile profile={profile}/>
             :
-                <p className="flex justify-center text-[50px]">Loading...</p>
+                <p className="centered text-[50px]">Loading...</p>
             }
         </div>
     )

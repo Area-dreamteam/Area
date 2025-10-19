@@ -51,7 +51,7 @@ export default function My_applet()
 
     return (
         <div className="w-screen">
-            <h1 className="flex justify-center text-[50px] font-bold mt-[50px]">My Applets</h1>
+            <h1 className="centered text-[50px] font-bold mt-[50px]">My Applets</h1>
             <Input className="mx-auto block w-[400px] h-[50px] mt-[20px] mb-[20px] border-[4px]" placeholder="Search Applets or Services" onChange={(e) => setSearched(e.target.value)}/>
             <div className="mx-auto block w-1/2">
                 <div className="flex justify-around mb-[20px]">

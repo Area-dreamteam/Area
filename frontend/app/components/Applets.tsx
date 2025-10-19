@@ -12,7 +12,7 @@ export default function Applets({search = "", applets = null,
 {
     if (applets == null) {
         return (
-            <p className="flex justify-center text-[20px] mt-[20px] mb-[20px]">
+            <p className="centered text-[20px] mt-[20px] mb-[20px]">
                 No applet found.
             </p>
         )
@@ -25,7 +25,7 @@ export default function Applets({search = "", applets = null,
         applet.name.toLowerCase().includes(search.toLowerCase()) ?
         (
             <div key={applet.id} className={boxClassName} style={{ backgroundColor: applet.color }} onClick={() => onClick(applet)}>
-                <div className="flex justify-center bg-black rounded-t-lg">
+                <div className="centered bg-black rounded-t-lg">
                     <p className="font-bold text-white text-[20px] m-[20px]">{applet.name}</p>
                 </div>
             </div>
@@ -41,7 +41,7 @@ export default function Applets({search = "", applets = null,
                     {serviceBlocks} 
                 </div>
             ) : (
-                <p className="flex justify-center text-[20px] mt-[20px]">
+                <p className="centered text-[20px] mt-[20px]">
                     No applet found.
                 </p>
             )}

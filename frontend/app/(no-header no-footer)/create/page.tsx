@@ -43,7 +43,7 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
   setIsChoosing, setChosen, chosen = null }: ChoiceButtonProp) {
   return (
     <div className="mx-auto mt-[75px] w-[650px] h-[130px] rounded-xl text-white flex items-center justify-between px-[10px]" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
-      <h1 className="flex-1 flex justify-center text-[80px]">
+      <h1 className="flex-1 centered text-[80px]">
         {buttonText}
         {chosen ?
           <p className="ml-[20px] m-[40px] text-[20px]">{chosen.name}</p>
@@ -123,10 +123,10 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
               </p>
               <hr className="col-span-4 mb-[120px]" />
             </div>
-            <p className="text-white flex justify-center mb-[20px]">Applet Title</p>
+            <p className="text-white centered mb-[20px]">Applet Title</p>
             <Input className="block mx-auto w-[500px] h-[70px] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
-          <div className="flex justify-center mt-[30px]">
+          <div className="centered mt-[30px]">
             <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => createApplet(action, reaction, title, actConfig, reactConfig)} disabled={title === ""}>
               Finish
             </Button>
@@ -256,7 +256,7 @@ function DisplayTrigger({ config, handleChange }: TriggerProp)
             </p>
             {(config.type == "select" && Array.isArray(config.values)
                 && config.values.every(v => typeof v === "string")) &&
-                <div className="flex justify-center">
+                <div className="centered">
                     <SelectElement content={config.values}
                     config={config} handleChange={handleChange}/>
                 </div>
@@ -433,14 +433,14 @@ function ChooseAct({ service, setService, setAction,
             <div className="mt-[25px] grid-cols-3">
               {acts.map((act) => (
                 <div key={act.id} className="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative" style={{ backgroundColor: service.color }} onClick={() => selectAct(setChoosingTrigger, setAction, act)}>
-                  <div className="flex justify-center">
+                  <div className="centered">
                     <p className="font-bold text-white text-[20px] m-[20px]">{act.name}<br />{act.description}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="flex justify-center text-[20px] mt-[20px]">
+            <p className="centered text-[20px] mt-[20px]">
               No actions found.
             </p>
           )}

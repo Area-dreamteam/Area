@@ -73,7 +73,7 @@ export default function Edit({ params }: AppletProp)
                ) : (
                 (myApplet && modifiedApplet &&
                     <div className="mx-[50px] py-[50px]">
-                        <h1 className="flex justify-center text-[40px] font-bold">
+                        <h1 className="centered text-[40px] font-bold">
                             {myApplet?.area_info.name}
                         </h1>
                         <hr className="mt-[25px] mb-[25px]"/>

@@ -50,7 +50,7 @@ function Filter({services, filter, setFilter}: FilterProp)
     }
     ) : "");
   return (
-    <div className="flex justify-center">
+    <div className="centered">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">
@@ -94,10 +94,10 @@ interface SearchProp {
 function All({ search = "", services = null, applets = null }: SearchProp) {
   return (
     <div>
-      <h1 className="flex justify-center font-bold text-[25px]"> Services </h1>
+      <h1 className="centered font-bold text-[25px]"> Services </h1>
       <Services search={search} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToService} />
       <br />
-      <h1 className="flex justify-center font-bold text-[25px]"> Applets </h1>
+      <h1 className="centered font-bold text-[25px]"> Applets </h1>
       <Applets search={search} applets={applets} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToApplet} />
     </div>
   )
@@ -125,8 +125,8 @@ export default function Explore() {
 
   return (
     <div>
-      <h1 className="font-bold text-[100px] flex justify-center"> Explore </h1>
-      <div className="flex justify-center">
+      <h1 className="font-bold text-[100px] centered"> Explore </h1>
+      <div className="centered">
         <div className="flex justify-around w-1/2">
           {taskbarButton("All", page, setPage, true)}
           {taskbarButton("Applets", page, setPage, true)}
@@ -137,7 +137,7 @@ export default function Explore() {
       <Input className="mx-auto block w-[400px]" placeholder="Search Applets or Services" onChange={(e) => setSearched(e.target.value)} />
       <br />
       {page == "Services" && <Filter services={services} filter={filter} setFilter={setFilter} />}
-      <div className="flex justify-center">
+      <div className="centered">
         <div>
           {page == "Services" && <Services filter={filter} search={searched} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToService} />}
           {page == "Applets" && <Applets search={searched} applets={applets} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToApplet} />}
