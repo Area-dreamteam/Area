@@ -1,4 +1,17 @@
+import os
 from pydantic_settings import BaseSettings
+
+
+def get_env_file() -> str:
+    env = os.getenv("ENV")
+    if env is None:
+        raise "No env file found"
+    elif env == "dev":
+        return ".env"
+    elif env == "prod":
+        return ".env.prod"
+    elif env == "tests":
+        return ".env.tests"
 
 
 class Settings(BaseSettings):
@@ -17,7 +30,7 @@ class Settings(BaseSettings):
     FRONT_URL: str
 
     class Config:
-        env_file = ".env"
+        env_file = get_env_file()
 
 
 settings = Settings()
