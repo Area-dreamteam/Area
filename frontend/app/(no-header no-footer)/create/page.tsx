@@ -72,8 +72,8 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
 
 interface UpButtonProp {
   text: string,
-  act: (param: any) => void,
-  param: any,
+  act: (param: boolean | string) => void,
+  param: boolean | string,
   color?: string
 }
 
@@ -86,8 +86,8 @@ function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
 }
 
 interface CreationProp {
-    action: any | null,
-    reaction: any | null,
+    action: Act | null,
+    reaction: Act | null,
     actConfig: ConfigRespAct[],
     reactConfig: ConfigRespAct[],
     setAction: (arg: Act | null) => void,
@@ -117,7 +117,7 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
         <div>
           <div className="rounded-b-xl bg-black text-white font-bold w-screen h-[450px]">
             <div className="grid grid-cols-4">
-              <LeftUpButton text="Back" act={setValidating} param={false} color="white" />
+              <LeftUpButton text="Back" act={(param: boolean | string) => setValidating(param as boolean)} param={false} color="white" />
               <p className="mt-[35px] flex flex-col text-[50px] col-span-2 text-center">
                 Review and finish
               </p>
@@ -127,7 +127,7 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
             <Input className="block mx-auto w-[500px] h-[70px] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="centered mt-[30px]">
-            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => createApplet(action, reaction, title, actConfig, reactConfig)} disabled={title === ""}>
+            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => action && reaction && createApplet(action, reaction, title, actConfig, reactConfig)} disabled={title === ""}>
               Finish
             </Button>
           </div>
@@ -135,7 +135,7 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
       ) : (
         <div>
           <div className="grid grid-cols-4">
-            <LeftUpButton text="Cancel" act={redirect} param={"/my_applets"} />
+            <LeftUpButton text="Cancel" act={(param: boolean | string) => redirect(param as string)} param={"/my_applets"} />
             <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-2 text-center">
               Create
             </p>
@@ -306,7 +306,7 @@ interface chooseTriggerProp {
   setConfig: (arg: ConfigRespAct[]) => (void)
 }
 
-function reinitAll(setService: (arg: any) => void, setAction: (arg: any) => void) {
+function reinitAll(setService: (arg: Service | null) => void, setAction: (arg: Act | null) => void) {
     setService(null);
     setAction(null);
 }
@@ -353,7 +353,7 @@ function ChooseTrigger({ act, service, type, setConfig,
   return (
     <div className="text-white w-screen h-screen" style={{ background: service.color }}>
         <div className="grid grid-cols-4 " >
-            <LeftUpButton text="Back" act={setChoosingTrigger} param={false} color="white" />
+            <LeftUpButton text="Back" act={(param: boolean | string) => setChoosingTrigger(param as boolean)} param={false} color="white" />
             <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-3 text-center">
             Complete trigger fields
             </p>
@@ -477,7 +477,7 @@ function ChooseService({ choosingAction, setChoosingAction,
       {!selected &&
         <div>
           <div className="grid grid-cols-4">
-            <LeftUpButton text="Back" act={setChoosingAction} param={false} />
+            <LeftUpButton text="Back" act={(param: boolean | string) => setChoosingAction(param as boolean)} param={false} />
             <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-2 text-center">
               Choose a service
             </p>

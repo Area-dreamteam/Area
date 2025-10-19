@@ -1,3 +1,9 @@
+"""OAuth integration utilities.
+
+Common OAuth flow helpers for service authentication and user account linking.
+Provides unified OAuth callback handling for both login and service connection.
+"""
+
 from typing import Dict, Any
 from models.oauth.oauth_login import OAuthLogin
 from models.users.user_oauth_login import UserOAuthLogin
@@ -21,32 +27,33 @@ from sqlmodel import select
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 
-def windowCloseAndCookie(id: int, name: str, is_mobile: bool = False) -> Response:
-    if is_mobile:
-        token = sign_jwt(id)
-        redirect_url = f"{settings.FRONT_URL}/oauth-callback?success=true&token={token}"
-        return RedirectResponse(url=redirect_url)
-    else:
-        html = f"""
-        <script>
-          window.opener.postMessage({{ type: "{name}_login_complete" }}, "*");
-          window.close();
-        </script>
-        """
-        response = HTMLResponse(content=html)
-        token = sign_jwt(id)
-        response.set_cookie(
-            key="access_token",
-            value=f"Bearer {token}",
-            httponly=True,
-            secure=True,
-            max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
-            samesite="none",
-        )
-        return response
+def windowCloseAndCookie(id: int, name: str) -> Response:
+    """Generate OAuth success response with JWT cookie and window close script.
+    
+    Used in popup OAuth flows to notify parent window and set authentication.
+    """
+    html = f"""
+    <script>
+      window.opener.postMessage({{ type: "{name}_login_complete" }}, "*");
+      window.close();
+    </script>
+    """
+    response = HTMLResponse(content=html)
+
+    token = sign_jwt(id)
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        secure=True,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+        samesite="none",
+    )
+    return response
 
 
 class OAuthApiError(Exception):
+    """OAuth-related API errors."""
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
@@ -55,6 +62,10 @@ class OAuthApiError(Exception):
 def oauth_add_link(
     session: Session, name: str, user: User, access_token: str
 ) -> Response:
+    """Link a service to existing authenticated user account.
+    
+    Creates or updates service connection with OAuth token.
+    """
     existing = session.exec(select(User).where(User.id == user.id)).first()
     service = session.exec(
         select(UserService)
@@ -85,6 +96,10 @@ def oauth_add_link(
 def oauth_add_login(
     session: Session, name: str, user: User | None, access_token: str, user_mail: str
 ) -> Response:
+    """Handle OAuth login flow - register new user or authenticate existing one.
+    
+    Creates new account if user doesn't exist, otherwise authenticates.
+    """
     if user is None:
         existing = session.exec(select(User).where(User.email == user_mail)).first()
     else:

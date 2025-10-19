@@ -2,13 +2,14 @@ from cron.cron import newJob, isCronExists
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from models import Area, User, Action, AreaAction, Service, AreaReaction, Reaction
-from schemas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic, UserShortInfo, ActionBasicInfo, ReactionBasicInfo, ServiceGet, CreateArea, Role, UpdateArea
+from schemas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic, UserShortInfo, ActionBasicInfo, ReactionBasicInfo, ServiceGet, CreateArea, Role, UpdateArea, AreaDeletionResponse
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser
 
 router = APIRouter(prefix="/areas", tags=["areas"])
 
 def get_area_action_info(session: SessionDep, area: Area) -> ActionBasicInfo:
+    """Get action configuration for an area."""
     action_area: AreaAction = session.exec(select(AreaAction).where(AreaAction.area_id == area.id)).first()
     if not action_area:
         raise HTTPException(status_code=404, detail="Action area not found")
@@ -25,7 +26,8 @@ def get_area_action_info(session: SessionDep, area: Area) -> ActionBasicInfo:
     area_action_data = ActionBasicInfo(id=action.id, name=action.name, description=action.description, service=service)
     return area_action_data
 
-def get_area_reactions_info(session: SessionDep, area: Area) -> ReactionBasicInfo:
+def get_area_reactions_info(session: SessionDep, area: Area) -> list[ReactionBasicInfo]:
+    """Get all reaction configurations for an area."""
     reactions_area: AreaReaction = session.exec(select(AreaReaction).where(AreaReaction.area_id == area.id)).all()
     if not reactions_area:
         raise HTTPException(status_code=404, detail="Reaction area not found")
@@ -45,7 +47,12 @@ def get_area_reactions_info(session: SessionDep, area: Area) -> ReactionBasicInf
         area_reactions_data.append(area_reaction_data)
     return area_reactions_data
 
-@router.get("/public", response_model=list[AreaGetPublic])
+@router.get(
+    "/public",
+    response_model=list[AreaGetPublic],
+    summary="Get public areas",
+    description="Browse automation areas shared by the community"
+)
 def get_areas_public(session: SessionDep) -> list[AreaGetPublic]:
     areas: list[Area] = session.exec(select(Area).where(Area.is_public == True)).all()
 
@@ -61,7 +68,16 @@ def get_areas_public(session: SessionDep) -> list[AreaGetPublic]:
         areas_data.append(area_data)
     return areas_data
 
-@router.get("/{id}", response_model=AreaIdGet)
+@router.get(
+    "/{id}",
+    response_model=AreaIdGet,
+    summary="Get area details",
+    description="Get complete area configuration (owner/admin only)",
+    responses={
+        403: {"description": "Access denied"},
+        404: {"description": "Area not found"}
+    }
+)
 def get_area_by_id(id: int, session: SessionDep, user: CurrentUser) -> AreaIdGet:
     area: Area = session.exec(select(Area).where(Area.id == id)).first()
     if not area:
@@ -78,8 +94,17 @@ def get_area_by_id(id: int, session: SessionDep, user: CurrentUser) -> AreaIdGet
     area_data = AreaIdGet(area_info=area_info, action=action_data, reactions=reactions_data)
     return area_data
 
-@router.delete("/{id}")
-def delete_area(id: int, session: SessionDep,  user: CurrentUser):
+@router.delete(
+    "/{id}",
+    response_model=AreaDeletionResponse,
+    summary="Delete area",
+    description="Permanently delete area and stop its automation",
+    responses={
+        403: {"description": "Access denied"},
+        404: {"description": "Area not found"}
+    }
+)
+def delete_area(id: int, session: SessionDep, user: CurrentUser) -> AreaDeletionResponse:
     area: Area = session.exec(
         select(Area)
         .where(Area.id == id)
@@ -90,9 +115,19 @@ def delete_area(id: int, session: SessionDep,  user: CurrentUser):
         raise HTTPException(status_code=403, detail="Permission Denied")
     session.delete(area)
     session.commit()
-    return {"message": "Area deleted", "area_id": area.id, "user_id": user.id}
+    return AreaDeletionResponse(
+        message="Area deleted",
+        area_id=area.id,
+        user_id=user.id
+    )
 
-@router.get("/public/{id}", response_model=AreaIdGetPublic)
+@router.get(
+    "/public/{id}",
+    response_model=AreaIdGetPublic,
+    summary="Get public area details",
+    description="Get complete details of a public area",
+    responses={404: {"description": "Public area not found"}}
+)
 def get_area_public_by_id(id: int, session: SessionDep) -> AreaIdGetPublic:
     area: Area = session.exec(select(Area).where(Area.id == id, Area.is_public == True)).first()
     if not area:

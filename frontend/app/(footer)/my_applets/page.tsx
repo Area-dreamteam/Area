@@ -9,13 +9,13 @@
 
 import { fetchPersonalApplets } from "@/app/functions/fetch";
 import taskbarButton from "@/app/components/TaskBarButtons";
-import { PrivateApplet } from "@/app/types/applet";
+import { PrivateApplet, PublicApplet } from "@/app/types/applet";
 import Applets from "@/app/components/Applets";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
 
-function redirectToApplet(applet: PrivateApplet)
+function redirectToApplet(applet: PublicApplet | PrivateApplet)
 {
     redirect(`/my_applets/${applet.name}`);
 }
@@ -31,7 +31,7 @@ function FilterApplets(text: string, applets: PrivateApplet[] | null)
         return filteredApplets;
     }
     if (text === "Published") {
-        const filteredApplets = applets.filter(applet => (
+        const filteredApplets = applets.filter(() => (
             false // to modify when variable published will be added
         ))
         return filteredApplets;

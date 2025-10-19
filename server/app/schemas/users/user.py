@@ -1,39 +1,39 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from pathlib import Path
 from .role import Role
 
 
 class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
+    """User registration/login schema."""
+    email: EmailStr = Field(description="User email address", example="user@example.com")
+    password: str = Field(min_length=8, description="User password", example="securepassword123")
 
 
 class TokenResponse(BaseModel):
-    token_type: str = "Bearer"
-    access_token: str
+    """JWT token response."""
+    token_type: str = Field(default="Bearer", description="Token type")
+    access_token: str = Field(description="JWT access token")
 
 
 class UserShortInfo(BaseModel):
-    id: int
-    name: str
+    """Basic user information."""
+    id: int = Field(description="User ID", example=1)
+    name: str = Field(description="Username", example="johndoe")
 
 
-class UserOauthLoginGet(BaseModel):
-    id: int
-    name: str
-    image_url: Path
-    color: str
-    connected: bool
+class UserServiceGet(BaseModel):
+    """User service connection status."""
+    id: int = Field(description="Service ID", example=1)
+    name: str = Field(description="Service name", example="GitHub")
+    image_url: Path = Field(description="Service logo URL")
+    color: str = Field(description="Service theme color", example="#f97316")
+    connected: bool = Field(description="Connection status", example=True)
 
 
 class UserIdGet(BaseModel):
-    id: int
-    name: str
-    email: EmailStr
-    role: Role
-    oauth_login: list[UserOauthLoginGet]
-
-class UserUpdate(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
+    """Complete user profile information."""
+    id: int = Field(description="User ID", example=1)
+    name: str = Field(description="Username", example="johndoe")
+    email: EmailStr = Field(description="User email", example="johndoe@example.com")
+    role: Role = Field(description="User role")
+    user_services: list[UserServiceGet] = Field(description="Connected services")

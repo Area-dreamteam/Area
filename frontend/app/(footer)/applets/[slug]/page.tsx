@@ -14,7 +14,6 @@ import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import { Button } from '@/components/ui/button';
 import { fetchApplets } from '@/app/functions/fetch';
-import SettingsButton from '@/app/components/Settings';
 import { fetchSpecificApplet } from '@/app/functions/fetch';
 import { PublicApplet, SpecificPublicApplet } from "@/app/types/applet";
 

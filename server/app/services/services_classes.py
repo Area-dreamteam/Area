@@ -1,3 +1,9 @@
+"""Base classes for service architecture.
+
+Defines the core service system with automatic action/reaction discovery,
+OAuth integration, and JSON serialization for API and database operations.
+"""
+
 import json
 from typing import Dict, Optional, Any, Union
 from core.logger import logger
@@ -7,6 +13,11 @@ from fastapi import Response
 
 
 class Action:
+    """Base class for automation triggers.
+    
+    Actions are periodic checks that can trigger reactions when conditions are met.
+    Each action defines a cron interval and configuration schema.
+    """
     def __init__(
         self,
         description: str,
@@ -15,13 +26,14 @@ class Action:
     ) -> None:
         self.name: str = self.__class__.__name__
         self.description: str = description
-        self.interval: str = interval
+        self.interval: str = interval  # Cron expression
         self.config_schema: list[Dict[str, Any]] = (
             config_schema if config_schema is not None else []
         )
         self.service: Service = None
 
     def check(self, session: Session, area_action: AreaAction, user_id: int) -> bool:
+        """Check if action condition is met. Override in subclasses."""
         pass
 
     def to_dict(self) -> Dict[str, Any]:
@@ -35,6 +47,11 @@ class Action:
 
 
 class Reaction:
+    """Base class for automation responses.
+    
+    Reactions are executed when their paired action triggers.
+    Each reaction defines a configuration schema for user customization.
+    """
     def __init__(
         self, description: str, config_schema: list[Dict[str, Any]] = None
     ) -> None:
@@ -46,6 +63,7 @@ class Reaction:
         self.service: Service = None
 
     def execute(self, session: Session, area_action: AreaReaction, user_id: int):
+        """Execute reaction with user configuration. Override in subclasses."""
         pass
 
     def to_dict(self) -> Dict[str, Any]:
@@ -58,6 +76,11 @@ class Reaction:
 
 
 class Service:
+    """Base class for external service integrations.
+    
+    Services automatically discover their nested Action/Reaction classes
+    and provide OAuth integration, API management, and JSON serialization.
+    """
     def __init__(
         self,
         description: str,
@@ -68,12 +91,12 @@ class Service:
     ) -> None:
         self.name: str = self.__class__.__name__
         self.description: str = description
-        self.color: str = color
+        self.color: str = color  # UI theme color
         self.image_url: str = img_url
         self.category: str = category
         self.oauth: bool = oauth
-        self.actions: Dict[str, Action] = {}
-        self.reactions: Dict[str, Reaction] = {}
+        self.actions: Dict[str, Action] = {}  # Auto-populated
+        self.reactions: Dict[str, Reaction] = {}  # Auto-populated
         self._auto_register()
 
     def _auto_register(self):
@@ -138,27 +161,37 @@ class Service:
         }
 
     def is_connected(self, session: Session) -> bool:
+        """Check if service is connected for current user."""
         return False
 
     def oauth_link(self) -> str:
+        """Generate OAuth authorization URL."""
         return ""
 
     def oauth_callback(self, session: Session, code: str, user: User) -> Response:
+        """Handle OAuth callback and store tokens."""
         pass
 
 
 class oauth_service:
+    """Base class for OAuth-only services (login without automation).
+    
+    Simplified service class for services that only provide OAuth login
+    functionality without actions/reactions.
+    """
     def __init__(self, color: str = "#000000", img_url: str = "") -> None:
         self.name: str = self.__class__.__name__
         self.color: str = color
         self.image_url: str = img_url
 
     def oauth_link(self) -> str:
+        """Generate OAuth authorization URL."""
         return ""
 
     def oauth_callback(
         self, session: Session, code: str, user: User | None
     ) -> Response:
+        """Handle OAuth callback for login flow."""
         pass
 
     def to_dict(self) -> Dict[str, Any]:
@@ -173,10 +206,15 @@ class oauth_service:
 def create_service_dictionnary(
     service_type: type,
 ) -> Dict[str, Union[Service, oauth_service]]:
-    """Get all available Services and put them in a dictionary with [key=name, value=service instance]."""
+    """Auto-discover and instantiate all service subclasses.
+    
+    Recursively finds all subclasses of the given service type
+    and creates a registry dictionary for service discovery.
+    """
     service_dict = {}
 
     def get_all_subclasses(cls):
+        """Recursively collect all subclasses."""
         all_subclasses = []
         for subclass in cls.__subclasses__():
             all_subclasses.append(subclass)
