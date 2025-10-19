@@ -14,7 +14,7 @@ export interface ServiceSearchProp {
   services?: Service[] | null,
   className?: string,
   boxClassName?: string,
-  onClick?: (param: any) => void
+  onClick?: (param: Service) => void
 }
 
 export interface AppletSearchProp {
@@ -23,5 +23,5 @@ export interface AppletSearchProp {
   applets?: PublicApplet[] | PrivateApplet[] | null,
   className?: string,
   boxClassName?: string,
-  onClick?: (param: any) => void
+  onClick?: (param: PublicApplet | PrivateApplet) => void
 }

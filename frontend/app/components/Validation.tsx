@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button"
 
 interface ValidationProp
 {
-    arg: any,
+    arg: boolean,
     text: string,
     addToClass?: string,
     center?: boolean,
-    clickAct: (status: any) => void
+    clickAct: (status: boolean) => void
 }
   
 export default function ValidateButton({ addToClass = "", arg, text, center = true, clickAct }:

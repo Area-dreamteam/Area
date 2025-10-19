@@ -8,21 +8,21 @@
 'use client'
 
 import Link from "next/link"
-import { use, useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { fetchDeleteMyself, fetchMyself } from "@/app/functions/fetch"
 import redirectToPage from "@/app/functions/redirections"
 import MyProfileProp from "@/app/types/profile"
 
-function profileButton(text: string, enable: boolean)
-{
-    return (
-        <Button>
-            {text}
-        </Button>
-    )
-}
+// function profileButton(text: string, _enable: boolean)
+// {
+//     return (
+//         <Button>
+//             {text}
+//         </Button>
+//     )
+// }
 
 function profileLabels(text: string)
 {
@@ -68,7 +68,7 @@ interface PersonnalInfoProp
 
 function Profile({profile}: PersonnalInfoProp)
 {
-    const [modifiedProfile, setModifiedprofile] = useState(profile);
+    // const [modifiedProfile, setModifiedprofile] = useState(profile);
 
     return (
         <div className="mx-auto mt-[40px] w-[700px] font-bold">

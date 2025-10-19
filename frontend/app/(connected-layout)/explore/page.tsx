@@ -28,7 +28,7 @@ import {
 function customDropdown(text: string | null, disable: boolean,
   setFilter: (str: string | null) => void, id: number) {
   return (
-    <DropdownMenuCheckboxItem key={id} className={`hover:bg-[#9ca2ff] hover:text-white pl-[5px] ${disable ? "bg-[#0084ff] text-white" : ""} rounded-md`} onClick={(e) => setFilter(text)}>
+    <DropdownMenuCheckboxItem key={id} className={`hover:bg-[#9ca2ff] hover:text-white pl-[5px] ${disable ? "bg-[#0084ff] text-white" : ""} rounded-md`} onClick={() => setFilter(text)}>
       {text ? text : "All services"}
     </DropdownMenuCheckboxItem>
   )
@@ -42,7 +42,7 @@ interface FilterProp {
 
 function Filter({services, filter, setFilter}: FilterProp)
 {
-    const dropdownTitles = (services? services.map(service => service.category) : ""); // to ensure there's no doublons. Need to complete by searching how to get doubles off
+    // const dropdownTitles = (services? services.map(service => service.category) : ""); // to ensure there's no doublons. Need to complete by searching how to get doubles off
     const dropdownFilters = (services? services.map(service => {
         return (
             customDropdown(service.category, filter == service.category, setFilter, service.id)

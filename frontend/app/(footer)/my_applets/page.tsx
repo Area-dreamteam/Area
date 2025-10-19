@@ -31,7 +31,7 @@ function FilterApplets(text: string, applets: PrivateApplet[] | null)
         return filteredApplets;
     }
     if (text === "Published") {
-        const filteredApplets = applets.filter(applet => (
+        const filteredApplets = applets.filter(() => (
             false // to modify when variable published will be added
         ))
         return filteredApplets;

@@ -72,8 +72,8 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
 
 interface UpButtonProp {
   text: string,
-  act: (param: any) => void,
-  param: any,
+  act: (param: boolean | string) => void,
+  param: boolean | string,
   color?: string
 }
 
@@ -86,8 +86,8 @@ function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
 }
 
 interface CreationProp {
-    action: any | null,
-    reaction: any | null,
+    action: Act | null,
+    reaction: Act | null,
     actConfig: ConfigRespAct[],
     reactConfig: ConfigRespAct[],
     setAction: (arg: Act | null) => void,
@@ -306,7 +306,7 @@ interface chooseTriggerProp {
   setConfig: (arg: ConfigRespAct[]) => (void)
 }
 
-function reinitAll(setService: (arg: any) => void, setAction: (arg: any) => void) {
+function reinitAll(setService: (arg: Service | null) => void, setAction: (arg: Act | null) => void) {
     setService(null);
     setAction(null);
 }

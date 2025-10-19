@@ -1,7 +1,7 @@
 import { Calls } from "./fetch";
 
 const handleOauthLogin = (service: string, destination: string) => {
-  const authWindow = window.open(
+  window.open(
     `/api/backend/oauth/login_index/${service}`,
     "GitHub Login",
     "width=600,height=700",
@@ -17,7 +17,7 @@ const handleOauthLogin = (service: string, destination: string) => {
 };
 
 const handleOauthAddService = (service: string, destination: string) => {
-  const authWindow = window.open(
+  window.open(
     `/api/backend/oauth/index/${service}`,
     "GitHub Login",
     "width=600,height=700",
@@ -44,7 +44,7 @@ export async function redirectOauth(
 
 export async function redirectOauthAddService(
   service: string,
-  id: number | string,
+  _id: number | string,
   destination: string = "/explore",
 ) {
   try {
