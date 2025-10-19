@@ -1,17 +1,7 @@
 from typing import Dict, Any
 from models import User, AreaAction
 from sqlmodel import Session
-from services.services_classes import Service, Action, Reaction
-
-
-def get_component(config: list, name: str, key: str):
-    for comp in config:
-        if comp.get("name") == name:
-            if key:
-                return comp.get(key, None)
-            return comp
-    return None
-
+from services.services_classes import Service, Action, Reaction, get_component
 
 class Google(Service):
     class new_email(Action):

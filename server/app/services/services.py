@@ -2,11 +2,12 @@ from typing import Dict
 from services.services_classes import Service, create_service_dictionnary, oauth_service
 from services.google import Google
 from services.todoist import Todoist
+from services.date_and_time import DateAndTime
 from services.github import github_oauth
 
 services_dico: Dict[str, Service] = create_service_dictionnary(Service)
 
-services_oauth: Dict[str, Service] = create_service_dictionnary(oauth_service)
+services_oauth: Dict[str, oauth_service] = create_service_dictionnary(oauth_service)
 
 
 def get_json_services():
