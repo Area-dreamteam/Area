@@ -45,7 +45,7 @@ jobs:
         with:
           node-version: '22'
           cache: ${{ steps.pm.outputs.manager }}
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: ${{ steps.pm.outputs.manager }} ${{ steps.pm.outputs.install }}
