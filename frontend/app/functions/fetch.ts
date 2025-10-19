@@ -6,9 +6,11 @@
  */
 
 import axios from "axios";
-import { Act, Service } from "../types/service";
+import { Act, Service, SpecificService } from "../types/service";
 import MyProfileProp from "../types/profile";
 import { ConfigRespAct } from "../types/config";
+import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
+import { SpecificAction, SpecificReaction } from "../types/actions";
 
 export const Calls = axios.create({
   baseURL: "/api/backend",
@@ -125,7 +127,7 @@ export async function fetchServices(setServices: (data: Service[] | null) => voi
 }
 
 export async function fetchSpecificService(
-  setService: (data: Service | null) => void,
+  setService: (data: SpecificService | null) => void,
   id: number,
 ) {
   try {
@@ -144,7 +146,7 @@ export async function fetchSpecificService(
   return true;
 }
 
-export async function fetchApplets(setApplets: (data: unknown[] | null) => void) {
+export async function fetchApplets(setApplets: (data: (PublicApplet | PrivateApplet)[] | null) => void) {
   try {
     const res = await Calls.get("/areas/public");
 
@@ -162,7 +164,7 @@ export async function fetchApplets(setApplets: (data: unknown[] | null) => void)
 }
 
 export async function fetchSpecificApplet(
-  setApplet: (data: unknown | null) => void,
+  setApplet: (data: SpecificPublicApplet | null) => void,
   id: number,
 ) {
   try {
@@ -196,7 +198,7 @@ export async function fetchDeletePersonalApplet(id: number) {
 }
 
 export async function fetchPrivateApplet(
-  setApplet: (data: unknown | null) => void,
+  setApplet: (data: SpecificPrivateApplet | null) => void,
   id: number,
 ) {
   try {
@@ -218,7 +220,7 @@ export async function fetchPrivateApplet(
 export async function fetchAction(
   id: number,
   type: string,
-  setAction: (data: unknown | null) => void,
+  setAction: (data: SpecificAction | SpecificReaction | null) => void,
 ) {
   try {
     const res = await Calls.get(`/${type}/${id}`);
@@ -237,7 +239,7 @@ export async function fetchAction(
 }
 
 export async function fetchPersonalApplets(
-  setPersonalApplets: (data: unknown[] | null) => void,
+  setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
 ) {
   try {
     const res = await Calls.get("/areas/");
