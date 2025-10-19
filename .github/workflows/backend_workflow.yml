@@ -13,15 +13,7 @@ permissions:
   id-token: write
 
 env:
-  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-
-  JWT_SECRET: ${{ secrets.JWT_SECRET }}
-  JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
-  ACCESS_TOKEN_EXPIRE_HOURS: ${{ secrets.ACCESS_TOKEN_EXPIRE_HOURS }}
+  ENV: tests
 
 jobs:
   flake8:
