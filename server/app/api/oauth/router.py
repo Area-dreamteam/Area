@@ -12,7 +12,11 @@ from schemas import OauthLoginGet
 router = APIRouter(prefix="/oauth", tags=["oauth"])
 
 
-@router.get("/index/{service}")
+@router.get(
+    "/index/{service}",
+    summary="Start OAuth flow",
+    description="Redirect to service OAuth authorization"
+)
 def index(service: str):
     if service not in services_dico:
         raise HTTPException(
@@ -27,7 +31,11 @@ def index(service: str):
     )
 
 
-@router.get("/login_index/{service}")
+@router.get(
+    "/login_index/{service}",
+    summary="Start OAuth login flow",
+    description="Redirect to service OAuth for login"
+)
 def login_index(service: str):
     if service not in services_oauth:
         raise HTTPException(
@@ -41,7 +49,11 @@ def login_index(service: str):
     )
 
 
-@router.get("/oauth_token/{service}")
+@router.get(
+    "/oauth_token/{service}",
+    summary="Handle OAuth callback",
+    description="Process OAuth authorization code"
+)
 def oauth_token(service: str, code: str, session: SessionDep, user: CurrentUser):
     return services_dico[service].oauth_callback(session, code, user)
 
@@ -53,7 +65,11 @@ def login_oauth_token(
     return services_oauth[service].oauth_callback(session, code, user)
 
 
-@router.get("/available_oauths")
+@router.get(
+    "/available_oauths",
+    summary="List OAuth services",
+    description="Get all services supporting OAuth integration"
+)
 def get_oauths(session: SessionDep) -> list[OauthLoginGet]:
     oauths = session.exec(select(Service)).all()
     if not oauths:
