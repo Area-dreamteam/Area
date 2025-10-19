@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main", "server*"]
   pull_request:
-    types: [opened, reopened]
+    branches: ["main", "server*"]
 
   workflow_dispatch:
 
