@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from schemas import UserIdGet, UserServiceGet, UserDeletionResponse
+from schemas import UserIdGet, UserDeletionResponse
 
 from models import User
 from dependencies.db import SessionDep
@@ -8,21 +8,6 @@ from dependencies.roles import CurrentUser, CurrentAdmin
 from api.users.db import get_user_data
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-def get_user_data(session: SessionDep, user: User) -> UserIdGet:
-    """Utility to build complete user data with connected services."""
-    user_services: list[UserService] = session.exec(select(UserService).where(UserService.user_id == user.id)).all()
-
-    services_list: list[UserServiceGet] = []
-    for user_service in user_services:
-        service: Service = session.exec(select(Service).where(Service.id == user_service.service_id)).first()
-        if not service:
-            raise HTTPException(status_code=404, detail="Data not found")
-
-        service_data: UserServiceGet = UserServiceGet(id=service.id, name=service.name, image_url=service.image_url, color=service.color, connected=False)
-        services_list.append(service_data)
-    user_data = UserIdGet(id=user.id, name=user.name, email=user.email, role=user.role, user_services=services_list)
-    return user_data
 
 @router.get(
     "/me",

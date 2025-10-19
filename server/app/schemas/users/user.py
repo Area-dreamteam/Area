@@ -30,10 +30,26 @@ class UserServiceGet(BaseModel):
     connected: bool = Field(description="Connection status", example=True)
 
 
+class UserOauthLoginGet(BaseModel):
+    """OAuth login service information."""
+    id: int = Field(description="Service ID", example=1)
+    name: str = Field(description="Service name", example="GitHub")
+    image_url: Path = Field(description="Service logo URL")
+    color: str = Field(description="Service theme color", example="#f97316")
+    connected: bool = Field(description="Connection status", example=True)
+
+
 class UserIdGet(BaseModel):
     """Complete user profile information."""
     id: int = Field(description="User ID", example=1)
     name: str = Field(description="Username", example="johndoe")
     email: EmailStr = Field(description="User email", example="johndoe@example.com")
     role: Role = Field(description="User role")
-    user_services: list[UserServiceGet] = Field(description="Connected services")
+    oauth_login: list[UserOauthLoginGet] = Field(description="Connected OAuth services")
+
+
+class UserUpdate(BaseModel):
+    """User profile update schema."""
+    name: str = Field(description="Updated username", example="johndoe")
+    email: EmailStr = Field(description="Updated email", example="johndoe@example.com")
+    password: str = Field(min_length=8, description="Updated password", example="newsecurepassword123")
