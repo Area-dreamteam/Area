@@ -31,7 +31,7 @@ export default function ServicePage({ params }: ServiceProp) {
   const [myService, setMyService] = useState<SpecificService | null>(null);
   const [currService, setCurrService] = useState<Service | undefined>(undefined);
   const [serviceConnected, setserviceConnected] = useState<boolean>(false);
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadServices = async () => {

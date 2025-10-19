@@ -7,7 +7,13 @@ from dependencies.roles import CurrentUser
 
 router = APIRouter(prefix="/actions", tags=["actions"])
 
-@router.get("/{id}", response_model=ActionIdGet)
+@router.get(
+    "/{id}",
+    response_model=ActionIdGet,
+    summary="Get action details",
+    description="Get complete action configuration and schema",
+    responses={404: {"description": "Action not found"}}
+)
 def get_action_by_id(id: int, session: SessionDep, _: CurrentUser) -> ActionIdGet:
     action: Action = session.exec(select(Action).where(Action.id == id)).first()
     if not action:

@@ -7,7 +7,13 @@ from dependencies.roles import CurrentUser
 
 router = APIRouter(prefix="/reactions", tags=["reactions"])
 
-@router.get("/{id}", response_model=ReactionIdGet)
+@router.get(
+    "/{id}",
+    response_model=ReactionIdGet,
+    summary="Get reaction details",
+    description="Get complete reaction configuration and schema",
+    responses={404: {"description": "Reaction not found"}}
+)
 def get_reaction_by_id(id: int, session: SessionDep, _: CurrentUser) -> ReactionIdGet:
     reaction: Reaction = session.exec(select(Reaction).where(Reaction.id == id)).first()
     if not reaction:

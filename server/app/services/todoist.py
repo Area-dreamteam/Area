@@ -1,3 +1,9 @@
+"""Todoist service integration.
+
+Provides task completion triggers and task creation reactions.
+Supports OAuth authentication and project-based task management.
+"""
+
 from typing import Dict, Any
 from services.oauth_lib import oauth_add_link
 from models.areas import AreaAction, AreaReaction
@@ -21,18 +27,26 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 
 class TodoistOAuthTokenRes(BaseModel):
+    """Todoist OAuth token response format."""
     access_token: str
     token_type: str
 
 
 class TodoistApiError(Exception):
+    """Todoist API-specific errors."""
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
 
 class Todoist(ServiceClass):
+    """Todoist automation service.
+    
+    Provides task completion monitoring and task creation capabilities.
+    Supports project-based organization and priority settings.
+    """
     class task_completed(Action):
+        """Trigger when a specific task is marked as completed."""
         def __init__(self) -> None:
             config = [{"name": "task_id", "type": "input", "values": []}]
             super().__init__("checks when a task is completed", config)
@@ -41,6 +55,7 @@ class Todoist(ServiceClass):
             print(f"Checking task completion: {area_action.config}")
 
     class create_task(Reaction):
+        """Create a new task with configurable priority and reminders."""
         def __init__(self) -> None:
             config = [
                 {"name": "task_name", "type": "input", "values": []},

@@ -7,13 +7,13 @@
 
 'use client'
 
-import { Timestamp } from "next/dist/server/lib/cache-handlers/types"
 import { fetchServices, fetchApplets } from "@/app/functions/fetch"
 import taskbarButton from "@/app/components/TaskBarButtons"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import Applets from "@/app/components/Applets"
 import { Service } from "@/app/types/service"
+import { PublicApplet, PrivateApplet } from "@/app/types/applet"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
@@ -28,7 +28,7 @@ import {
 function customDropdown(text: string | null, disable: boolean,
   setFilter: (str: string | null) => void, id: number) {
   return (
-    <DropdownMenuCheckboxItem key={id} className={`hover:bg-[#9ca2ff] hover:text-white pl-[5px] ${disable ? "bg-[#0084ff] text-white" : ""} rounded-md`} onClick={(e) => setFilter(text)}>
+    <DropdownMenuCheckboxItem key={id} className={`hover:bg-[#9ca2ff] hover:text-white pl-[5px] ${disable ? "bg-[#0084ff] text-white" : ""} rounded-md`} onClick={() => setFilter(text)}>
       {text ? text : "All services"}
     </DropdownMenuCheckboxItem>
   )
@@ -42,7 +42,7 @@ interface FilterProp {
 
 function Filter({services, filter, setFilter}: FilterProp)
 {
-    const dropdownTitles = (services? services.map(service => service.category) : ""); // to ensure there's no doublons. Need to complete by searching how to get doubles off
+    // const dropdownTitles = (services? services.map(service => service.category) : ""); // to ensure there's no doublons. Need to complete by searching how to get doubles off
     const dropdownFilters = (services? services.map(service => {
         return (
             customDropdown(service.category, filter == service.category, setFilter, service.id)
@@ -72,23 +72,11 @@ function Filter({services, filter, setFilter}: FilterProp)
   )
 }
 
-interface Applet {
-  id: number,
-  name: string,
-  description: string,
-  user: {
-    id: number,
-    name: string
-  },
-  enable: boolean,
-  created_at: Timestamp,
-  color: string
-}
 
 interface SearchProp {
   search?: string
   services?: Service[] | null
-  applets?: Applet[] | null
+  applets?: (PublicApplet | PrivateApplet)[] | null
 }
 
 function All({ search = "", services = null, applets = null }: SearchProp) {
@@ -107,7 +95,7 @@ function redirectToService(service: Service) {
   redirect(`/services/${service.name}`);
 }
 
-function redirectToApplet(applet: Applet) {
+function redirectToApplet(applet: PublicApplet | PrivateApplet) {
   redirect(`/applets/${applet.name}`);
 }
 
@@ -115,7 +103,7 @@ export default function Explore() {
   const [page, setPage] = useState("All");
   const [searched, setSearched] = useState("");
   const [filter, setFilter] = useState<string | null>(null);
-  const [applets, setApplets] = useState<Applet[] | null>(null);
+  const [applets, setApplets] = useState<(PublicApplet | PrivateApplet)[] | null>(null);
   const [services, setServices] = useState<Service[] | null>(null);
 
   useEffect(() => {

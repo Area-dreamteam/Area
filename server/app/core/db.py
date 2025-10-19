@@ -197,8 +197,8 @@ def sync_services_catalog_to_db(session: Session, catalog: dict):
     logger.info("Database synchronization completed")
 
 
-def init_db(catalog: dict, oauths_catalog: dict):
-    # print(json.dumps(catalog, indent=2))
+def init_db(catalog: dict, oauths_catalog: dict) -> None:
+    """Initialize database and sync service catalogs."""
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         sync_services_catalog_to_db(session, catalog)

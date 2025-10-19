@@ -7,7 +7,6 @@
 
 'use client'
 
-import { Button } from "@/components/ui/button";
 import redirectToPage from "../functions/redirections";
 
 function RecommandedApplets()

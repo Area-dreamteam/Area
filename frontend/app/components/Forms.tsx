@@ -11,7 +11,7 @@ import { RiEyeFill, RiEyeOffFill } from "react-icons/ri";
 
 interface Information
 {
-    onChange?: Function
+    onChange?: (value: string) => void
 }
 
 export function Mail({onChange = (() => "")} : Information)
@@ -30,7 +30,7 @@ export function Mail({onChange = (() => "")} : Information)
 
 interface PasswordProps {
     w?: string,
-    onChange?: Function
+    onChange?: (value: string) => void
 }
 
 export function Password({onChange = (() => "")}: PasswordProps)

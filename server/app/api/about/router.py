@@ -6,7 +6,11 @@ from datetime import datetime
 
 router = APIRouter(tags=["about"])
 
-@router.get("/about.json")
+@router.get(
+    "/about.json",
+    summary="Get application info",
+    description="Returns client/server info and available services for mobile app"
+)
 def get_about(request: Request, session: SessionDep):
     host = request.headers.get("host", "localhost:8080")
     services = session.exec(select(Service)).all()

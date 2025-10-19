@@ -5,7 +5,6 @@
 ** Services
 */
 
-import Image from "next/image"
 import { ServiceSearchProp } from "../interface/search";
 
 export default function Services({search = "", filter = null, services = null,
