@@ -1,7 +1,5 @@
-// lib/viewmodels/my_applet_viewmodel.dart
-
 import 'package:flutter/material.dart';
-import 'package:mobile/models/applet_model.dart'; // CHANGÉ
+import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/repositories/service_repository.dart';
 
 enum MyAppletState { nothing, loading, success, error }

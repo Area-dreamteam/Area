@@ -5,7 +5,7 @@ class ServiceCard extends StatelessWidget {
   final int id;
   final String name;
   final String? description;
-  final String? imageUrl;
+  final String imageUrl;
   final String? category;
   final String? colorHex;
   final VoidCallback? onTap;
@@ -15,7 +15,7 @@ class ServiceCard extends StatelessWidget {
     required this.id,
     required this.name,
     this.description,
-    this.imageUrl,
+    required this.imageUrl,
     this.category,
     this.colorHex,
     this.onTap,
@@ -24,7 +24,6 @@ class ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardColor = hexToColor(colorHex);
-    final safeImageUrl = imageUrl ?? 'https://via.placeholder.com/20';
 
     final cardContent = Container(
       decoration: BoxDecoration(
@@ -36,7 +35,7 @@ class ServiceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-        const SizedBox(height: 20),
+          const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
@@ -45,7 +44,7 @@ class ServiceCard extends StatelessWidget {
             ),
             child: ClipOval(
               child: Image.network(
-                safeImageUrl,
+                imageUrl,
                 width: 20,
                 height: 20,
                 fit: BoxFit.cover,
@@ -66,16 +65,13 @@ class ServiceCard extends StatelessWidget {
       ),
     );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Material(
+    return Material(
+      borderRadius: BorderRadius.circular(14),
+      elevation: 4,
+      child: InkWell(
         borderRadius: BorderRadius.circular(14),
-        elevation: 4,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          child: cardContent,
-        ),
+        onTap: onTap,
+        child: cardContent,
       ),
     );
   }

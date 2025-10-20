@@ -156,4 +156,77 @@ class ServiceRepository {
       rethrow;
     }
   }
+
+  Future<List<AppletModel>> fetchPublicAreas() async {
+    try {
+      final response = await _apiService.getPublicAreas();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.data);
+        return data.map((json) => AppletModel.fromJson(json)).toList();
+      }
+      throw Exception('Failed to load public areas');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String?> fetchServiceAuthUrl(String serviceName) async {
+    try {
+      final response = await _apiService.getServiceAuthUrl(serviceName);
+
+      if (response.statusCode == 200) {
+        return response.data as String?;
+      }
+
+      if (response.statusCode == 302) {
+        if (response.headers.map.containsKey('location')) {
+          return response.headers.map['location']![0];
+        }
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<List<AppletModel>> fetchPublicApplets({int? serviceId}) async {
+    try {
+      final response = await _apiService.getPublicApplets();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.data);
+        List<AppletModel> applets = data
+            .map((json) => AppletModel.fromJson(json))
+            .toList();
+
+        if (serviceId != null) {
+          applets = applets.where((applet) {
+            bool isTrigger = applet.triggerService?.id == serviceId;
+            bool isReaction = applet.reactionServices.any(
+              (s) => s.id == serviceId,
+            );
+            return isTrigger || isReaction;
+          }).toList();
+        }
+        return applets;
+      }
+      throw Exception('Failed to load public areas');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> isServiceConnected(int serviceId) async {
+    try {
+      final response = await _apiService.isServiceConnected(serviceId);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.data);
+        return data['is_connected'] as bool;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
 }

@@ -7,13 +7,13 @@
 
 'use client'
 
-import { Timestamp } from "next/dist/server/lib/cache-handlers/types"
 import { fetchServices, fetchApplets } from "@/app/functions/fetch"
 import taskbarButton from "@/app/components/TaskBarButtons"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import Applets from "@/app/components/Applets"
 import { Service } from "@/app/types/service"
+import { PublicApplet, PrivateApplet } from "@/app/types/applet"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
@@ -28,7 +28,7 @@ import {
 function customDropdown(text: string | null, disable: boolean,
   setFilter: (str: string | null) => void, id: number) {
   return (
-    <DropdownMenuCheckboxItem key={id} className={`hover:bg-[#9ca2ff] hover:text-white pl-[5px] ${disable ? "bg-[#0084ff] text-white" : ""} rounded-md`} onClick={(e) => setFilter(text)}>
+    <DropdownMenuCheckboxItem key={id} className={`hover:bg-[#9ca2ff] hover:text-white pl-[5px] ${disable ? "bg-[#0084ff] text-white" : ""} rounded-md`} onClick={() => setFilter(text)}>
       {text ? text : "All services"}
     </DropdownMenuCheckboxItem>
   )
@@ -40,16 +40,17 @@ interface FilterProp {
   setFilter: (str: string | null) => void
 }
 
-function Filter({ services, filter, setFilter }: FilterProp) {
-  const dropdownFilters = (services ? services.map(service => {
-    return (
-      customDropdown(service.category, filter == service.category, setFilter, service.id)
-    )
-  }
-  ) : "");
-
+function Filter({services, filter, setFilter}: FilterProp)
+{
+    // const dropdownTitles = (services? services.map(service => service.category) : ""); // to ensure there's no doublons. Need to complete by searching how to get doubles off
+    const dropdownFilters = (services? services.map(service => {
+        return (
+            customDropdown(service.category, filter == service.category, setFilter, service.id)
+        )
+    }
+    ) : "");
   return (
-    <div className="flex justify-center">
+    <div className="centered">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">
@@ -71,32 +72,20 @@ function Filter({ services, filter, setFilter }: FilterProp) {
   )
 }
 
-interface Applet {
-  id: number,
-  name: string,
-  description: string,
-  user: {
-    id: number,
-    name: string
-  },
-  enable: boolean,
-  created_at: Timestamp,
-  color: string
-}
 
 interface SearchProp {
   search?: string
   services?: Service[] | null
-  applets?: Applet[] | null
+  applets?: (PublicApplet | PrivateApplet)[] | null
 }
 
 function All({ search = "", services = null, applets = null }: SearchProp) {
   return (
     <div>
-      <h1 className="flex justify-center font-bold text-[25px]"> Services </h1>
+      <h1 className="centered font-bold text-[25px]"> Services </h1>
       <Services search={search} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToService} />
       <br />
-      <h1 className="flex justify-center font-bold text-[25px]"> Applets </h1>
+      <h1 className="centered font-bold text-[25px]"> Applets </h1>
       <Applets search={search} applets={applets} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToApplet} />
     </div>
   )
@@ -106,7 +95,7 @@ function redirectToService(service: Service) {
   redirect(`/services/${service.name}`);
 }
 
-function redirectToApplet(applet: Applet) {
+function redirectToApplet(applet: PublicApplet | PrivateApplet) {
   redirect(`/applets/${applet.name}`);
 }
 
@@ -114,7 +103,7 @@ export default function Explore() {
   const [page, setPage] = useState("All");
   const [searched, setSearched] = useState("");
   const [filter, setFilter] = useState<string | null>(null);
-  const [applets, setApplets] = useState<Applet[] | null>(null);
+  const [applets, setApplets] = useState<(PublicApplet | PrivateApplet)[] | null>(null);
   const [services, setServices] = useState<Service[] | null>(null);
 
   useEffect(() => {
@@ -124,8 +113,8 @@ export default function Explore() {
 
   return (
     <div>
-      <h1 className="font-bold text-[100px] flex justify-center"> Explore </h1>
-      <div className="flex justify-center">
+      <h1 className="font-bold text-[100px] centered"> Explore </h1>
+      <div className="centered">
         <div className="flex justify-around w-1/2">
           {taskbarButton("All", page, setPage, true)}
           {taskbarButton("Applets", page, setPage, true)}
@@ -136,7 +125,7 @@ export default function Explore() {
       <Input className="mx-auto block w-[400px]" placeholder="Search Applets or Services" onChange={(e) => setSearched(e.target.value)} />
       <br />
       {page == "Services" && <Filter services={services} filter={filter} setFilter={setFilter} />}
-      <div className="flex justify-center">
+      <div className="centered">
         <div>
           {page == "Services" && <Services filter={filter} search={searched} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer border-black border-[2px]" onClick={redirectToService} />}
           {page == "Applets" && <Applets search={searched} applets={applets} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer" onClick={redirectToApplet} />}

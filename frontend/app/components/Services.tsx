@@ -5,7 +5,6 @@
 ** Services
 */
 
-import Image from "next/image"
 import { ServiceSearchProp } from "../interface/search";
 
 export default function Services({search = "", filter = null, services = null,
@@ -13,22 +12,19 @@ export default function Services({search = "", filter = null, services = null,
 {
     if (services == null) {
         return (
-            <p className="flex justify-center text-[20px] mt-[20px]">
+            <p className="centered text-[20px] mt-[20px]">
                 No service found.
             </p>
         )
     }
-    console.log(filter)
     const filteredServices = (filter ? services.filter(service =>
         service.category === filter
     ) : (
         services
     ));
-    console.log(filteredServices)
     const searchedServices = filteredServices.filter(service =>
         service.name.toLowerCase().includes(search.toLowerCase())
     );
-    console.log(searchedServices)
     const nbServices = searchedServices.length;
     const serviceBlocks = searchedServices.map((service) => ((
         <div key={service.id} className={boxClassName} style={{ backgroundColor: service.color }} onClick={() => onClick(service)}>
@@ -37,7 +33,7 @@ export default function Services({search = "", filter = null, services = null,
             ) : ( ""
                 // <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[200px] h-[200px]"/>
             )}
-            <div className="flex justify-center bg-black rounded-t-lg">
+            <div className="centered bg-black rounded-t-lg">
                 <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
             </div>
         </div>
@@ -50,7 +46,7 @@ export default function Services({search = "", filter = null, services = null,
                     {serviceBlocks} 
                 </div>
             ) : (
-                <p className="flex justify-center text-[20px] mt-[20px]">
+                <p className="centered text-[20px] mt-[20px]">
                     No service found.
                 </p>
             )}

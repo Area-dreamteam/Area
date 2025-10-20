@@ -1,3 +1,9 @@
+"""GitHub OAuth integration service.
+
+Provides OAuth login functionality for GitHub accounts.
+Allows users to authenticate using their GitHub credentials.
+"""
+
 from services.oauth_lib import oauth_add_login
 from core.security import sign_jwt
 import requests
@@ -17,22 +23,26 @@ from pydantic_core import ValidationError
 
 
 class GithubOAuthTokenRes(BaseModel):
+    """GitHub OAuth token response format."""
     access_token: str
     token_type: str
     scope: str
 
 
 class GithubApiError(Exception):
+    """GitHub API-specific errors."""
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
 
 class github_oauth(oauth_service):
+    """GitHub OAuth service for user authentication."""
     def __init__(self) -> None:
         super().__init__()
 
     def _get_token(self, client_id, client_secret, code):
+        """Exchange authorization code for access token."""
         base_url = "https://github.com/login/oauth/access_token"
         params = {"client_id": client_id, "client_secret": client_secret, "code": code}
 
@@ -49,6 +59,7 @@ class github_oauth(oauth_service):
             raise GithubApiError("Invalid OAuth response")
 
     def _get_email(self, token):
+        """Fetch user email from GitHub API."""
         base_url = "https://api.github.com/user/emails"
         email_r = requests.get(
             f"{base_url}",
@@ -61,6 +72,7 @@ class github_oauth(oauth_service):
         return email_r.json()
 
     def oauth_link(self) -> str:
+        """Generate GitHub OAuth authorization URL."""
         base_url = "https://github.com/login/oauth/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/login/github_oauth"
         params = {
@@ -77,6 +89,7 @@ class github_oauth(oauth_service):
     def oauth_callback(
         self, session: Session, code: str, user: User | None
     ) -> Response:
+        """Handle GitHub OAuth callback and create/authenticate user."""
         try:
             token_res = self._get_token(
                 settings.GITHUB_CLIENT_ID, settings.GITHUB_CLIENT_SECRET, code

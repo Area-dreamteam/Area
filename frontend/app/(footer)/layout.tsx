@@ -19,7 +19,7 @@ function Footer() {
           <Link href="/help">Help center</Link>
         </div>
       </div>
-      <p className="pb-[25px] flex justify-center"> This website has been made by Boris Cheng, Idriss Dupoisot, Gauthier Fagot, Luc Simon and Léo Barbier</p>
+      <p className="pb-[25px] centered"> This website has been made by Boris Cheng, Idriss Dupoisot, Gauthier Fagot, Luc Simon and Léo Barbier</p>
     </div>
   )
 }

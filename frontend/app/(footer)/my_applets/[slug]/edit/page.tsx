@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { useEffect, use, useState } from "react";
 import ValidateButton from "@/app/components/Validation";
 import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
-import { fetchPrivateApplet, fetchPersonalApplets, fetchDeletePersonalApplet } from '@/app/functions/fetch';
-import redirectToPage from "@/app/functions/redirections";
+import { fetchPrivateApplet, fetchPersonalApplets } from '@/app/functions/fetch';
+import { redirect } from "next/navigation";
 
 type AppletProp = {
     params: Promise<{ slug: string }>;
@@ -20,10 +20,10 @@ type AppletProp = {
 
 function editApplet(appletName: string)
 {
-    redirectToPage(`/my_applets/${appletName}`);
+    redirect(`/my_applets/${appletName}`);
 }
 
-function modifyApplet(applet: SpecificPrivateApplet)
+function modifyApplet()
 {
     
 }
@@ -73,7 +73,7 @@ export default function Edit({ params }: AppletProp)
                ) : (
                 (myApplet && modifiedApplet &&
                     <div className="mx-[50px] py-[50px]">
-                        <h1 className="flex justify-center text-[40px] font-bold">
+                        <h1 className="centered text-[40px] font-bold">
                             {myApplet?.area_info.name}
                         </h1>
                         <hr className="mt-[25px] mb-[25px]"/>
@@ -82,9 +82,9 @@ export default function Edit({ params }: AppletProp)
                             At: {new Date(myApplet.area_info.created_at).toLocaleDateString()}
                         </p>
                         <Input className="bg-white text-black w-[600px]" defaultValue={myApplet.area_info.description ? myApplet.area_info.description : ""} placeholder="description"/>
-                        <Input className="bg-white text-black w-[600px]" defaultValue={myApplet.area_info.color} placeholder="color" onChange={() => modifyApplet(modifiedApplet)}/>
+                        <Input className="bg-white text-black w-[600px]" defaultValue={myApplet.area_info.color} placeholder="color" onChange={() => modifyApplet()}/>
                         <br/>
-                        <ValidateButton clickAct={() => editApplet(modifiedApplet.area_info.name)} arg={modifiedApplet} text="Validate" addToClass="mt-[50px]"/>
+                        <ValidateButton clickAct={() => editApplet(modifiedApplet.area_info.name)} arg={true} text="Validate" addToClass="mt-[50px]"/>
                     </div>
                 )
             )}

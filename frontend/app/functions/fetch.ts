@@ -6,9 +6,11 @@
  */
 
 import axios from "axios";
-import { Act } from "../types/service";
+import { Act, Service, SpecificService } from "../types/service";
 import MyProfileProp from "../types/profile";
 import { ConfigRespAct } from "../types/config";
+import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
+import { SpecificAction, SpecificReaction } from "../types/actions";
 
 export const Calls = axios.create({
   baseURL: "/api/backend",
@@ -22,8 +24,8 @@ Calls.interceptors.response.use(
       error.response &&
       (error.response.status === 401 || error.response.status === 403)
     ) {
-      Calls.post("/auth/logout").catch(() => {});
-      window.location.href = "/login";
+      //Calls.post("/auth/logout").catch(() => {});
+      //window.location.href = "/login";
     }
 
     return Promise.reject(error);
@@ -93,7 +95,7 @@ export async function fetchRegister(email: string, password: string) {
 export async function fetchActs(
   id: number,
   type: string,
-  setActs: (data: any) => void,
+  setActs: (data: Act[]) => void,
 ) {
   try {
     const res = await Calls.get(`/services/${id}/${type}`);
@@ -107,7 +109,7 @@ export async function fetchActs(
   return false;
 }
 
-export async function fetchServices(setServices: (data: any) => void) {
+export async function fetchServices(setServices: (data: Service[] | null) => void) {
   try {
     const res = await Calls.get("/services/list");
 
@@ -125,7 +127,7 @@ export async function fetchServices(setServices: (data: any) => void) {
 }
 
 export async function fetchSpecificService(
-  setService: (data: any) => void,
+  setService: (data: SpecificService | null) => void,
   id: number,
 ) {
   try {
@@ -144,7 +146,7 @@ export async function fetchSpecificService(
   return true;
 }
 
-export async function fetchApplets(setApplets: (data: any) => void) {
+export async function fetchApplets(setApplets: (data: (PublicApplet | PrivateApplet)[] | null) => void) {
   try {
     const res = await Calls.get("/areas/public");
 
@@ -162,7 +164,7 @@ export async function fetchApplets(setApplets: (data: any) => void) {
 }
 
 export async function fetchSpecificApplet(
-  setApplet: (data: any) => void,
+  setApplet: (data: SpecificPublicApplet | null) => void,
   id: number,
 ) {
   try {
@@ -196,7 +198,7 @@ export async function fetchDeletePersonalApplet(id: number) {
 }
 
 export async function fetchPrivateApplet(
-  setApplet: (data: any) => void,
+  setApplet: (data: SpecificPrivateApplet | null) => void,
   id: number,
 ) {
   try {
@@ -218,7 +220,7 @@ export async function fetchPrivateApplet(
 export async function fetchAction(
   id: number,
   type: string,
-  setAction: (data: any) => void,
+  setAction: (data: SpecificAction | SpecificReaction | null) => void,
 ) {
   try {
     const res = await Calls.get(`/${type}/${id}`);
@@ -237,10 +239,10 @@ export async function fetchAction(
 }
 
 export async function fetchPersonalApplets(
-  setPersonalApplets: (data: any) => void,
+  setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
 ) {
   try {
-    const res = await Calls.get("/areas/");
+    const res = await Calls.get("/users/areas/me");
 
     if (res.status != 200) {
       setPersonalApplets(null);
@@ -263,9 +265,9 @@ export async function fetchCreateApplet(
   reactConfig: ConfigRespAct[],
 ) {
   try {
-    const res = await Calls.post("/areas", {
+    const res = await Calls.post("/users/areas/me", {
       name: title,
-      description: "",
+      description: "[description]",
       action: {
         action_id: action.id,
         config: actConfig,

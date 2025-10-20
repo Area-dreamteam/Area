@@ -8,7 +8,7 @@ import requests
 
 
 from models import User
-from schemas import UserCreate, TokenResponse
+from schemas import UserCreate, TokenResponse, MessageResponse, UserRegistrationResponse
 from core.security import hash_password, verify_password, sign_jwt
 from dependencies.db import SessionDep
 from core.config import settings
@@ -17,8 +17,13 @@ from core.config import settings
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register")
-def register(user: UserCreate, session: SessionDep):
+@router.post(
+    "/register",
+    response_model=UserRegistrationResponse,
+    summary="Register new user",
+    responses={400: {"description": "Email already registered"}}
+)
+def register(user: UserCreate, session: SessionDep) -> UserRegistrationResponse:
     existing = session.exec(select(User).where(User.email == user.email)).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -31,11 +36,21 @@ def register(user: UserCreate, session: SessionDep):
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
-    return {"message": "User registered", "id": new_user.id, "email": new_user.email}
+    return UserRegistrationResponse(
+        message="User registered",
+        id=new_user.id,
+        email=new_user.email
+    )
 
 
-@router.post("/login")
-def login(user: UserCreate, session: SessionDep, response: Response):
+@router.post(
+    "/login",
+    response_model=MessageResponse,
+    summary="Authenticate user",
+    description="Sets JWT token as httpOnly cookie",
+    responses={400: {"description": "Invalid credentials"}}
+)
+def login(user: UserCreate, session: SessionDep, response: Response) -> MessageResponse:
     db_user = session.exec(select(User).where(User.email == user.email)).first()
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
@@ -49,10 +64,15 @@ def login(user: UserCreate, session: SessionDep, response: Response):
         secure=True,
         max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
     )
-    return {"message": "Logged successfully"}
+    return MessageResponse(message="Logged successfully")
 
 
-@router.post("/logout")
-def logout(response: Response):
+@router.post(
+    "/logout",
+    response_model=MessageResponse,
+    summary="Logout user",
+    description="Clears authentication cookie"
+)
+def logout(response: Response) -> MessageResponse:
     response.delete_cookie(key="access_token")
-    return {"message": "Logged out successfully"}
+    return MessageResponse(message="Logged out successfully")
