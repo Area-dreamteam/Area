@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 
 class AppletCard extends StatelessWidget {
-  final Color? color; 
+  final Color? color;
   final IconData? icon;
   final String title;
   final String byText;
@@ -23,7 +23,7 @@ class AppletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = color ?? hexToColor(colorHex ?? '#212121'); 
+    final cardColor = color ?? hexToColor(colorHex ?? '#212121');
     final textColor = Colors.white;
     bool isDeletable = onDelete != null;
 
@@ -67,34 +67,9 @@ class AppletCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            byText,
-            style: TextStyle(color: textColor, fontSize: 16),
-          ),
+          Text(byText, style: TextStyle(color: textColor, fontSize: 16)),
 
-          if (!isDeletable) const SizedBox(height: 40), 
-
-          if (!isDeletable)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: textColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'Explore Applet',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          if (!isDeletable) const SizedBox(height: 40),
         ],
       ),
     );

@@ -91,6 +91,30 @@ class ApiService {
     return _dio.get('/areas/public');
   }
 
+  Future<Response> isServiceConnected(int serviceId) {
+    return _dio.get('/services/$serviceId/is_connected');
+  }
+
+  Future<Response> getServiceAuthUrl(String serviceName) {
+    return _dio.get(
+      '/oauth/index/$serviceName',
+      options: Options(
+        followRedirects: false,
+        validateStatus: (status) {
+          return (status != null && status < 400);
+        },
+      ),
+    );
+  }
+
+  Future<Response> getPublicApplets() {
+    return _dio.get('/areas/public');
+  }
+
+  Future<Response> getAbout() {
+    return _dio.get('/about.json');
+  }
+
   Future<Response> createApplet({
     required String name,
     required String description,

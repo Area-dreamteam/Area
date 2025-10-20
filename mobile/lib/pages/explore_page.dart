@@ -5,6 +5,7 @@ import 'package:mobile/models/service_model.dart';
 import 'package:mobile/widgets/card.dart';
 import 'package:mobile/widgets/service_card.dart';
 import 'package:mobile/widgets/navbar.dart';
+import 'package:mobile/pages/information_page.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -73,6 +74,7 @@ class _ExplorePageState extends State<ExplorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF212121),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -80,20 +82,21 @@ class _ExplorePageState extends State<ExplorePage> {
             const SizedBox(height: 60),
             _buildCategoryButtons(),
             const SizedBox(height: 20),
-
             TextField(
               controller: _searchCtrl,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 hintText: 'Search',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                filled: true,
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
+              style: const TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 12),
-
             Expanded(
               child: Consumer<ExploreViewModel>(
                 builder: (context, viewModel, child) {
@@ -101,7 +104,6 @@ class _ExplorePageState extends State<ExplorePage> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   final items = _filteredItems;
-
                   return ListView.builder(
                     itemCount: items.length,
                     itemBuilder: (context, index) {
@@ -114,7 +116,15 @@ class _ExplorePageState extends State<ExplorePage> {
                             colorHex: item.colorHex,
                             title: item.title,
                             byText: item.byText ?? 'By Unknown',
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      InformationPage(item: item),
+                                ),
+                              );
+                            },
                           ),
                         );
                       } else {
@@ -126,7 +136,15 @@ class _ExplorePageState extends State<ExplorePage> {
                             name: serviceData.name,
                             colorHex: serviceData.color,
                             imageUrl: serviceData.imageUrl,
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      InformationPage(item: item),
+                                ),
+                              );
+                            },
                           ),
                         );
                       }
