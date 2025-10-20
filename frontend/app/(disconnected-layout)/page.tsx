@@ -7,7 +7,7 @@
 
 'use client'
 
-import redirectToPage from "../functions/redirections";
+import { redirect } from "next/navigation";
 
 function RecommandedApplets()
 {
@@ -24,7 +24,7 @@ export default function Home()
   return (
     <div className="font-bold">
       <div className="bg-black rounded-b-2xl">
-        <h1 onClick={() => redirectToPage("/explore")} className="logo inverted">
+        <h1 onClick={(e) => {e.preventDefault(); redirect("/explore");}} className="logo inverted">
           Area
         </h1>
         <h1 className="title inverted centered">
@@ -34,7 +34,7 @@ export default function Home()
           Build your own chain of reactions
         </h2>
         <div className="centered mt-[10%]">
-          <button onClick={() => redirectToPage("/register")} className="rounded-button m-[5%]">
+          <button onClick={(e) => {e.preventDefault(); redirect("/register")}} className="rounded-button m-[5%]">
             Start now
           </button>
         </div>
