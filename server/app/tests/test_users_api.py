@@ -21,7 +21,7 @@ class TestUsersAPIAuthentication:
         """Test updating user without authentication"""
         update_data = {"name": "New Name"}
         response = client.patch("/users/me", json=update_data)
-        assert response.status_code == 405
+        assert response.status_code == 403
 
     def test_get_users_no_auth(self, client):
         """Test getting all users without authentication"""
