@@ -1,10 +1,13 @@
-from .user import UserCreate, TokenResponse, UserIdGet, Role, UserServiceGet, UserShortInfo
+from .user import UserCreate, TokenResponse, UserIdGet, UserOauthLoginGet, UserShortInfo, UserUpdate, UserServiceGet
+from .role import Role
 
 __all__ = [
     "UserCreate",
     "TokenResponse",
     "UserIdGet",
-    "UserServiceGet",
+    "UserOauthLoginGet",
     "UserShortInfo",
+    "UserServiceGet",
     "Role",
+    "UserUpdate"
 ]

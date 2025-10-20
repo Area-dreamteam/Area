@@ -1,10 +1,10 @@
-name: Github Action Mobile
+name: Mobile workflow
 
 on:
   push:
     branches: ["main", "mobile*"]
   pull_request:
-    types: [opened, reopened]
+    branches: ["main", "mobile*"]
 
   workflow_dispatch:
 

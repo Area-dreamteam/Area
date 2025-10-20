@@ -26,7 +26,7 @@ services:
 #      - shared-volume:/app/target
 
   server:
-    env_file: "./server/.env.production"
+    env_file: "./server/.env.prod"
     ports:
       - "8080:8080"
     build:

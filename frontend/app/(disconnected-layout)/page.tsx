@@ -5,7 +5,9 @@
 ** page
 */
 
-import Link from "next/link"
+'use client'
+
+import redirectToPage from "../functions/redirections";
 
 function RecommandedApplets()
 {
@@ -14,27 +16,33 @@ function RecommandedApplets()
 
     </div>
   )
-  // I'll put the applats later, now i'm focusing on the login and register
+  // I'll put the applets later, now i'm focusing on the login and register
 }
 
 export default function Home()
 {
   return (
-    <div className="bg-[#FFFFFF] h-screen font-bold">
-      <div className="bg-[#000000] h-[750px] rounded-b-2xl">
-        <h1 className="text-white text-[50px]">Area</h1>
-        <h1 className="flex text-white justify-center text-center text-[90px] pt-[70px]">Automation for business and home</h1>
-        <h2 className="flex text-white justify-center text-[25px]">Build your own chain of reactions</h2>
-        <div className="flex justify-center mt-20">
-          <Link href="/register" className="bg-[#FFFFFF] pt-[25px] text-center text-[#000000] hover:bg-[#73bbff] rounded-full w-[300px] h-[100px] text-4xl">
+    <div className="font-bold">
+      <div className="bg-black rounded-b-2xl">
+        <h1 onClick={() => redirectToPage("/explore")} className="logo inverted">
+          Area
+        </h1>
+        <h1 className="title inverted centered">
+          Automation for business and home
+        </h1>
+        <h2 className="subtitle centered">
+          Build your own chain of reactions
+        </h2>
+        <div className="centered mt-[10%]">
+          <button onClick={() => redirectToPage("/register")} className="rounded-button m-[5%]">
             Start now
-          </Link>
+          </button>
         </div>
       </div>
-      <div className="">
-        <h3 className="flex justify-center mt-[75px] text-black text-[35px] font-bold">Get started with any Applet</h3>
-        <RecommandedApplets/>
-      </div>
+      <h3 className="mt-[5%] title-part text-black">
+        Get started with any Applet
+      </h3>
+      <RecommandedApplets/>
     </div>
   );
 }

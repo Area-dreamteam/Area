@@ -15,7 +15,7 @@ export default function changePassword()
 {
     return (
         <div className="mx-auto mt-[40px] w-[700px] font-bold">
-            <h1 className="flex justify-center text-[50px] mt-[40px] font-bold">
+            <h1 className="centered text-[50px] mt-[40px] font-bold">
                 Change password
             </h1>
             <hr/>
@@ -44,7 +44,7 @@ export default function changePassword()
             <Button className="block mx-auto text-[40px] mt-[70px] text-white w-[300px] h-[100px] rounded-full font-bold mb-[20px]" disabled>
                 Change
             </Button>
-            <Link href="/settings" className="flex justify-center text-[20px] underline">Cancel</Link>
+            <Link href="/settings" className="centered text-[20px] underline">Cancel</Link>
         </div>
     )
 }
