@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/pages/explore_page.dart';
 import 'package:mobile/pages/create_page.dart';
-import 'package:mobile/pages/history.dart';
 import 'package:mobile/pages/profile_page.dart';
 
 class MyBottomNavigationBar extends StatelessWidget {
@@ -17,7 +16,6 @@ class MyBottomNavigationBar extends StatelessWidget {
       const MyAreaPage(),
       const ExplorePage(),
       const CreatePage(),
-      const AreaPage(),
       const ProfilePage(),
     ];
 
@@ -48,11 +46,6 @@ class MyBottomNavigationBar extends StatelessWidget {
           icon: Icon(Icons.create_outlined),
           selectedIcon: Icon(Icons.create),
           label: 'Create',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.menu_outlined),
-          selectedIcon: Icon(Icons.menu),
-          label: 'My AREA',
         ),
         NavigationDestination(
           icon: Icon(Icons.account_circle_outlined),
