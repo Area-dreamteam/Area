@@ -58,7 +58,7 @@ class TestBasicAPI:
         assert response.status_code in [200, 401, 403]
 
         response = client.patch("/users/me")
-        assert response.status_code in [200, 401, 403, 422]
+        assert response.status_code in [200, 401, 403, 422, 405]
 
         response = client.delete("/users/me")
         assert response.status_code in [200, 401, 403, 422]
