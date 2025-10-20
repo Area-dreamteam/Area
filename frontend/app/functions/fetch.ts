@@ -24,8 +24,8 @@ Calls.interceptors.response.use(
       error.response &&
       (error.response.status === 401 || error.response.status === 403)
     ) {
-      Calls.post("/auth/logout").catch(() => {});
-      window.location.href = "/login";
+      //Calls.post("/auth/logout").catch(() => {});
+      //window.location.href = "/login";
     }
 
     return Promise.reject(error);
@@ -242,7 +242,7 @@ export async function fetchPersonalApplets(
   setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
 ) {
   try {
-    const res = await Calls.get("/areas/");
+    const res = await Calls.get("/users/areas/me");
 
     if (res.status != 200) {
       setPersonalApplets(null);
@@ -265,9 +265,9 @@ export async function fetchCreateApplet(
   reactConfig: ConfigRespAct[],
 ) {
   try {
-    const res = await Calls.post("/areas", {
+    const res = await Calls.post("/users/areas/me", {
       name: title,
-      description: "",
+      description: "[description]",
       action: {
         action_id: action.id,
         config: actConfig,

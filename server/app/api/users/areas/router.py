@@ -25,7 +25,7 @@ def get_area_action_info(session: SessionDep, area: Area) -> ActionBasicInfo:
     area_action_data = ActionBasicInfo(id=action.id, name=action.name, description=action.description, service=service)
     return area_action_data
 
-@router.get("/", response_model=list[AreaGet])
+@router.get("/me", response_model=list[AreaGet])
 def get_user_areas(session: SessionDep, user: CurrentUser) -> list[AreaGet]:
     areas: list[Area] = session.exec(
         select(Area)
@@ -55,7 +55,7 @@ def get_public_user_areas(session: SessionDep, user: CurrentUser) -> list[AreaGe
         areas_data.append(area_data)
     return areas_data
 
-@router.post("/")
+@router.post("/me")
 def create_area(area: CreateArea, session: SessionDep,  user: CurrentUser):
     action: Action = session.exec(
         select(Action)

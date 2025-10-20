@@ -12,7 +12,7 @@ import { useEffect, use, useState } from "react";
 import ValidateButton from "@/app/components/Validation";
 import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
 import { fetchPrivateApplet, fetchPersonalApplets } from '@/app/functions/fetch';
-import redirectToPage from "@/app/functions/redirections";
+import { redirect } from "next/navigation";
 
 type AppletProp = {
     params: Promise<{ slug: string }>;
@@ -20,7 +20,7 @@ type AppletProp = {
 
 function editApplet(appletName: string)
 {
-    redirectToPage(`/my_applets/${appletName}`);
+    redirect(`/my_applets/${appletName}`);
 }
 
 function modifyApplet()

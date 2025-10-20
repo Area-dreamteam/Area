@@ -7,10 +7,11 @@
 
 'use client'
 
-import { fetchCreateApplet, fetchServices, fetchAction, fetchActs } from "@/app/functions/fetch"
+import { fetchCreateApplet, fetchServices, fetchAction, fetchActs, fetchSpecificService } from "@/app/functions/fetch"
 import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
 import ValidateButton from "@/app/components/Validation"
-import { Service, Act } from "@/app/types/service"
+import { Service, Act, SpecificService } from "@/app/types/service"
+import { redirectOauthAddService } from "@/app/functions/oauth"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,6 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { fetchIsConnected } from "@/app/functions/oauth"
+import { useAuth } from "@/app/functions/hooks"
 
 //-- Buttons --//
 
@@ -373,7 +376,7 @@ function ChooseTrigger({ act, service, type, setConfig,
             ) : (
                 "No trigger available"
             )}
-            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp)} onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
+            <Button className="rounded-full border-white text-white hover:bg-[#555555] bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp)} onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
                 Create trigger
             </Button>
         </div>
@@ -465,12 +468,37 @@ interface ChooseActProp {
 function ChooseService({ choosingAction, setChoosingAction,
   setConfig, setAction, type, act, configResp }: ChooseActProp) {
   const [search, setSearch] = useState<string>("");
-  const [services, setServices] = useState<Service[] | null>(null);
   const [selected, setSelected] = useState<Service | null>(null);
+  const [services, setServices] = useState<Service[] | null>(null);
+  const [chosenService, setChosenService] = useState<SpecificService | null>(null);
+  const [serviceConnected, setserviceConnected] = useState<boolean>(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchServices(setServices);
   }, [])
+
+  useEffect(() => {
+    if (!selected)
+      return;
+    const loadSpecificService = async () => {
+      await fetchSpecificService(setChosenService, selected.id);
+    }
+    loadSpecificService();
+  }, [selected])
+
+  useEffect(() => {
+    if (!selected)
+      return;
+    const loadServices_connected = async () => {
+      await fetchIsConnected(selected.id, setserviceConnected);
+    }
+    loadServices_connected();
+    if (user && chosenService)
+      if (!serviceConnected && chosenService.oauth_required)
+        return redirect(`/services/${chosenService.name}`);
+    console.log("not redirected");
+  }, [chosenService]);
 
   return (
     <div>
@@ -486,7 +514,7 @@ function ChooseService({ choosingAction, setChoosingAction,
           <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected} />
         </div>
       }
-      {selected &&
+      {((selected && serviceConnected && chosenService?.oauth_required) || (selected && !chosenService?.oauth_required)) &&
         <ChooseAct act={act} service={selected} setService={setSelected}
           choosingAction={choosingAction} setAction={setAction}
           setChoosingAction={setChoosingAction} type={type}
