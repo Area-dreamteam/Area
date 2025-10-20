@@ -12,8 +12,8 @@ import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { fetchDeleteMyself, fetchMyself } from "@/app/functions/fetch"
-import redirectToPage from "@/app/functions/redirections"
 import MyProfileProp from "@/app/types/profile"
+import { redirect } from "next/navigation"
 
 // function profileButton(text: string, _enable: boolean)
 // {
@@ -118,7 +118,7 @@ export default function Settings()
             if (succeed)
                 setAvailable(true);
             else
-                redirectToPage("/login");
+                redirect("/login");
         }
         fetchProfileData();
     }, []);

@@ -82,14 +82,14 @@ export default function ServicePage({ params }: ServiceProp) {
               <BackButton dir={"/explore"} />
             </div>
             <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-2 mx-auto">
-              {myService.image_url &&
+              {/* {myService.image_url &&
                 <Image alt="myService's image" src={myService.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-              }
+              } */}
               <p className="mb-[20px]">{myService.description}</p>
               <p className="text-[20px]">{myService.name}</p>
             </div>
           </div>
-          {serviceConnected ? (
+          {(serviceConnected && myService.oauth_required) || !myService.oauth_required ? (
             <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={() => redirect("/create")}>
               Create applet
             </Button>

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/widgets/card.dart';
 import 'package:mobile/widgets/navbar.dart';
 import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/widgets/card.dart';
 
 class TabWithCount extends StatelessWidget {
   final int count;
@@ -18,7 +18,7 @@ class TabWithCount extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        "All ($count)",
+        "Applets ($count)",
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w600,
@@ -60,19 +60,6 @@ class _MyAppletPageState extends State<MyAreaPage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (viewModel.state == MyAppletState.error) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Text(
-            viewModel.errorMessage,
-            style: const TextStyle(color: Colors.red, fontSize: 20),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
-
     if (viewModel.applets.isEmpty) {
       return const Center(
         child: Text(
@@ -92,8 +79,7 @@ class _MyAppletPageState extends State<MyAreaPage> {
           ...viewModel.applets.map(
             (applet) => Padding(
               padding: const EdgeInsets.only(bottom: 20),
-              child: BigCard(
-                color: Colors.black,
+              child: AppletCard( 
                 icon: Icons.electrical_services,
                 title: applet.name,
                 byText: 'ID: ${applet.id}',
@@ -104,7 +90,7 @@ class _MyAppletPageState extends State<MyAreaPage> {
                     SnackBar(
                       content: Text(
                         success
-                            ? "Applet create"
+                            ? "Applet deleted successfully"
                             : viewModel.errorMessage,
                       ),
                       backgroundColor: success ? Colors.green : Colors.red,

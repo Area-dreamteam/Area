@@ -14,10 +14,9 @@ import {
 } from "@/components/ui/alert"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { AlertCircleIcon } from "lucide-react"
 import { Password, Mail } from "../components/Forms"
-import redirectToPage from "../functions/redirections"
 import { fetchLogin, fetchRegister } from "../functions/fetch"
 import { fetchAvailableOAuth, OAuthInfo, redirectOauth } from "../functions/oauth"
 
@@ -32,7 +31,7 @@ export default function Logins({isRegister}: LoginsProp)
     const [email, setEmail] = useState<string>("");
     const [error, setError] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
-    const [logins, setLogins] = useState<[OAuthInfo]>()
+    const [logins, setLogins] = useState<[OAuthInfo]>();
   
     async function sendForm(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault();
@@ -50,7 +49,7 @@ export default function Logins({isRegister}: LoginsProp)
 
     return (
         <div className="font-bold">
-            <p onClick={() => redirectToPage("/")} className="w-[200px] mx-auto centered title logo">
+            <p onClick={() => redirect("/")} className="w-[200px] mx-auto centered title logo">
                 Area
             </p>
             <h1 className="title text-black sm:mb-10 mb-5">
@@ -95,7 +94,7 @@ export default function Logins({isRegister}: LoginsProp)
                 {logins && logins.map((l) => {
                 return (
                     <ul className="centered" key={l.name}>
-                    <button onClick={() => { redirectOauth(l.name) }} className="rounded-button border-1 m-[5%]" >
+                    <button onClick={() => { redirectOauth(l.name, (isRegister ? "/login" : "/explore")) }} className="rounded-button border-1 m-[5%]" >
                         Continue with {l.name}
                     </button>
                     </ul>
