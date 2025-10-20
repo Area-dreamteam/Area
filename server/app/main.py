@@ -11,6 +11,7 @@ from core.logger import logger
 from api.api import api_router
 from fastapi.middleware.cors import CORSMiddleware
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: initialize DB, services and cron jobs."""
@@ -29,9 +30,9 @@ app = FastAPI(
     title="AREA API",
     version="1.0.0",
     description="Automation platform connecting services through action-reaction workflows",
-    docs_url="/docs",  # Swagger UI
-    redoc_url="/redoc",  # ReDoc
-    openapi_url="/openapi.json",  # OpenAPI spec
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
     openapi_tags=[
         {"name": "auth", "description": "Authentication operations"},
         {"name": "oauth", "description": "OAuth service integration"},
@@ -42,7 +43,7 @@ app = FastAPI(
         {"name": "areas", "description": "Automation workflows"},
         {"name": "actions_process", "description": "Action processing"},
         {"name": "about", "description": "Application information"},
-    ]
+    ],
 )
 
 app.add_middleware(
