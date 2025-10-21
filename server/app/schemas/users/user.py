@@ -52,4 +52,7 @@ class UserUpdate(BaseModel):
     """User profile update schema."""
     name: str = Field(description="Updated username", example="johndoe")
     email: EmailStr = Field(description="Updated email", example="johndoe@example.com")
+
+class UserUpdatePassword(BaseModel):
+    """User profile update password schema."""
     password: str = Field(min_length=8, description="Updated password", example="newsecurepassword123")
