@@ -9,13 +9,13 @@ from models import User
 
 def check_admin(user: Annotated[User, Depends(get_current_user)]) -> User:
     if user.role != Role.ADMIN:
-        raise HTTPException(status_code=403, detail="Role admin Permission Denied.")
+        raise HTTPException(status_code=403, detail="Permission Denied.")
     return user
 
 
 def check_user(user: Annotated[User, Depends(get_current_user)]) -> User:
     if user.role not in Role:
-        raise HTTPException(status_code=403, detail="Role user Permission Denied.")
+        raise HTTPException(status_code=403, detail="Permission Denied.")
     return user
 
 
