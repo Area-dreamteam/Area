@@ -402,7 +402,7 @@ class TestUserSchemas:
             name="Updated Name", email="updated@example.com"
         )
         assert user_update.name == "Updated Name"
-        assert user_update.email == "newEmail@example.com"
+        assert user_update.email == "updated@example.com"
 
     def test_user_update_schema_email_validation(self):
         """Test UserUpdate email validation"""
