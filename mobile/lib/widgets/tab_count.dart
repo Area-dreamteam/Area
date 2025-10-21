@@ -13,7 +13,7 @@ class TabWithCount extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.blue, // fond surligné
+        color: Colors.blue,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(

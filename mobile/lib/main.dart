@@ -9,6 +9,7 @@ import 'package:mobile/repositories/service_repository.dart';
 import 'package:mobile/viewmodels/create_viewmodel.dart';
 import 'package:mobile/viewmodels/select_service_viewmodel.dart';
 import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
+import 'package:mobile/viewmodels/explore_viewmodel.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,11 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) =>
               SelectServiceViewmodel(serviceRepository: servicesRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ExploreViewModel(
+            serviceRepository: servicesRepository,
+          )..fetchExploreItems(),
         ),
         Provider.value(value: authRepository),
         Provider.value(value: apiService),
