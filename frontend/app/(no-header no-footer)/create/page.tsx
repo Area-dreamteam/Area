@@ -11,7 +11,7 @@ import { fetchCreateApplet, fetchServices, fetchAction, fetchActs, fetchSpecific
 import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
 import ValidateButton from "@/app/components/Validation"
 import { Service, Act, SpecificService } from "@/app/types/service"
-import { redirectOauthAddService } from "@/app/functions/oauth"
+import { redirectOauth, redirectOauthAddService } from "@/app/functions/oauth"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -533,6 +533,12 @@ export default function Create() {
   const [choosingReaction, setChoosingReaction] = useState(false);
   const [actConfig, setActConfig] = useState<ConfigRespAct[]>([]);
   const [reactConfig, setReactConfig] = useState<ConfigRespAct[]>([]);
+  // const { user } = useAuth();
+
+  // useEffect(() => {
+  //   if (!user)
+  //     redirect("/login");
+  // }, [user]); // to change
 
   return (
     <div>
