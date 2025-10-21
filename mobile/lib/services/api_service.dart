@@ -56,11 +56,11 @@ class ApiService {
   }
 
   Future<Response> getMyAreas() {
-    return _dio.get('/areas');
+    return _dio.get('/users/areas/');
   }
 
   Future<Response> getServices() {
-    return _dio.get('/services');
+    return _dio.get('/services/list');
   }
 
   Future<Response> deleteArea(int areaId) {
@@ -83,6 +83,38 @@ class ApiService {
     return _dio.get('/reactions/$reactionId');
   }
 
+  Future<Response> getCurrentUser() {
+    return _dio.get('/users/me');
+  }
+
+  Future<Response> getPublicAreas() {
+    return _dio.get('/areas/public');
+  }
+
+  Future<Response> isServiceConnected(int serviceId) {
+    return _dio.get('/services/$serviceId/is_connected');
+  }
+
+  Future<Response> getServiceAuthUrl(String serviceName) {
+    return _dio.get(
+      '/oauth/index/$serviceName',
+      options: Options(
+        followRedirects: false,
+        validateStatus: (status) {
+          return (status != null && status < 400);
+        },
+      ),
+    );
+  }
+
+  Future<Response> getPublicApplets() {
+    return _dio.get('/areas/public');
+  }
+
+  Future<Response> getAbout() {
+    return _dio.get('/about.json');
+  }
+
   Future<Response> createApplet({
     required String name,
     required String description,
@@ -92,7 +124,7 @@ class ApiService {
     required List<dynamic> reactionConfig,
   }) {
     return _dio.post(
-      '/areas',
+      '/users/areas/',
       data: {
         'name': name,
         'description': description,

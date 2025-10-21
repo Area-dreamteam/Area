@@ -10,7 +10,7 @@ from api.users.areas.db import get_area_action_info, create_copy_area
 router = APIRouter(prefix="/users/areas", tags=["users_areas"])
 
 
-@router.get("/", response_model=list[AreaGet])
+@router.get("/me", response_model=list[AreaGet])
 def get_user_areas(session: SessionDep, user: CurrentUser) -> list[AreaGet]:
     areas: list[Area] = session.exec(
         select(Area).where(Area.user_id == user.id, Area.is_public == False)
@@ -56,7 +56,7 @@ def get_public_user_areas(session: SessionDep, user: CurrentUser) -> list[AreaGe
     return areas_data
 
 
-@router.post("/")
+@router.post("/me")
 def create_area(area: CreateArea, session: SessionDep, user: CurrentUser):
     action: Action = session.exec(
         select(Action).where(Action.id == area.action.action_id)

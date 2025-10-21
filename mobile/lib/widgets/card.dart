@@ -1,51 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/widgets/hex_convert.dart';
 
-class BigCard extends StatelessWidget {
-  final Color color;
-  final IconData icon;
+class AppletCard extends StatelessWidget {
+  final Color? color;
+  final IconData? icon;
   final String title;
   final String byText;
+  final String? colorHex;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
-  const BigCard({
+  const AppletCard({
     super.key,
-    required this.color,
-    required this.icon,
     required this.title,
     required this.byText,
+    this.color,
+    this.colorHex,
+    this.icon,
     this.onTap,
     this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cardColor = color ?? hexToColor(colorHex ?? '#212121');
     final textColor = Colors.white;
+    bool isDeletable = onDelete != null;
 
     final cardContent = Container(
-      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
+        color: cardColor,
+        borderRadius: BorderRadius.circular(14),
       ),
       width: double.infinity,
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Colors.white24,
-                  shape: BoxShape.circle,
+              if (isDeletable)
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: textColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: textColor, size: 20),
                 ),
-                child: Icon(icon, color: textColor, size: 20),
-              ),
               const Spacer(),
               if (onDelete != null)
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.white70),
+                  icon: const Icon(Icons.delete_outline, color: Colors.white),
                   onPressed: onDelete,
                 ),
             ],
@@ -55,36 +61,27 @@ class BigCard extends StatelessWidget {
             title,
             style: TextStyle(
               color: textColor,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              height: 1.2,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            byText,
-            style: TextStyle(fontSize: 14),
-          ),
+          const SizedBox(height: 12),
+          Text(byText, style: TextStyle(color: textColor, fontSize: 16)),
+
+          if (!isDeletable) const SizedBox(height: 40),
         ],
       ),
     );
 
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        child: Material(
-          color: Colors.transparent,
-          elevation: 2,
-          borderRadius: BorderRadius.circular(12),
-          child: cardContent,
-        ),
-      );
-    }
-
     return Material(
-      color: Colors.transparent,
-      elevation: 2,
-      borderRadius: BorderRadius.circular(12),
-      child: cardContent,
+      borderRadius: BorderRadius.circular(14),
+      elevation: 4,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: cardContent,
+      ),
     );
   }
 }
