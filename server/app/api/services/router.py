@@ -14,7 +14,7 @@ router = APIRouter(prefix="/services", tags=["services"])
     "/list",
     response_model=list[ServiceGet],
     summary="List all services",
-    description="Get all available services for automation"
+    description="Get all available services for automation",
 )
 def get_service(session: SessionDep) -> list[ServiceGet]:
     services: list[Service] = session.exec(
@@ -34,7 +34,7 @@ def get_service(session: SessionDep) -> list[ServiceGet]:
     "/{id}",
     response_model=ServiceIdGet,
     summary="Get service details",
-    responses={404: {"description": "Service not found"}}
+    responses={404: {"description": "Service not found"}},
 )
 def get_service_by_id(id: int, session: SessionDep, _: CurrentUser) -> ServiceIdGet:
     service: Service = session.exec(select(Service).where(Service.id == id)).first()
@@ -57,7 +57,7 @@ def get_service_by_id(id: int, session: SessionDep, _: CurrentUser) -> ServiceId
     "/{id}/actions",
     response_model=list[ActionShortInfo],
     summary="Get service actions",
-    description="List all trigger actions available for this service"
+    description="List all trigger actions available for this service",
 )
 def get_actions_of_service(
     id: int, session: SessionDep, _: CurrentUser
@@ -79,7 +79,7 @@ def get_actions_of_service(
     "/{id}/reactions",
     response_model=list[ReactionShortInfo],
     summary="Get service reactions",
-    description="List all response reactions available for this service"
+    description="List all response reactions available for this service",
 )
 def get_reactions_of_service(
     id: int, session: SessionDep, _: CurrentUser
@@ -101,7 +101,7 @@ def get_reactions_of_service(
     "/{id}/is_connected",
     response_model=bool,
     summary="Check service connection",
-    description="Check if current user has connected this service"
+    description="Check if current user has connected this service",
 )
 def is_service_connected(
     id: int | str, session: SessionDep, user: CurrentUserNoFail
@@ -121,15 +121,21 @@ def is_service_connected(
     print("is connected: ", service is not None, "to :", id, "---", user)
     return service is not None
 
-@router.get("/{id}/disconnect")
+
+@router.delete("/{id}/disconnect")
 def disconnect_service(id: int, session: SessionDep, user: CurrentUser):
     user_service: UserService = session.exec(
-        select(UserService)
-        .where(UserService.service_id == id, UserService.user_id == user.id)
+        select(UserService).where(
+            UserService.service_id == id, UserService.user_id == user.id
+        )
     ).first()
     if not user_service:
         raise HTTPException(status_code=400, detail="User service not found")
 
     session.delete(user_service)
     session.commit()
-    return {"message": "Service disconnected", "service_id": user_service.id, "user_id": user.id}
+    return {
+        "message": "Service disconnected",
+        "service_id": user_service.id,
+        "user_id": user.id,
+    }

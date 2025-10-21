@@ -1,6 +1,6 @@
 from .services import ServiceGet, ServiceIdGet, ActionIdGet, ActionBasicInfo, ActionShortInfo, ReactionIdGet, ReactionBasicInfo, ReactionShortInfo, CreateAreaAction, CreateAreaReaction
 from .areas import AreaGet, AreaIdGet, AreaGetPublic, AreaIdGetPublic, CreateArea, UpdateArea
-from .users import UserCreate, TokenResponse, UserIdGet, Role, UserOauthLoginGet, UserShortInfo, UserUpdate, UserServiceGet
+from .users import UserCreate, TokenResponse, UserIdGet, Role, UserOauthLoginGet, UserShortInfo, UserUpdate, UserServiceGet, UserUpdatePassword
 from .oauth import OauthLoginGet
 from .responses import MessageResponse, UserRegistrationResponse, UserDeletionResponse, AreaDeletionResponse, ErrorResponse
 
@@ -27,6 +27,7 @@ __all__ = [
     "UserShortInfo",
     "Role",
     "UserUpdate",
+    "UserUpdatePassword",
     "UserServiceGet",
     "OauthLoginGet",
     "UpdateArea",

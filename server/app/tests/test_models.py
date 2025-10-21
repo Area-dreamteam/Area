@@ -389,23 +389,20 @@ class TestUserSchemas:
         update_data = {
             "name": "Updated Name",
             "email": "updated@example.com",
-            "password": "newpassword123",
         }
 
         user_update = UserUpdate(**update_data)
 
         assert user_update.name == "Updated Name"
         assert user_update.email == "updated@example.com"
-        assert user_update.password == "newpassword123"
 
     def test_user_update_schema_partial(self):
         """Test UserUpdate schema requires all fields"""
         user_update = UserUpdate(
-            name="Updated Name", email="updated@example.com", password="newpass123"
+            name="Updated Name", email="updated@example.com"
         )
         assert user_update.name == "Updated Name"
         assert user_update.email == "updated@example.com"
-        assert user_update.password == "newpass123"
 
     def test_user_update_schema_email_validation(self):
         """Test UserUpdate email validation"""
