@@ -11,7 +11,7 @@ from schemas import OauthLoginGet
 router = APIRouter(prefix="/oauth", tags=["oauth"])
 
 
-@router.post(
+@router.get(
     "/index/{service}",
     summary="Start OAuth flow",
     description="Redirect to service OAuth authorization",
@@ -30,7 +30,7 @@ def index(service: str):
     )
 
 
-@router.post(
+@router.get(
     "/login_index/{service}",
     summary="Start OAuth login flow",
     description="Redirect to service OAuth for login",
@@ -48,7 +48,7 @@ def login_index(service: str):
     )
 
 
-@router.post(
+@router.get(
     "/oauth_token/{service}",
     summary="Handle OAuth callback",
     description="Process OAuth authorization code",
@@ -57,7 +57,7 @@ def oauth_token(service: str, code: str, session: SessionDep, user: CurrentUser)
     return services_dico[service].oauth_callback(session, code, user)
 
 
-@router.post("/login_oauth_token/{service}")
+@router.get("/login_oauth_token/{service}")
 def login_oauth_token(
     service: str, code: str, session: SessionDep, user: CurrentUserNoFail
 ):
