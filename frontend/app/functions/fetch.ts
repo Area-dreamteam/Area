@@ -7,7 +7,7 @@
 
 import axios from "axios";
 import { Act, Service, SpecificService } from "../types/service";
-import MyProfileProp from "../types/profile";
+import { MyProfileProp, UpdateProfileProp } from "../types/profile";
 import { ConfigRespAct } from "../types/config";
 import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
 import { SpecificAction, SpecificReaction } from "../types/actions";
@@ -31,9 +31,7 @@ Calls.interceptors.response.use(
   },
 );
 
-export async function fetchMyself(
-  setMyProfile: (arg: MyProfileProp | null) => void,
-) {
+export async function fetchMyself(setMyProfile: (arg: MyProfileProp | null) => void) {
   try {
     const res = await Calls.get("/users/me");
     if (res.status != 200) {
@@ -46,6 +44,25 @@ export async function fetchMyself(
     console.log("Error: ", err);
   }
   setMyProfile(null);
+  return false;
+}
+
+export async function fetchUpdateMyself(update: UpdateProfileProp, setMyProfile: (arg: MyProfileProp) => void)
+{
+  try {
+    const res = await Calls.patch("/users/me",
+    {
+      name: update?.name,
+      email: update?.email
+    });
+    if (res.status != 200) {
+      return false;
+    }
+    setMyProfile(res.data);
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
   return false;
 }
 
@@ -282,6 +299,20 @@ export async function fetchCreateApplet(
     if (res.status != 200) {
       return false;
     }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchIsConnected(id: number | string, setIsConnected: (data: boolean) => void)
+{
+  try {
+    const res = await Calls.get(`/services/${id}/is_connected`);
+    if (res.status != 200)
+      return false;
+    setIsConnected(res.data);
     return true;
   } catch (err) {
     console.log("Error: ", err);

@@ -22,7 +22,6 @@ const handleOauthAddService = (service: string, destination: string) => {
     "GitHub Login",
     "width=600,height=700",
   );
-
   window.addEventListener("message", (event) => {
     if (event.data.type === `${service}_login_complete`) {
       console.log(`${service} login finished. Cookie should now be set.`);
@@ -52,22 +51,6 @@ export async function redirectOauthAddService(
   } catch (err) {
     console.log("Error: ", err);
   }
-}
-
-export async function fetchIsConnected(
-  id: number | string,
-  setIsConnected: (data: boolean) => void,
-) {
-  try {
-    const res = await Calls.get(`/services/${id}/is_connected`);
-
-    if (res.status != 200) return false;
-    setIsConnected(res.data);
-    return true;
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-  return false;
 }
 
 export interface OAuthInfo {

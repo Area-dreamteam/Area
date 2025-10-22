@@ -124,7 +124,7 @@
     @media (width >= 40rem) {
       color: var(--common-color);
       text-align: center;
-      font-size: 600%;
+      font-size: 400%;
       padding-top: 5%;
     }
     @media (width < 40rem) {
@@ -137,12 +137,12 @@
 
   .subtitle {
     @media (width >= 40rem) {
-      color: var(--color-white);
+      color: var(--common-color);
       text-align: center;
       font-size: 25px;
     }
     @media (width < 40rem) {
-      color: var(--color-white);
+      color: var(--common-color);
       text-align: center;
       font-size: 10px;
     }
