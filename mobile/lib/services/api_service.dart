@@ -83,10 +83,6 @@ class ApiService {
     return _dio.get('/reactions/$reactionId');
   }
 
-  Future<Response> getCurrentUser() {
-    return _dio.get('/users/me');
-  }
-
   Future<Response> getPublicAreas() {
     return _dio.get('/areas/public');
   }
@@ -133,6 +129,28 @@ class ApiService {
           {'reaction_id': reactionId, 'config': reactionConfig},
         ],
       },
+    );
+  }
+
+  Future<Response> getCurrentUser() {
+    return _dio.get('/users/me');
+  }
+
+  Future<Response> deleteUser() {
+    return _dio.delete('/users/me');
+  }
+
+  Future<Response> updateCurrentUser({String? name, String? email}) {
+    final Map<String, dynamic> data = {};
+    if (name != null){
+      data['name'] = name;
+    }
+    if (email != null) {
+      data['email'] = email;
+    }
+    return _dio.patch(
+      '/users/me',
+      data: data,
     );
   }
 }
