@@ -1,8 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:mobile/viewmodels/profile_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/change_password_page.dart';
 import 'package:mobile/widgets/navbar.dart';
+import 'package:mobile/repositories/auth_repository.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/scaffolds/main_scaffold.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -281,7 +286,26 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildLogoutButton(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        //logout implementation
+        try {
+          final authRepository = context.read<AuthRepository>();
+          await authRepository.logout();
+          if (mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MainPageApp()),
+              (Route<dynamic> route) => false,
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Logout failed: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
       },
       child: const Text(
         'Sign out',
