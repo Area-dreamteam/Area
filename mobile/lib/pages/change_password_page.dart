@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/viewmodels/change_password_viewmodel.dart';
+import 'package:provider/provider.dart';
 
-class ChangePassword extends StatefulWidget {
-  const ChangePassword({super.key});
+class ChangePasswordPage extends StatefulWidget {
+  const ChangePasswordPage({super.key});
 
   @override
-  State<ChangePassword> createState() => _ChangePasswordPageState();
+  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
-class _ChangePasswordPageState extends State<ChangePassword> {
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  bool _obscureCurrent = true;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
 
   @override
   void dispose() {
@@ -25,83 +31,115 @@ class _ChangePasswordPageState extends State<ChangePassword> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    final currentPassword = _currentPasswordController.text;
     final newPassword = _newPasswordController.text;
 
-    if (mounted) Navigator.pop(context);
+    final viewModel = context.read<ChangePasswordViewModel>();
+    final success = await viewModel.changePassword(newPassword: newPassword);
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password changed successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF212121),
-      appBar: AppBar(
-        title: const Text(
-          'Change password',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF212121),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Consumer<ChangePasswordViewModel>(
+      builder: (context, viewModel, child) {
+        return Scaffold(
+          backgroundColor: const Color(0xFF212121),
+          appBar: AppBar(
+            title: const Text(
+              'Change password',
+              style: TextStyle(color: Colors.white),
+            ),  
+            backgroundColor: const Color(0xFF212121),
+            iconTheme: const IconThemeData(color: Colors.white),
+          ),
+          body: Stack(
             children: [
-              _buildPasswordField(
-                label: 'Current password',
-                controller: _currentPasswordController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your current password';
-                  }
-                  return null;
-                },
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildPasswordField(
+                        label: 'Current password',
+                        controller: _currentPasswordController,
+                        obscureText: _obscureCurrent,
+                        toggleObscure: () =>
+                            setState(() => _obscureCurrent = !_obscureCurrent),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your current password';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      _buildPasswordField(
+                        label: 'New password',
+                        controller: _newPasswordController,
+                        obscureText: _obscureNew,
+                        toggleObscure: () =>
+                            setState(() => _obscureNew = !_obscureNew),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a new password';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildPasswordField(
+                        label: 'Confirm new password',
+                        controller: _confirmPasswordController,
+                        obscureText: _obscureConfirm,
+                        toggleObscure: () =>
+                            setState(() => _obscureConfirm = !_obscureConfirm),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your new password';
+                          }
+                          if (value != _newPasswordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 40),
+                      _buildSaveButton(viewModel),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 24),
-              _buildPasswordField(
-                label: 'New password',
-                controller: _newPasswordController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a new password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              _buildPasswordField(
-                label: 'Confirm new password',
-                controller: _confirmPasswordController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm your new password';
-                  }
-                  if (value != _newPasswordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 40),
-              _buildSaveButton(),
+              if (viewModel.isLoading)
+                Container(
+                  color: Colors.black,
+                  child: const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _buildPasswordField({
     required String label,
     required TextEditingController controller,
+    required bool obscureText,
+    required VoidCallback toggleObscure,
     required String? Function(String?) validator,
   }) {
     return Column(
@@ -109,12 +147,15 @@ class _ChangePasswordPageState extends State<ChangePassword> {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white70, fontSize: 16),
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+          ),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
-          obscureText: true,
+          obscureText: obscureText,
           style: const TextStyle(color: Colors.white, fontSize: 18),
           validator: validator,
           decoration: InputDecoration(
@@ -130,11 +171,12 @@ class _ChangePasswordPageState extends State<ChangePassword> {
             ),
             suffixIcon: IconButton(
               icon: Icon(
-                true ? Icons.visibility_off : Icons.visibility,
-                color: Colors.white54,
+                obscureText
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+                color: Colors.white,
               ),
-              onPressed: () {
-              },
+              onPressed: toggleObscure,
             ),
           ),
         ),
@@ -142,21 +184,31 @@ class _ChangePasswordPageState extends State<ChangePassword> {
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildSaveButton(ChangePasswordViewModel viewModel) {
     return ElevatedButton(
-      onPressed: _savePassword,
+      onPressed: viewModel.isLoading ? null : _savePassword,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        disabledBackgroundColor: Colors.grey,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
-      child: const Text(
-        'Save',
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
+      child: viewModel.isLoading
+          ? const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: Colors.black,
+              ),
+            )
+          : const Text(
+              'Save',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
     );
   }
 }

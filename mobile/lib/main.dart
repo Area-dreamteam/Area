@@ -11,6 +11,7 @@ import 'package:mobile/viewmodels/select_service_viewmodel.dart';
 import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:mobile/viewmodels/explore_viewmodel.dart';
 import 'package:mobile/viewmodels/profile_viewmodel.dart';
+import 'package:mobile/viewmodels/change_password_viewmodel.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +49,10 @@ Future<void> main() async {
           create: (_) =>
               ProfileViewModel(serviceRepository: servicesRepository),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ChangePasswordViewModel(serviceRepository: servicesRepository),
+        ),
+        Provider.value(value: authRepository),
         Provider.value(value: authRepository),
         Provider.value(value: apiService),
         Provider.value(value: servicesRepository),

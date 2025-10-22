@@ -159,9 +159,9 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(height: 8),
         InkWell(
           onTap: () {
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ChangePassword()),
+              MaterialPageRoute(builder: (context) => ChangePasswordPage()),
             );
           },
           child: const Text(

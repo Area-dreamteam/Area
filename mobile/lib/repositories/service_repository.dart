@@ -236,7 +236,7 @@ class ServiceRepository {
         name: name,
         email: email,
       );
-      if (response.statusCode == 200 || response.statusCode == 204){
+      if (response.statusCode == 200 || response.statusCode == 204) {
         if (response.data != null) {
           final data = jsonDecode(response.data);
           return UserModel.fromJson(data);
@@ -250,4 +250,18 @@ class ServiceRepository {
     }
   }
 
+  Future<void> updateUserPassword({required String newPassword}) async {
+    String errorMessage = "Problem to update password";
+    try {
+      final response = await _apiService.updateUserPassword(
+        newPassword: newPassword,
+      );
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      }
+      throw Exception(errorMessage);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

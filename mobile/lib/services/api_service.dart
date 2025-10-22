@@ -142,15 +142,19 @@ class ApiService {
 
   Future<Response> updateCurrentUser({String? name, String? email}) {
     final Map<String, dynamic> data = {};
-    if (name != null){
+    if (name != null) {
       data['name'] = name;
     }
     if (email != null) {
       data['email'] = email;
     }
+    return _dio.patch('/users/me', data: data);
+  }
+
+  Future<Response> updateUserPassword({required String newPassword}) {
     return _dio.patch(
-      '/users/me',
-      data: data,
+      '/users/me/password',
+      data: {"password": newPassword},
     );
   }
 }
