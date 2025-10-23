@@ -115,14 +115,13 @@ class Service:
 
     def check(
         self, action_name: str, session: Session, area_action: AreaAction, user_id: int
-    ) -> Optional[Action]:
+    ) -> bool:
         """Search for an action by name and execute check with parameters."""
         action = self.actions.get(action_name)
         if action:
-            action.check(session, area_action, user_id)
-            return action
+            return action.check(session, area_action, user_id)
         logger.error(f"Action '{action_name}' not found in {self.name}")
-        return None
+        return False
 
     def execute(
         self,
@@ -160,7 +159,7 @@ class Service:
             "oauth_required": self.oauth,
         }
 
-    def is_connected(self, session: Session) -> bool:
+    def is_connected(self, session: Session, user_id: int) -> bool:
         """Check if service is connected for current user."""
         return False
 

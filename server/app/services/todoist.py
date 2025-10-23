@@ -79,7 +79,7 @@ class Todoist(ServiceClass):
 
     def _is_token_valid(self, token):
         try:
-            self.get_user_info(token)
+            self._get_user_info(token)
             return True
         except TodoistApiError:
             return False
@@ -201,8 +201,25 @@ class Todoist(ServiceClass):
         if r.status_code != 200:
             raise TodoistApiError("Failed to create task")
 
-    def is_connected(self, session: Session) -> bool:
-        return self._is_token_valid("")  # TODO: get token in db
+    def is_connected(self, session: Session, user_id: int) -> bool:
+        user_service: UserService = session.exec(
+            select(UserService)
+            .join(Service, Service.id == UserService.service_id)
+            .where(
+                UserService.user_id == user_id,
+                Service.name == self.name,
+            )
+        ).first()
+        if not user_service:
+            return False
+
+        if self._is_token_valid(user_service.access_token):
+            return True
+
+        if user_service.refresh_token is None:
+            return False
+        # refresh le token
+        return True
 
     def oauth_link(self) -> str:
         base_url = "https://todoist.com/oauth/authorize"
