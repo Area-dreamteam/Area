@@ -5,7 +5,7 @@ from models import Service, Action, Reaction
 from schemas import ServiceGet, ServiceIdGet, ActionShortInfo, ReactionShortInfo
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser, CurrentUserNoFail
-
+from services.services import services_dico
 
 router = APIRouter(prefix="/services", tags=["services"])
 
@@ -107,19 +107,33 @@ def is_service_connected(
     id: int | str, session: SessionDep, user: CurrentUserNoFail
 ) -> bool:
     if id.isnumeric():
-        service = session.exec(
-            select(UserService).where(
-                UserService.service_id == id, UserService.user_id == user.id
-            )
+        service_name: str = session.exec(
+            select(Service.name)
+            .join(UserService, UserService.service_id == Service.id)
+            .where(UserService.service_id == id, UserService.user_id == user.id)
         ).first()
     elif isinstance(id, str):
-        service = session.exec(
-            select(UserService)
-            .join(Service, Service.id == UserService.service_id)
+        service_name: str = session.exec(
+            select(Service.name)
+            .join(UserService, UserService.service_id == Service.id)
             .where(Service.name == id, UserService.user_id == user.id)
         ).first()
-    print("is connected: ", service is not None, "to :", id, "---", user)
-    return service is not None
+    if service_name is None:
+        return False
+
+    if services_dico[service_name].is_connected(session, user.id) is True:
+        return True
+    user_service: UserService = session.exec(
+        select(UserService)
+        .join(Service, Service.id == UserService.service_id)
+        .where(Service.name == service_name)
+    ).first()
+    if not user_service:
+        return False
+
+    session.delete(user_service)
+    session.commit()
+    return False
 
 
 @router.delete("/{id}/disconnect")

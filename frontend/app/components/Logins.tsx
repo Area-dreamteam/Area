@@ -38,7 +38,7 @@ export default function Logins({isRegister}: LoginsProp)
       const success: boolean = await (isRegister ? fetchRegister(email, password) : fetchLogin(email, password));
   
       if (success) {
-        router.push("/explore");
+        router.push((isRegister ? "/login" : "/explore"));
       } else
         setError(true);
     }

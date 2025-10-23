@@ -11,7 +11,7 @@ import { fetchCreateApplet, fetchServices, fetchAction, fetchActs, fetchSpecific
 import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
 import ValidateButton from "@/app/components/Validation"
 import { Service, Act, SpecificService } from "@/app/types/service"
-import { redirectOauthAddService } from "@/app/functions/oauth"
+import { redirectOauth, redirectOauthAddService } from "@/app/functions/oauth"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { fetchIsConnected } from "@/app/functions/oauth"
+import { fetchIsConnected } from "@/app/functions/fetch"
 import { useAuth } from "@/app/functions/hooks"
 
 //-- Buttons --//
@@ -471,7 +471,7 @@ function ChooseService({ choosingAction, setChoosingAction,
   const [selected, setSelected] = useState<Service | null>(null);
   const [services, setServices] = useState<Service[] | null>(null);
   const [chosenService, setChosenService] = useState<SpecificService | null>(null);
-  const [serviceConnected, setserviceConnected] = useState<boolean>(false);
+  const [serviceConnected, setServiceConnected] = useState<boolean>(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -488,17 +488,21 @@ function ChooseService({ choosingAction, setChoosingAction,
   }, [selected])
 
   useEffect(() => {
-    if (!selected)
+    if (!chosenService)
       return;
-    const loadServices_connected = async () => {
-      await fetchIsConnected(selected.id, setserviceConnected);
+    const checkServiceConnected = async () => {
+      await fetchIsConnected(chosenService.id, setServiceConnected);
     }
-    loadServices_connected();
-    if (user && chosenService)
+    checkServiceConnected();
+  }, [chosenService]);
+
+  useEffect(() => {
+      if (!chosenService)
+        return;
       if (!serviceConnected && chosenService.oauth_required)
         return redirect(`/services/${chosenService.name}`);
-    console.log("not redirected");
-  }, [chosenService]);
+      return;
+  }, [serviceConnected])
 
   return (
     <div>
@@ -533,6 +537,12 @@ export default function Create() {
   const [choosingReaction, setChoosingReaction] = useState(false);
   const [actConfig, setActConfig] = useState<ConfigRespAct[]>([]);
   const [reactConfig, setReactConfig] = useState<ConfigRespAct[]>([]);
+  // const { user } = useAuth();
+
+  // useEffect(() => {
+  //   if (!user)
+  //     redirect("/login");
+  // }, [user]); // to change
 
   return (
     <div>

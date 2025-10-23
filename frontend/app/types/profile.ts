@@ -5,7 +5,7 @@
 ** profile
 */
 
-export default interface MyProfileProp
+export interface MyProfileProp
 {
   id: number,
   name: string,
@@ -21,3 +21,10 @@ export default interface MyProfileProp
     }
   ]
 }
+
+export interface UpdateProfileProp
+{
+    name: string,
+    email: string,
+}
+

@@ -46,25 +46,11 @@ def compare_action_data(
     action_data: tuple[Action, Service],
 ):
     for user_id, user_actions in user_actions_config.items():
-        # Si le service à besoin on recup l'access token
-        # user_service: UserService = session.exec(
-        #     select(UserService)
-        #     .join(User, User.id == UserService.user_id)
-        #     .where(user_id == UserService.user_id)).first()
-        # if not user_service:
-        #     return
-
-        # Check une seul action d'un user
-
-        # Recupere la new_data de l'action avec la config associée dans le service et update last_state
-        # if user_actions[0].last_state == new_data:
-        #   continue
-        if not services_dico[action_data[1].name].check(
-            action_data[0].name, session, user_actions[0], user_id
-        ):
-            continue
-
         for user_action in user_actions:
+            if not services_dico[action_data[1].name].check(
+                action_data[0].name, session, user_action, user_id
+            ):
+                continue
             reaction_process(session, user_action.area_id)
 
 

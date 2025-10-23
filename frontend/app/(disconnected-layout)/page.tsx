@@ -24,7 +24,7 @@ export default function Home()
   return (
     <div className="font-bold">
       <div className="bg-black rounded-b-2xl">
-        <h1 onClick={(e) => {e.preventDefault(); redirect("/explore");}} className="logo inverted">
+        <h1 onClick={(e) => {e.preventDefault(); redirect("/explore");}} className="logo inverted w-0">
           Area
         </h1>
         <h1 className="title inverted centered">
