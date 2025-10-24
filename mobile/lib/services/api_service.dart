@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/core/config.dart';
 
 class ApiService {
   late Dio _dio;
-  static const String _baseUrl = 'http://10.0.2.2:8080/';
+  final String _baseUrl = '${Config.getApiUrl()}/';
   final _storage = const FlutterSecureStorage();
 
   ApiService() {

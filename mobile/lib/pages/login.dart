@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/pages/register.dart';
 import 'package:mobile/viewmodels/login_viewmodel.dart';
+import 'package:mobile/services/oauth_service.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,12 +17,66 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  
+  List<OAuthProvider> _oauthProviders = [];
+  bool _isOAuthLoading = false;
+  String _oauthError = '';
 
+  @override
+  void initState() {
+    super.initState();
+    _loadOAuthProviders();
+  }
+  
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+  
+  Future<void> _loadOAuthProviders() async {
+    print('Loading OAuth providers...');
+    final oauthService = context.read<OAuthService>();
+    try {
+      final providers = await oauthService.getAvailableProviders();
+      print('Loaded ${providers.length} OAuth providers: ${providers.map((p) => p.name).toList()}');
+      setState(() {
+        _oauthProviders = providers;
+      });
+      print('State updated with OAuth providers');
+    } catch (e) {
+      print('Failed to load OAuth providers: $e');
+    }
+  }
+  
+  Future<void> _loginWithOAuth(String serviceName) async {
+    setState(() {
+      _isOAuthLoading = true;
+      _oauthError = '';
+    });
+    
+    final oauthService = context.read<OAuthService>();
+    
+    try {
+      final result = await oauthService.loginWithOAuth(serviceName);
+      
+      if (result.isSuccess) {
+        _onLoginSuccess();
+      } else {
+        setState(() {
+          _oauthError = result.error ?? 'OAuth login failed';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _oauthError = 'OAuth login error: $e';
+      });
+    } finally {
+      setState(() {
+        _isOAuthLoading = false;
+      });
+    }
   }
 
   void _onLoginSuccess() {
@@ -48,6 +103,8 @@ class _LoginPageState extends State<LoginPage> {
                   _header(),
                   const SizedBox(height: 50),
                   _inputFields(loginViewModel),
+                  const SizedBox(height: 20),
+                  _oauthSection(),
                   const SizedBox(height: 30),
                   _signup(),
                 ],
@@ -165,6 +222,75 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(fontSize: 20, color: Colors.black),
                 ),
         ),
+      ],
+    );
+  }
+
+  Widget _oauthSection() {
+    print('Building OAuth section with ${_oauthProviders.length} providers');
+    return Column(
+      children: [
+        if (_oauthError.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15),
+            child: Text(
+              _oauthError,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 14),
+            ),
+          ),
+        
+        if (_oauthProviders.isNotEmpty) ...[
+          const Row(
+            children: [
+              Expanded(child: Divider(color: Colors.grey)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'OR',
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ),
+              Expanded(child: Divider(color: Colors.grey)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // OAuth provider buttons
+          ..._oauthProviders.map((provider) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _isOAuthLoading ? null : () => _loginWithOAuth(provider.name),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: _isOAuthLoading 
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(
+                      provider.name.toLowerCase() == 'github_oauth' 
+                        ? Icons.code 
+                        : Icons.login,
+                      size: 20,
+                    ),
+                label: Text(
+                  'Continue with ${provider.name.replaceAll('_oauth', '').toUpperCase()}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          )).toList(),
+        ],
       ],
     );
   }

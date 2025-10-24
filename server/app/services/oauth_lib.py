@@ -21,18 +21,28 @@ from sqlmodel import select
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 
-def windowCloseAndCookie(id: int, name: str) -> Response:
+def windowCloseAndCookie(id: int, name: str, request: Request = None, is_mobile: bool = False) -> Response:
+    token = sign_jwt(id)
+    
+    print(f"OAuth callback - Is mobile flag set: {is_mobile}")
+    
+    if is_mobile:
+        # Redirect to mobile deeplink
+        from fastapi.responses import RedirectResponse
+        deeplink_url = f"area://oauth-callback?token={token}&service={name}"
+        print(f"Redirecting to mobile deeplink: {deeplink_url}")
+        return RedirectResponse(url=deeplink_url, status_code=302)
+    
+    # Original web behavior
     html = f"""
     <script>
       window.opener.postMessage({{ type: "{name}_login_complete" }}, "*");
       window.close();
-    </script>
+	</script>
     """
     response = HTMLResponse(content=html)
-
-    token = sign_jwt(id)
     response.set_cookie(
-        key="access_token",
+    	key="access_token",
         value=f"Bearer {token}",
         httponly=True,
         secure=True,
@@ -49,7 +59,7 @@ class OAuthApiError(Exception):
 
 
 def oauth_add_link(
-    session: Session, name: str, user: User, access_token: str
+    session: Session, name: str, user: User, access_token: str, request: Request = None
 ) -> Response:
     existing = session.exec(select(User).where(User.id == user.id)).first()
     service = session.exec(
@@ -70,16 +80,16 @@ def oauth_add_link(
         session.add(new_user_service)
         session.commit()
 
-        return windowCloseAndCookie(existing.id, name)
+        return windowCloseAndCookie(existing.id, name, request)
     """Already existing user, connecting to service"""
     service.access_token = access_token
     session.commit()
 
-    return windowCloseAndCookie(existing.id, name)
+    return windowCloseAndCookie(existing.id, name, request)
 
 
 def oauth_add_login(
-    session: Session, name: str, user: User | None, access_token: str, user_mail: str
+    session: Session, name: str, user: User | None, access_token: str, user_mail: str, request: Request = None, is_mobile: bool = False
 ) -> Response:
     if user is None:
         existing = session.exec(select(User).where(User.email == user_mail)).first()
@@ -107,7 +117,7 @@ def oauth_add_login(
         )
         session.add(new_user_service)
         session.commit()
-        return windowCloseAndCookie(new_user.id, name)
+        return windowCloseAndCookie(new_user.id, name, request, is_mobile)
     """User login with new oauth"""
 
     service = session.exec(
@@ -130,9 +140,9 @@ def oauth_add_login(
         )
         session.add(new_user_service)
         session.commit()
-        return windowCloseAndCookie(existing.id, name)
+        return windowCloseAndCookie(existing.id, name, request, is_mobile)
 
     """Already existing user, connecting to service"""
     service.access_token = access_token
     session.commit()
-    return windowCloseAndCookie(existing.id, name)
+    return windowCloseAndCookie(existing.id, name, request, is_mobile)

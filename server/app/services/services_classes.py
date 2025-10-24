@@ -3,7 +3,7 @@ from typing import Dict, Optional, Any, Union
 from core.logger import logger
 from models import User, AreaAction, AreaReaction
 from sqlmodel import Session
-from fastapi import Response
+from fastapi import Response, Request
 
 
 class Action:
@@ -139,7 +139,7 @@ class Service:
     def oauth_link(self) -> str:
         return ""
 
-    def oauth_callback(self, session: Session, code: str, user: User) -> Response:
+    def oauth_callback(self, session: Session, code: str, user: User, request: Request = None) -> Response:
         pass
 
 
@@ -153,7 +153,7 @@ class oauth_service:
         return ""
 
     def oauth_callback(
-        self, session: Session, code: str, user: User | None
+        self, session: Session, code: str, user: User | None, request: Request = None, is_mobile: bool = False
     ) -> Response:
         pass
 

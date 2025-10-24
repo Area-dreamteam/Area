@@ -6,7 +6,7 @@ from models.oauth.oauth_login import OAuthLogin
 from models.users.user_oauth_login import UserOAuthLogin
 from models.users.user import User
 from sqlmodel import select
-from fastapi import HTTPException, Response
+from fastapi import HTTPException, Response, Request
 from fastapi.responses import HTMLResponse
 from core.config import settings
 
@@ -75,7 +75,7 @@ class github_oauth(oauth_service):
         return f"{base_url}?{urlencode(params)}"
 
     def oauth_callback(
-        self, session: Session, code: str, user: User | None
+        self, session: Session, code: str, user: User | None, request: Request = None, is_mobile: bool = False
     ) -> Response:
         try:
             token_res = self._get_token(
@@ -88,5 +88,5 @@ class github_oauth(oauth_service):
         except GithubApiError as e:
             return HTTPException(status_code=400, detail=e.message)
         return oauth_add_login(
-            session, self.name, user, token_res.access_token, user_info["email"]
+            session, self.name, user, token_res.access_token, user_info["email"], request, is_mobile
         )

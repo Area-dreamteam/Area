@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_service.dart';
+import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/repositories/auth_repository.dart';
 import 'package:mobile/viewmodels/register_viewmodel.dart';
 import 'package:mobile/viewmodels/login_viewmodel.dart';
@@ -14,8 +15,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final apiService = ApiService();
+  final oauthService = OAuthService();
   final authRepository = AuthRepository(apiService: apiService);
   final servicesRepository = ServiceRepository(apiService: apiService);
+  
+  // Initialize OAuth service for deeplink handling
+  oauthService.initialize();
 
   runApp(
     MultiProvider(
@@ -40,6 +45,7 @@ Future<void> main() async {
         Provider.value(value: authRepository),
         Provider.value(value: apiService),
         Provider.value(value: servicesRepository),
+        Provider.value(value: oauthService),
       ],
       child: const MyApp(),
     ),
