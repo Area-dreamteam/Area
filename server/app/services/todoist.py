@@ -7,7 +7,12 @@ Supports OAuth authentication and project-based task management.
 from typing import Dict, Any
 from services.oauth_lib import oauth_add_link
 from models.areas import AreaAction, AreaReaction
-from services.services_classes import Service as ServiceClass, Action, Reaction, get_component
+from services.services_classes import (
+    Service as ServiceClass,
+    Action,
+    Reaction,
+    get_component,
+)
 from models.services.service import Service
 from schemas.services.todoist import Task, Project
 from core.config import settings
@@ -25,16 +30,19 @@ from models.users.user_service import UserService
 from sqlmodel import select
 from fastapi.responses import HTMLResponse, RedirectResponse
 from core.logger import logger
-from api.users.db import get_user_token
+from api.users.db import get_user_service_token
+
 
 class TodoistOAuthTokenRes(BaseModel):
     """Todoist OAuth token response format."""
+
     access_token: str
     token_type: str
 
 
 class TodoistApiError(Exception):
     """Todoist API-specific errors."""
+
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
@@ -42,11 +50,14 @@ class TodoistApiError(Exception):
 
 class Todoist(ServiceClass):
     """Todoist automation service.
-    
+
     Provides task completion monitoring and task creation capabilities.
     Supports project-based organization and priority settings.
     """
+
     class task_completed(Action):
+        service: "Todoist"
+
         def __init__(self) -> None:
             config_schema = [{"name": "task_id", "type": "input", "values": []}]
             super().__init__("checks when a task is completed", config_schema)
@@ -55,27 +66,34 @@ class Todoist(ServiceClass):
             print(f"Checking task completion: {area_action.config}")
 
     class create_task(Reaction):
+        service: "Todoist"
+
         def __init__(self) -> None:
             config_schema = [
                 {"name": "content", "type": "input", "values": []},
-                {"name": "project_name", "type": "input", "values": []}
+                {"name": "project_name", "type": "input", "values": []},
             ]
             super().__init__("creates a new task", config_schema)
 
         def execute(self, session: Session, area_action: AreaReaction, user_id: int):
-            token: str = get_user_token(session, user_id)
+            token: str = get_user_service_token(session, user_id, self.service.name)
             content: str = get_component(area_action.config, "content", "values")
-            project_name: str = get_component(area_action.config, "project_name", "values")
+            project_name: str = get_component(
+                area_action.config, "project_name", "values"
+            )
 
             try:
                 self.service._create_task(token, content, project_name)
-            except TodoistApiError:
-                logger.error("Error: Todoist create_task reaction")
+            except TodoistApiError as e:
+                logger.error(f"Error: Todoist create_task reaction {e}")
+                return
 
             logger.debug(f"Todoist: Creating task for user {user_id}")
 
     def __init__(self) -> None:
-        super().__init__("A modern interconnected todolist", "LifeStyle", "#000000", "", True)
+        super().__init__(
+            "A modern interconnected todolist", "LifeStyle", "#CE3608", "", True
+        )
 
     def _is_token_valid(self, token):
         try:
@@ -184,7 +202,7 @@ class Todoist(ServiceClass):
         return projects_list
 
     def _create_task(self, token, content, project_name=None):
-        base_url = f"https://api.todoist.com/api/v1/tasks"
+        base_url = "https://api.todoist.com/api/v1/tasks"
         params = {"content": content}
 
         if project_name is not None:
