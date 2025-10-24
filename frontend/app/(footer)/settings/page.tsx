@@ -7,12 +7,13 @@
 
 'use client'
 
-import Link from "next/link"
-import { useState, useEffect } from "react"
+import { fetchDeleteMyself, fetchDisconnectOauth, fetchMyself, fetchUpdateMyself } from "@/app/functions/fetch"
+import { MyProfileProp, OauthProfileProp } from "@/app/types/profile"
+import { redirectOauth } from "@/app/functions/oauth"
 import { Input } from "@/components/ui/input"
-import { fetchDeleteMyself, fetchMyself, fetchUpdateMyself } from "@/app/functions/fetch"
-import { MyProfileProp, UpdateProfileProp } from "@/app/types/profile"
+import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
+import Link from "next/link"
 
 // function profileButton(text: string, _enable: boolean)
 // {
@@ -35,9 +36,37 @@ function profileLabels(text: string)
 function profileLink(text: string, ref: string, linkColor: string)
 {
     return (
-        <Link href={ref} className="mb-[30px] text-center text-[18px]" style={{ color: linkColor }}>
+        <Link href={ref} className="special-link" style={{ color: linkColor }}>
             {text}
         </Link>
+    )
+}
+
+async function disconnectOauth(oauthId: number, setUpdate: (arg: boolean) => void)
+{
+    await fetchDisconnectOauth(oauthId);
+    setUpdate(true);
+}
+
+async function connectOauth(oauthName: string, setUpdate: (arg: boolean) => void)
+{
+    await redirectOauth(oauthName, null);
+
+    window.addEventListener("message", (event) => {
+        console.log(event.data);
+        if (event.data.type === `${oauthName}_login_complete`) {
+            setUpdate(true);
+        }
+    });
+}
+
+function oauthLink(user: MyProfileProp, service: OauthProfileProp,
+    linkColor: string, setUpdate: (arg: boolean) => void)
+{
+    return (
+        <p className="special-link simple-text hover:cursor-pointer" style={{ color: linkColor }} onClick={() => (service.connected ? disconnectOauth(service.id, setUpdate) : connectOauth(service.name, setUpdate))}>
+            {service.connected ? "Unlink" : "Link your account"}
+        </p>
     )
 }
 
@@ -50,12 +79,20 @@ function DeleteAccount()
     )
 }
 
-function LinkedAccount(text: string, button: string, link: string)
+function LinkedAccounts(user: MyProfileProp, setUpdate: (arg: boolean) => void)
 {
+    const linked = user.oauth_login.map((service) => {
+        return (
+            <div key={service.id} className="grid grid-cols-2 gap-5">
+                <p className="simple-text"> {service.name} </p>
+                {oauthLink(user, service, "#0099ff", setUpdate)}
+            </div>
+        )
+    })
+
     return (
-        <div className="flex justify-around">
-            {text}
-            {profileLink(button, link, "#0099ff")}
+        <div className="flex justify-around mb-5 mt-5">
+            {linked}
         </div>
     )
 }
@@ -69,12 +106,24 @@ function Profile({profile}: PersonnalInfoProp)
 {
     const [personalProfile, setProfile] = useState<MyProfileProp>(profile);
     const [email, setEmail] = useState<string>((profile.email));
+    const [user, setUser] = useState<MyProfileProp | null>(null);
     const [name, setName] = useState<string>((profile.name));
+    const [update, setUpdate] = useState<boolean>(true);
   
     async function sendForm(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        const success: boolean = await fetchUpdateMyself({name, email}, setProfile);
+        await fetchUpdateMyself({name, email}, setProfile);
     }
+
+    useEffect(() => {
+        if (!update)
+            return
+        const getPersonalInfos = async () => {
+            await fetchMyself(setUser);
+        }
+        getPersonalInfos();
+        setUpdate(false);
+    }, [update]);
 
     return (
         <form onSubmit={sendForm} className="mx-auto mt-[40px] w-[75%] font-bold">
@@ -101,9 +150,10 @@ function Profile({profile}: PersonnalInfoProp)
             <Input defaultValue={personalProfile.email} onChange={(e) => setEmail(e.target.value)}/>
             <br/><br/>
             {profileLabels("Linked accounts")}
-            {LinkedAccount("Apple is not linked", "Link your account", "https://apple.com")}
+            {user ? LinkedAccounts(user, setUpdate) : ""}
+            {/* {LinkedAccount("Apple is not linked", "Link your account", "https://apple.com")}
             {LinkedAccount("Facebook is not linked", "Link your account", "https://facebook.com")}
-            {LinkedAccount("Google is linked", "Unlink", "https://google.com")}
+            {LinkedAccount("Google is linked", "Unlink", "https://google.com")} */}
             <DeleteAccount/>
             <button className="rounded-button block mx-auto mt-[10%] mb-[10%] px-[5%] py-[2%] rounded-full inverted hover:cursor-pointer" type="submit">
                 Update
@@ -120,7 +170,6 @@ export default function Settings()
     useEffect(() => {
         const fetchProfileData = async () => {
             const succeed = await (fetchMyself(setProfile));
-            console.log(profile);
             if (succeed)
                 setAvailable(true);
             else
