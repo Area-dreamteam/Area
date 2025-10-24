@@ -138,13 +138,11 @@
   .subtitle {
     @media (width >= 40rem) {
       color: var(--common-color);
-      text-align: center;
-      font-size: 25px;
+      font-size: 200%;
     }
     @media (width < 40rem) {
       color: var(--common-color);
-      text-align: center;
-      font-size: 10px;
+      font-size: 100%;
     }
   }
 
@@ -161,6 +159,17 @@
     }
   }
 
+  .simple-text {
+    @media (width >= 40rem) {
+      color: var(--color-black);
+      font-size: 130%;
+    }
+    @media (width < 40rem) {
+      color: var(--color-black);
+      font-size: 70%;
+    }
+  }
+  
   .logo {
     @media (width >= 40rem) {
       color: var(--common-color);
@@ -196,17 +205,15 @@
     }
   }
 
-  .simple-text {
-    @media (width >= 40rem) {
-      color: var(--color-black);
-      font-size: 130%;
-    }
-    @media (width < 40rem) {
-      color: var(--color-black);
-      font-size: 70%;
+  .special-link {
+    color: #0099ff;
+    &:hover {
+      @media (hover: hover) {
+          color: #0077c7;
+      }
     }
   }
-  
+
   .rounded-button {
     background-color: var(--common-bg);
     border-radius: calc(infinity * 1px);
@@ -221,7 +228,7 @@
       font-size: 200%;
     }
     @media (width < 40rem) {
-      font-size: 80%;
+      font-size: 100%;
     }
 
     &:hover {

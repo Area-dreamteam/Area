@@ -1,6 +1,6 @@
 import { Calls } from "./fetch";
 
-const handleOauthLogin = (service: string, destination: string) => {
+const handleOauthLogin = (service: string, destination: string | null) => {
   window.open(
     `/api/backend/oauth/login_index/${service}`,
     "GitHub Login",
@@ -11,7 +11,8 @@ const handleOauthLogin = (service: string, destination: string) => {
     console.log(event.data);
     if (event.data.type === `${service}_login_complete`) {
       console.log(`${service} login finished. Cookie should now be set.`);
-      window.location.href = destination;
+      if (destination)
+        window.location.href = destination;
     }
   });
 };
@@ -32,7 +33,7 @@ const handleOauthAddService = (service: string, destination: string) => {
 
 export async function redirectOauth(
   service: string,
-  destination: string = "/explore",
+  destination: string | null = "/explore",
 ) {
   try {
     handleOauthLogin(service, destination);
