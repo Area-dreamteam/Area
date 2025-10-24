@@ -122,17 +122,14 @@
 
   .title {
     @media (width >= 40rem) {
-      color: var(--common-color);
-      text-align: center;
       font-size: 400%;
-      padding-top: 5%;
     }
     @media (width < 40rem) {
-      color: var(--common-color);
-      text-align: center;
-      font-size: 200%;
-      padding-top: 10%;
+      font-size: 250%;
     }
+    color: var(--common-color);
+    text-align: center;
+    font-weight: bold;
   }
 
   .subtitle {
@@ -144,6 +141,7 @@
       color: var(--common-color);
       font-size: 100%;
     }
+    font-weight: bold;
   }
 
   .title-part {
@@ -161,13 +159,19 @@
 
   .simple-text {
     @media (width >= 40rem) {
-      color: var(--color-black);
+      color: var(--common-color);
       font-size: 130%;
     }
     @media (width < 40rem) {
-      color: var(--color-black);
+      color: var(--common-color);
       font-size: 70%;
     }
+  }
+
+  .tiny-text {
+    color: var(--common-color);
+    font-weight: bold;
+    font-size: 70%;
   }
   
   .logo {
@@ -222,6 +226,7 @@
     padding-bottom: 2%;
     padding-left: 3%;
     padding-right: 3%;
+    font-weight: bold;
     cursor: pointer;
   
     @media (width >= 40rem) {
@@ -260,6 +265,7 @@
       inherits: false;
       initial-value: solid;
   }
+
   .inverted {
     --common-bg: var(--color-black);
     --common-color: var(--color-white);

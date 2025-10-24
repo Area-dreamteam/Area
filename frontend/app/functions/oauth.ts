@@ -8,7 +8,6 @@ const handleOauthLogin = (service: string, destination: string | null) => {
   );
 
   window.addEventListener("message", (event) => {
-    console.log(event.data);
     if (event.data.type === `${service}_login_complete`) {
       console.log(`${service} login finished. Cookie should now be set.`);
       if (destination)
