@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../pages/login.dart';
+import '../pages/my_area.dart';
+import '../services/oauth_service.dart';
 
 class MainPageApp extends StatelessWidget {
   const MainPageApp({super.key});
@@ -20,6 +23,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   late PageController _pageViewController;
   late TabController _tabController;
+  List<OAuthProvider> _oauthProviders = [];
 
   final List<Widget> pages = const <Widget>[
     Center(
@@ -41,6 +45,103 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     super.initState();
     _pageViewController = PageController();
     _tabController = TabController(length: pages.length, vsync: this);
+    _loadOAuthProviders();
+  }
+
+  Future<void> _loadOAuthProviders() async {
+    print('Loading OAuth providers in main scaffold...');
+    final oauthService = context.read<OAuthService>();
+    try {
+      final providers = await oauthService.getAvailableProviders();
+      print(
+        'Loaded ${providers.length} OAuth providers for main page: ${providers.map((p) => p.name).toList()}',
+      );
+      setState(() {
+        _oauthProviders = providers;
+      });
+    } catch (e) {
+      print('Failed to load OAuth providers in main scaffold: $e');
+    }
+  }
+
+  Future<void> _handleOAuthLogin(OAuthProvider provider) async {
+    print('Starting OAuth login for: ${provider.name}');
+
+    final oauthService = context.read<OAuthService>();
+    try {
+      final result = await oauthService.loginWithOAuth(provider.name);
+
+      if (result.isSuccess) {
+        print('OAuth login successful!');
+        // Navigate to main app screen
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MyAreaPage()),
+          );
+        }
+      } else {
+        print('OAuth login failed: ${result.error}');
+        // Navigate to login page on error
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        }
+      }
+    } catch (e) {
+      print('OAuth error: $e');
+      // Navigate to login page on error
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
+    }
+  }
+
+  void _showConnectionOptions() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF212121),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              // Dynamic OAuth providers
+              ..._oauthProviders
+                  .map(
+                    (provider) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _buildOAuthOptionButton(
+                        context,
+                        'Continue with ${provider.name.replaceAll('_oauth', '')}',
+                        provider,
+                        _handleOAuthLogin,
+                      ),
+                    ),
+                  )
+                  .toList(),
+
+              // Always show email option
+              if (_oauthProviders.isNotEmpty) const SizedBox(height: 10),
+              _buildOptionButton(
+                context,
+                'Continue with Email',
+                'assets/icons/logo_email.png',
+                'email',
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -93,7 +194,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               const SizedBox(height: 70),
               ElevatedButton(
                 onPressed: () {
-                  _showConnectionOptions(context);
+                  _showConnectionOptions();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -117,49 +218,28 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   }
 }
 
-void _showConnectionOptions(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: const Color(0xFF212121),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _buildOptionButton(
-              context,
-              'Continue with Google',
-              'assets/icons/logo_google.png',
-              'google',
-            ),
-            const SizedBox(height: 10),
-            _buildOptionButton(
-              context,
-              'Continue with Facebook',
-              'assets/icons/logo_facebook.png',
-              'facebook',
-            ),
-            const SizedBox(height: 10),
-            _buildOptionButton(
-              context,
-              'Continue with GitHub',
-              'assets/icons/github.png',
-              'github',
-            ),
-            const SizedBox(height: 10),
-            _buildOptionButton(
-              context,
-              'Continue with Email',
-              'assets/icons/logo_email.png',
-              'email',
-            ),
-          ],
-        ),
-      );
+Widget _buildOAuthOptionButton(
+  BuildContext context,
+  String text,
+  OAuthProvider provider,
+  Function(OAuthProvider) onOAuthLogin,
+) {
+  return ElevatedButton.icon(
+    onPressed: () {
+      Navigator.of(context).pop();
+      onOAuthLogin(provider);
     },
+    icon: _getIconWidgetForProvider(provider), 
+    label: Text(
+      text,
+      style: const TextStyle(color: Colors.black, fontSize: 16.0),
+    ),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+      minimumSize: const Size(double.infinity, 50),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+    ),
   );
 }
 
@@ -177,21 +257,6 @@ Widget _buildOptionButton(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
-      } else if (name == 'github') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else if (name == 'facebook') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else if (name == 'google') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
       }
     },
     icon: Image.asset(iconPath, height: 24.0, width: 24.0),
@@ -206,4 +271,17 @@ Widget _buildOptionButton(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
     ),
   );
+}
+
+Widget _getIconWidgetForProvider(OAuthProvider provider) {
+  String name = provider.name.toLowerCase();
+
+  if (name.contains('google')) {
+    return Image.asset('assets/icons/logo_google.png', height: 24, width: 24);
+  } else if (name.contains('facebook')) {
+    return Image.asset('assets/icons/logo_facebook.png', height: 24, width: 24);
+  } else if (name.contains('github')) {
+    return Image.asset('assets/icons/logo_github.png', height: 24, width: 24);
+  }
+  return const Icon(Icons.login, size: 24, color: Colors.black);
 }

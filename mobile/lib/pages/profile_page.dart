@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:mobile/pages/change_password_page.dart';
 import 'package:mobile/widgets/navbar.dart';
 import 'package:mobile/repositories/auth_repository.dart';
-import 'package:provider/provider.dart';
 import 'package:mobile/scaffolds/main_scaffold.dart';
 
 class ProfilePage extends StatefulWidget {
