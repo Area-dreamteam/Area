@@ -304,6 +304,25 @@ export async function fetchPersonalApplets(
   return false;
 }
 
+export async function fetchPersonalPublicApplets(
+  setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
+) {
+  try {
+    const res = await Calls.get("/users/areas/public");
+
+    if (res.status != 200) {
+      setPersonalApplets(null);
+      return false;
+    }
+    setPersonalApplets(res.data);
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  setPersonalApplets(null);
+  return false;
+}
+
 export async function fetchUnpublishPersonalApplet(id:number) {
   try {
     const res = await Calls.delete(`/users/areas/public/${id}/unpublish`);
