@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/core/config.dart';
@@ -57,7 +59,7 @@ class ApiService {
   }
 
   Future<Response> getMyAreas() {
-    return _dio.get('/users/areas/');
+    return _dio.get('/users/areas/me');
   }
 
   Future<Response> getServices() {
@@ -121,11 +123,11 @@ class ApiService {
     required List<dynamic> reactionConfig,
   }) {
     return _dio.post(
-      '/users/areas/',
+      '/users/areas/me',
       data: {
         'name': name,
         'description': description,
-        'action': {'action_id': actionId, 'config': actionConfig},
+        'action': {'action_id': actionId, 'config': jsonEncode(actionConfig)},
         'reactions': [
           {'reaction_id': reactionId, 'config': reactionConfig},
         ],
@@ -153,9 +155,14 @@ class ApiService {
   }
 
   Future<Response> updateUserPassword({required String newPassword}) {
-    return _dio.patch(
-      '/users/me/password',
-      data: {"password": newPassword},
-    );
+    return _dio.patch('/users/me/password', data: {"password": newPassword});
+  }
+
+  Future<Response> unlinkOAuthAccount(String providerName) {
+    return _dio.delete('/oauth/unlink/$providerName');
+  }
+
+  Future<Response> getServiceDetails(int serviceId) {
+    return _dio.get('/services/$serviceId');
   }
 }

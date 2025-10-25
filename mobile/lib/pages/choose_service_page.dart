@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/service_model.dart';
 import 'package:mobile/repositories/service_repository.dart';
 import 'package:mobile/viewmodels/create_viewmodel.dart';
 import 'package:mobile/viewmodels/select_service_viewmodel.dart';
@@ -6,6 +7,7 @@ import 'package:mobile/widgets/service_card.dart';
 import 'package:provider/provider.dart';
 import 'choose_action_page.dart';
 import 'package:mobile/widgets/search_bar.dart';
+import 'package:mobile/pages/connect_service_page.dart';
 
 class ChooseServicePage extends StatefulWidget {
   final String type;
@@ -40,7 +42,7 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
           "Choose a service",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFF212121),
+        backgroundColor: const Color(0xFF212121),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: const Color(0xFF212121),
@@ -77,7 +79,6 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                   },
                 ),
               ),
-
               Expanded(
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -89,30 +90,81 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                   padding: const EdgeInsets.all(10),
                   itemCount: filteredServices.length,
                   itemBuilder: (context, index) {
-                    final service = filteredServices[index];
+                    final serviceFromList = filteredServices[index];
+                    final serviceRepo = context.read<ServiceRepository>();
 
                     return ServiceCard(
-                      id: service.id,
-                      name: service.name,
-                      description: service.description,
-                      imageUrl: service.imageUrl,
-                      category: service.category,
-                      colorHex: service.color,
+                      id: serviceFromList.id,
+                      name: serviceFromList.name,
+                      description: serviceFromList.description,
+                      imageUrl: serviceFromList.imageUrl,
+                      category: serviceFromList.category,
+                      colorHex: serviceFromList.color,
                       onTap: () async {
-                        final result =
-                            await Navigator.push<ConfiguredItem<dynamic>?>(
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const Center(
+                            child: CircularProgressIndicator(color: Colors.white),
+                          ),
+                        );
+
+                        Service detailedService;
+                        try {
+                          detailedService = await serviceRepo
+                              .fetchServiceDetails(serviceFromList.id);
+                          if (context.mounted) Navigator.pop(context);
+                        } catch (e) {
+                          if (context.mounted) Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text("Error fetching service details: $e"),
+                                backgroundColor: Colors.red),
+                          );
+                          return;
+                        }
+                        bool proceedToActions = false;
+
+                        if (detailedService.oauthRequired) {
+                          final isConnected = await serviceRepo
+                              .isServiceConnected(detailedService.id);
+
+                          if (isConnected) {
+                            proceedToActions = true;
+                          } else {
+                            if (!context.mounted) return;
+                            final connectionResult = await Navigator.push<bool>(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ChooseActionPage(
-                                  service: service,
-                                  type: widget.type,
-                                  serviceRepository: context
-                                      .read<ServiceRepository>(),
-                                ),
+                                builder: (context) =>
+                                    ConnectServicePage(service: detailedService),
                               ),
                             );
-                        if (result != null && context.mounted) {
-                          Navigator.pop(context, result);
+                            if (connectionResult == true) {
+                              proceedToActions = true;
+                            }
+                          }
+                        } else {
+                          proceedToActions = true;
+                        }
+
+                        if (proceedToActions && context.mounted) {
+                          final result =
+                              await Navigator.push<ConfiguredItem<dynamic>?>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChooseActionPage(
+                                service:
+                                    detailedService,
+                                type: widget.type,
+                                serviceRepository: serviceRepo,
+                              ),
+                            ),
+                          );
+                          if (result != null && context.mounted) {
+                            Navigator.pop(context, result);
+                          }
                         }
                       },
                     );

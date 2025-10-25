@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/viewmodels/explore_viewmodel.dart';
 import 'package:mobile/models/service_model.dart';
 import 'package:mobile/repositories/service_repository.dart';
+import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:mobile/widgets/card.dart';
 import 'package:mobile/widgets/hex_convert.dart';
@@ -20,39 +23,47 @@ class InformationPage extends StatefulWidget {
 class _InformationPageState extends State<InformationPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  late final int? _serviceId;
-  bool _isConnected = false;
-  bool _isLoadingConnection = true;
+  late final int _serviceId;
   late Future<List<AppletModel>> _publicApplets;
+
+  bool _isLoading = true;
+  Service? _detailedService;
+  bool _isConnected = false;
+  // ---
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    final applets = context.read<ServiceRepository>();
 
+    int? tempServiceId;
+    final appletsRepo = context.read<ServiceRepository>();
+
+    // Logique pour trouver le _serviceId
     if (widget.item.type == 'Service') {
       final service = widget.item.data as Service;
-      _serviceId = service.id;
+      tempServiceId = service.id;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           context.read<MyAppletViewModel>().loadApplets();
         }
       });
-
-      _publicApplets = applets.fetchPublicApplets(serviceId: _serviceId!);
     } else if (widget.item.type == 'Applet') {
       final triggerService = (widget.item.data as AppletModel).triggerService;
-      _serviceId = triggerService?.id;
-      _publicApplets = _serviceId != null
-          ? applets.fetchPublicApplets(serviceId: _serviceId)
-          : Future.value([]);
-    } else {
-      _serviceId = null;
-      _publicApplets = Future.value([]);
+      tempServiceId = triggerService?.id;
     }
-    _fetchConnectionStatus();
+
+    if (tempServiceId == null) {
+      setState(() => _isLoading = false);
+      _publicApplets = Future.value([]);
+      _serviceId = -1;
+      return;
+    }
+
+    _serviceId = tempServiceId;
+    _publicApplets = appletsRepo.fetchPublicApplets(serviceId: _serviceId);
+    _loadServiceData();
   }
 
   @override
@@ -61,21 +72,68 @@ class _InformationPageState extends State<InformationPage>
     super.dispose();
   }
 
-  Future<void> _fetchConnectionStatus() async {
-    if (_serviceId == null) {
-      setState(() => _isLoadingConnection = false);
-      return;
+  Future<void> _loadServiceData() async {
+    if (!mounted) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final repo = context.read<ServiceRepository>();
+
+      final results = await Future.wait([
+        repo.fetchServiceDetails(_serviceId),
+        repo.isServiceConnected(_serviceId),
+      ]);
+
+      if (mounted) {
+        setState(() {
+          _detailedService = results[0] as Service;
+          _isConnected = results[1] as bool;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load service data: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
+  }
 
-    setState(() => _isLoadingConnection = true);
-    final repo = context.read<ServiceRepository>();
-    final status = await repo.isServiceConnected(_serviceId);
+  Future<void> _linkService() async {
+    if (_detailedService == null) return;
 
-    if (mounted) {
-      setState(() {
-        _isConnected = status;
-        _isLoadingConnection = false;
-      });
+    final oauthService = context.read<OAuthService>();
+    final serviceName = _detailedService!.name;
+
+    setState(() => _isLoading = true);
+    try {
+      final result = await oauthService.linkWithOAuth(serviceName);
+
+      if (result.isSuccess && mounted) {
+        final repo = context.read<ServiceRepository>();
+        final status = await repo.isServiceConnected(_serviceId);
+        setState(() {
+          _isConnected = status;
+          _isLoading = false;
+        });
+      } else {
+        throw Exception(result.error ?? 'Failed to link service');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to connect service: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -122,7 +180,7 @@ class _InformationPageState extends State<InformationPage>
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  service.description ?? "",
+                  _detailedService?.description ?? service.description ?? "",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Colors.white70,
@@ -131,7 +189,19 @@ class _InformationPageState extends State<InformationPage>
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildConnectButton(showIcon: false),
+
+                if (_isLoading)
+                  const SizedBox(
+                    height: 50,
+                    child: Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  )
+                else if (_detailedService != null &&
+                    _detailedService!.oauthRequired)
+                  _buildConnectButton(showIcon: false)
+                else
+                  const SizedBox(height: 50),
                 const SizedBox(height: 24),
               ],
             ),
@@ -230,9 +300,20 @@ class _InformationPageState extends State<InformationPage>
           ],
         ),
         const SizedBox(height: 30),
-        _buildConnectButton(showIcon: true),
-        const SizedBox(height: 30),
 
+        if (_isLoading)
+          const SizedBox(
+            height: 50,
+            child: Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+          )
+        else if (_detailedService != null && _detailedService!.oauthRequired)
+          _buildConnectButton(showIcon: true)
+        else
+          const SizedBox.shrink(),
+        // ---
+        const SizedBox(height: 30),
         const Text(
           "Description",
           style: TextStyle(
@@ -332,7 +413,7 @@ class _InformationPageState extends State<InformationPage>
   }
 
   Widget _buildConnectButton({required bool showIcon}) {
-    if (_isLoadingConnection) {
+    if (_isLoading) {
       return ElevatedButton(
         onPressed: null,
         style: ElevatedButton.styleFrom(
@@ -376,7 +457,7 @@ class _InformationPageState extends State<InformationPage>
     }
 
     return ElevatedButton(
-      onPressed: null,
+      onPressed: _linkService,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,

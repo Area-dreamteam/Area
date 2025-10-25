@@ -21,7 +21,7 @@ Future<void> main() async {
   final oauthService = OAuthService();
   final authRepository = AuthRepository(apiService: apiService);
   final servicesRepository = ServiceRepository(apiService: apiService);
-  
+
   oauthService.initialize();
 
   runApp(
@@ -50,11 +50,14 @@ Future<void> main() async {
                 ..fetchExploreItems(),
         ),
         ChangeNotifierProvider(
-          create: (_) =>
-              ProfileViewModel(serviceRepository: servicesRepository),
+          create: (_) => ProfileViewModel(
+            serviceRepository: servicesRepository,
+            oauthService: oauthService,
+          ),
         ),
         ChangeNotifierProvider(
-          create: (_) => ChangePasswordViewModel(serviceRepository: servicesRepository),
+          create: (_) =>
+              ChangePasswordViewModel(serviceRepository: servicesRepository),
         ),
         Provider.value(value: authRepository),
         Provider.value(value: authRepository),

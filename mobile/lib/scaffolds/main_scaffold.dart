@@ -75,7 +75,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
       if (result.isSuccess) {
         print('OAuth login successful!');
-        // Navigate to main app screen
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -84,7 +83,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         }
       } else {
         print('OAuth login failed: ${result.error}');
-        // Navigate to login page on error
         if (mounted) {
           Navigator.push(
             context,
@@ -94,7 +92,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       }
     } catch (e) {
       print('OAuth error: $e');
-      // Navigate to login page on error
       if (mounted) {
         Navigator.push(
           context,

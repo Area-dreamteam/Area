@@ -7,6 +7,7 @@ import 'package:mobile/pages/change_password_page.dart';
 import 'package:mobile/widgets/navbar.dart';
 import 'package:mobile/repositories/auth_repository.dart';
 import 'package:mobile/scaffolds/main_scaffold.dart';
+import 'package:mobile/services/oauth_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -85,7 +86,7 @@ class _ProfilePageState extends State<ProfilePage> {
               controller: _emailController,
             ),
             const SizedBox(height: 40),
-            _buildLinkedAccountsSection(),
+            _buildLinkedAccountsSection(viewModel),
             const SizedBox(height: 40),
             _buildSaveButton(viewModel),
             const SizedBox(height: 40),
@@ -177,7 +178,24 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildLinkedAccountsSection() {
+  Widget _getIconForProvider(OAuthProvider provider) {
+    String name = provider.name.toLowerCase();
+
+    if (name.contains('google')) {
+      return Image.asset('assets/icons/logo_google.png', height: 30, width: 30);
+    } else if (name.contains('facebook')) {
+      return Image.asset(
+        'assets/icons/logo_facebook.png',
+        height: 30,
+        width: 30,
+      );
+    } else if (name.contains('github')) {
+      return Image.asset('assets/icons/github.png', height: 30, width: 30);
+    }
+    return const Icon(Icons.link, size: 30, color: Colors.white);
+  }
+
+  Widget _buildLinkedAccountsSection(ProfileViewModel viewModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -195,26 +213,36 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(color: Colors.white70, fontSize: 14),
         ),
         const SizedBox(height: 16),
-        _buildLinkTile(
-          'Github',
-          const Image(image: AssetImage('assets/icons/github.png')),
-          false,
-        ),
-        _buildLinkTile(
-          'Google',
-          const Image(image: AssetImage('assets/icons/logo_google.png')),
-          false,
-        ),
-        _buildLinkTile(
-          'Facebook',
-          const Image(image: AssetImage('assets/icons/logo_facebook.png')),
-          false,
-        ),
+
+        ...viewModel.linkedAccounts.map((account) {
+          final String displayName = account.provider.name.replaceAll(
+            '_oauth',
+            '',
+          );
+
+          return _buildLinkTile(
+            displayName.toUpperCase(),
+            _getIconForProvider(account.provider),
+            account.isLinked,
+            () {
+              if (account.isLinked) {
+                viewModel.unlinkAccount(account.provider.name);
+              } else {
+                viewModel.linkAccount(account.provider.name);
+              }
+            },
+          );
+        }).toList(),
       ],
     );
   }
 
-  Widget _buildLinkTile(String name, Widget leadingWidget, bool isLinked) {
+  Widget _buildLinkTile(
+    String name,
+    Widget leadingWidget,
+    bool isLinked,
+    VoidCallback onPressed,
+  ) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: SizedBox(width: 30, height: 30, child: leadingWidget),
@@ -223,9 +251,7 @@ class _ProfilePageState extends State<ProfilePage> {
         style: const TextStyle(color: Colors.white, fontSize: 18),
       ),
       trailing: TextButton(
-        onPressed: () {
-          // oauth link
-        },
+        onPressed: onPressed,
         child: Text(
           isLinked ? 'Unlink' : 'Link',
           style: TextStyle(
