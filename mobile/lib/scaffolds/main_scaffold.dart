@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../pages/login.dart';
@@ -126,10 +128,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                         _handleOAuthLogin,
                       ),
                     ),
-                  )
-                  .toList(),
+                  ),
 
-              // Always show email option
               if (_oauthProviders.isNotEmpty) const SizedBox(height: 10),
               _buildOptionButton(
                 context,
