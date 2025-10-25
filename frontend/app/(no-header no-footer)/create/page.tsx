@@ -347,7 +347,7 @@ function ChooseTrigger({ act, service, type, setConfig,
   const [trigger, setTrigger] = useState<SpecificAction | SpecificReaction | null>(null);
 
   useEffect(() => {
-    fetchAction(service.id, type, setTrigger);
+    fetchAction(act.id, type, setTrigger);
   }, []);
 
   useEffect(() => {

@@ -36,7 +36,7 @@ class GithubApiError(Exception):
         super().__init__(self.message)
 
 
-class github_oauth(oauth_service):
+class GithubOauth(oauth_service):
     """GitHub OAuth service for user authentication."""
     def __init__(self) -> None:
         super().__init__()
@@ -74,7 +74,7 @@ class github_oauth(oauth_service):
     def oauth_link(self) -> str:
         """Generate GitHub OAuth authorization URL."""
         base_url = "https://github.com/login/oauth/authorize"
-        redirect = f"{settings.FRONT_URL}/callbacks/login/github_oauth"
+        redirect = f"{settings.FRONT_URL}/callbacks/login/{self.name}"
         params = {
             "client_id": settings.GITHUB_CLIENT_ID,
             "redirect_uri": redirect,

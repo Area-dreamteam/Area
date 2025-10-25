@@ -5,15 +5,16 @@ from fastapi import HTTPException
 from sqlmodel import select
 from schemas import UserIdGet, UserOauthLoginGet
 
-from models import User, UserService, UserOAuthLogin, OAuthLogin
+from models import User, UserService, UserOAuthLogin, OAuthLogin, Service
 from dependencies.db import SessionDep
 
 
-def get_user_token(session: Session, user_id: int) -> str | None:
+def get_user_service_token(session: Session, user_id: int, service_name: str) -> str | None:
     user_service: UserService = session.exec(
         select(UserService)
+        .join(Service, Service.id == UserService.service_id)
         .join(User, User.id == UserService.user_id)
-        .where(user_id == UserService.user_id)
+        .where(user_id == UserService.user_id, Service.name == service_name)
     ).first()
     if not user_service:
         return None
