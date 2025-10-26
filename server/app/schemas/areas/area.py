@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from ..services import ActionBasicInfo, ReactionBasicInfo, CreateAreaAction, CreateAreaReaction
+from ..services import ActionBasicInfo, ReactionBasicInfo, CreateAreaAction, CreateAreaReaction, ActionInfo, ReactionInfo
 from ..users import UserShortInfo
 from typing import Optional
 
@@ -17,8 +17,8 @@ class AreaGet(BaseModel):
 class AreaIdGet(BaseModel):
     """Complete area details with action and reactions."""
     area_info: AreaGet = Field(description="Basic area information")
-    action: ActionBasicInfo = Field(description="Trigger action configuration")
-    reactions: list[ReactionBasicInfo] = Field(description="Response reactions list")
+    action: ActionInfo = Field(description="Trigger action configuration")
+    reactions: list[ReactionInfo] = Field(description="Response reactions list")
 
 class AreaGetPublic(BaseModel):
     """Public area information (no private details)."""
