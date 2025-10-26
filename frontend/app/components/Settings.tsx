@@ -19,7 +19,7 @@ interface SettingsProp
 export default function SettingsButton({link}: SettingsProp)
 {
     return (
-        <Button className="rounded-full border-white hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[30px] py-[20px] text-[15px] font-bold" onClick={(e) => {e.preventDefault(); redirect(link);}}>
+        <Button className="rounded-full border-white hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[10%] py-[20px] simple-text font-bold" onClick={(e) => {e.preventDefault(); redirect(link);}}>
             <Link href="settings">
                 ⚙ Settings
             </Link>
