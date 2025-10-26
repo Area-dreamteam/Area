@@ -8,6 +8,14 @@ class ReactionIdGet(BaseModel):
     description: str
     config_schema: Any
     service: ServiceGet
+    
+class ReactionInfo(BaseModel):
+    """Basic reaction information."""
+    id: int = Field(description="Reaction ID", example=1)
+    name: str = Field(description="Reaction name", example="Create Task")
+    description: str = Field(description="Reaction description", example="Creates new task in project")
+    service: ServiceGet = Field(description="Associated service details")
+    config: Any = Field(description="Reaction-specific configuration parameters")
 
 class ReactionBasicInfo(BaseModel):
     """Basic reaction information."""
