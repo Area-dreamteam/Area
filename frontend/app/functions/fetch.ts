@@ -31,6 +31,19 @@ Calls.interceptors.response.use(
   },
 );
 
+export async function fetchDisconnectOauth(id: number) {
+  try {
+    const res = await Calls.delete(`/oauth/oauth_login/${id}/disconnect`);
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
 export async function fetchMyself(setMyProfile: (arg: MyProfileProp | null) => void) {
   try {
     const res = await Calls.get("/users/me");
@@ -70,6 +83,24 @@ export async function fetchDeleteMyself() {
   try {
     const res = await Calls.delete("/users/me");
     if (res.status != 200) return false;
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchChangePassword(oldPassword: string, newPass: string)
+{
+  try {
+    const res = await Calls.patch("/users/me/password",
+    {
+      password: oldPassword,
+      newPass: newPass
+    });
+    if (res.status != 200) {
+      return false;
+    }
     return true;
   } catch (err) {
     console.log("Error: ", err);

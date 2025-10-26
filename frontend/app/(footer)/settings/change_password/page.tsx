@@ -7,44 +7,56 @@
 
 'use client'
 
+import { fetchChangePassword } from "@/app/functions/fetch";
 import { Password } from "@/app/components/Forms"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
 import Link from "next/link"
+
+function sendForm(currentPassword: string, newPassword: string,
+    confirmNewPassword: string)
+{
+    if (newPassword != confirmNewPassword)
+        return; // create a warning instead
+    fetchChangePassword(currentPassword, newPassword);
+    return;
+}
 
 export default function changePassword()
 {
+    const [newPassword, setNewPassword] = useState<string>("");
+    const [currentPassword, setCurrentPassword] = useState<string>("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState<string>("");
+
     return (
-        <div className="mx-auto mt-[40px] w-[700px] font-bold">
-            <h1 className="centered text-[50px] mt-[40px] font-bold">
+        <form className="mx-auto mt-[40px] w-[75%] font-bold" onSubmit={() => sendForm(currentPassword, newPassword, confirmNewPassword)}>
+            <h1 className="title">
                 Change password
             </h1>
             <hr/>
             <br/>
-            <h3 className="text-[20px]">
-                Username
-            </h3>
-            <p className="text-gray-400 text-[20px] mb-[20px]">Pseudo</p>
-            <h3 className="text-[20px] mb-[5px]">
+            <h3 className="subtitle mb-[5px]">
                 Current password
             </h3>
-            <Password/>
-            <Link href="/passwords/forgot" className="text-[#0099ff] text-center text-[20px] hover:text-[#676767]">
+            <Password onChange={setCurrentPassword}/>
+            <Link href="/passwords/forgot" className="simple-text special-link">
                 Forgot your password ?
             </Link>
             <br/><br/>
-            <h3 className="text-[20px] mb-[5px]">
+            <h3 className="subtitle mb-[5px]">
                 New password
             </h3>
-            <Password/>
+            <Password onChange={setNewPassword}/>
             <br/>
-            <h3 className="text-[20px] mb-[5px]">
+            <h3 className="subtitle mb-[5px]">
                 Confirm new password
             </h3>
-            <Password/>
-            <Button className="block mx-auto text-[40px] mt-[70px] text-white w-[300px] h-[100px] rounded-full font-bold mb-[20px]" disabled>
+            <Password onChange={setConfirmNewPassword}/>
+            <button className="rounded-button centered inverted px-[5%] py-[3%] mt-[5%]" type="submit" disabled={Password.length >= 8 && newPassword.length >= 8 && confirmNewPassword.length >= 8 && newPassword == confirmNewPassword}>
                 Change
-            </Button>
-            <Link href="/settings" className="centered text-[20px] underline">Cancel</Link>
-        </div>
+            </button>
+            <Link href="/settings" className="centered activate-link mt-[3%] mb-[5%]">
+                Cancel
+            </Link>
+        </form>
     )
 }

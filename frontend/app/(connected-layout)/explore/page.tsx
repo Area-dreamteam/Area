@@ -49,6 +49,7 @@ function Filter({services, filter, setFilter}: FilterProp)
         )
     }
     ) : "");
+
   return (
     <div className="centered">
       <DropdownMenu>

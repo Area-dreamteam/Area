@@ -8,10 +8,9 @@
 'use client'
 
 import { fetchCreateApplet, fetchServices, fetchAction, fetchActs, fetchSpecificService } from "@/app/functions/fetch"
+import { Service, Act, SpecificService } from "@/app/types/service"
 import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
 import ValidateButton from "@/app/components/Validation"
-import { Service, Act, SpecificService } from "@/app/types/service"
-import { redirectOauth, redirectOauthAddService } from "@/app/functions/oauth"
 import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,8 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { fetchIsConnected } from "@/app/functions/fetch"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useAuth } from "@/app/functions/hooks"
 
 //-- Buttons --//
@@ -45,11 +44,11 @@ interface ChoiceButtonProp {
 function ActionButton({ buttonText = "", replacementText = "", disable = false,
   setIsChoosing, setChosen, chosen = null }: ChoiceButtonProp) {
   return (
-    <div className="mx-auto mt-[75px] w-[650px] h-[130px] rounded-xl text-white flex items-center justify-between px-[10px]" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
-      <h1 className="flex-1 centered text-[80px]">
+    <div className="mx-auto mt-[10%] w-[75%] h-[100px] md:h-[170px] rounded-xl text-white flex items-center" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
+      <h1 className="flex-1 centered mb-[10%] title inverted">
         {buttonText}
         {chosen ?
-          <p className="ml-[20px] m-[40px] text-[20px]">{chosen.name}</p>
+          <p className="ml-[20px] mt-[3%] tiny-text inverted">{chosen.name.replaceAll("_", " ")}</p>
           :
           replacementText
         }
@@ -61,12 +60,12 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
       }
       {chosen &&
         <div>
-          <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setIsChoosing(true)}>
+          <button className="mr-[20px] mb-[5%] py-[5%] rounded-button w-[75%] font-bold" onClick={() => setIsChoosing(true)}>
             Edit
-          </Button>
-          <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setChosen(null)}>
+          </button>
+          <button className="mr-[20px] py-[5%] rounded-button w-[75%] font-bold" onClick={() => setChosen(null)}>
             Delete
-          </Button>
+          </button>
         </div>
       }
     </div>
@@ -82,7 +81,7 @@ interface UpButtonProp {
 
 function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
   return (
-    <Button className={`ml-[40px] mt-[40px] rounded-full border-${color} text-${color} hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[120px] text-[20px]`} onClick={() => act(param)}>
+    <Button className={`ml-[10%] mt-[20%] rounded-full border-${color} text-${color} hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[120px] text-[20px]`} onClick={() => act(param)}>
       {text}
     </Button>
   )
@@ -126,20 +125,20 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
               </p>
               <hr className="col-span-4 mb-[120px]" />
             </div>
-            <p className="text-white centered mb-[20px]">Applet Title</p>
-            <Input className="block mx-auto w-[500px] h-[70px] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
+            <p className="subtitle inverted centered mb-[20px]">Applet Title</p>
+            <Input className="block mx-auto w-[75%] h-[10%] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="centered mt-[30px]">
-            <Button className="rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px]" onClick={() => action && reaction && createApplet(action, reaction, title, actConfig, reactConfig)} disabled={title === ""}>
+            <button className="rounded-button inverted px-[5%] py-[3%]" onClick={() => action && reaction && createApplet(action, reaction, title, actConfig, reactConfig)} disabled={title === ""}>
               Finish
-            </Button>
+            </button>
           </div>
         </div>
       ) : (
         <div>
           <div className="grid grid-cols-4">
             <LeftUpButton text="Cancel" act={(param: boolean | string) => redirect(param as string)} param={"/my_applets"} />
-            <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-2 text-center">
+            <p className="mt-[35px] flex flex-col title col-span-2 text-center">
               Create
             </p>
           </div>
@@ -255,7 +254,7 @@ function DisplayTrigger({ config, handleChange }: TriggerProp)
     return (
         <div key={config.name}>
             <p className="mt-[20px] text-[20px] text-center">
-                {config.name}
+                {config.name.replaceAll("_", " ")}
             </p>
             {(config.type == "select" && Array.isArray(config.values)
                 && config.values.every(v => typeof v === "string")) &&
@@ -309,7 +308,12 @@ interface chooseTriggerProp {
   setConfig: (arg: ConfigRespAct[]) => (void)
 }
 
-function reinitAll(setService: (arg: Service | null) => void, setAction: (arg: Act | null) => void) {
+interface reinitProp {
+  setService: (arg: Service | null) => void,
+  setAction: (arg: Act | null) => void
+}
+
+function reinitAll({setService, setAction}: reinitProp) {
     setService(null);
     setAction(null);
 }
@@ -325,11 +329,15 @@ function unsetChoosingTime(setAction: (arg: Act | null) => void, setService:
 
 function allTriggersValid(configResp: ConfigRespAct[])
 {
+  if (configResp.length == 0)
+    return false;
+
   const allValid = configResp.every(cfg => {
     if (cfg.type === "check_list")
       return Array.isArray(cfg.values) && cfg.values.length != 0;
     return (typeof cfg.values === "string" && cfg.values.trim() !== "");
   });
+
   return allValid;
 }
 
@@ -339,7 +347,7 @@ function ChooseTrigger({ act, service, type, setConfig,
   const [trigger, setTrigger] = useState<SpecificAction | SpecificReaction | null>(null);
 
   useEffect(() => {
-    fetchAction(service.id, type, setTrigger);
+    fetchAction(act.id, type, setTrigger);
   }, []);
 
   useEffect(() => {
@@ -357,18 +365,18 @@ function ChooseTrigger({ act, service, type, setConfig,
     <div className="text-white w-screen h-screen" style={{ background: service.color }}>
         <div className="grid grid-cols-4 " >
             <LeftUpButton text="Back" act={(param: boolean | string) => setChoosingTrigger(param as boolean)} param={false} color="white" />
-            <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-3 text-center">
+            <p className="mt-[5%] title inverted col-span-4 mb-[10%]">
             Complete trigger fields
             </p>
             <hr className="col-span-4 mb-[20px]" />
-            <div className="flex flex-col text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
+            <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto">
             {/* {service.image_url &&
                 <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
             } */}
-            <p className="text-center text-[60px] mb-[20px]">
-                {act?.name}
+            <p className="title inverted mb-[20px]">
+                {act?.name.replaceAll("_", " ")}
             </p>
-            <p className="text-center text-[18px] mb-[20px]">
+            <p className="simple-text inverted centered mb-[20px]">
                 {act?.description}
             </p>
             {trigger ? (
@@ -417,34 +425,37 @@ function ChooseAct({ service, setService, setAction,
           setChoosingTrigger={setChoosingTrigger} setService={setService} setAction={setAction} configResp={configResp} setChoosingAction={setChoosingAction}/>
       ) : (
         <div>
-          <div className="grid grid-cols-4 text-white w-screen h-[450px] rounded-b-xl" style={{ background: service.color }}>
-            <Button className={`ml-[40px] mt-[40px] rounded-full border-${service.color} text-${service.color} hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[120px] text-[20px]`} onClick={() => reinitAll(setService, setAction)}>
-              Back
-            </Button>
-            <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-2 text-center">
+          <div className="grid grid-cols-4 text-white w-screen rounded-b-xl" style={{ background: service.color }}>
+            <LeftUpButton text="Back" act={() => reinitAll({setService, setAction})} param={true} color="white"/>
+            <p className="mt-[30%] mb-[20%] title inverted col-span-2">
               Choose a trigger
             </p>
-            <hr className="col-span-4 mb-[120px]" />
+            <hr className="col-span-4" />
             <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
               {/* {service.image_url &&
                 <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
               } */}
-              <p className="text-[60px] mb-[20px]">{service.name}</p>
+              <p className="subtitle inverted mt-[10%]">{service.name}</p>
             </div>
           </div>
           {acts && acts.length > 0 ? (
-            <div className="mt-[25px] grid-cols-3">
+            <div className=" w-[90%] mx-auto mt-[25px] grid-cols-3 gap-2">
               {acts.map((act) => (
-                <div key={act.id} className="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative" style={{ backgroundColor: service.color }} onClick={() => selectAct(setChoosingTrigger, setAction, act)}>
-                  <div className="centered">
-                    <p className="font-bold text-white text-[20px] m-[20px]">{act.name}<br />{act.description}</p>
+                <div key={act.id} className="rounded-xl md:w-[250px] w-[150px] md:h-[250px] h-[150px] hover:cursor-pointer relative" style={{ backgroundColor: service.color }} onClick={() => selectAct(setChoosingTrigger, setAction, act)}>
+                  <div className="text-center pt-[5%]">
+                    <p className="subtitle inverted m-[20px]">
+                      {act.name.replaceAll("_", " ")}
+                    </p>
+                    <p className="simple-text inverted m-[20px] truncate">
+                    {act.description.replaceAll("_", " ")}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="centered text-[20px] mt-[20px]">
-              No actions found.
+            <p className="centered subtitle mt-[20px]">
+              No {type} found.
             </p>
           )}
         </div>
@@ -472,7 +483,8 @@ function ChooseService({ choosingAction, setChoosingAction,
   const [services, setServices] = useState<Service[] | null>(null);
   const [chosenService, setChosenService] = useState<SpecificService | null>(null);
   const [serviceConnected, setServiceConnected] = useState<boolean>(false);
-  const { user } = useAuth();
+  const [checkedConnection, setCheckedConnection] = useState<boolean>(false);
+  // const { user } = useAuth();
 
   useEffect(() => {
     fetchServices(setServices);
@@ -492,17 +504,21 @@ function ChooseService({ choosingAction, setChoosingAction,
       return;
     const checkServiceConnected = async () => {
       await fetchIsConnected(chosenService.id, setServiceConnected);
+      setCheckedConnection(true);
     }
     checkServiceConnected();
   }, [chosenService]);
 
   useEffect(() => {
-      if (!chosenService)
-        return;
-      if (!serviceConnected && chosenService.oauth_required)
-        return redirect(`/services/${chosenService.name}`);
+    if (!checkedConnection || !chosenService)
       return;
-  }, [serviceConnected])
+    console.log(chosenService)
+    console.log(serviceConnected)
+    console.log(chosenService?.oauth_required);
+    if (!serviceConnected && chosenService.oauth_required)
+      redirect(`/services/${chosenService.name}`);
+    setCheckedConnection(false);
+  }, [checkedConnection]);
 
   return (
     <div>
@@ -518,7 +534,7 @@ function ChooseService({ choosingAction, setChoosingAction,
           <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected} />
         </div>
       }
-      {((selected && serviceConnected && chosenService?.oauth_required) || (selected && !chosenService?.oauth_required)) &&
+      {((selected && serviceConnected && chosenService?.oauth_required) || (selected && chosenService && !chosenService.oauth_required)) &&
         <ChooseAct act={act} service={selected} setService={setSelected}
           choosingAction={choosingAction} setAction={setAction}
           setChoosingAction={setChoosingAction} type={type}
