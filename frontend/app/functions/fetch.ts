@@ -304,6 +304,67 @@ export async function fetchPersonalApplets(
   return false;
 }
 
+export async function fetchPersonalPublicApplets(
+  setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
+) {
+  try {
+    const res = await Calls.get("/users/areas/public");
+
+    if (res.status != 200) {
+      setPersonalApplets(null);
+      return false;
+    }
+    setPersonalApplets(res.data);
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  setPersonalApplets(null);
+  return false;
+}
+
+export async function fetchUnpublishPersonalApplet(id:number) {
+  try {
+    const res = await Calls.delete(`/users/areas/public/${id}/unpublish`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchPublishPersonalApplet(id:number) {
+  try {
+    const res = await Calls.post(`/users/areas/${id}/publish`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchPersonalAppletConnection(id:number, state: string) {
+  try {
+    const res = await Calls.patch(`/users/areas/${id}/${state}`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
 export async function fetchCreateApplet(
   action: Act,
   reaction: Act,
@@ -313,7 +374,7 @@ export async function fetchCreateApplet(
 ) {
   try {
     const res = await Calls.post("/users/areas/me", {
-      name: title,
+      name: title.replaceAll("_", " "),
       description: "[description]",
       action: {
         action_id: action.id,
