@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 
 class ServiceCard extends StatelessWidget {
@@ -43,12 +44,7 @@ class ServiceCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: ClipOval(
-              child: Image.network(
-                imageUrl,
-                width: 20,
-                height: 20,
-                fit: BoxFit.cover,
-              ),
+              child: getServiceIcon(name, size: 20.0),
             ),
           ),
           const SizedBox(height: 18),

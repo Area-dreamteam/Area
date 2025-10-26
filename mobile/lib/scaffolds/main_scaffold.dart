@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:mobile/utils/icon_helper.dart';
 import 'package:provider/provider.dart';
 import '../pages/login.dart';
 import '../pages/my_area.dart';
@@ -113,19 +114,19 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              // Dynamic OAuth providers
-              ..._oauthProviders
-                  .map(
-                    (provider) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _buildOAuthOptionButton(
-                        context,
-                        'Continue with ${provider.name.replaceAll('_oauth', '')}',
-                        provider,
-                        _handleOAuthLogin,
-                      ),
-                    ),
+              ..._oauthProviders.map((provider) {
+                final displayName = provider.name.toUpperCase();
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _buildOAuthOptionButton(
+                    context,
+                    'Continue with $displayName',
+                    provider,
+                    _handleOAuthLogin,
                   ),
+                );
+              }),
 
               if (_oauthProviders.isNotEmpty) const SizedBox(height: 10),
               _buildOptionButton(
@@ -154,7 +155,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       backgroundColor: const Color(0xFF212121),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(25),
+          padding: const EdgeInsets.all(25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -226,7 +227,8 @@ Widget _buildOAuthOptionButton(
       Navigator.of(context).pop();
       onOAuthLogin(provider);
     },
-    icon: _getIconWidgetForProvider(provider), 
+    icon: getServiceIcon(provider.name,
+        size: 24.0),
     label: Text(
       text,
       style: const TextStyle(color: Colors.black, fontSize: 16.0),
@@ -268,17 +270,4 @@ Widget _buildOptionButton(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
     ),
   );
-}
-
-Widget _getIconWidgetForProvider(OAuthProvider provider) {
-  String name = provider.name.toLowerCase();
-
-  if (name.contains('google')) {
-    return Image.asset('assets/icons/logo_google.png', height: 24, width: 24);
-  } else if (name.contains('facebook')) {
-    return Image.asset('assets/icons/logo_facebook.png', height: 24, width: 24);
-  } else if (name.contains('github')) {
-    return Image.asset('assets/icons/logo_github.png', height: 24, width: 24);
-  }
-  return const Icon(Icons.login, size: 24, color: Colors.black);
 }

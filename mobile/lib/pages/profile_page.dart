@@ -1,13 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/viewmodels/profile_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/change_password_page.dart';
 import 'package:mobile/widgets/navbar.dart';
 import 'package:mobile/repositories/auth_repository.dart';
 import 'package:mobile/scaffolds/main_scaffold.dart';
-import 'package:mobile/services/oauth_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -115,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: const TextStyle(color: Colors.white, fontSize: 18),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey.shade800,
@@ -166,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ChangePasswordPage()),
+              MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
             );
           },
           child: const Text(
@@ -176,23 +176,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ],
     );
-  }
-
-  Widget _getIconForProvider(OAuthProvider provider) {
-    String name = provider.name.toLowerCase();
-
-    if (name.contains('google')) {
-      return Image.asset('assets/icons/logo_google.png', height: 30, width: 30);
-    } else if (name.contains('facebook')) {
-      return Image.asset(
-        'assets/icons/logo_facebook.png',
-        height: 30,
-        width: 30,
-      );
-    } else if (name.contains('github')) {
-      return Image.asset('assets/icons/github.png', height: 30, width: 30);
-    }
-    return const Icon(Icons.link, size: 30, color: Colors.white);
   }
 
   Widget _buildLinkedAccountsSection(ProfileViewModel viewModel) {
@@ -221,8 +204,8 @@ class _ProfilePageState extends State<ProfilePage> {
           );
 
           return _buildLinkTile(
-            displayName.toUpperCase(),
-            _getIconForProvider(account.provider),
+            displayName.toLowerCase(),
+            getServiceIcon(account.provider.name, size: 30.0),
             account.isLinked,
             () {
               if (account.isLinked) {
@@ -232,7 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
               }
             },
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -277,7 +260,7 @@ class _ProfilePageState extends State<ProfilePage> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Profile update.'),
+                    content: Text('Profile updated.'),
                     backgroundColor: Colors.green,
                   ),
                 );

@@ -1,4 +1,3 @@
-// services/oauth_service.dart
 // ignore_for_file: empty_catches, avoid_print
 
 import 'package:app_links/app_links.dart';
@@ -66,8 +65,9 @@ class OAuthService {
 
   Future<OAuthLinkResult> linkWithOAuth(String serviceName) async {
     if (_linkCompleter != null && !_linkCompleter!.isCompleted) {
-      _linkCompleter!
-          .complete(OAuthLinkResult.error('Linking already in progress'));
+      _linkCompleter!.complete(
+        OAuthLinkResult.error('Linking already in progress'),
+      );
     }
     _linkCompleter = Completer<OAuthLinkResult>();
 
@@ -76,10 +76,7 @@ class OAuthService {
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         _completeLink(OAuthLinkResult.error('Could not launch OAuth URL'));
         return _linkCompleter!.future;
@@ -170,13 +167,13 @@ class OAuthResult {
   final String? error;
 
   OAuthResult.success(this.token, this.service)
-      : isSuccess = true,
-        error = null;
+    : isSuccess = true,
+      error = null;
 
   OAuthResult.error(this.error)
-      : isSuccess = false,
-        token = null,
-        service = null;
+    : isSuccess = false,
+      token = null,
+      service = null;
 }
 
 class OAuthLinkResult {
@@ -184,13 +181,9 @@ class OAuthLinkResult {
   final String? service;
   final String? error;
 
-  OAuthLinkResult.success(this.service)
-      : isSuccess = true,
-        error = null;
+  OAuthLinkResult.success(this.service) : isSuccess = true, error = null;
 
-  OAuthLinkResult.error(this.error)
-      : isSuccess = false,
-        service = null;
+  OAuthLinkResult.error(this.error) : isSuccess = false, service = null;
 }
 
 class OAuthProvider {
@@ -205,8 +198,13 @@ class OAuthProvider {
   });
 
   factory OAuthProvider.fromJson(Map<String, dynamic> json) {
+    String originalName = json['name'] ?? '';
+
+    final regex = RegExp(r'_?oauth$', caseSensitive: false);
+    final cleanedName = originalName.replaceAll(regex, '');
+
     return OAuthProvider(
-      name: json['name'] ?? '',
+      name: cleanedName,
       imageUrl: json['image_url'] ?? '',
       color: json['color'] ?? '#000000',
     );

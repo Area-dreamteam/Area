@@ -1,6 +1,9 @@
+// pages/connect_service_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:mobile/models/service_model.dart';
 import 'package:mobile/services/oauth_service.dart';
+import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 import 'package:provider/provider.dart';
 
@@ -64,7 +67,7 @@ class _ConnectServicePageState extends State<ConnectServicePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Image.network(widget.service.imageUrl, width: 100, height: 100),
+              getServiceIcon(widget.service.name, size: 100.0),
               const SizedBox(height: 24),
               Text(
                 widget.service.name,

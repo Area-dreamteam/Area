@@ -129,7 +129,7 @@ class ApiService {
         'description': description,
         'action': {'action_id': actionId, 'config': jsonEncode(actionConfig)},
         'reactions': [
-          {'reaction_id': reactionId, 'config': reactionConfig},
+          {'reaction_id': reactionId, 'config': jsonEncode(reactionConfig)},
         ],
       },
     );

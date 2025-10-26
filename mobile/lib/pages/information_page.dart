@@ -2,10 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
+import 'package:mobile/models/service_info_model.dart';
 import 'package:mobile/viewmodels/explore_viewmodel.dart';
 import 'package:mobile/models/service_model.dart';
 import 'package:mobile/repositories/service_repository.dart';
 import 'package:mobile/services/oauth_service.dart';
+import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:mobile/widgets/card.dart';
 import 'package:mobile/widgets/hex_convert.dart';
@@ -39,7 +41,6 @@ class _InformationPageState extends State<InformationPage>
     int? tempServiceId;
     final appletsRepo = context.read<ServiceRepository>();
 
-    // Logique pour trouver le _serviceId
     if (widget.item.type == 'Service') {
       final service = widget.item.data as Service;
       tempServiceId = service.id;
@@ -168,7 +169,8 @@ class _InformationPageState extends State<InformationPage>
             ),
             child: Column(
               children: [
-                Image.network(service.imageUrl, width: 60, height: 60),
+                getServiceIcon(service.name, size: 60.0),
+                // ---
                 const SizedBox(height: 16),
                 Text(
                   service.name,
@@ -258,7 +260,8 @@ class _InformationPageState extends State<InformationPage>
                 borderRadius: BorderRadius.circular(15),
               ),
               child: triggerService != null
-                  ? Image.network(triggerService.imageUrl, scale: 1.5)
+                  ? getServiceIcon(triggerService.name, size: 40.0)
+                  // ---
                   : const Icon(Icons.apps, color: Colors.white, size: 40),
             ),
             IconButton(
@@ -280,7 +283,8 @@ class _InformationPageState extends State<InformationPage>
         if (triggerService != null)
           Row(
             children: [
-              Image.network(triggerService.imageUrl, width: 30, height: 30),
+              getServiceIcon(triggerService.name, size: 30.0),
+              // ---
               const SizedBox(width: 10),
               Text(
                 triggerService.name,
@@ -309,7 +313,7 @@ class _InformationPageState extends State<InformationPage>
             ),
           )
         else if (_detailedService != null && _detailedService!.oauthRequired)
-          _buildConnectButton(showIcon: true)
+          _buildConnectButton(showIcon: true, serviceInfo: triggerService)
         else
           const SizedBox.shrink(),
         // ---
@@ -412,7 +416,8 @@ class _InformationPageState extends State<InformationPage>
     );
   }
 
-  Widget _buildConnectButton({required bool showIcon}) {
+  Widget _buildConnectButton(
+      {required bool showIcon, ServiceInfo? serviceInfo}) {
     if (_isLoading) {
       return ElevatedButton(
         onPressed: null,
@@ -469,7 +474,10 @@ class _InformationPageState extends State<InformationPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (showIcon) ...[
+          if (showIcon && serviceInfo != null) ...[
+            getServiceIcon(serviceInfo.name, size: 24.0),
+            const SizedBox(width: 12),
+          ] else if (showIcon) ...[
             const CircleAvatar(backgroundColor: Colors.blue, radius: 12),
             const SizedBox(width: 12),
           ],
