@@ -27,27 +27,21 @@ from sqlmodel import select
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 
-<<<<<<< HEAD
-def windowCloseAndCookie(id: int, name: str) -> Response:
-    """Generate OAuth success response with JWT cookie and window close script.
-    
-    Used in popup OAuth flows to notify parent window and set authentication.
-    """
-=======
-def windowCloseAndCookie(id: int, name: str, request: Request = None, is_mobile: bool = False) -> Response:
+def windowCloseAndCookie(
+    id: int, name: str, request: Request = None, is_mobile: bool = False
+) -> Response:
     token = sign_jwt(id)
-    
+
     print(f"OAuth callback - Is mobile flag set: {is_mobile}")
-    
+
     if is_mobile:
         # Redirect to mobile deeplink
         from fastapi.responses import RedirectResponse
+
         deeplink_url = f"area://oauth-callback?token={token}&service={name}"
         print(f"Redirecting to mobile deeplink: {deeplink_url}")
         return RedirectResponse(url=deeplink_url, status_code=302)
-    
-    # Original web behavior
->>>>>>> 1a57a9f2bf7dce6211034b5ae7db745a8e4de84c
+
     html = f"""
     <script>
       window.opener.postMessage({{ type: "{name}_login_complete" }}, "*");
@@ -56,7 +50,7 @@ def windowCloseAndCookie(id: int, name: str, request: Request = None, is_mobile:
     """
     response = HTMLResponse(content=html)
     response.set_cookie(
-    	key="access_token",
+        key="access_token",
         value=f"Bearer {token}",
         httponly=True,
         secure=True,
@@ -68,6 +62,7 @@ def windowCloseAndCookie(id: int, name: str, request: Request = None, is_mobile:
 
 class OAuthApiError(Exception):
     """OAuth-related API errors."""
+
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
@@ -77,7 +72,7 @@ def oauth_add_link(
     session: Session, name: str, user: User, access_token: str, request: Request = None
 ) -> Response:
     """Link a service to existing authenticated user account.
-    
+
     Creates or updates service connection with OAuth token.
     """
     existing = session.exec(select(User).where(User.id == user.id)).first()
@@ -108,10 +103,16 @@ def oauth_add_link(
 
 
 def oauth_add_login(
-    session: Session, name: str, user: User | None, access_token: str, user_mail: str, request: Request = None, is_mobile: bool = False
+    session: Session,
+    name: str,
+    user: User | None,
+    access_token: str,
+    user_mail: str,
+    request: Request = None,
+    is_mobile: bool = False,
 ) -> Response:
     """Handle OAuth login flow - register new user or authenticate existing one.
-    
+
     Creates new account if user doesn't exist, otherwise authenticates.
     """
     if user is None:

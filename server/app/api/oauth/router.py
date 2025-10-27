@@ -30,30 +30,17 @@ def index(service: str):
     )
 
 
-<<<<<<< HEAD
-@router.get(
-    "/login_index/{service}",
-    summary="Start OAuth login flow",
-    description="Redirect to service OAuth for login",
-)
-def login_index(service: str):
-=======
 @router.get("/login_index/{service}")
 def login_index(service: str, mobile: bool = False):
->>>>>>> 1a57a9f2bf7dce6211034b5ae7db745a8e4de84c
     if service not in services_oauth:
         raise HTTPException(
             status_code=404,
             detail=f"{service} service not found",
         )
-    
-    # Generate OAuth URL with mobile indicator if needed
     oauth_url = services_oauth[service].oauth_link()
     if mobile:
-        # Add mobile indicator to the OAuth state or redirect URL
         separator = "&" if "?" in oauth_url else "?"
         oauth_url += f"{separator}state=mobile"
-    
     raise HTTPException(
         status_code=302,
         detail=f"Redirecting to {service} OAuth",
@@ -61,28 +48,27 @@ def login_index(service: str, mobile: bool = False):
     )
 
 
-<<<<<<< HEAD
-@router.get(
-    "/oauth_token/{service}",
-    summary="Handle OAuth callback",
-    description="Process OAuth authorization code",
-)
-def oauth_token(service: str, code: str, session: SessionDep, user: CurrentUser):
-    return services_dico[service].oauth_callback(session, code, user)
-=======
 @router.get("/oauth_token/{service}")
-def oauth_token(service: str, code: str, session: SessionDep, user: CurrentUser, request: Request):
+def oauth_token(
+    service: str, code: str, session: SessionDep, user: CurrentUser, request: Request
+):
     return services_dico[service].oauth_callback(session, code, user, request)
->>>>>>> 1a57a9f2bf7dce6211034b5ae7db745a8e4de84c
 
 
 @router.get("/login_oauth_token/{service}")
 def login_oauth_token(
-    service: str, code: str, session: SessionDep, user: CurrentUserNoFail, request: Request, state: str = None
+    service: str,
+    code: str,
+    session: SessionDep,
+    user: CurrentUserNoFail,
+    request: Request,
+    state: str = None,
 ):
     # Check if this is a mobile OAuth flow
     is_mobile = state == "mobile"
-    return services_oauth[service].oauth_callback(session, code, user, request, is_mobile)
+    return services_oauth[service].oauth_callback(
+        session, code, user, request, is_mobile
+    )
 
 
 @router.get(
