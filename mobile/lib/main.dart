@@ -21,6 +21,9 @@ Future<void> main() async {
   final oauthService = OAuthService();
   final authRepository = AuthRepository(apiService: apiService);
   final servicesRepository = ServiceRepository(apiService: apiService);
+  
+  // Initialize OAuth service for deeplink handling
+  oauthService.initialize();
 
   oauthService.initialize();
 

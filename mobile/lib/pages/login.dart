@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-
+  
   List<OAuthProvider> _oauthProviders = [];
   bool _isOAuthLoading = false;
   String _oauthError = '';
@@ -30,14 +30,14 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _loadOAuthProviders();
   }
-
+  
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-
+  
   Future<void> _loadOAuthProviders() async {
     print('Loading OAuth providers...');
     final oauthService = context.read<OAuthService>();
@@ -259,7 +259,6 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
           const SizedBox(height: 20),
-          
           ..._oauthProviders.map((provider) {
             final displayName = provider.name.toUpperCase();
 

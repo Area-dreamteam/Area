@@ -103,6 +103,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   }
 
   void _showConnectionOptions() {
+    print('Showing connection options with ${_oauthProviders.length} OAuth providers');
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -141,7 +143,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       },
     );
   }
-
+  
   @override
   void dispose() {
     _pageViewController.dispose();
@@ -216,6 +218,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   }
 }
 
+
 Widget _buildOAuthOptionButton(
   BuildContext context,
   String text,
@@ -227,8 +230,7 @@ Widget _buildOAuthOptionButton(
       Navigator.of(context).pop();
       onOAuthLogin(provider);
     },
-    icon: getServiceIcon(provider.name,
-        size: 24.0),
+    icon: getServiceIcon(provider.name, size: 24.0),
     label: Text(
       text,
       style: const TextStyle(color: Colors.black, fontSize: 16.0),

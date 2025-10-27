@@ -95,18 +95,26 @@ class OAuthService {
 
   Future<List<OAuthProvider>> getAvailableProviders() async {
     try {
+      print('Fetching OAuth providers from: $_baseUrl/oauth/available_oauths_login');
       final dio = Dio(
         BaseOptions(baseUrl: _baseUrl, responseType: ResponseType.json),
       );
       final response = await dio.get('/oauth/available_oauths_login');
+      print('OAuth providers response status: ${response.statusCode}');
+      print('OAuth providers response data: ${response.data}');
       if (response.statusCode == 200 && response.data is List) {
         final List<dynamic> data = response.data;
         final providers = data
             .map((item) => OAuthProvider.fromJson(item as Map<String, dynamic>))
             .toList();
+        print('Parsed ${providers.length} OAuth providers: ${providers.map((p) => p.name).toList()}');
         return providers;
-      } else {}
-    } catch (e) {}
+      } else {
+        print('Invalid response: status=${response.statusCode}, data type=${response.data.runtimeType}');
+      }
+    } catch (e) {
+      print('Error fetching OAuth providers: $e');
+    }
     return [];
   }
 
@@ -117,7 +125,6 @@ class OAuthService {
 
   void _handleDeepLink(Uri uri) {
     print('Received deeplink: $uri');
-
     if (uri.scheme == 'area' && uri.host == 'oauth-callback') {
       final token = uri.queryParameters['token'];
       final service = uri.queryParameters['service'];
@@ -159,7 +166,6 @@ class OAuthService {
     );
   }
 }
-
 class OAuthResult {
   final bool isSuccess;
   final String? token;
@@ -167,13 +173,13 @@ class OAuthResult {
   final String? error;
 
   OAuthResult.success(this.token, this.service)
-    : isSuccess = true,
-      error = null;
+      : isSuccess = true,
+        error = null;
 
   OAuthResult.error(this.error)
-    : isSuccess = false,
-      token = null,
-      service = null;
+      : isSuccess = false,
+        token = null,
+        service = null;
 }
 
 class OAuthLinkResult {
@@ -185,7 +191,6 @@ class OAuthLinkResult {
 
   OAuthLinkResult.error(this.error) : isSuccess = false, service = null;
 }
-
 class OAuthProvider {
   final String name;
   final String imageUrl;
