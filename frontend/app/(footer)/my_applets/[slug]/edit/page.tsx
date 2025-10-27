@@ -8,24 +8,31 @@
 'use client'
 
 import { Input } from "@/components/ui/input";
-import { useEffect, use, useState } from "react";
+import { useEffect, use, useState, ChangeEvent } from "react";
 import ValidateButton from "@/app/components/Validation";
 import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
-import { fetchPrivateApplet, fetchPersonalApplets } from '@/app/functions/fetch';
-import { redirect } from "next/navigation";
+import { fetchPrivateApplet, fetchPersonalApplets, fetchUpdatePersonalApplets } from '@/app/functions/fetch';
+import { notFound, redirect } from "next/navigation";
 
 type AppletProp = {
     params: Promise<{ slug: string }>;
 };
 
-function editApplet(appletName: string)
+export function Warning(title: string, message: string) {
+    return (
+      <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded relative">
+        {title && <strong className="font-bold">{title}: </strong>}
+        <span className="block sm:inline">{message}</span>
+      </div>
+    );
+  }
+async function editApplet(title: string, desc: string, oldApplet: SpecificPrivateApplet)
 {
-    redirect(`/my_applets/${appletName}`);
-}
-
-function modifyApplet()
-{
-    
+    if (title == "" || desc == "")
+        return false;
+    console.log(title, desc);
+    await fetchUpdatePersonalApplets(title, desc, oldApplet);
+    redirect(`/my_applets/${title}`);
 }
 
 export default function Edit({ params }: AppletProp)
@@ -35,8 +42,9 @@ export default function Edit({ params }: AppletProp)
     const [applets, setApplets] = useState<PrivateApplet[] | null>(null);
     const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null);
     const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(undefined);
-    const [modifiedApplet, setModifiedApplet] = useState<SpecificPrivateApplet | null>(null);
-
+    const [title, setTitle] = useState<string>("");
+    const [desc, setDesc] = useState<string>("");
+    
     useEffect(() => {
         const loadApplets = async () => {
             await fetchPersonalApplets(setApplets);
@@ -62,7 +70,8 @@ export default function Edit({ params }: AppletProp)
     useEffect(() => {
         if (myApplet != null) {
             setLoading(false);
-            setModifiedApplet(myApplet);
+            setTitle(myApplet.area_info.name);
+            setDesc(myApplet.area_info.description);
         }
     }, [myApplet]);
 
@@ -71,23 +80,27 @@ export default function Edit({ params }: AppletProp)
             {loading ?  (
                 ""
                ) : (
-                (myApplet && modifiedApplet &&
-                    <div className="mx-[50px] py-[50px]">
-                        <h1 className="centered text-[40px] font-bold">
-                            {myApplet?.area_info.name}
-                        </h1>
+                (myApplet &&
+                    <div className="py-[50px] h-screen w-[75%] mx-auto">
+                        <Input className="centered subtitle inverted" defaultValue={myApplet.area_info.name} placeholder="Title" onChange={(e) => setTitle(e.target.value)}/>
                         <hr className="mt-[25px] mb-[25px]"/>
-                        <p>
+                        <textarea className="rounded-md bg-white text-black w-[75%] h-[20%] px-[1%] mx-auto block" defaultValue={myApplet.area_info.description ? myApplet.area_info.description : ""} placeholder="description" minLength={1} onChange={(e) => setDesc(e.target.value)} required/>
+                        <br/>
+                        <p className="simple-text inverted w-[75%] block mx-auto">
                             Created by: {myApplet.area_info.user.name}<br/>
                             At: {new Date(myApplet.area_info.created_at).toLocaleDateString()}
                         </p>
-                        <Input className="bg-white text-black w-[600px]" defaultValue={myApplet.area_info.description ? myApplet.area_info.description : ""} placeholder="description"/>
-                        <Input className="bg-white text-black w-[600px]" defaultValue={myApplet.area_info.color} placeholder="color" onChange={() => modifyApplet()}/>
                         <br/>
-                        <ValidateButton clickAct={() => editApplet(modifiedApplet.area_info.name)} arg={true} text="Validate" addToClass="mt-[50px]"/>
+                        <ValidateButton clickAct={() => {
+                            if (!editApplet(title, desc, myApplet))
+                                return Warning("Update impossible", "");
+                        }} arg={true} text="Validate" addToClass="mt-[50px]"/>
                     </div>
                 )
             )}
+            {(!currApplet || !myApplet) && !loading &&
+                notFound()
+            }
         </div>
     )
 }

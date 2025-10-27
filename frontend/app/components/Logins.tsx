@@ -90,12 +90,12 @@ export default function Logins({isRegister}: LoginsProp)
             <div className="centered">
                 <hr className="w-[40%] mb-[2%]" style={{ color: "#4400ff" }} />
             </div>
-            <li>
-                {logins && logins.map((l) => {
+            <li className="mb-[5%]">
+                {logins && logins.map((log) => {
                 return (
-                    <ul className="centered" key={l.name}>
-                    <button onClick={() => { redirectOauth(l.name, (isRegister ? "/login" : "/explore")) }} className="rounded-button border-1 m-[5%]" >
-                        Continue with {l.name}
+                    <ul className="centered" key={log.name}>
+                    <button onClick={() => { redirectOauth(log.name, (isRegister ? "/login" : "/explore")) }} className="rounded-button inverted border-1 mt-[2%]" >
+                        Continue with {log.name.replace("Oauth", "")}
                     </button>
                     </ul>
                 )

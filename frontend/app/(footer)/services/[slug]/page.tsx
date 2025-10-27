@@ -25,7 +25,7 @@ type ServiceProp = {
 };
 
 export default function ServicePage({ params }: ServiceProp) {
-  const { slug } = use(params);
+  const slug = decodeURIComponent(use(params).slug);
   const [loadings, setLoading] = useState(true);
   const [services, setServices] = useState<Service[] | null>(null);
   const [myService, setMyService] = useState<SpecificService | null>(null);

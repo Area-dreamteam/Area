@@ -230,6 +230,20 @@ export async function fetchSpecificApplet(
   return true;
 }
 
+export async function fetchCopyApplet(id: number) {
+  try {
+    const res = await Calls.post(`/areas/public/${id}/copy`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return true;
+}
+
 export async function fetchDeletePersonalApplet(id: number) {
   try {
     const res = await Calls.delete(`/areas/${id}`);
@@ -283,6 +297,25 @@ export async function fetchAction(
   }
   setAction(null);
   return true;
+}
+
+export async function fetchUpdatePersonalApplets(name: string, desc: string, applet: SpecificPrivateApplet) {
+  try {
+    const res = await Calls.patch(`/users/areas/${applet.area_info.id}`, {
+      name: name,
+      description: desc,
+      action: applet.action,
+      reactions: applet.reactions,
+    });
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
 }
 
 export async function fetchPersonalApplets(

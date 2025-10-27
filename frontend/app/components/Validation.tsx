@@ -11,17 +11,18 @@ interface ValidationProp
 {
     arg: boolean,
     text: string,
-    addToClass?: string,
     center?: boolean,
+    addToClass?: string,
+    inverted?: boolean,
     clickAct: (status: boolean) => void
 }
   
-export default function ValidateButton({ addToClass = "", arg, text, center = true, clickAct }:
+export default function ValidateButton({ addToClass = "", arg, text, center = true, clickAct, inverted = false }:
     ValidationProp)
 {
     return (
-        <Button className={`rounded-full border-black text-white hover:bg-black bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] ${center ? "mx-auto block" : ""} ${addToClass}`} onClick={() => clickAct(arg)}>
+        <button className={`rounded-button ${center ? "mx-auto block" : ""} ${addToClass} ${inverted ? "inverted" : ""} ${addToClass}`} onClick={() => clickAct(arg)}>
         {text}
-        </Button>
+        </button>
     )
 }

@@ -43,7 +43,7 @@ export default function AppletPage({ params }: AppletProp)
     const slug = decodeURIComponent(use(params).slug);
     const [loading, setLoading] = useState(true);
     const [applets, setApplets] = useState<PrivateApplet[] | null>(null);
-    const [connectionChanged, setAreaChanged] = useState<boolean>(false);
+    const [areaChanged, setAreaChanged] = useState<boolean>(false);
     const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(undefined);
     const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null);
 
@@ -72,12 +72,12 @@ export default function AppletPage({ params }: AppletProp)
     }, [myApplet]);
 
     useEffect(() => {
-        if (!connectionChanged)
+        if (!areaChanged)
             return;
         if (currApplet)
             fetchPrivateApplet(setMyApplet, currApplet.id);
         setAreaChanged(false);
-    }, [connectionChanged]);
+    }, [areaChanged]);
 
     return (
         <div>
