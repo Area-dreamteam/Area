@@ -7,25 +7,29 @@
 
 'use client'
 
-import Image from "next/image";
+// import Image from "next/image";
 import { useEffect } from 'react';
 import { use, useState } from 'react';
 import { notFound } from "next/navigation";
 import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import { useAuth } from "@/app/functions/hooks";
-import { Button } from '@/components/ui/button';
-import { fetchIsConnected, fetchServices } from '@/app/functions/fetch';
 import { fetchSpecificService } from '@/app/functions/fetch';
 import { Service, SpecificService } from "@/app/types/service";
 import { redirectOauthAddService } from "@/app/functions/oauth";
+import { fetchIsConnected, fetchServices, fetchDisconnectService } from '@/app/functions/fetch';
 
 type ServiceProp = {
   params: Promise<{ slug: string }>;
 };
 
+async function disconnectOauth(id: number)
+{
+  await fetchDisconnectService(id);
+}
+
 export default function ServicePage({ params }: ServiceProp) {
-  const { slug } = use(params);
+  const slug = decodeURIComponent(use(params).slug);
   const [loadings, setLoading] = useState(true);
   const [services, setServices] = useState<Service[] | null>(null);
   const [myService, setMyService] = useState<SpecificService | null>(null);
@@ -94,14 +98,18 @@ export default function ServicePage({ params }: ServiceProp) {
               <p className="text-[20px]">{myService.name}</p>
             </div>
           </div>
-          {(serviceConnected && myService.oauth_required) || !myService.oauth_required ? (
-            <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={(e) => {e.preventDefault(); redirect("/create")}}>
+          {!myService.oauth_required ? (
+            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={(e) => {e.preventDefault(); redirect("/create")}}>
               Create applet
-            </Button>
-          ) : user ? (
-            <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={() => redirectOauthAddService(myService.name, user.id)}>
+            </button>
+          ) : (!serviceConnected && myService.oauth_required && user) ? (
+            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={() => redirectOauthAddService(myService.name, user.id)}>
               Connect to {myService.name}
-            </Button>
+            </button>
+          ) : (serviceConnected && myService.oauth_required && user) ? (
+            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={() => disconnectOauth(myService.id)}>
+              Disconnect
+            </button>
           ) : null}
         </div>
       ) : notFound()}
