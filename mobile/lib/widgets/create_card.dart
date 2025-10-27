@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/utils/icon_helper.dart';
 
 class CardDetails {
   final String serviceName;
@@ -78,14 +79,8 @@ class CreateCard extends StatelessWidget {
   Widget _buildSelectionDetails(CardDetails details) {
     return Row(
       children: [
-        if (details.imageUrl != null)
-          Image.network(
-            details.imageUrl!,
-            width: 40,
-            height: 40,
-          )
-        else
-          const CircleAvatar(backgroundColor: Colors.grey, radius: 20),
+        getServiceIcon(details.serviceName, size: 40.0),
+
         const SizedBox(width: 15),
         Expanded(
           child: Column(

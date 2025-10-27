@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:mobile/services/api_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -21,15 +23,23 @@ class AuthRepository {
         }
         return null;
       }
-      if (response.data is Map<String, dynamic> &&
-          response.data.containsKey('detail')) {
-        return response.data['detail'];
+
+      if (response.data is String && response.data.isNotEmpty) {
+        try {
+          final data = jsonDecode(response.data);
+          if (data is Map<String, dynamic> && data.containsKey('detail')) {
+            return data['detail'];
+          }
+        } catch (e) {
+          return "Réponse invalide du serveur.";
+        }
       }
-      return "invalid email or password.";
+
+      return "Erreur ${response.statusCode}: email ou mot de passe invalide.";
     } on DioException catch (e) {
-      return _handleDioError(e, "Connexion error");
+      return _handleDioError(e, "Erreur de connexion");
     } catch (e) {
-      return "Unknown error.";
+      return "Erreur inconnue.";
     }
   }
 
@@ -58,11 +68,17 @@ class AuthRepository {
   }
 
   String _handleDioError(DioException e, String defaultMessage) {
-    if (e.response != null && e.response?.data is Map) {
-      return e.response?.data['detail'] ?? defaultMessage;
-    } else if (e.type == DioExceptionType.connectionTimeout ||
+    if (e.response != null &&
+        e.response?.data is String &&
+        e.response!.data.isNotEmpty) {
+      final data = jsonDecode(e.response!.data);
+      if (data is Map<String, dynamic> && data.containsKey('detail')) {
+        return data['detail'];
+      }
+    }
+    if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.unknown) {
-      return "Error connexion to server";
+      return "Erreur connexion to server";
     }
     return defaultMessage;
   }
