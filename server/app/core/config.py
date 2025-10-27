@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     TODOIST_CLIENT_SECRET: str
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
+    MICROSOFT_CLIENT_ID: str
+    MICROSOFT_CLIENT_SECRET: str
+    MICROSOFT_DIR_TENANT: str
     FRONT_URL: str
 
     class Config:

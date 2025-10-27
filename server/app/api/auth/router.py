@@ -23,7 +23,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     summary="Register new user",
     responses={400: {"description": "Email already registered"}}
 )
-def register(user: UserCreate, session: SessionDep) -> UserRegistrationResponse:
+def register(user: UserCreate, session: SessionDep, response: Response) -> UserRegistrationResponse:
     existing = session.exec(select(User).where(User.email == user.email)).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -36,6 +36,15 @@ def register(user: UserCreate, session: SessionDep) -> UserRegistrationResponse:
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
+    token = sign_jwt(new_user.id)
+
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        secure=True,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+    )
     return UserRegistrationResponse(
         message="User registered",
         id=new_user.id,
