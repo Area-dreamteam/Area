@@ -44,6 +44,19 @@ export async function fetchDisconnectOauth(id: number) {
   return false;
 }
 
+export async function fetchDisconnectService(id: number) {
+  try {
+    const res = await Calls.delete(`/services/${id}/disconnect`);
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
 export async function fetchMyself(setMyProfile: (arg: MyProfileProp | null) => void) {
   try {
     const res = await Calls.get("/users/me");
@@ -356,19 +369,19 @@ export async function fetchPersonalPublicApplets(
   return false;
 }
 
-export async function fetchUnpublishPersonalApplet(id:number) {
-  try {
-    const res = await Calls.delete(`/users/areas/public/${id}/unpublish`);
+// export async function fetchUnpublishPersonalApplet(id:number) {
+//   try {
+//     const res = await Calls.delete(`/users/areas/public/${id}/unpublish`);
 
-    if (res.status != 200) {
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-  return false;
-}
+//     if (res.status != 200) {
+//       return false;
+//     }
+//     return true;
+//   } catch (err) {
+//     console.log("Error: ", err);
+//   }
+//   return false;
+// }
 
 export async function fetchPublishPersonalApplet(id:number) {
   try {

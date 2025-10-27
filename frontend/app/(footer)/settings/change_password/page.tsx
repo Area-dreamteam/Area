@@ -9,10 +9,10 @@
 
 import { fetchChangePassword } from "@/app/functions/fetch";
 import { Password } from "@/app/components/Forms"
+import Warning from "@/app/components/Warning";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link"
-import { redirect } from "next/navigation";
-import Warning from "@/app/components/Warning";
 
 async function sendForm(currentPassword: string, newPassword: string,
     confirmNewPassword: string, setError: (arg: boolean) => void)
