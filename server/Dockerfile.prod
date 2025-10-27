@@ -29,6 +29,8 @@ COPY --chown=appuser:appuser app/ ./
 
 COPY --chown=appuser:appuser images/ ./images/
 
+RUN apk add --update busybox-suid
+
 USER appuser
 
 EXPOSE 8000
