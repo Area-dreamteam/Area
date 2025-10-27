@@ -203,13 +203,8 @@ class OAuthProvider {
   });
 
   factory OAuthProvider.fromJson(Map<String, dynamic> json) {
-    String originalName = json['name'] ?? '';
-
-    final regex = RegExp(r'_?oauth$', caseSensitive: false);
-    final cleanedName = originalName.replaceAll(regex, '');
-
     return OAuthProvider(
-      name: cleanedName,
+      name: json['name'] ?? '',
       imageUrl: json['image_url'] ?? '',
       color: json['color'] ?? '#000000',
     );
