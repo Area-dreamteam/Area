@@ -60,7 +60,7 @@ export default function Logins({isRegister}: LoginsProp)
                     <Mail onChange={setEmail} />
                 </div>
                 <div className="centered">
-                    <Password onChange={setPassword} />
+                    <Password onChange={setPassword}/>
                 </div>
                 {error &&
                     <Alert variant="destructive" className="bg-red-100 rounded-4xl mb-5 mr-[20px] w-[300px] mx-auto">

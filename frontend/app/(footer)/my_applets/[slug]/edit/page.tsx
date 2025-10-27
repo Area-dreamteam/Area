@@ -7,25 +7,18 @@
 
 'use client'
 
+import Warning from "@/app/components/Warning";
 import { Input } from "@/components/ui/input";
-import { useEffect, use, useState, ChangeEvent } from "react";
+import { useEffect, use, useState } from "react";
+import { notFound, redirect } from "next/navigation";
 import ValidateButton from "@/app/components/Validation";
 import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
 import { fetchPrivateApplet, fetchPersonalApplets, fetchUpdatePersonalApplets } from '@/app/functions/fetch';
-import { notFound, redirect } from "next/navigation";
 
 type AppletProp = {
     params: Promise<{ slug: string }>;
 };
 
-export function Warning(title: string, message: string) {
-    return (
-      <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded relative">
-        {title && <strong className="font-bold">{title}: </strong>}
-        <span className="block sm:inline">{message}</span>
-      </div>
-    );
-  }
 async function editApplet(title: string, desc: string, oldApplet: SpecificPrivateApplet)
 {
     if (title == "" || desc == "")

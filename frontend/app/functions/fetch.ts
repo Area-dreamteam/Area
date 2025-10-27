@@ -95,8 +95,8 @@ export async function fetchChangePassword(oldPassword: string, newPass: string)
   try {
     const res = await Calls.patch("/users/me/password",
     {
-      password: oldPassword,
-      newPass: newPass
+      current_password: oldPassword,
+      new_password: newPass
     });
     if (res.status != 200) {
       return false;

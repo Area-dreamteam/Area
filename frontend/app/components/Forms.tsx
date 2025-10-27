@@ -29,11 +29,11 @@ export function Mail({onChange = (() => "")} : Information)
 }
 
 interface PasswordProps {
-    w?: string,
+    secure?: boolean,
     onChange?: (value: string) => void
 }
 
-export function Password({onChange = (() => "")}: PasswordProps)
+export function Password({secure = true, onChange = (() => "")}: PasswordProps)
 {
     const [isPsswdVisible, setIsPsswdVisible] = useState(false);
     const [psswdType, setPsswdType] = useState("password");
@@ -57,7 +57,7 @@ export function Password({onChange = (() => "")}: PasswordProps)
             placeholder="Password"
             type={psswdType}
             onChange={(e) => onChange(e.target.value)}
-            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$" required/>
+            pattern={secure ? "^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$" : ".+"} required/>
         </div>
     )
 }
