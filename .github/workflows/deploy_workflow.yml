@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-deploy-front:
-    name: Build and Push Docker Image
+    name: Build and Push Docker Front Image
     runs-on: ubuntu-latest
 
     steps:
@@ -50,7 +50,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
 
   build-deploy-back:
-    name: Build and Push Docker Image
+    name: Build and Push Docker Back Image
     runs-on: ubuntu-latest
 
     steps:
