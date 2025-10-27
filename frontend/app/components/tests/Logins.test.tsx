@@ -179,23 +179,23 @@ describe('Logins Component', () => {
       expect(loginLink.closest('a')).toHaveAttribute('href', '/login');
     });
 
-    it('handles successful registration', async () => {
-      mockFetchRegister.mockResolvedValue(true);
-      render(<Logins isRegister={true} />);
-      
-      const emailInput = screen.getByTestId('mail-input');
-      const passwordInput = screen.getByTestId('password-input');
-      const submitButton = screen.getByText('Get started');
-      
-      fireEvent.change(emailInput, { target: { value: 'newuser@example.com' } });
-      fireEvent.change(passwordInput, { target: { value: 'SecurePass123!' } });
-      fireEvent.click(submitButton);
-      
-      await waitFor(() => {
-        expect(mockFetchRegister).toHaveBeenCalledWith('newuser@example.com', 'SecurePass123!');
-        expect(mockPush).toHaveBeenCalledWith('/explore');
-      });
-    });
+     it('handles successful registration', async () => {
+       mockFetchRegister.mockResolvedValue(true);
+       render(<Logins isRegister={true} />);
+       
+       const emailInput = screen.getByTestId('mail-input');
+       const passwordInput = screen.getByTestId('password-input');
+       const submitButton = screen.getByText('Get started');
+       
+       fireEvent.change(emailInput, { target: { value: 'newuser@example.com' } });
+       fireEvent.change(passwordInput, { target: { value: 'SecurePass123!' } });
+       fireEvent.click(submitButton);
+       
+       await waitFor(() => {
+         expect(mockFetchRegister).toHaveBeenCalledWith('newuser@example.com', 'SecurePass123!');
+         expect(mockPush).toHaveBeenCalledWith('/login');
+       });
+     });
 
     it('handles failed registration and shows error', async () => {
       mockFetchRegister.mockResolvedValue(false);
@@ -228,15 +228,15 @@ describe('Logins Component', () => {
       });
     });
 
-    it('handles OAuth button clicks', async () => {
-      render(<Logins isRegister={false} />);
-      
-      await waitFor(() => {
-        const googleButton = screen.getByText('Continue with Google');
-        fireEvent.click(googleButton);
-        expect(mockRedirectOauth).toHaveBeenCalledWith('Google');
-      });
-    });
+     it('handles OAuth button clicks', async () => {
+       render(<Logins isRegister={false} />);
+       
+       await waitFor(() => {
+         const googleButton = screen.getByText('Continue with Google');
+         fireEvent.click(googleButton);
+         expect(mockRedirectOauth).toHaveBeenCalledWith('Google', '/explore');
+       });
+     });
 
     it('displays "Or" separator between form and OAuth options', () => {
       render(<Logins isRegister={false} />);
