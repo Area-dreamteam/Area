@@ -7,7 +7,7 @@
 
 import axios from "axios";
 import { Act, Service, SpecificService } from "../types/service";
-import MyProfileProp from "../types/profile";
+import { MyProfileProp, UpdateProfileProp } from "../types/profile";
 import { ConfigRespAct } from "../types/config";
 import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
 import { SpecificAction, SpecificReaction } from "../types/actions";
@@ -24,17 +24,27 @@ Calls.interceptors.response.use(
       error.response &&
       (error.response.status === 401 || error.response.status === 403)
     ) {
-      //Calls.post("/auth/logout").catch(() => {});
-      //window.location.href = "/login";
+      window.location.href = "/login";
     }
 
     return Promise.reject(error);
   },
 );
 
-export async function fetchMyself(
-  setMyProfile: (arg: MyProfileProp | null) => void,
-) {
+export async function fetchDisconnectOauth(id: number) {
+  try {
+    const res = await Calls.delete(`/oauth/oauth_login/${id}/disconnect`);
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchMyself(setMyProfile: (arg: MyProfileProp | null) => void) {
   try {
     const res = await Calls.get("/users/me");
     if (res.status != 200) {
@@ -50,10 +60,47 @@ export async function fetchMyself(
   return false;
 }
 
+export async function fetchUpdateMyself(update: UpdateProfileProp, setMyProfile: (arg: MyProfileProp) => void)
+{
+  try {
+    const res = await Calls.patch("/users/me",
+    {
+      name: update?.name,
+      email: update?.email
+    });
+    if (res.status != 200) {
+      return false;
+    }
+    setMyProfile(res.data);
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
 export async function fetchDeleteMyself() {
   try {
     const res = await Calls.delete("/users/me");
     if (res.status != 200) return false;
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchChangePassword(oldPassword: string, newPass: string)
+{
+  try {
+    const res = await Calls.patch("/users/me/password",
+    {
+      password: oldPassword,
+      newPass: newPass
+    });
+    if (res.status != 200) {
+      return false;
+    }
     return true;
   } catch (err) {
     console.log("Error: ", err);
@@ -257,6 +304,67 @@ export async function fetchPersonalApplets(
   return false;
 }
 
+export async function fetchPersonalPublicApplets(
+  setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
+) {
+  try {
+    const res = await Calls.get("/users/areas/public");
+
+    if (res.status != 200) {
+      setPersonalApplets(null);
+      return false;
+    }
+    setPersonalApplets(res.data);
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  setPersonalApplets(null);
+  return false;
+}
+
+export async function fetchUnpublishPersonalApplet(id:number) {
+  try {
+    const res = await Calls.delete(`/users/areas/public/${id}/unpublish`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchPublishPersonalApplet(id:number) {
+  try {
+    const res = await Calls.post(`/users/areas/${id}/publish`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchPersonalAppletConnection(id:number, state: string) {
+  try {
+    const res = await Calls.patch(`/users/areas/${id}/${state}`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
 export async function fetchCreateApplet(
   action: Act,
   reaction: Act,
@@ -266,7 +374,7 @@ export async function fetchCreateApplet(
 ) {
   try {
     const res = await Calls.post("/users/areas/me", {
-      name: title,
+      name: title.replaceAll("_", " "),
       description: "[description]",
       action: {
         action_id: action.id,
@@ -283,6 +391,20 @@ export async function fetchCreateApplet(
     if (res.status != 200) {
       return false;
     }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
+export async function fetchIsConnected(id: number | string, setIsConnected: (data: boolean) => void)
+{
+  try {
+    const res = await Calls.get(`/services/${id}/is_connected`);
+    if (res.status != 200)
+      return false;
+    setIsConnected(res.data);
     return true;
   } catch (err) {
     console.log("Error: ", err);

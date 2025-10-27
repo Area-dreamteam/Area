@@ -10,6 +10,14 @@ class ActionIdGet(BaseModel):
     config_schema: Any = Field(description="Configuration schema for this action")
     service: ServiceGet = Field(description="Associated service details")
 
+class ActionInfo(BaseModel):
+    """Basic action information."""
+    id: int = Field(description="Action ID", example=1)
+    name: str = Field(description="Action name", example="Issue Opened")
+    description: str = Field(description="Action description", example="Triggers when new issue created")
+    service: ServiceGet = Field(description="Associated service details")
+    config: Any = Field(description="Action-specific configuration parameters")
+
 class ActionBasicInfo(BaseModel):
     """Basic action information."""
     id: int = Field(description="Action ID", example=1)

@@ -1,6 +1,6 @@
 import { Calls } from "./fetch";
 
-const handleOauthLogin = (service: string, destination: string) => {
+const handleOauthLogin = (service: string, destination: string | null) => {
   window.open(
     `/api/backend/oauth/login_index/${service}`,
     "GitHub Login",
@@ -8,10 +8,10 @@ const handleOauthLogin = (service: string, destination: string) => {
   );
 
   window.addEventListener("message", (event) => {
-    console.log(event.data);
     if (event.data.type === `${service}_login_complete`) {
       console.log(`${service} login finished. Cookie should now be set.`);
-      window.location.href = destination;
+      if (destination)
+        window.location.href = destination;
     }
   });
 };
@@ -22,7 +22,6 @@ const handleOauthAddService = (service: string, destination: string) => {
     "GitHub Login",
     "width=600,height=700",
   );
-
   window.addEventListener("message", (event) => {
     if (event.data.type === `${service}_login_complete`) {
       console.log(`${service} login finished. Cookie should now be set.`);
@@ -33,7 +32,7 @@ const handleOauthAddService = (service: string, destination: string) => {
 
 export async function redirectOauth(
   service: string,
-  destination: string = "/explore",
+  destination: string | null = "/explore",
 ) {
   try {
     handleOauthLogin(service, destination);
@@ -52,22 +51,6 @@ export async function redirectOauthAddService(
   } catch (err) {
     console.log("Error: ", err);
   }
-}
-
-export async function fetchIsConnected(
-  id: number | string,
-  setIsConnected: (data: boolean) => void,
-) {
-  try {
-    const res = await Calls.get(`/services/${id}/is_connected`);
-
-    if (res.status != 200) return false;
-    setIsConnected(res.data);
-    return true;
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-  return false;
 }
 
 export interface OAuthInfo {

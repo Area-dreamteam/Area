@@ -6,7 +6,7 @@ from models import User
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser, CurrentAdmin
 from api.users.db import get_user_data
-from core.security import hash_password
+from core.security import hash_password, verify_password
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -51,12 +51,16 @@ def update_user_password(
     if not user_data:
         raise HTTPException(status_code=404, detail="Data not found")
 
-    if user_data.password == updateUserPassword.password:
+    if verify_password(updateUserPassword.current_password, user_data.password) is False:
         raise HTTPException(
-            status_code=403, detail="Permission Denied: password already use"
+            status_code=403, detail="Permission Denied: wrong password"
+        )
+    if verify_password(updateUserPassword.new_password, user_data.password) is True:
+        raise HTTPException(
+            status_code=403, detail="Permission Denied: same password"
         )
 
-    user_data.password = hash_password(updateUserPassword.password)
+    user_data.password = hash_password(updateUserPassword.new_password)
     session.add(user_data)
     session.commit()
     return {"message": "User password updated", "user_id": user.id}

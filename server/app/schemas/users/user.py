@@ -55,4 +55,5 @@ class UserUpdate(BaseModel):
 
 class UserUpdatePassword(BaseModel):
     """User profile update password schema."""
-    password: str = Field(min_length=8, description="Updated password", example="newsecurepassword123")
+    current_password: str = Field(min_length=8, description="Current password", example="currentsecurepassword123")
+    new_password: str = Field(min_length=8, description="Updated password", example="newsecurepassword123")

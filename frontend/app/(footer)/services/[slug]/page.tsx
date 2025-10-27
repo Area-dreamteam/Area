@@ -15,10 +15,10 @@ import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import { useAuth } from "@/app/functions/hooks";
 import { Button } from '@/components/ui/button';
-import { fetchServices } from '@/app/functions/fetch';
+import { fetchIsConnected, fetchServices } from '@/app/functions/fetch';
 import { fetchSpecificService } from '@/app/functions/fetch';
 import { Service, SpecificService } from "@/app/types/service";
-import { fetchIsConnected, redirectOauthAddService } from "@/app/functions/oauth";
+import { redirectOauthAddService } from "@/app/functions/oauth";
 
 type ServiceProp = {
   params: Promise<{ slug: string }>;
@@ -66,7 +66,12 @@ export default function ServicePage({ params }: ServiceProp) {
     const loadServices_connected = async () => {
       await fetchIsConnected(myService.id, setserviceConnected);
     }
-    loadServices_connected()
+    loadServices_connected();
+    window.addEventListener('message', (event) => {
+      if (event.data.type === `${myService.name}_login_complete`) {
+        setserviceConnected(true);
+      }
+    })
   }, [myService]);
 
   return (
@@ -90,7 +95,7 @@ export default function ServicePage({ params }: ServiceProp) {
             </div>
           </div>
           {(serviceConnected && myService.oauth_required) || !myService.oauth_required ? (
-            <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={() => redirect("/create")}>
+            <Button className="mt-[25px] mb-[25px] w-[300px] h-[70px] rounded-full text-white font-semibold transition-colors duration-300 hover:cursor-pointer block mx-auto text-[25px]" onClick={(e) => {e.preventDefault(); redirect("/create")}}>
               Create applet
             </Button>
           ) : user ? (

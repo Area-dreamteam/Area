@@ -122,30 +122,26 @@
 
   .title {
     @media (width >= 40rem) {
-      color: var(--common-color);
-      text-align: center;
-      font-size: 600%;
-      padding-top: 5%;
+      font-size: 400%;
     }
     @media (width < 40rem) {
-      color: var(--common-color);
-      text-align: center;
-      font-size: 200%;
-      padding-top: 10%;
+      font-size: 250%;
     }
+    color: var(--common-color);
+    text-align: center;
+    font-weight: bold;
   }
 
   .subtitle {
     @media (width >= 40rem) {
-      color: var(--color-white);
-      text-align: center;
-      font-size: 25px;
+      color: var(--common-color);
+      font-size: 200%;
     }
     @media (width < 40rem) {
-      color: var(--color-white);
-      text-align: center;
-      font-size: 10px;
+      color: var(--common-color);
+      font-size: 100%;
     }
+    font-weight: bold;
   }
 
   .title-part {
@@ -161,6 +157,23 @@
     }
   }
 
+  .simple-text {
+    @media (width >= 40rem) {
+      color: var(--common-color);
+      font-size: 130%;
+    }
+    @media (width < 40rem) {
+      color: var(--common-color);
+      font-size: 70%;
+    }
+  }
+
+  .tiny-text {
+    color: var(--common-color);
+    font-weight: bold;
+    font-size: 70%;
+  }
+  
   .logo {
     @media (width >= 40rem) {
       color: var(--common-color);
@@ -196,17 +209,15 @@
     }
   }
 
-  .simple-text {
-    @media (width >= 40rem) {
-      color: var(--color-black);
-      font-size: 130%;
-    }
-    @media (width < 40rem) {
-      color: var(--color-black);
-      font-size: 70%;
+  .special-link {
+    color: #0099ff;
+    &:hover {
+      @media (hover: hover) {
+          color: #0077c7;
+      }
     }
   }
-  
+
   .rounded-button {
     background-color: var(--common-bg);
     border-radius: calc(infinity * 1px);
@@ -215,13 +226,39 @@
     padding-bottom: 2%;
     padding-left: 3%;
     padding-right: 3%;
+    font-weight: bold;
     cursor: pointer;
   
     @media (width >= 40rem) {
       font-size: 200%;
     }
     @media (width < 40rem) {
+      font-size: 100%;
+    }
+
+    &:hover {
+      @media (hover: hover) {
+          background-color: var(--common-hover);
+      }
+    }
+  }
+
+  .little-rounded-button {
+    background-color: var(--common-bg);
+    border-radius: calc(infinity * 1px);
+    color: var(--common-color);
+    padding-top: 4%;
+    padding-bottom: 4%;
+    padding-left: 2%;
+    padding-right: 2%;
+    font-weight: bold;
+    cursor: pointer;
+  
+    @media (width >= 40rem) {
       font-size: 80%;
+    }
+    @media (width < 40rem) {
+      font-size: 40%;
     }
 
     &:hover {
@@ -253,6 +290,7 @@
       inherits: false;
       initial-value: solid;
   }
+
   .inverted {
     --common-bg: var(--color-black);
     --common-color: var(--color-white);
