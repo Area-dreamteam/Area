@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
     FRONT_URL: str
+    CRON_USER: str = "root"
 
     class Config:
         env_file = get_env_file()
