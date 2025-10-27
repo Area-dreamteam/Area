@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/about.json',
-        destination: '/api/backend/about.json',
+        destination: `${API_URL}/about.json`,
       },
     ]
   },

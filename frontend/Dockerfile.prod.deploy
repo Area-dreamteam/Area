@@ -1,10 +1,8 @@
-# Mobile APK stage - uses pre-built APK from CI or builds locally
 FROM instrumentisto/flutter AS mobile-builder
 WORKDIR /app
 
 COPY ./mobile/ ./
 
-# Check if APK already exists (from CI), otherwise build it (for local dev)
 RUN if [ -f ./build/app/outputs/apk/release/app-release.apk ]; then \
       echo "Using pre-built APK from CI"; \
     else \
@@ -12,7 +10,6 @@ RUN if [ -f ./build/app/outputs/apk/release/app-release.apk ]; then \
       flutter build apk --release; \
     fi
 
-# Standardize APK location
 RUN mkdir -p /app/target && \
     (mv ./build/app/outputs/apk/release/app-release.apk /app/target/client.apk || \
      mv ./build/app/outputs/flutter-apk/app-release.apk /app/target/client.apk)
@@ -44,7 +41,7 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=mobile-builder --chown=nextjs:nodejs /app/target/client.apk ./files/client.apk
+COPY --from=mobile-builder --chown=nextjs:nodejs /app/target/client.apk ./public/files/client.apk
 
 USER nextjs
 
