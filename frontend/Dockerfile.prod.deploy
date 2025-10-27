@@ -1,14 +1,8 @@
 FROM instrumentisto/flutter AS mobile-builder
-
-RUN adduser --system --uid 1000 flutter
-USER flutter
-
 WORKDIR /app
 COPY ./mobile/ ./
-
 RUN flutter create .
 RUN flutter build apk --release
-USER root
 RUN mkdir -p /app/target && \
     (mv ./build/app/outputs/apk/release/app-release.apk /app/target/client.apk || \
      mv ./build/app/outputs/flutter-apk/app-release.apk /app/target/client.apk)
