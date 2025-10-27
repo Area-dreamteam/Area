@@ -1,8 +1,8 @@
-FROM --platform=linux/amd64 instrumentisto/flutter AS mobile-builder
+FROM instrumentisto/flutter AS mobile-builder
 WORKDIR /app
 COPY ./mobile/ ./
 # Run flutter as non-root user to avoid permission issues
-RUN useradd -m -u 1000 flutter && chown -R flutter:flutter /app
+RUN adduser -D -u 1000 flutter && chown -R flutter:flutter /app
 USER flutter
 RUN flutter create .
 RUN flutter build apk --release
