@@ -248,7 +248,14 @@ class Todoist(ServiceClass):
         }
         return f"{base_url}?{urlencode(params)}"
 
-    def oauth_callback(self, session: Session, code: str, user: User) -> Response:
+    def oauth_callback(
+        self,
+        session: Session,
+        code: str,
+        user: User | None,
+        request: Request = None,
+        is_mobile: bool = False,
+    ) -> Response:
         try:
             token_res = self._get_token(
                 settings.TODOIST_CLIENT_ID,

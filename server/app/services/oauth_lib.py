@@ -27,13 +27,7 @@ from sqlmodel import select
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 
-<<<<<<< HEAD
-def windowCloseAndCookie(id: int, name: str) -> Response:
-    """Generate OAuth success response with JWT cookie and window close script.
-    
-    Used in popup OAuth flows to notify parent window and set authentication.
-    """
-=======
+
 def windowCloseAndCookie(id: int, name: str, request: Request = None, is_mobile: bool = False) -> Response:
     token = sign_jwt(id)
     
@@ -47,7 +41,6 @@ def windowCloseAndCookie(id: int, name: str, request: Request = None, is_mobile:
         return RedirectResponse(url=deeplink_url, status_code=302)
     
     # Original web behavior
->>>>>>> 1a57a9f2bf7dce6211034b5ae7db745a8e4de84c
     html = f"""
     <script>
       window.opener.postMessage({{ type: "{name}_login_complete" }}, "*");

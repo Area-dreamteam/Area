@@ -4,8 +4,10 @@ from pydantic_core import ValidationError
 from sqlmodel import select
 import requests
 from urllib.parse import urlencode
-from fastapi import HTTPException, Response
+from fastapi import HTTPException, Response, Request
 from typing import Dict, Any, List
+import base64
+from email.mime.text import MIMEText
 
 from core.utils import generate_state
 from services.oauth_lib import oauth_add_link, oauth_add_login
@@ -86,7 +88,12 @@ class GoogleOauth(oauth_service):
         return f"{base_url}?{urlencode(params)}"
 
     def oauth_callback(
-        self, session: Session, code: str, user: User | None
+        self,
+        session: Session,
+        code: str,
+        user: User | None,
+        request: Request = None,
+        is_mobile: bool = False,
     ) -> Response:
         """Handle Google OAuth callback and create/authenticate user."""
         try:
@@ -319,9 +326,6 @@ class Gmail(ServiceClass):
 
     def _send_email(self, token: str, to: str, subject: str, body: str):
         """Send an email via Gmail API."""
-        import base64
-        from email.mime.text import MIMEText
-
         message = MIMEText(body)
         message["to"] = to
         message["subject"] = subject
@@ -354,7 +358,14 @@ class Gmail(ServiceClass):
         }
         return f"{base_url}?{urlencode(params)}"
 
-    def oauth_callback(self, session: Session, code: str, user: User) -> Response:
+    def oauth_callback(
+        self,
+        session: Session,
+        code: str,
+        user: User | None,
+        request: Request = None,
+        is_mobile: bool = False,
+    ) -> Response:
         try:
             token_res = self._get_token(code)
         except GoogleApiError as e:
