@@ -12,15 +12,32 @@ export default function Page({ params }: CallbackProps) {
 
   useEffect(() => {
     const code = searchParams.get("code");
+    const state = searchParams.get("state");
     const service = oauth_name
     if (code) {
+      let url = "";
       if (oauth_type == "login") {
-        window.location.href = `/api/backend/oauth/login_oauth_token/${service}?code=${code}`
+        url = `/api/backend/oauth/login_oauth_token/${service}?code=${code}`
       } else if (oauth_type == "link") {
-        window.location.href = `/api/backend/oauth/oauth_token/${service}?code=${code}`
+        url = `/api/backend/oauth/oauth_token/${service}?code=${code}`
       } else {
         console.error("unkown oauth method")
+        return;
       }
+      
+      // Add state parameter if present
+      if (state) {
+        url += `&state=${state}`;
+      }
+      
+      // For mobile flows, close the tab after a brief delay
+      if (state === 'mobile') {
+        setTimeout(() => {
+          window.close();
+        }, 100);
+      }
+      
+      window.location.href = url;
     }
   }, [searchParams])
 

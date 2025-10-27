@@ -264,4 +264,29 @@ class ServiceRepository {
       rethrow;
     }
   }
+
+  Future<void> unlinkOAuthAccount(String providerName) async {
+    try {
+      final response = await _apiService.unlinkOAuthAccount(providerName);
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to unlink account: ${response.data}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Service> fetchServiceDetails(int serviceId) async {
+    try {
+      final response = await _apiService.getServiceDetails(serviceId);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.data);
+        return Service.fromJson(data);
+      }
+      throw Exception('Failed to load service details for $serviceId');
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
