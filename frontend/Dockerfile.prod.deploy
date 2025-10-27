@@ -1,9 +1,11 @@
 FROM instrumentisto/flutter AS mobile-builder
+
+RUN adduser --system --uid 1000 flutter
+USER flutter
+
 WORKDIR /app
 COPY ./mobile/ ./
-# Run flutter as non-root user to avoid permission issues
-RUN adduser -D -u 1000 flutter && chown -R flutter:flutter /app
-USER flutter
+
 RUN flutter create .
 RUN flutter build apk --release
 USER root
