@@ -81,7 +81,7 @@ const mockRedirectToPage = jest.requireMock('../../functions/redirections').defa
 describe('Logins Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFetchAvailableOAuth.mockImplementation((setLogins: any) => {
+    mockFetchAvailableOAuth.mockImplementation((setLogins: (logins: { name: string }[]) => void) => {
       setLogins([
         { name: 'Google' },
         { name: 'GitHub' },
