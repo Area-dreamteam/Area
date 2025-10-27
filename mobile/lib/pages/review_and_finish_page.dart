@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user_model.dart';
 import 'package:mobile/pages/my_area.dart';
@@ -14,6 +16,7 @@ class ReviewAndFinishPage extends StatefulWidget {
 
 class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
   late Future<UserModel> _userFuture;
 
   @override
@@ -27,11 +30,16 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     _nameController.addListener(() {
       viewModel.setName(_nameController.text);
     });
+
+    _descriptionController.addListener(() {
+      viewModel.setDescription(_descriptionController.text);
+    });
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _descriptionController.dispose(); // C'est bien ici
     super.dispose();
   }
 
@@ -57,6 +65,8 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 20),
                 _buildLogos(viewModel),
                 const SizedBox(height: 40),
+
+                // --- CHAMP TITRE ---
                 const Text(
                   'Applet title',
                   style: TextStyle(
@@ -68,9 +78,26 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _nameController,
-                  hint: "Applet title",
+                  hint: "Ex: Post new GitHub issues to Slack",
+                  maxLines: 3,
+                ),
+
+                const SizedBox(height: 24),
+                const Text(
+                  'Description',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildTextField(
+                  controller: _descriptionController,
+                  hint: "A short description of what this Applet does.",
                   maxLines: 5,
                 ),
+
                 const SizedBox(height: 20),
                 _buildUserInfo(),
                 const SizedBox(height: 40),
@@ -158,10 +185,9 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            backgroundColor: isReady ? Colors.blue : Colors.grey,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 50),
             shape: RoundedRectangleBorder(

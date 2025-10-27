@@ -1,56 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/service_model.dart';
+import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 
 class ServiceHeader extends StatelessWidget implements PreferredSizeWidget {
   final Service service;
-  final String title;
 
-  const ServiceHeader({super.key, required this.service, required this.title, String? serviceDescription});
+  const ServiceHeader({
+    super.key,
+    required this.service,
+    required String title,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final serviceColor = hexToColor(service.color);
+    final Color serviceColor = hexToColor(service.color);
+    final Color textColor = serviceColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
-          color: serviceColor,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10),
-              if (service.description != null &&
-                  service.description!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Text(
-                    service.description!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                ),
-
-              const SizedBox(height: 15),
-
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Image.network(
-                  service.imageUrl,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
+    return Container(
+      color: serviceColor,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: getServiceIcon(service.name, size: 40.0),
           ),
-        ),
-      ],
+          const SizedBox(height: 12),
+
+          Text(
+            service.name,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          if (service.description != null && service.description!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                service.description!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 14,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 

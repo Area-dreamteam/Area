@@ -9,7 +9,7 @@ from typing import Dict, Optional, Any, Union
 from core.logger import logger
 from models import User, AreaAction, AreaReaction
 from sqlmodel import Session
-from fastapi import Response
+from fastapi import Response, Request
 
 
 class Action:
@@ -167,8 +167,12 @@ class Service:
         """Generate OAuth authorization URL."""
         return ""
 
+<<<<<<< HEAD
     def oauth_callback(self, session: Session, code: str, user: User) -> Response:
         """Handle OAuth callback and store tokens."""
+=======
+    def oauth_callback(self, session: Session, code: str, user: User, request: Request = None) -> Response:
+>>>>>>> 1a57a9f2bf7dce6211034b5ae7db745a8e4de84c
         pass
 
 
@@ -188,7 +192,7 @@ class oauth_service:
         return ""
 
     def oauth_callback(
-        self, session: Session, code: str, user: User | None
+        self, session: Session, code: str, user: User | None, request: Request = None, is_mobile: bool = False
     ) -> Response:
         """Handle OAuth callback for login flow."""
         pass

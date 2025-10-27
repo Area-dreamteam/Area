@@ -47,7 +47,8 @@ class CreateViewModel extends ChangeNotifier {
   bool get isReadyToCreate =>
       _selectedAction != null &&
       _selectedReaction != null &&
-      _name.isNotEmpty;
+      _name.isNotEmpty &&
+      _description.isNotEmpty;
 
   void setName(String name) {
     _name = name;

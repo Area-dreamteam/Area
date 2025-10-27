@@ -1,8 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/viewmodels/profile_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/change_password_page.dart';
 import 'package:mobile/widgets/navbar.dart';
+import 'package:mobile/repositories/auth_repository.dart';
+import 'package:mobile/scaffolds/main_scaffold.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -81,7 +86,7 @@ class _ProfilePageState extends State<ProfilePage> {
               controller: _emailController,
             ),
             const SizedBox(height: 40),
-            _buildLinkedAccountsSection(),
+            _buildLinkedAccountsSection(viewModel),
             const SizedBox(height: 40),
             _buildSaveButton(viewModel),
             const SizedBox(height: 40),
@@ -110,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: const TextStyle(color: Colors.white, fontSize: 18),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey.shade800,
@@ -161,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ChangePasswordPage()),
+              MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
             );
           },
           child: const Text(
@@ -173,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildLinkedAccountsSection() {
+  Widget _buildLinkedAccountsSection(ProfileViewModel viewModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -191,26 +196,36 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(color: Colors.white70, fontSize: 14),
         ),
         const SizedBox(height: 16),
-        _buildLinkTile(
-          'Github',
-          const Image(image: AssetImage('assets/icons/github.png')),
-          false,
-        ),
-        _buildLinkTile(
-          'Google',
-          const Image(image: AssetImage('assets/icons/logo_google.png')),
-          false,
-        ),
-        _buildLinkTile(
-          'Facebook',
-          const Image(image: AssetImage('assets/icons/logo_facebook.png')),
-          false,
-        ),
+
+        ...viewModel.linkedAccounts.map((account) {
+          final String displayName = account.provider.name.replaceAll(
+            '_oauth',
+            '',
+          );
+
+          return _buildLinkTile(
+            displayName.toLowerCase(),
+            getServiceIcon(account.provider.name, size: 30.0),
+            account.isLinked,
+            () {
+              if (account.isLinked) {
+                viewModel.unlinkAccount(account.provider.name);
+              } else {
+                viewModel.linkAccount(account.provider.name);
+              }
+            },
+          );
+        }),
       ],
     );
   }
 
-  Widget _buildLinkTile(String name, Widget leadingWidget, bool isLinked) {
+  Widget _buildLinkTile(
+    String name,
+    Widget leadingWidget,
+    bool isLinked,
+    VoidCallback onPressed,
+  ) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: SizedBox(width: 30, height: 30, child: leadingWidget),
@@ -219,9 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
         style: const TextStyle(color: Colors.white, fontSize: 18),
       ),
       trailing: TextButton(
-        onPressed: () {
-          // oauth link
-        },
+        onPressed: onPressed,
         child: Text(
           isLinked ? 'Unlink' : 'Link',
           style: TextStyle(
@@ -247,7 +260,7 @@ class _ProfilePageState extends State<ProfilePage> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Profile update.'),
+                    content: Text('Profile updated.'),
                     backgroundColor: Colors.green,
                   ),
                 );
@@ -281,7 +294,26 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildLogoutButton(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        //logout implementation
+        try {
+          final authRepository = context.read<AuthRepository>();
+          await authRepository.logout();
+          if (mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MainPageApp()),
+              (Route<dynamic> route) => false,
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Logout failed: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
       },
       child: const Text(
         'Sign out',
