@@ -37,9 +37,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-       - name: Build and push production image
-         uses: docker/build-push-action@v6
-         with:
+      - name: Build and push production image
+        uses: docker/build-push-action@v6
+        with:
           context: "."
           file: "./frontend/Dockerfile.prod.deploy"
           push: true
