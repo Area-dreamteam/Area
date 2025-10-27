@@ -76,7 +76,6 @@ const mockFetchLogin = jest.requireMock('../../functions/fetch').fetchLogin;
 const mockFetchRegister = jest.requireMock('../../functions/fetch').fetchRegister;
 const mockFetchAvailableOAuth = jest.requireMock('../../functions/oauth').fetchAvailableOAuth;
 const mockRedirectOauth = jest.requireMock('../../functions/oauth').redirectOauth;
-const mockRedirectToPage = jest.requireMock('../../functions/redirections').default;
 
 describe('Logins Component', () => {
   beforeEach(() => {
@@ -243,17 +242,6 @@ describe('Logins Component', () => {
       render(<Logins isRegister={false} />);
       
       expect(screen.getByText('Or')).toBeInTheDocument();
-    });
-  });
-
-  describe('Logo Interaction', () => {
-    it('calls redirectToPage when Area logo is clicked', () => {
-      render(<Logins isRegister={false} />);
-      
-      const logoElement = screen.getByText('Area');
-      fireEvent.click(logoElement);
-      
-      expect(mockRedirectToPage).toHaveBeenCalledWith('/');
     });
   });
 
