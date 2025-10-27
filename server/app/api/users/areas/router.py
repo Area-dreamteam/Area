@@ -2,7 +2,7 @@ from cron.cron import newJob, isCronExists
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from models import Area, Action, AreaAction, AreaReaction, Reaction
-from schemas import AreaGet, UserShortInfo, ActionBasicInfo, CreateArea, AreaIdGet, Role
+from schemas import AreaGet, UserShortInfo, ActionBasicInfo, CreateArea, Role
 from dependencies.db import SessionDep
 from dependencies.roles import CurrentUser
 from api.users.areas.db import get_area_action_info, create_copy_area
@@ -117,9 +117,7 @@ def update_user_area(
 
 
 @router.patch("/{id}/enable")
-def enable_user_area(
-    id: int, session: SessionDep, user: CurrentUser, response_model=AreaIdGet
-):
+def enable_user_area(id: int, session: SessionDep, user: CurrentUser):
     area: Area = session.exec(select(Area).where(Area.id == id)).first()
     if not area:
         raise HTTPException(status_code=404, detail="Data not found")
@@ -138,13 +136,11 @@ def enable_user_area(
 
     session.add(area)
     session.commit()
-    return area
+    return {"message": "Area enable", "area_id": area.id, "user_id": user.id}
 
 
 @router.patch("/{id}/disable")
-def disable_user_area(
-    id: int, session: SessionDep, user: CurrentUser, response_model=AreaIdGet
-):
+def disable_user_area(id: int, session: SessionDep, user: CurrentUser):
     area: Area = session.exec(select(Area).where(Area.id == id)).first()
     if not area:
         raise HTTPException(status_code=404, detail="Data not found")
@@ -161,7 +157,7 @@ def disable_user_area(
 
     session.add(area)
     session.commit()
-    return area
+    return {"message": "Area disable", "area_id": area.id, "user_id": user.id}
 
 
 @router.delete("/public/{id}/unpublish")

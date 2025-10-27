@@ -243,6 +243,31 @@
     }
   }
 
+  .little-rounded-button {
+    background-color: var(--common-bg);
+    border-radius: calc(infinity * 1px);
+    color: var(--common-color);
+    padding-top: 4%;
+    padding-bottom: 4%;
+    padding-left: 2%;
+    padding-right: 2%;
+    font-weight: bold;
+    cursor: pointer;
+  
+    @media (width >= 40rem) {
+      font-size: 80%;
+    }
+    @media (width < 40rem) {
+      font-size: 40%;
+    }
+
+    &:hover {
+      @media (hover: hover) {
+          background-color: var(--common-hover);
+      }
+    }
+  }
+
   .logins-container {
     @media (width >= 40rem) {
       height: 50px;

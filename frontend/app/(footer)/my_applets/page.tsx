@@ -7,7 +7,7 @@
 
 'use client'
 
-import { fetchPersonalApplets } from "@/app/functions/fetch";
+import { fetchPersonalApplets, fetchPersonalPublicApplets } from "@/app/functions/fetch";
 import taskbarButton from "@/app/components/TaskBarButtons";
 import { PrivateApplet, PublicApplet } from "@/app/types/applet";
 import Applets from "@/app/components/Applets";
@@ -41,15 +41,20 @@ function FilterApplets(text: string, applets: PrivateApplet[] | null)
 
 export default function My_applet()
 {
-    const [applets, setApplets] = useState<PrivateApplet[] | null>(null);
+    const [privateApplets, setPrivateApplets] = useState<PrivateApplet[] | null>(null);
+    const [publicApplets, setPublicApplets] = useState<PrivateApplet[] | null>(null);
     const [searched, setSearched] = useState<string>("");
     const [page, setPage] = useState("All");
 
     useEffect(() => {
-        const loadApplets = async () => {
-            await fetchPersonalApplets(setApplets);
+        const loadPrivateApplets = async () => {
+            await fetchPersonalApplets(setPrivateApplets);
         }
-        loadApplets();
+        const loadPublicApplets = async () => {
+            await fetchPersonalPublicApplets(setPublicApplets);
+        }
+        loadPrivateApplets();
+        loadPublicApplets();
     }, [])
 
     return (
@@ -63,7 +68,7 @@ export default function My_applet()
                     {taskbarButton("Enabled", page, setPage, true)}
                 </div>
             </div>
-            <Applets search={searched} applets={FilterApplets(page, applets)} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer mb-[20px] border-black border-[2px]" onClick={redirectToApplet}/>
+            <Applets search={searched} applets={page == "Published" ? publicApplets : FilterApplets(page, privateApplets)} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer mb-[20px] border-black border-[2px]" onClick={redirectToApplet}/>
         </div>
     )
 }
