@@ -37,13 +37,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push production image
-        uses: docker/build-push-action@v6
-        with:
+       - name: Build and push production image
+         uses: docker/build-push-action@v6
+         with:
           context: "."
           file: "./frontend/Dockerfile.prod.deploy"
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROD_REPO }}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROD_REPO }}:${{ steps.meta.outputs.SHORT_SHA }}
