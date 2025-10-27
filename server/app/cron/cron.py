@@ -1,6 +1,6 @@
 from typing import List
 from crontab import CronTab
-from app.core.config import settings
+from core.config import settings
 from sqlmodel import select, join
 from pathlib import Path
 from core.engine import engine

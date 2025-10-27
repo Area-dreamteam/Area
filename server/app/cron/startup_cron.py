@@ -1,5 +1,5 @@
 from crontab import CronTab
-from app.core.config import settings
+from core.config import settings
 from models.services.action import Action
 from models.areas.area import Area
 from cron.cron import newJob
