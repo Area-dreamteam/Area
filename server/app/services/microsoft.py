@@ -4,7 +4,7 @@ from pydantic_core import ValidationError
 from sqlmodel import select
 import requests
 from urllib.parse import urlencode
-from fastapi import HTTPException, Response
+from fastapi import HTTPException, Response, Request
 from typing import Dict, Any, List
 import json
 
@@ -85,7 +85,12 @@ class MicrosoftOauth(oauth_service):
         return f"{base_url}?{urlencode(params)}"
 
     def oauth_callback(
-        self, session: Session, code: str, user: User | None
+        self,
+        session: Session,
+        code: str,
+        user: User | None,
+        request: Request = None,
+        is_mobile: bool = False,
     ) -> Response:
         """Handle Microsoft OAuth callback and create/authenticate user."""
         try:
@@ -258,7 +263,8 @@ class Outlook(ServiceClass):
         # session.commit()
         return True
 
-    def _get_latest_email(self, 
+    def _get_latest_email(
+        self,
         token: str,
         sender_filter: str = None,
         subject_filter: str = None,
@@ -282,7 +288,7 @@ class Outlook(ServiceClass):
         logger.error(r.status_code)
         logger.error(params)
         logger.error(base_url)
-        
+
         if r.status_code != 200:
             raise MicrosoftApiError("Outlook: Failed to get messages")
         messages = r.json().get("value", [])
@@ -302,7 +308,7 @@ class Outlook(ServiceClass):
             }
         }
         r = requests.post(url, headers=headers, data=json.dumps(payload))
-        
+
         if r.status_code not in (200, 202):
             raise MicrosoftApiError("Outlook: Failed to send email")
 
@@ -326,7 +332,14 @@ class Outlook(ServiceClass):
         }
         return f"{base_url}?{urlencode(params)}"
 
-    def oauth_callback(self, session: Session, code: str, user: User) -> Response:
+    def oauth_callback(
+        self,
+        session: Session,
+        code: str,
+        user: User | None,
+        request: Request = None,
+        is_mobile: bool = False,
+    ) -> Response:
         try:
             token_res = self._get_token(code)
         except MicrosoftApiError as e:

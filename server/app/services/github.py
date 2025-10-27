@@ -24,6 +24,7 @@ from pydantic_core import ValidationError
 
 class GithubOAuthTokenRes(BaseModel):
     """GitHub OAuth token response format."""
+
     access_token: str
     token_type: str
     scope: str
@@ -31,6 +32,7 @@ class GithubOAuthTokenRes(BaseModel):
 
 class GithubApiError(Exception):
     """GitHub API-specific errors."""
+
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
@@ -38,6 +40,7 @@ class GithubApiError(Exception):
 
 class GithubOauth(oauth_service):
     """GitHub OAuth service for user authentication."""
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -87,7 +90,12 @@ class GithubOauth(oauth_service):
         return f"{base_url}?{urlencode(params)}"
 
     def oauth_callback(
-        self, session: Session, code: str, user: User | None, request: Request = None, is_mobile: bool = False
+        self,
+        session: Session,
+        code: str,
+        user: User | None,
+        request: Request = None,
+        is_mobile: bool = False,
     ) -> Response:
         """Handle GitHub OAuth callback and create/authenticate user."""
         try:
@@ -101,5 +109,11 @@ class GithubOauth(oauth_service):
         except GithubApiError as e:
             return HTTPException(status_code=400, detail=e.message)
         return oauth_add_login(
-            session, self.name, user, token_res.access_token, user_info["email"], request, is_mobile
+            session,
+            self.name,
+            user,
+            token_res.access_token,
+            user_info["email"],
+            request,
+            is_mobile,
         )
