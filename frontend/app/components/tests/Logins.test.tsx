@@ -61,11 +61,6 @@ jest.mock('../Forms', () => ({
 }));
 
 // Mock functions
-jest.mock('../../functions/redirections', () => ({
-  __esModule: true,
-  default: jest.fn(),
-}));
-
 jest.mock('../../functions/fetch', () => ({
   fetchLogin: jest.fn(),
   fetchRegister: jest.fn(),
@@ -86,7 +81,7 @@ const mockRedirectToPage = jest.requireMock('../../functions/redirections').defa
 describe('Logins Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFetchAvailableOAuth.mockImplementation((setLogins) => {
+    mockFetchAvailableOAuth.mockImplementation((setLogins: any) => {
       setLogins([
         { name: 'Google' },
         { name: 'GitHub' },

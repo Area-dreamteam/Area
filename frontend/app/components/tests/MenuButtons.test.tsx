@@ -7,6 +7,7 @@
 
 import { render, screen } from '@testing-library/react';
 import MenuButton from '../MenuButtons';
+import { NavigationMenu, NavigationMenuList } from '@radix-ui/react-navigation-menu';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -27,9 +28,7 @@ jest.mock('@/components/ui/navigation-menu', () => ({
 }));
 
 describe('MenuButton', () => {
-  it('renders with correct text and link', () => {
-    render(MenuButton('Home', '/home'));
-    
+  it('renders with correct text and link', () => {    
     const linkElement = screen.getByRole('link');
     const textElement = screen.getByText('Home');
     
