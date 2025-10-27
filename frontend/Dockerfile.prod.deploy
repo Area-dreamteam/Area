@@ -1,6 +1,5 @@
 FROM instrumentisto/flutter AS mobile-builder
 WORKDIR /app
-RUN git config --global --add safe.directory /home/mobiledevops/.flutter-sdk
 COPY ./mobile/ ./
 RUN flutter create .
 RUN flutter build apk --release
