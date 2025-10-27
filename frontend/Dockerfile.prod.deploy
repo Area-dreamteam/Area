@@ -1,8 +1,18 @@
+# Mobile APK stage - uses pre-built APK from CI or builds locally
 FROM instrumentisto/flutter AS mobile-builder
 WORKDIR /app
+
 COPY ./mobile/ ./
-RUN flutter create .
-RUN flutter build apk --release
+
+# Check if APK already exists (from CI), otherwise build it (for local dev)
+RUN if [ -f ./build/app/outputs/apk/release/app-release.apk ]; then \
+      echo "Using pre-built APK from CI"; \
+    else \
+      echo "Building APK locally"; \
+      flutter build apk --release; \
+    fi
+
+# Standardize APK location
 RUN mkdir -p /app/target && \
     (mv ./build/app/outputs/apk/release/app-release.apk /app/target/client.apk || \
      mv ./build/app/outputs/flutter-apk/app-release.apk /app/target/client.apk)
@@ -44,3 +54,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
+
