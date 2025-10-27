@@ -14,7 +14,7 @@ import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import SettingsButton from '@/app/components/Settings';
 import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
-import { fetchPersonalApplets, fetchDeletePersonalApplet, fetchPersonalAppletConnection, fetchPublishPersonalApplet, fetchUnpublishPersonalApplet, fetchPrivateApplet } from '@/app/functions/fetch';
+import { fetchPersonalApplets, fetchDeletePersonalApplet, fetchPersonalAppletConnection, fetchPublishPersonalApplet, fetchPrivateApplet } from '@/app/functions/fetch';
 
 type AppletProp = {
   params: Promise<{ slug: string }>;
@@ -43,7 +43,7 @@ export default function AppletPage({ params }: AppletProp)
     const slug = decodeURIComponent(use(params).slug);
     const [loading, setLoading] = useState(true);
     const [applets, setApplets] = useState<PrivateApplet[] | null>(null);
-    const [connectionChanged, setAreaChanged] = useState<boolean>(false);
+    const [areaChanged, setAreaChanged] = useState<boolean>(false);
     const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(undefined);
     const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null);
 
@@ -72,12 +72,12 @@ export default function AppletPage({ params }: AppletProp)
     }, [myApplet]);
 
     useEffect(() => {
-        if (!connectionChanged)
+        if (!areaChanged)
             return;
         if (currApplet)
             fetchPrivateApplet(setMyApplet, currApplet.id);
         setAreaChanged(false);
-    }, [connectionChanged]);
+    }, [areaChanged]);
 
     return (
         <div>

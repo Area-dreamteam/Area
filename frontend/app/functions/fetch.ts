@@ -44,6 +44,19 @@ export async function fetchDisconnectOauth(id: number) {
   return false;
 }
 
+export async function fetchDisconnectService(id: number) {
+  try {
+    const res = await Calls.delete(`/services/${id}/disconnect`);
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
 export async function fetchMyself(setMyProfile: (arg: MyProfileProp | null) => void) {
   try {
     const res = await Calls.get("/users/me");
@@ -95,8 +108,8 @@ export async function fetchChangePassword(oldPassword: string, newPass: string)
   try {
     const res = await Calls.patch("/users/me/password",
     {
-      password: oldPassword,
-      newPass: newPass
+      current_password: oldPassword,
+      new_password: newPass
     });
     if (res.status != 200) {
       return false;
@@ -230,6 +243,20 @@ export async function fetchSpecificApplet(
   return true;
 }
 
+export async function fetchCopyApplet(id: number) {
+  try {
+    const res = await Calls.post(`/areas/public/${id}/copy`);
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return true;
+}
+
 export async function fetchDeletePersonalApplet(id: number) {
   try {
     const res = await Calls.delete(`/areas/${id}`);
@@ -285,6 +312,25 @@ export async function fetchAction(
   return true;
 }
 
+export async function fetchUpdatePersonalApplets(name: string, desc: string, applet: SpecificPrivateApplet) {
+  try {
+    const res = await Calls.patch(`/users/areas/${applet.area_info.id}`, {
+      name: name,
+      description: desc,
+      action: applet.action,
+      reactions: applet.reactions,
+    });
+
+    if (res.status != 200) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
 export async function fetchPersonalApplets(
   setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
 ) {
@@ -323,19 +369,19 @@ export async function fetchPersonalPublicApplets(
   return false;
 }
 
-export async function fetchUnpublishPersonalApplet(id:number) {
-  try {
-    const res = await Calls.delete(`/users/areas/public/${id}/unpublish`);
+// export async function fetchUnpublishPersonalApplet(id:number) {
+//   try {
+//     const res = await Calls.delete(`/users/areas/public/${id}/unpublish`);
 
-    if (res.status != 200) {
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-  return false;
-}
+//     if (res.status != 200) {
+//       return false;
+//     }
+//     return true;
+//   } catch (err) {
+//     console.log("Error: ", err);
+//   }
+//   return false;
+// }
 
 export async function fetchPublishPersonalApplet(id:number) {
   try {

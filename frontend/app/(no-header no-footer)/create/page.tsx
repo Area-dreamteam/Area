@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select"
 import { fetchIsConnected } from "@/app/functions/fetch"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useAuth } from "@/app/functions/hooks"
+// import { useAuth } from "@/app/functions/hooks"
 
 //-- Buttons --//
 
@@ -147,7 +147,7 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
           <ActionButton buttonText="Then " replacementText="That" disable={action == null}
             setIsChoosing={setChoosingReaction} setChosen={setReaction} chosen={reaction} />
             {(action != null && reaction != null) &&
-              <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px]"}/>
+              <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px]"} inverted={true}/>
             }
         </div>
       )}
@@ -327,8 +327,12 @@ function unsetChoosingTime(setAction: (arg: Act | null) => void, setService:
     setChoosingTrigger(false);
 }
 
-function allTriggersValid(configResp: ConfigRespAct[])
+function allTriggersValid(configResp: ConfigRespAct[], configReq: ConfigReqAct[] | undefined)
 {
+  if (typeof configReq === "undefined")
+    return false;
+  if (configReq.length == 0)
+    return true;
   if (configResp.length == 0)
     return false;
 
@@ -384,7 +388,7 @@ function ChooseTrigger({ act, service, type, setConfig,
             ) : (
                 "No trigger available"
             )}
-            <Button className="rounded-full border-white text-white hover:bg-[#555555] bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp)} onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
+            <Button className="rounded-full border-white text-white hover:bg-[#555555] bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp, trigger?.config_schema)} onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
                 Create trigger
             </Button>
         </div>
@@ -439,7 +443,7 @@ function ChooseAct({ service, setService, setAction,
             </div>
           </div>
           {acts && acts.length > 0 ? (
-            <div className=" w-[90%] mx-auto mt-[25px] grid-cols-3 gap-2">
+            <div className=" w-[95%] mx-auto mt-[25px] grid xl:grid-cols-5 lg:grid-cols-4 grid-cols-3 gap-2">
               {acts.map((act) => (
                 <div key={act.id} className="rounded-xl md:w-[250px] w-[150px] md:h-[250px] h-[150px] hover:cursor-pointer relative" style={{ backgroundColor: service.color }} onClick={() => selectAct(setChoosingTrigger, setAction, act)}>
                   <div className="text-center pt-[5%]">
@@ -447,7 +451,7 @@ function ChooseAct({ service, setService, setAction,
                       {act.name.replaceAll("_", " ")}
                     </p>
                     <p className="simple-text inverted m-[20px] truncate">
-                    {act.description.replaceAll("_", " ")}
+                      {act.description.replaceAll("_", " ")}
                     </p>
                   </div>
                 </div>
@@ -455,7 +459,7 @@ function ChooseAct({ service, setService, setAction,
             </div>
           ) : (
             <p className="centered subtitle mt-[20px]">
-              No {type} found.
+              No {type} available for this service.
             </p>
           )}
         </div>

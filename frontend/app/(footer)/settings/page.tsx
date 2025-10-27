@@ -15,15 +15,6 @@ import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 
-// function profileButton(text: string, _enable: boolean)
-// {
-//     return (
-//         <Button>
-//             {text}
-//         </Button>
-//     )
-// }
-
 function profileLabels(text: string)
 {
     return (
@@ -83,7 +74,7 @@ function LinkedAccounts(user: MyProfileProp, setUpdate: (arg: boolean) => void)
 {
     const linked = user.oauth_login.map((service) => {
         return (
-            <div key={service.id} className="grid grid-cols-2 gap-5">
+            <div key={service.id} className="grid grid-cols-2 gap-5 mb-[2%]">
                 <p className="simple-text"> {service.name} </p>
                 {oauthLink(user, service, "#0099ff", setUpdate)}
             </div>
@@ -91,7 +82,7 @@ function LinkedAccounts(user: MyProfileProp, setUpdate: (arg: boolean) => void)
     })
 
     return (
-        <div className="flex justify-around mb-5 mt-5">
+        <div className="w-[75%] block mx-auto mb-5 mt-5">
             {linked}
         </div>
     )
@@ -151,9 +142,6 @@ function Profile({profile}: PersonnalInfoProp)
             <br/><br/>
             {profileLabels("Linked accounts")}
             {user ? LinkedAccounts(user, setUpdate) : ""}
-            {/* {LinkedAccount("Apple is not linked", "Link your account", "https://apple.com")}
-            {LinkedAccount("Facebook is not linked", "Link your account", "https://facebook.com")}
-            {LinkedAccount("Google is linked", "Unlink", "https://google.com")} */}
             <DeleteAccount/>
             <button className="rounded-button block mx-auto mt-[10%] mb-[10%] px-[5%] py-[2%] rounded-full inverted hover:cursor-pointer" type="submit">
                 Update
