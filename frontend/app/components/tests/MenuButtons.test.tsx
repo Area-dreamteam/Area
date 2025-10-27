@@ -23,9 +23,11 @@ jest.mock('next/link', () => {
 // Mock UI components
 jest.mock('@/components/ui/navigation-menu', () => ({
   NavigationMenuItem: ({ children }: { children: React.ReactNode }) => <li>{children}</li>,
-  NavigationMenuLink: ({ children, asChild, ...props }: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => (
-    <div {...props}>{children}</div>
-  ),
+  NavigationMenuLink: (props: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { children, asChild, ...restProps } = props;
+    return <div {...restProps}>{children}</div>;
+  },
 }));
 
 describe('MenuButton Component', () => {
