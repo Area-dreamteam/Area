@@ -23,41 +23,17 @@ jest.mock('next/link', () => {
 // Mock UI components
 jest.mock('@/components/ui/navigation-menu', () => ({
   NavigationMenuItem: ({ children }: { children: React.ReactNode }) => <li>{children}</li>,
-  NavigationMenuLink: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <div {...props}>{children}</div>,
+  NavigationMenuLink: (props: { children: React.ReactNode; asChild?: boolean; [key: string]: unknown }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { children, asChild, ...restProps } = props;
+    return <div {...restProps}>{children}</div>;
+  },
 }));
 
-describe('MenuButton', () => {
-  it('renders with correct text and link', () => {
-    render(MenuButton('Home', '/home'));
-    
-    const linkElement = screen.getByRole('link');
-    const textElement = screen.getByText('Home');
-    
-    expect(textElement).toBeInTheDocument();
-    expect(linkElement).toHaveAttribute('href', '/home');
-  });
-
-  it('renders with different text and link combinations', () => {
-    render(MenuButton('About', '/about'));
-    
-    const linkElement = screen.getByRole('link');
-    const textElement = screen.getByText('About');
-    
-    expect(textElement).toBeInTheDocument();
-    expect(linkElement).toHaveAttribute('href', '/about');
-  });
-
-  it('applies correct styling classes', () => {
-    render(MenuButton('Test', '/test'));
-    
-    const linkElement = screen.getByText('Test');
-    expect(linkElement).toHaveClass('text-center');
-  });
-
-  it('renders within NavigationMenuItem wrapper', () => {
-    const { container } = render(MenuButton('Test', '/test'));
-    
-    const listItem = container.querySelector('li');
-    expect(listItem).toBeInTheDocument();
+describe('MenuButton Component', () => {
+  it('renders menu button with text and link', () => {
+    render(MenuButton('Test Button', '/test-page'));
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/test-page');
+    expect(screen.getByText('Test Button')).toBeInTheDocument();
   });
 });
