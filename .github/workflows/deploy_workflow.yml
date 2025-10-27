@@ -15,8 +15,31 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for mobile changes
+        id: mobile-changes
+        run: |
+          if git diff --quiet HEAD^ HEAD -- ../mobile/ 2>/dev/null; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No mobile changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Mobile changes detected"
+          fi
+
+      - name: Cache APK
+        id: cache-apk
+        uses: actions/cache@v4
+        with:
+          path: mobile/build/app/outputs/apk/release/app-release.apk
+          key: ${{ runner.os }}-mobile-apk-${{ hashFiles('mobile/**', '!mobile/build/**', '!mobile/.dart_tool/**') }}
+          restore-keys: |
+            ${{ runner.os }}-mobile-apk-
 
       - name: Cache Flutter dependencies
+        if: steps.cache-apk.outputs.cache-hit != 'true'
         uses: actions/cache@v4
         with:
           path: |
@@ -27,6 +50,7 @@ jobs:
             ${{ runner.os }}-flutter-
 
       - name: Set up Flutter
+        if: steps.cache-apk.outputs.cache-hit != 'true'
         uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -34,9 +58,11 @@ jobs:
           cache: true
 
       - name: Install dependencies
+        if: steps.cache-apk.outputs.cache-hit != 'true'
         run: flutter pub get
 
       - name: Build APK (release)
+        if: steps.cache-apk.outputs.cache-hit != 'true'
         run: flutter build apk --release
 
       - name: Upload APK artifact
