@@ -14,7 +14,7 @@ import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import SettingsButton from '@/app/components/Settings';
 import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
-import { fetchPersonalApplets, fetchDeletePersonalApplet, fetchPersonalAppletConnection, fetchPublishPersonalApplet, fetchUnpublishPersonalApplet, fetchPrivateApplet } from '@/app/functions/fetch';
+import { fetchPersonalApplets, fetchDeletePersonalApplet, fetchPersonalAppletConnection, fetchPublishPersonalApplet, fetchPrivateApplet } from '@/app/functions/fetch';
 
 type AppletProp = {
   params: Promise<{ slug: string }>;
