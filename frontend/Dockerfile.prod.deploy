@@ -9,7 +9,7 @@ RUN mkdir -p /app/target && \
     (mv ./build/app/outputs/apk/release/app-release.apk /app/target/client.apk || \
      mv ./build/app/outputs/flutter-apk/app-release.apk /app/target/client.apk)
 
-FROM node:20-alpine AS bas
+FROM node:20-alpine AS base
 
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
