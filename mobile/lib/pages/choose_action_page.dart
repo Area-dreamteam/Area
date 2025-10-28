@@ -73,7 +73,6 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
               serviceName: widget.service.name,
               itemName: detailedItem.name,
               itemDescription: itemDescription,
-              imageUrl: widget.service.imageUrl,
               itemType: widget.type,
             ),
           ),
