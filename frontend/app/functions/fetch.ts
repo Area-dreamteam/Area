@@ -317,8 +317,16 @@ export async function fetchUpdatePersonalApplets(name: string, desc: string, app
     const res = await Calls.patch(`/users/areas/${applet.area_info.id}`, {
       name: name,
       description: desc,
-      action: applet.action,
-      reactions: applet.reactions,
+      action: {
+        action_id: applet.action.id,
+        config: applet.action
+      },
+      reactions: applet.reactions.map((reac) => {
+        return {
+          reaction_id: reac.id,
+          config: reac.config
+        }
+      }),
     });
 
     if (res.status != 200) {
