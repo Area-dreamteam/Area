@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/core/config.dart';
@@ -127,9 +125,9 @@ class ApiService {
       data: {
         'name': name,
         'description': description,
-        'action': {'action_id': actionId, 'config': jsonEncode(actionConfig)},
+        'action': {'action_id': actionId, 'config': actionConfig},
         'reactions': [
-          {'reaction_id': reactionId, 'config': jsonEncode(reactionConfig)},
+          {'reaction_id': reactionId, 'config': reactionConfig},
         ],
       },
     );
