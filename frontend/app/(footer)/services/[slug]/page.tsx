@@ -23,14 +23,17 @@ type ServiceProp = {
   params: Promise<{ slug: string }>;
 };
 
-async function disconnectOauth(id: number)
+async function disconnectOauth(id: number,
+  setReload: (arg: boolean) => void, reload: boolean)
 {
   await fetchDisconnectService(id);
+  setReload(!reload);
 }
 
 export default function ServicePage({ params }: ServiceProp) {
   const slug = decodeURIComponent(use(params).slug);
-  const [loadings, setLoading] = useState(true);
+  const [reload, setReload] = useState<boolean>(false);
+  const [loadings, setLoading] = useState<boolean>(true);
   const [services, setServices] = useState<Service[] | null>(null);
   const [myService, setMyService] = useState<SpecificService | null>(null);
   const [currService, setCurrService] = useState<Service | undefined>(undefined);
@@ -60,11 +63,6 @@ export default function ServicePage({ params }: ServiceProp) {
   }, [currService])
 
   useEffect(() => {
-    if (myService != null)
-      setLoading(false);
-  }, [myService]);
-
-  useEffect(() => {
     if (!myService)
       return;
     const loadServices_connected = async () => {
@@ -76,10 +74,15 @@ export default function ServicePage({ params }: ServiceProp) {
         setserviceConnected(true);
       }
     })
+  }, [myService, reload]);
+
+  useEffect(() => {
+    if (myService != null)
+      setLoading(false);
   }, [myService]);
 
   return (
-    <form>
+    <div>
       {loadings ? (
         <p className="h-[700px] w-screen text-[50px] flex items-center justify-center">
           Loading...
@@ -103,16 +106,16 @@ export default function ServicePage({ params }: ServiceProp) {
               Create applet
             </button>
           ) : (!serviceConnected && myService.oauth_required && user) ? (
-            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={() => redirectOauthAddService(myService.name, user.id)}>
+            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={() => redirectOauthAddService(myService.name, user.id, null)}>
               Connect to {myService.name}
             </button>
           ) : (serviceConnected && myService.oauth_required && user) ? (
-            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={() => disconnectOauth(myService.id)}>
+            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={() => disconnectOauth(myService.id, setReload, reload)}>
               Disconnect
             </button>
           ) : null}
         </div>
       ) : notFound()}
-    </form>
+    </div>
   );
 }

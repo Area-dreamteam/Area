@@ -20,7 +20,7 @@ export default function ValidateButton({ addToClass = "", arg, text, center = tr
 {
     return (
         <button className={`rounded-button ${center ? "mx-auto block" : ""} ${addToClass} ${inverted ? "inverted" : ""} ${addToClass}`} onClick={() => clickAct(arg)}>
-        {text}
+            {text}
         </button>
     )
 }

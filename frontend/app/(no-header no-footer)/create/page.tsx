@@ -45,10 +45,10 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
   setIsChoosing, setChosen, chosen = null }: ChoiceButtonProp) {
   return (
     <div className="mx-auto mt-[10%] w-[75%] h-[100px] md:h-[170px] rounded-xl text-white flex items-center" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
-      <h1 className="flex-1 centered mb-[10%] title inverted">
+      <h1 className="flex-1 title inverted">
         {buttonText}
         {chosen ?
-          <p className="ml-[20px] mt-[3%] tiny-text inverted">{chosen.name.replaceAll("_", " ")}</p>
+          <p className="ml-[20px] tiny-text inverted">{chosen.name.replaceAll("_", " ")}</p>
           :
           replacementText
         }

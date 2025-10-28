@@ -23,7 +23,6 @@ async function editApplet(title: string, desc: string, oldApplet: SpecificPrivat
 {
     if (title == "" || desc == "")
         return false;
-    console.log(title, desc);
     await fetchUpdatePersonalApplets(title, desc, oldApplet);
     redirect(`/my_applets/${title}`);
 }
@@ -75,7 +74,7 @@ export default function Edit({ params }: AppletProp)
                ) : (
                 (myApplet &&
                     <div className="py-[50px] h-screen w-[75%] mx-auto">
-                        <Input className="centered subtitle inverted" defaultValue={myApplet.area_info.name} placeholder="Title" onChange={(e) => setTitle(e.target.value)}/>
+                        <Input className="centered subtitle bg-white" defaultValue={myApplet.area_info.name} placeholder="Title" onChange={(e) => setTitle(e.target.value)}/>
                         <hr className="mt-[25px] mb-[25px]"/>
                         <textarea className="rounded-md bg-white text-black w-[75%] h-[20%] px-[1%] mx-auto block" defaultValue={myApplet.area_info.description ? myApplet.area_info.description : ""} placeholder="description" minLength={1} onChange={(e) => setDesc(e.target.value)} required/>
                         <br/>
