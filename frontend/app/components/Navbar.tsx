@@ -19,13 +19,13 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuShortcut,
+  // DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation"
+import { fetchLogout } from "@/app/functions/fetch"
 
-export default function NavigationBar()
-{
+export default function NavigationBar() {
   return (
     <NavigationMenu className="flex flex-row-reverse">
       <NavigationMenuList>
@@ -37,53 +37,54 @@ export default function NavigationBar()
   );
 }
 
-function ProfileDropdown()
-{
+//<DropdownMenuShortcut>User#84395</DropdownMenuShortcut> mock data
+function ProfileDropdown() {
   return (
     <div className="overflow-hidden rounded-full">
       <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">:::</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="start">
-        <DropdownMenuGroup>
-          <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/create")}>
-            Create
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/my_applets")}>
-            My applets
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/explore")}>
-            Explore
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer" onClick={() => redirect("/settings")}>
-            Account
-            <DropdownMenuShortcut>User#84395</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            My services
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            Activity
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            Archive
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer" onClick={() => redirect("/help")}>
-            Help
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer" onClick={() => redirect("/")}>
-            Log out
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">:::</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="start">
+          <DropdownMenuGroup>
+            <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/create")}>
+              Create
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/my_applets")}>
+              My applets
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:cursor-pointer md:hidden" onClick={() => redirect("/explore")}>
+              Explore
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:cursor-pointer" onClick={() => redirect("/settings")}>
+              Account
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled>
+              My services
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled>
+              Activity
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled>
+              Archive
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:cursor-pointer" onClick={() => redirect("/help")}>
+              Help
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:cursor-pointer" onClick={async () => {
+              await fetchLogout();
+              redirect("/");
+            }}>
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }
 
-export function ConnectedNavbar()
-{
+export function ConnectedNavbar() {
   return (
     <div className="flex justify-between pb-[5px] ml-[10px] mt-[10px] shadow-xl">
       <Link href="/explore" className="font-bold text-[35px]"> Area </Link>
