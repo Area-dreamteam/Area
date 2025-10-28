@@ -7,6 +7,7 @@ import 'package:mobile/core/config.dart';
 class ApiService {
   late Dio _dio;
   final String _baseUrl = '${Config.getApiUrl()}/';
+
   final _storage = const FlutterSecureStorage();
 
   ApiService() {
