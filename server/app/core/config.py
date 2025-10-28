@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     MICROSOFT_CLIENT_ID: str
     MICROSOFT_CLIENT_SECRET: str
     MICROSOFT_DIR_TENANT: str
+    REDDIT_CLIENT_ID: str
+    REDDIT_CLIENT_SECRET: str
     FRONT_URL: str
 
     class Config:
