@@ -6,11 +6,11 @@
  */
 
 import axios from "axios";
+import { ConfigRespAct } from "../types/config";
 import { Act, Service, SpecificService } from "../types/service";
 import { MyProfileProp, UpdateProfileProp } from "../types/profile";
-import { ConfigRespAct } from "../types/config";
-import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
 import { SpecificAction, SpecificReaction } from "../types/actions";
+import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
 
 export const Calls = axios.create({
   baseURL: "/api/backend",
@@ -317,8 +317,16 @@ export async function fetchUpdatePersonalApplets(name: string, desc: string, app
     const res = await Calls.patch(`/users/areas/${applet.area_info.id}`, {
       name: name,
       description: desc,
-      action: applet.action,
-      reactions: applet.reactions,
+      action: {
+        action_id: applet.action.id,
+        config: applet.action
+      },
+      reactions: applet.reactions.map((reac) => {
+        return {
+          reaction_id: reac.id,
+          config: reac.config
+        }
+      }),
     });
 
     if (res.status != 200) {
