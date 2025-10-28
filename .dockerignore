@@ -1,1 +1,73 @@
+# Root .dockerignore - used by frontend/Dockerfile.prod.deploy
+
+# Git and version control
+.git/
+.github/
+.gitignore
+
+# Node.js
 node_modules/
+**/node_modules/
+**/.next/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+**/coverage/
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/venv/
+**/.venv/
+**/*.egg-info/
+
+# Environment files
+.env*
+!.env.example
+server/.env*
+frontend/.env*
+
+# Documentation and config files
+*.md
+README.md
+docker-compose*.yml
+.dockerignore
+
+# Test files
+**/test/
+**/tests/
+**/*.test.*
+**/*.spec.*
+**/jest.config.*
+**/pytest.ini
+server/.env.tests
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts (except what we need)
+**/dist/
+**/build/
+!mobile/build/app/outputs/apk/release/app-release.apk
+
+# Mobile development files (not needed in deploy)
+mobile/.pub*
+mobile/.metadata*
+mobile/.flutter-sdk*
+mobile/ios/
+mobile/macos/
+mobile/windows/
+mobile/linux/
+mobile/web/
+mobile/test/
+mobile/android/gradle/
+mobile/android/app/src/debug/
+mobile/android/app/src/profile/
+
+# Logs
+*.log

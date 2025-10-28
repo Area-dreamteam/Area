@@ -43,13 +43,10 @@ def login_index(service: str, mobile: bool = False):
             detail=f"{service} service not found",
         )
 
-    # Generate OAuth URL with mobile indicator if needed
     oauth_url = services_oauth[service].oauth_link()
     if mobile:
-        # Add mobile indicator to the OAuth state or redirect URL
         separator = "&" if "?" in oauth_url else "?"
         oauth_url += f"{separator}state=mobile"
-
     raise HTTPException(
         status_code=302,
         detail=f"Redirecting to {service} OAuth",
@@ -73,7 +70,6 @@ def login_oauth_token(
     request: Request,
     state: str = None,
 ):
-    # Check if this is a mobile OAuth flow
     is_mobile = state == "mobile"
     return services_oauth[service].oauth_callback(
         session, code, user, request, is_mobile

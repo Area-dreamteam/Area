@@ -1,4 +1,5 @@
 from crontab import CronTab
+from core.config import settings
 from models.services.action import Action
 from models.areas.area import Area
 from cron.cron import newJob
@@ -12,7 +13,7 @@ from core.engine import engine
 
 
 def startupCron():
-    cron = CronTab(user="root")
+    cron = CronTab(user=settings.CRON_USER)
     if cron.lines != 0:
         cron.remove_all()
 
