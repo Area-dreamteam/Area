@@ -13,8 +13,8 @@ import { notFound, useSearchParams } from "next/navigation";
 import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import SettingsButton from '@/app/components/Settings';
-import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
-import { fetchPersonalApplets, fetchDeletePersonalApplet, fetchPersonalAppletConnection, fetchPublishPersonalApplet, fetchPrivateApplet, fetchUnpublishPersonalApplet } from '@/app/functions/fetch';
+import { PrivateApplet, PublicApplet, SpecificPrivateApplet, SpecificPublicApplet } from "@/app/types/applet";
+import { fetchPersonalApplets, fetchDeletePersonalApplet, fetchPersonalAppletConnection, fetchPublishPersonalApplet, fetchPrivateApplet, fetchUnpublishPersonalApplet, fetchPersonalPublicApplets, fetchSpecificApplet } from '@/app/functions/fetch';
 
 type AppletProp = {
   params: Promise<{ slug: string }>;
@@ -50,14 +50,14 @@ export default function AppletPage({ params }: AppletProp)
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
     const published = searchParams.get('published') === 'true';
-    const [applets, setApplets] = useState<PrivateApplet[] | null>(null);
+    const [applets, setApplets] = useState<PublicApplet[] | PrivateApplet[] | null>(null);
     const [areaChanged, setAreaChanged] = useState<boolean>(false);
-    const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(undefined);
-    const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null);
+    const [currApplet, setCurrApplet] = useState<PublicApplet | PrivateApplet | undefined>(undefined);
+    const [myApplet, setMyApplet] = useState<SpecificPublicApplet | SpecificPrivateApplet | null>(null);
 
     useEffect(() => {
         const loadApplets = async () => {
-            await fetchPersonalApplets(setApplets);
+            await (published ? fetchPersonalPublicApplets(setApplets) : fetchPersonalApplets(setApplets));
         }
         loadApplets();
     }, []);
@@ -71,7 +71,7 @@ export default function AppletPage({ params }: AppletProp)
 
     useEffect(() => {
         if (currApplet)
-            fetchPrivateApplet(setMyApplet, currApplet.id);
+            (published ? fetchSpecificApplet(setMyApplet, currApplet.id) : fetchPrivateApplet(setMyApplet, currApplet.id));
     }, [currApplet])
 
     useEffect(() => {
@@ -83,7 +83,7 @@ export default function AppletPage({ params }: AppletProp)
         if (!areaChanged)
             return;
         if (currApplet)
-            fetchPrivateApplet(setMyApplet, currApplet.id);
+            (published ? fetchSpecificApplet(setMyApplet, currApplet.id) : fetchPrivateApplet(setMyApplet, currApplet.id));
         setAreaChanged(false);
     }, [areaChanged]);
 
@@ -112,8 +112,11 @@ export default function AppletPage({ params }: AppletProp)
                                 </button>
 
                             ) : (
-                                <button className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]" onClick={() => AppletConnection(myApplet.area_info.id, (myApplet.area_info.enable ? "disable" : "enable"), setAreaChanged)}>
-                                    {myApplet.area_info.enable ? "Disconnect" : "Connect"}
+                                <button className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]" onClick={() => {
+                                        const privApplet = myApplet as SpecificPrivateApplet;
+                                        AppletConnection(privApplet.area_info.id, (privApplet.area_info.enable ? "disable" : "enable"), setAreaChanged)
+                                    }}>
+                                    {(myApplet as SpecificPrivateApplet).area_info.enable ? "Disconnect" : "Connect"}
                                 </button>
                             )}
                         </div>

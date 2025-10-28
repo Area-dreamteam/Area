@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/select"
 import { fetchIsConnected } from "@/app/functions/fetch"
 import { Checkbox } from "@/components/ui/checkbox"
-// import { useAuth } from "@/app/functions/hooks"
 
 //-- Buttons --//
 
@@ -110,6 +109,7 @@ function createApplet(action: Act, reaction: Act, title: string, actConfig: Conf
 function Creation({ action, reaction, setAction, setReaction, actConfig,
   reactConfig, setChoosingAction, setChoosingReaction }: CreationProp)
 {
+  const [nbReactions, setNbReactions] = useState<number>(1);
   const [validating, setValidating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(`if ${action?.name}, then ${reaction?.name}`);
 
@@ -147,7 +147,12 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
           <ActionButton buttonText="Then " replacementText="That" disable={action == null}
             setIsChoosing={setChoosingReaction} setChosen={setReaction} chosen={reaction} />
             {(action != null && reaction != null) &&
-              <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px]"} inverted={true}/>
+              <div>
+                <button className="mt-[5%] rounded-button inverted block mx-auto" onClick={() => setNbReactions(nbReactions + 1)}>
+                  +
+                </button>
+                <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px] mb-[5%]"} inverted={true}/>
+              </div>
             }
         </div>
       )}
@@ -557,12 +562,6 @@ export default function Create() {
   const [choosingReaction, setChoosingReaction] = useState(false);
   const [actConfig, setActConfig] = useState<ConfigRespAct[]>([]);
   const [reactConfig, setReactConfig] = useState<ConfigRespAct[]>([]);
-  // const { user } = useAuth();
-
-  // useEffect(() => {
-  //   if (!user)
-  //     redirect("/login");
-  // }, [user]); // to change
 
   return (
     <div>
