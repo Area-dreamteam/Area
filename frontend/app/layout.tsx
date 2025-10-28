@@ -11,6 +11,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Area",
   description: "Build your own reactions chains",
+  icons: {
+    icon: '/icon.png',
+  },
 };
 
 export default function RootLayout({
