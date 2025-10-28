@@ -20,7 +20,11 @@ import { Password, Mail } from "../components/Forms"
 import { fetchLogin, fetchRegister } from "../functions/fetch"
 import { fetchAvailableOAuth, OAuthInfo, redirectOauth } from "../functions/oauth"
 
-export default function Logins(isRegister: boolean)
+interface LoginProp {
+    isRegister: boolean
+}
+
+export default function Logins({isRegister}: LoginProp)
 {
     const router = useRouter();
     const [email, setEmail] = useState<string>("");
