@@ -6,7 +6,6 @@ class ServiceCard extends StatelessWidget {
   final int id;
   final String name;
   final String? description;
-  final String imageUrl;
   final String? category;
   final String? colorHex;
   final VoidCallback? onTap;
@@ -16,7 +15,6 @@ class ServiceCard extends StatelessWidget {
     required this.id,
     required this.name,
     this.description,
-    required this.imageUrl,
     this.category,
     this.colorHex,
     this.onTap,

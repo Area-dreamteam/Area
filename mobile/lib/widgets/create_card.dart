@@ -4,12 +4,10 @@ import 'package:mobile/utils/icon_helper.dart';
 class CardDetails {
   final String serviceName;
   final String actionName;
-  final String? imageUrl;
 
   CardDetails({
     required this.serviceName,
     required this.actionName,
-    this.imageUrl,
   });
 }
 

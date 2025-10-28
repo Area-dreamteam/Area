@@ -193,24 +193,16 @@ class OAuthLinkResult {
 }
 class OAuthProvider {
   final String name;
-  final String imageUrl;
   final String color;
 
   OAuthProvider({
     required this.name,
-    required this.imageUrl,
     required this.color,
   });
 
   factory OAuthProvider.fromJson(Map<String, dynamic> json) {
-    String originalName = json['name'] ?? '';
-
-    final regex = RegExp(r'_?oauth$', caseSensitive: false);
-    final cleanedName = originalName.replaceAll(regex, '');
-
     return OAuthProvider(
-      name: cleanedName,
-      imageUrl: json['image_url'] ?? '',
+      name: json['name'] ?? '',
       color: json['color'] ?? '#000000',
     );
   }
