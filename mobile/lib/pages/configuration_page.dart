@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/utils/icon_helper.dart';
 
 class ConfigurationPage extends StatefulWidget {
   final List<dynamic> configSchema;
@@ -68,7 +69,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         child: Column(
           children: [
             const SizedBox(height: 60),
-            _buildHeader(),
+            _buildHeader(widget.serviceName),
 
             Expanded(
               child: ListView.builder(
@@ -105,34 +106,22 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(String serviceName) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15.0),
-              child: Image.network(
-                widget.imageUrl,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          getServiceIcon(serviceName, size: 100.0),
           const SizedBox(height: 16),
-          Center(
-            child: Text(
-              widget.itemName,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+          Text(
+            widget.itemName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
@@ -179,8 +168,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
-                fontWeight: FontWeight
-                    .bold,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
