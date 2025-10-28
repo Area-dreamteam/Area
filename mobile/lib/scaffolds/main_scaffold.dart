@@ -23,7 +23,7 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
+class _MainPageState extends State<MainPage> with TickerProviderStateMixin, WidgetsBindingObserver {
   late PageController _pageViewController;
   late TabController _tabController;
   List<OAuthProvider> _oauthProviders = [];
@@ -46,9 +46,34 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pageViewController = PageController();
     _tabController = TabController(length: pages.length, vsync: this);
     _loadOAuthProviders();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      print('App resumed - checking for OAuth results');
+      // Give the deep link handler a moment to process
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _checkAuthenticationStatus();
+      });
+    }
+  }
+
+  Future<void> _checkAuthenticationStatus() async {
+    final oauthService = context.read<OAuthService>();
+    final isAuth = await oauthService.isAuthenticated();
+    if (isAuth && mounted) {
+      print('User is authenticated after resume, navigating to MyArea');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MyAreaPage()),
+      );
+    }
   }
 
   Future<void> _loadOAuthProviders() async {
@@ -146,6 +171,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pageViewController.dispose();
     _tabController.dispose();
     super.dispose();

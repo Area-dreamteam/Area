@@ -72,7 +72,7 @@ class GoogleOauth(oauth_service):
             raise GoogleApiError("Failed to fetch user info")
         return r.json()
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         """Generate Google OAuth authorization URL."""
         base_url = "https://accounts.google.com/o/oauth2/v2/auth"
         redirect = f"{settings.FRONT_URL}/callbacks/login/{self.name}"
@@ -82,7 +82,7 @@ class GoogleOauth(oauth_service):
             "response_type": "code",
             "scope": "https://www.googleapis.com/auth/userinfo.email",
             "access_type": "offline",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
             "prompt": "consent",
         }
         return f"{base_url}?{urlencode(params)}"
@@ -343,7 +343,7 @@ class Gmail(ServiceClass):
         if r.status_code not in (200, 202):
             raise GoogleApiError("Failed to send email")
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         """Generate Google OAuth authorization URL."""
         base_url = "https://accounts.google.com/o/oauth2/v2/auth"
         redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
@@ -353,7 +353,7 @@ class Gmail(ServiceClass):
             "response_type": "code",
             "scope": "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email",
             "access_type": "offline",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
             "prompt": "consent",
         }
         return f"{base_url}?{urlencode(params)}"
@@ -371,4 +371,4 @@ class Gmail(ServiceClass):
         except GoogleApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token)
+        return oauth_add_link(session, self.name, user, token_res.access_token, request, is_mobile)

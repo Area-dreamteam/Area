@@ -23,7 +23,7 @@ class InformationPage extends StatefulWidget {
 }
 
 class _InformationPageState extends State<InformationPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   late final int _serviceId;
   late Future<List<AppletModel>> _publicApplets;
@@ -36,6 +36,7 @@ class _InformationPageState extends State<InformationPage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 2, vsync: this);
 
     int? tempServiceId;
@@ -69,8 +70,16 @@ class _InformationPageState extends State<InformationPage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadServiceData();
+    }
   }
 
   Future<void> _loadServiceData() async {

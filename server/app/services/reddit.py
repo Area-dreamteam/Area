@@ -221,13 +221,13 @@ class Reddit(ServiceClass):
         except RedditApiError:
             return False
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         base_url = "https://www.reddit.com/api/v1/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
         params = {
             "client_id": settings.REDDIT_CLIENT_ID,
             "response_type": "code",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
             "redirect_uri": redirect,
             "duration": "permanent",
             "scope": "identity read submit",
@@ -273,4 +273,4 @@ class Reddit(ServiceClass):
         except RedditApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token)
+        return oauth_add_link(session, self.name, user, token_res.access_token, request, is_mobile)
