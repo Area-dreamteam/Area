@@ -7,7 +7,6 @@ class ConfigurationPage extends StatefulWidget {
   final String itemName;
 
   final String itemDescription;
-  final String imageUrl;
   final String itemType;
 
   const ConfigurationPage({
@@ -17,7 +16,6 @@ class ConfigurationPage extends StatefulWidget {
     required this.itemName,
 
     required this.itemDescription,
-    required this.imageUrl,
     required this.itemType,
   });
 
