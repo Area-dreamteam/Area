@@ -20,12 +20,7 @@ import { Password, Mail } from "../components/Forms"
 import { fetchLogin, fetchRegister } from "../functions/fetch"
 import { fetchAvailableOAuth, OAuthInfo, redirectOauth } from "../functions/oauth"
 
-interface LoginsProp
-{
-    isRegister: boolean;
-}
-
-export default function Logins({isRegister}: LoginsProp)
+export default function Logins(isRegister: boolean)
 {
     const router = useRouter();
     const [email, setEmail] = useState<string>("");
@@ -38,7 +33,7 @@ export default function Logins({isRegister}: LoginsProp)
       const success: boolean = await (isRegister ? fetchRegister(email, password) : fetchLogin(email, password));
   
       if (success) {
-        router.push((isRegister ? "/login" : "/explore"));
+        router.push("/explore");
       } else
         setError(true);
     }
@@ -92,13 +87,13 @@ export default function Logins({isRegister}: LoginsProp)
             </div>
             <li className="mb-[5%]">
                 {logins && logins.map((log) => {
-                return (
-                    <ul className="centered" key={log.name}>
-                    <button onClick={() => { redirectOauth(log.name, (isRegister ? "/login" : "/explore")) }} className="rounded-button inverted border-1 mt-[2%]" >
-                        Continue with {log.name.replace("Oauth", "")}
-                    </button>
-                    </ul>
-                )
+                    return (
+                        <ul className="centered" key={log.name}>
+                            <button onClick={() => { redirectOauth(log.name, "/explore") }} className="rounded-button inverted border-1 mt-[2%]" >
+                                Continue with {log.name.replace("Oauth", "")}
+                            </button>
+                        </ul>
+                    )
                 })}
             </li>
             <p className="mb-[10%] text-black text-center simple-text">

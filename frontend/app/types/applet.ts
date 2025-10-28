@@ -6,6 +6,7 @@
 */
 
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
+import { ConfigRespAct } from "./config";
 
 export interface Applet {
   id: number,
@@ -81,7 +82,7 @@ export interface SpecificPublicApplet {
         image_url: string,
         category: string,
         color: string
-      }
+      },
     }
   ]
 }
@@ -109,7 +110,8 @@ export interface SpecificPrivateApplet {
       image_url: string,
       category: string,
       color: string
-    }
+    },
+    config: ConfigRespAct
   },
   reactions: [
     {
@@ -122,7 +124,8 @@ export interface SpecificPrivateApplet {
         image_url: string,
         category: string,
         color: string
-      }
+      },
+      config: ConfigRespAct
     }
   ]
 }

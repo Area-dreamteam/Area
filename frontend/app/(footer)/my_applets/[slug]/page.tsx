@@ -98,7 +98,7 @@ export default function AppletPage({ params }: AppletProp)
                             <p className="text-center simple-text inverted truncate">
                                 {myApplet.area_info.description}
                             </p>
-                            <button className="my-[35%] little-rounded-button centered w-[60%]" onClick={() => AppletConnection(myApplet.area_info.id, (myApplet.area_info.enable ? "disable" : "enable"), setAreaChanged)}>
+                            <button className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]" onClick={() => AppletConnection(myApplet.area_info.id, (myApplet.area_info.enable ? "disable" : "enable"), setAreaChanged)}>
                                 {myApplet.area_info.enable ? "Disconnect" : "Connect"}
                             </button>
                         </div>
