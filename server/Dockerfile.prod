@@ -18,18 +18,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
     PYTHONPATH=/app/app
 
-RUN addgroup --system --gid 1001 appuser
-RUN adduser --system --uid 1001 appuser
 
 COPY --from=builder /opt/venv /opt/venv
 
 WORKDIR /app
 
-COPY --chown=appuser:appuser app/ ./
+COPY app/ ./
 
-COPY --chown=appuser:appuser images/ ./images/
+COPY images/ ./images/
 
-USER appuser
+RUN apk add --update busybox-suid
 
 EXPOSE 8000
 
