@@ -71,7 +71,7 @@ class MicrosoftOauth(oauth_service):
         data["email"] = email
         return data
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         base_url = f"https://login.microsoftonline.com/{settings.MICROSOFT_DIR_TENANT}/oauth2/v2.0/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/login/{self.name}"
         params = {
@@ -79,7 +79,7 @@ class MicrosoftOauth(oauth_service):
             "response_type": "code",
             "redirect_uri": redirect,
             "scope": "openid profile offline_access https://graph.microsoft.com/User.Read",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
             "prompt": "select_account",
         }
         return f"{base_url}?{urlencode(params)}"
@@ -320,7 +320,7 @@ class Outlook(ServiceClass):
             raise MicrosoftApiError("Invalid token or expired")
         return r.json()
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         base_url = f"https://login.microsoftonline.com/{settings.MICROSOFT_DIR_TENANT}/oauth2/v2.0/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
         params = {
@@ -328,7 +328,7 @@ class Outlook(ServiceClass):
             "response_type": "code",
             "redirect_uri": redirect,
             "scope": "offline_access Mail.Read Mail.Send User.Read",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
         }
         return f"{base_url}?{urlencode(params)}"
 
@@ -345,4 +345,4 @@ class Outlook(ServiceClass):
         except MicrosoftApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token)
+        return oauth_add_link(session, self.name, user, token_res.access_token, request, is_mobile)

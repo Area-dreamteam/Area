@@ -16,13 +16,14 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<ProfileViewModel>();
       viewModel.loadCurrentUser().then((_) {
@@ -36,7 +37,28 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      print('ProfilePage: App resumed - reloading user data');
+      // Give the deep link handler a moment to process
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          final viewModel = context.read<ProfileViewModel>();
+          viewModel.loadCurrentUser().then((_) {
+            if (mounted && viewModel.currentUser != null) {
+              _usernameController.text = viewModel.currentUser!.name;
+              _emailController.text = viewModel.currentUser!.email;
+            }
+          });
+        }
+      });
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _usernameController.dispose();
     _emailController.dispose();
     super.dispose();

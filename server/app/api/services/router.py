@@ -99,41 +99,36 @@ def get_reactions_of_service(
 
 @router.get(
     "/{id}/is_connected",
-    response_model=bool,
+    response_model=dict,
     summary="Check service connection",
     description="Check if current user has connected this service",
 )
 def is_service_connected(
-    id: int | str, session: SessionDep, user: CurrentUserNoFail
-) -> bool:
-    if id.isnumeric():
-        service_name: str = session.exec(
-            select(Service.name)
-            .join(UserService, UserService.service_id == Service.id)
-            .where(UserService.service_id == id, UserService.user_id == user.id)
-        ).first()
-    elif isinstance(id, str):
-        service_name: str = session.exec(
-            select(Service.name)
-            .join(UserService, UserService.service_id == Service.id)
-            .where(Service.name == id, UserService.user_id == user.id)
-        ).first()
+    id: int, session: SessionDep, user: CurrentUserNoFail
+) -> dict:
+    service_name: str = session.exec(
+        select(Service.name)
+        .join(UserService, UserService.service_id == Service.id)
+        .where(UserService.service_id == id, UserService.user_id == user.id)
+    ).first()
+    
     if service_name is None:
-        return False
+        return {"is_connected": False}
 
     if services_dico[service_name].is_connected(session, user.id) is True:
-        return True
+        return {"is_connected": True}
+    
     user_service: UserService = session.exec(
         select(UserService)
         .join(Service, Service.id == UserService.service_id)
         .where(Service.name == service_name)
     ).first()
     if not user_service:
-        return False
+        return {"is_connected": False}
 
     session.delete(user_service)
     session.commit()
-    return False
+    return {"is_connected": False}
 
 
 @router.delete("/{id}/disconnect")

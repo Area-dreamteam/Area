@@ -74,7 +74,7 @@ class GithubOauth(oauth_service):
 
         return email_r.json()
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         """Generate GitHub OAuth authorization URL."""
         base_url = "https://github.com/login/oauth/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/login/{self.name}"
@@ -87,6 +87,8 @@ class GithubOauth(oauth_service):
             "login": "",
             "force_verify": "true",
         }
+        if state:
+            params["state"] = state
         return f"{base_url}?{urlencode(params)}"
 
     def oauth_callback(
