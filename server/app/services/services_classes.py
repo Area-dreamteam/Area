@@ -171,7 +171,12 @@ class Service:
         return ""
 
     def oauth_callback(
-        self, session: Session, code: str, user: User, request: Request = None
+        self,
+        session: Session,
+        code: str,
+        user: User | None,
+        request: Request = None,
+        is_mobile: bool = False,
     ) -> Response:
         pass
 

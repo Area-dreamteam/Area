@@ -35,13 +35,11 @@ def windowCloseAndCookie(
     print(f"OAuth callback - Is mobile flag set: {is_mobile}")
 
     if is_mobile:
-        # Redirect to mobile deeplink
         from fastapi.responses import RedirectResponse
 
         deeplink_url = f"area://oauth-callback?token={token}&service={name}"
         print(f"Redirecting to mobile deeplink: {deeplink_url}")
         return RedirectResponse(url=deeplink_url, status_code=302)
-
     html = f"""
     <script>
       window.opener.postMessage({{ type: "{name}_login_complete" }}, "*");

@@ -182,5 +182,5 @@ def publish_user_area(id: int, session: SessionDep, user: CurrentUser):
     if area.user_id != user.id and user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Permission Denied")
 
-    create_copy_area(session, area, True)
+    create_copy_area(session, area, user.id, True)
     return {"message": "Area publish", "area_id": area.id, "user_id": user.id}

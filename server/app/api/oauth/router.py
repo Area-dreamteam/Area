@@ -30,6 +30,11 @@ def index(service: str):
     )
 
 
+@router.get(
+    "/login_index/{service}",
+    summary="Start OAuth login flow",
+    description="Redirect to service OAuth for login",
+)
 @router.get("/login_index/{service}")
 def login_index(service: str, mobile: bool = False):
     if service not in services_oauth:
@@ -37,6 +42,7 @@ def login_index(service: str, mobile: bool = False):
             status_code=404,
             detail=f"{service} service not found",
         )
+
     oauth_url = services_oauth[service].oauth_link()
     if mobile:
         separator = "&" if "?" in oauth_url else "?"
@@ -64,7 +70,6 @@ def login_oauth_token(
     request: Request,
     state: str = None,
 ):
-    # Check if this is a mobile OAuth flow
     is_mobile = state == "mobile"
     return services_oauth[service].oauth_callback(
         session, code, user, request, is_mobile
