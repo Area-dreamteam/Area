@@ -6,11 +6,11 @@
  */
 
 import axios from "axios";
+import { ConfigRespAct } from "../types/config";
 import { Act, Service, SpecificService } from "../types/service";
 import { MyProfileProp, UpdateProfileProp } from "../types/profile";
-import { ConfigRespAct } from "../types/config";
-import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
 import { SpecificAction, SpecificReaction } from "../types/actions";
+import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
 
 export const Calls = axios.create({
   baseURL: "/api/backend",

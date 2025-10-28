@@ -20,12 +20,7 @@ import { Password, Mail } from "../components/Forms"
 import { fetchLogin, fetchRegister } from "../functions/fetch"
 import { fetchAvailableOAuth, OAuthInfo, redirectOauth } from "../functions/oauth"
 
-interface LoginsProp
-{
-    isRegister: boolean;
-}
-
-export default function Logins({isRegister}: LoginsProp)
+export default function Logins(isRegister: boolean)
 {
     const router = useRouter();
     const [email, setEmail] = useState<string>("");
@@ -38,7 +33,7 @@ export default function Logins({isRegister}: LoginsProp)
       const success: boolean = await (isRegister ? fetchRegister(email, password) : fetchLogin(email, password));
   
       if (success) {
-        router.push((isRegister ? "/login" : "/explore"));
+        router.push("/explore");
       } else
         setError(true);
     }
