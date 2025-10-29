@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     MICROSOFT_DIR_TENANT: str
     REDDIT_CLIENT_ID: str
     REDDIT_CLIENT_SECRET: str
+    STRAVA_CLIENT_ID: str
+    STRAVA_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
 
