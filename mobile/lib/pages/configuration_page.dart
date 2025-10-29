@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/utils/icon_helper.dart';
-import 'package:mobile/core/config.dart';
 
 class ConfigurationPage extends StatefulWidget {
   final List<dynamic> configSchema;
