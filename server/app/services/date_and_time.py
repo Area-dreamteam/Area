@@ -28,9 +28,10 @@ class DateAndTime(Service):
             selected_minute: int = int(
                 get_component(area_action.config, "select_interval", "values")
             )
-            if selected_minute == current_time.minute:
-                return True
-            return False
+            return True
+            # if selected_minute == current_time.minute:
+            #     return True
+            # return False
 
     def __init__(self) -> None:
         super().__init__("Service Date&Time", "Time", "#000000", "", False)
