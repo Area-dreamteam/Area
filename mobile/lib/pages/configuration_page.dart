@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/utils/icon_helper.dart';
+import 'package:mobile/core/config.dart';
 
 class ConfigurationPage extends StatefulWidget {
   final List<dynamic> configSchema;
@@ -110,7 +111,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          getServiceIcon(serviceName, size: 100.0),
+          getServiceIcon(serviceName, size: 100.0, imageUrl: null),
           const SizedBox(height: 16),
           Text(
             widget.itemName,

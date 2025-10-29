@@ -44,7 +44,7 @@ class MicrosoftOauth(oauth_service):
     """Microsoft OAuth login service."""
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(color="#00A4EF", img_url="/images/Microsoft_logo.png")
 
     def _get_token(self, code: str) -> MicrosoftOAuthTokenRes:
         url = f"https://login.microsoftonline.com/{settings.MICROSOFT_DIR_TENANT}/oauth2/v2.0/token"
@@ -110,7 +110,9 @@ class Outlook(ServiceClass):
     """Outlook services automation."""
 
     def __init__(self) -> None:
-        super().__init__("Microsoft Outlook Service", "mail", "#0078D4", "", True)
+        super().__init__(
+            "Microsoft Outlook Service", "mail", "#0078D4", "/images/logo.png", True
+        )
 
     class new_email_sent(Action):
         """Trigger when new email is sent."""
@@ -345,4 +347,6 @@ class Outlook(ServiceClass):
         except MicrosoftApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token, request, is_mobile)
+        return oauth_add_link(
+            session, self.name, user, token_res.access_token, request, is_mobile
+        )

@@ -7,7 +7,7 @@
 
 'use client'
 
-// import Image from "next/image";
+import Image from "next/image";
 import { useEffect } from 'react';
 import { use, useState } from 'react';
 import { notFound } from "next/navigation";
@@ -18,14 +18,14 @@ import { fetchSpecificService } from '@/app/functions/fetch';
 import { Service, SpecificService } from "@/app/types/service";
 import { redirectOauthAddService } from "@/app/functions/oauth";
 import { fetchIsConnected, fetchServices, fetchDisconnectService } from '@/app/functions/fetch';
+import { getImageUrl } from '@/app/functions/images';
 
 type ServiceProp = {
   params: Promise<{ slug: string }>;
 };
 
 async function disconnectOauth(id: number,
-  setReload: (arg: boolean) => void, reload: boolean)
-{
+  setReload: (arg: boolean) => void, reload: boolean) {
   await fetchDisconnectService(id);
   setReload(!reload);
 }
@@ -93,16 +93,22 @@ export default function ServicePage({ params }: ServiceProp) {
             <div className="ml-[20px] pt-[50px]">
               <BackButton dir={"/explore"} />
             </div>
-            <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-2 mx-auto">
-              {/* {myService.image_url &&
-                <Image alt="myService's image" src={myService.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-              } */}
+            <div className="col-span-2 flex flex-col items-center justify-center text-[35px] font-bold text-center">
+              {myService.image_url && (
+                <Image
+                  alt="myService's image"
+                  src={getImageUrl(myService.image_url)}
+                  width={150}
+                  height={150}
+                  className="rounded-xl m-4"
+                />
+              )}
               <p className="mb-[20px]">{myService.description}</p>
               <p className="text-[20px]">{myService.name}</p>
             </div>
           </div>
           {!myService.oauth_required ? (
-            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={(e) => {e.preventDefault(); redirect("/create")}}>
+            <button className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto" onClick={(e) => { e.preventDefault(); redirect("/create") }}>
               Create applet
             </button>
           ) : (!serviceConnected && myService.oauth_required && user) ? (

@@ -5,6 +5,7 @@ class Service {
   final String? category;
   final String? color;
   final bool oauthRequired;
+  final String? imageUrl;
 
   Service({
     required this.id,
@@ -13,6 +14,7 @@ class Service {
     this.category,
     this.color,
     this.oauthRequired = false,
+    this.imageUrl,
   });
 
   factory Service.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Service {
       category: json['category'] as String?,
       color: json['color'] as String?,
       oauthRequired: json['oauth_required'] ?? false,
+      imageUrl: json['image_url'] as String?,
     );
   }
 }

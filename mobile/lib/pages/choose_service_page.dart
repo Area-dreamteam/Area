@@ -101,6 +101,7 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                       description: serviceFromList.description,
                       category: serviceFromList.category,
                       colorHex: serviceFromList.color,
+                      imageUrl: serviceFromList.imageUrl,
                       onTap: () async {
                         showDialog(
                           context: context,
