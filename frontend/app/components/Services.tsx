@@ -6,6 +6,8 @@
 */
 
 import { ServiceSearchProp } from "../interface/search";
+import Image from "next/image";
+import { getImageUrl } from "../functions/images";
 
 export default function Services({search = "", filter = null, services = null,
     className = "", boxClassName = "", onClick = () => ""}: ServiceSearchProp)
@@ -27,14 +29,12 @@ export default function Services({search = "", filter = null, services = null,
     );
     const nbServices = searchedServices.length;
     const serviceBlocks = searchedServices.map((service) => ((
-        <div key={service.id} className={boxClassName} style={{ backgroundColor: service.color }} onClick={() => onClick(service)}>
-            {(service.image_url == "" || service.image_url == null) ? (
-                ""
-            ) : ( ""
-                // <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[200px] h-[200px]"/>
+        <div key={service.id} className={`${boxClassName} flex flex-col items-center justify-center gap-4 p-4`} style={{ backgroundColor: service.color }} onClick={() => onClick(service)}>
+            {service.image_url && (
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[200px] h-[200px]"/>
             )}
-            <div className="centered bg-black rounded-t-lg">
-                <p className="font-bold text-white text-[20px] m-[20px]">{service.name}</p>
+            <div className="centered bg-black rounded-t-lg w-full">
+                <p className="font-bold text-white text-[20px] py-4 px-5">{service.name}</p>
             </div>
         </div>
     )))
