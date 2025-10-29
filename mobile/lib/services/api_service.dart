@@ -92,6 +92,14 @@ class ApiService {
     return _dio.get('/services/$serviceId/is_connected');
   }
 
+  Future<Response> enableArea(int areaId) {
+    return _dio.patch('/users/areas/$areaId/enable');
+  }
+
+  Future<Response> disableArea(int areaId) {
+    return _dio.patch('/users/areas/$areaId/disable');
+  }
+
   Future<Response> getServiceAuthUrl(String serviceName) {
     return _dio.get(
       '/oauth/index/$serviceName',

@@ -56,39 +56,70 @@ class _MyAppletPageState extends State<MyAreaPage> {
   }
 
   Widget _buildBody(MyAppletViewModel viewModel) {
-    if (viewModel.isLoading) {
+    if (viewModel.isLoading && viewModel.applets.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (viewModel.applets.isEmpty) {
-      return const Center(
-        child: Text(
-          'No Applet.',
-          style: TextStyle(fontSize: 20, color: Colors.white),
+    if (viewModel.applets.isEmpty && !viewModel.isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.layers_clear, size: 60, color: Colors.white38),
+            const SizedBox(height: 20),
+            const Text(
+              'No Applets yet.',
+              style: TextStyle(fontSize: 20, color: Colors.white70),
+            ),
+          ],
         ),
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TabWithCount(count: viewModel.applets.length),
-          const SizedBox(height: 22),
-          ...viewModel.applets.map(
-            (applet) => Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: MyAreaCard(
-                applet: applet,
-                onEdit: () => {},
-                onDelete: () => {},
-                onToggleEnabled: (value) => {},
-                onTogglePublic: (value) => {},
+    return RefreshIndicator(
+      onRefresh: viewModel.loadApplets,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (viewModel.errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      viewModel.errorMessage,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            TabWithCount(count: viewModel.applets.length),
+            const SizedBox(height: 22),
+            ...viewModel.applets.map(
+              (applet) => Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: MyAreaCard(
+                  applet: applet,
+                  onEdit: () {},
+                  onDelete: () async {
+                    await viewModel.deleteApplet(applet.id);
+                  },
+                  onToggleEnabled: (value) {
+                    viewModel.toggleAreaEnabled(applet.id);
+                  },
+                  onTogglePublic: (value) {},
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

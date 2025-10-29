@@ -289,4 +289,26 @@ class ServiceRepository {
       rethrow;
     }
   }
+
+  Future<void> enableArea(int areaId) async {
+    try {
+      final response = await _apiService.enableArea(areaId);
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to enable area : ${response.data}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> disableArea (int areaId) async {
+    try { 
+      final response = await _apiService.disableArea(areaId);
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception("Failed to disable area: ${response.data}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

@@ -85,12 +85,10 @@ class AppletModel {
       color: json['color'] as String? ?? '#CCCCCC',
       triggerService: trigger,
       reactionServices: reactionsList,
-      isEnabled: json['is_enabled'] as bool? ?? false,
+      isEnabled: json['enable'] as bool? ?? false,
       isPublic: json['is_public'] as bool? ?? false,
       actionId: json['action']?['action_id'] as int?,
-      actionConfigJson: _getConfigJson(
-        json['action']?['config'],
-      ),
+      actionConfigJson: _getConfigJson(json['action']?['config']),
       reactionId: _getFirstReactionId(json['reactions'] as List<dynamic>?),
       reactionConfigJson: _getFirstReactionConfig(
         json['reactions'] as List<dynamic>?,
