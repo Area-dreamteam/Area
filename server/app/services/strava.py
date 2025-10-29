@@ -22,7 +22,7 @@ from api.users.db import get_user_service_token
 
 
 class StravaOAuthTokenRes(BaseModel):
-    """Google OAuth token response format."""
+    """Strava OAuth token response format."""
 
     access_token: str
     token_type: str

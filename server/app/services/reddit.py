@@ -21,7 +21,7 @@ from api.users.db import get_user_service_token
 
 
 class RedditOAuthTokenRes(BaseModel):
-    """Google OAuth token response format."""
+    """Reddit OAuth token response format."""
 
     access_token: str
     token_type: str
