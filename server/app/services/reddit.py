@@ -237,10 +237,11 @@ class Reddit(ServiceClass):
     def _get_token(self, code: str) -> RedditOAuthTokenRes:
         url = "https://www.reddit.com/api/v1/access_token"
         auth = (settings.REDDIT_CLIENT_ID, settings.REDDIT_CLIENT_SECRET)
+        redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
         data = {
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": f"{settings.FRONT_URL}/callbacks/link/{self.name}",
+            "redirect_uri": redirect,
         }
         headers = {"User-Agent": "AreaApp/1.0"}
         r = requests.post(url, data=data, auth=auth, headers=headers)
@@ -256,8 +257,6 @@ class Reddit(ServiceClass):
         if r.status_code != 200:
             raise RedditApiError("Failed to get Reddit user info")
         data = r.json()
-        email = data.get("name", "") + "@reddit"
-        data["email"] = email
         return data
 
     def oauth_callback(
