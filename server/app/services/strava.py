@@ -229,13 +229,13 @@ class Strava(ServiceClass):
         except StravaApiError:
             return False
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         base_url = "https://www.strava.com/oauth/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
         params = {
             "client_id": settings.STRAVA_CLIENT_ID,
             "response_type": "code",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
             "redirect_uri": redirect,
             "approval_prompt": "auto",
             "scope": "read,activity:read_all,profile:read_all,activity:write,profile:write",

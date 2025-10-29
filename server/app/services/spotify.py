@@ -110,13 +110,13 @@ class Spotify(ServiceClass):
         except SpotifyApiError:
             return False
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         base_url = "https://accounts.spotify.com/authorize"
         redirect = f"http://127.0.0.1:3000/callbacks/link/{self.name}"
         params = {
             "client_id": settings.SPOTIFY_CLIENT_ID,
             "response_type": "code",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
             "redirect_uri": redirect,
             "show_dialog": "false",
             "scope": "user-read-email user-library-read playlist-modify-public playlist-modify-private",

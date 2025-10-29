@@ -152,13 +152,13 @@ class Twitch(ServiceClass):
         except TwitchApiError:
             return False
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         base_url = "https://id.twitch.tv/oauth2/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
         params = {
             "client_id": settings.TWITCH_CLIENT_ID,
             "response_type": "code",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
             "redirect_uri": redirect,
             "approval_prompt": "auto",
             "scope": "user:read:email user:read:follows moderator:read:followers",
