@@ -60,6 +60,10 @@ class ApiService {
     return _dio.get('/users/areas/me');
   }
 
+  Future<Response> getAreaDetails(int areaId) {
+    return _dio.get('/areas/$areaId');
+  }
+
   Future<Response> getServices() {
     return _dio.get('/services/list');
   }
@@ -98,6 +102,14 @@ class ApiService {
 
   Future<Response> disableArea(int areaId) {
     return _dio.patch('/users/areas/$areaId/disable');
+  }
+
+  Future<Response> publishArea(int areaId) {
+    return _dio.post('/users/areas/$areaId/publish');
+  }
+
+  Future<Response> unpublishArea(int areaId) {
+    return _dio.delete('/users/areas/public/$areaId/unpublish');
   }
 
   Future<Response> getServiceAuthUrl(String serviceName) {
@@ -170,5 +182,26 @@ class ApiService {
 
   Future<Response> getServiceDetails(int serviceId) {
     return _dio.get('/services/$serviceId');
+  }
+
+  Future<Response> updateArea({
+    required int areaId,
+    required String name,
+    required String description,
+    required int actionId,
+    required List<dynamic> actionConfig,
+    required int reactionId,
+    required List<dynamic> reactionConfig,
+  }) {
+    final Map<String, dynamic> data = {
+      'name': name,
+      'description': description,
+      'action': {'action_id': actionId, 'config': actionConfig},
+      'reactions': [
+        {'reaction_id': reactionId, 'config': reactionConfig},
+      ],
+    };
+
+    return _dio.patch('/users/areas/$areaId', data: data);
   }
 }

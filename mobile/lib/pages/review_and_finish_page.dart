@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user_model.dart';
 import 'package:mobile/pages/my_area.dart';
@@ -24,9 +22,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   void initState() {
     super.initState();
 
+    final viewModel = context.read<CreateViewModel>();
     _userFuture = context.read<ServiceRepository>().fetchCurrentUser();
 
-    final viewModel = context.read<CreateViewModel>();
+    _nameController.text = viewModel.name;
+    _descriptionController.text = viewModel.description;
 
     _nameController.addListener(() {
       viewModel.setName(_nameController.text);
@@ -40,7 +40,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   @override
   void dispose() {
     _nameController.dispose();
-    _descriptionController.dispose(); // C'est bien ici
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -66,8 +66,6 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 20),
                 _buildLogos(viewModel),
                 const SizedBox(height: 40),
-
-                // --- CHAMP TITRE ---
                 const Text(
                   'Applet title',
                   style: TextStyle(
@@ -79,10 +77,9 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _nameController,
-                  hint: "Ex: Post new GitHub issues to Slack",
+                  hint: "Title Area",
                   maxLines: 3,
                 ),
-
                 const SizedBox(height: 24),
                 const Text(
                   'Description',
@@ -95,10 +92,9 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _descriptionController,
-                  hint: "A short description of what this Applet does.",
+                  hint: "Describe your area",
                   maxLines: 5,
                 ),
-
                 const SizedBox(height: 20),
                 _buildUserInfo(),
                 const SizedBox(height: 40),
@@ -127,9 +123,17 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        getServiceIcon(actionService.name, size: 80, imageUrl: actionService.imageUrl),
+        getServiceIcon(
+          actionService.name,
+          size: 80,
+          imageUrl: actionService.imageUrl,
+        ),
         const SizedBox(width: 60),
-        getServiceIcon(reactionService.name, size: 80, imageUrl: reactionService.imageUrl)
+        getServiceIcon(
+          reactionService.name,
+          size: 80,
+          imageUrl: reactionService.imageUrl,
+        ),
       ],
     );
   }
@@ -178,7 +182,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   }
 
   Widget _buildCreateButton(BuildContext context, CreateViewModel viewModel) {
-    final bool isReady = viewModel.isReadyToCreate;
+    final bool isReady = viewModel.isReadyToCreateOrUpdate;
+
+    final String buttonText = viewModel.isEditing
+        ? 'Update Applet'
+        : 'Create Applet';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -195,7 +203,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
           ),
           onPressed: isReady && !viewModel.isLoading
               ? () async {
-                  final success = await viewModel.createApplet();
+                  final success = await viewModel.saveApplet();
 
                   if (success && context.mounted) {
                     Navigator.pushAndRemoveUntil(
@@ -214,7 +222,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                   width: 24,
                   child: CircularProgressIndicator(color: Colors.white),
                 )
-              : const Text('Create Applet', style: TextStyle(fontSize: 18)),
+              : Text(buttonText, style: const TextStyle(fontSize: 18)),
         ),
       ],
     );

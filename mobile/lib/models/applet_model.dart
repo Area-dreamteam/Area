@@ -86,7 +86,7 @@ class AppletModel {
       triggerService: trigger,
       reactionServices: reactionsList,
       isEnabled: json['enable'] as bool? ?? false,
-      isPublic: json['is_public'] as bool? ?? false,
+      isPublic: json['public'] as bool? ?? false,
       actionId: json['action']?['action_id'] as int?,
       actionConfigJson: _getConfigJson(json['action']?['config']),
       reactionId: _getFirstReactionId(json['reactions'] as List<dynamic>?),

@@ -21,7 +21,10 @@ class _CreatePageState extends State<CreatePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CreateViewModel>().clearSelection();
+      final viewModel = context.read<CreateViewModel>();
+      if (!viewModel.isEditing) {
+        viewModel.clearSelection();
+      }
     });
   }
 

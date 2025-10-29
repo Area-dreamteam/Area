@@ -5,29 +5,24 @@ import 'package:mobile/widgets/hex_convert.dart';
 
 class MyAreaCard extends StatelessWidget {
   final AppletModel applet;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
+  final VoidCallback? onTap;
   final ValueChanged<bool>? onToggleEnabled;
-  final ValueChanged<bool>? onTogglePublic;
 
   const MyAreaCard({
     super.key,
     required this.applet,
-    this.onEdit,
-    this.onDelete,
+    this.onTap,
     this.onToggleEnabled,
-    this.onTogglePublic,
   });
 
   @override
   Widget build(BuildContext context) {
-    // --- CORRECTION DE L'ERREUR ---
     final Color cardBackgroundColor = applet.isEnabled
-        ? hexToColor(applet.color) // <-- Utilise applet.color
-        : Colors.grey.shade800; // Couleur grise si désactivé
-    final Color textColor =
-        applet.isEnabled ? Colors.white : Colors.grey.shade500;
-    // --- FIN DE LA CORRECTION ---
+        ? hexToColor(applet.color)
+        : Colors.grey.shade800;
+    final Color textColor = applet.isEnabled
+        ? Colors.white
+        : Colors.grey.shade500;
 
     return Opacity(
       opacity: applet.isEnabled ? 1.0 : 0.65,
@@ -37,21 +32,16 @@ class MyAreaCard extends StatelessWidget {
         color: cardBackgroundColor,
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: onEdit,
+          onTap: onTap,
           child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- Top row: Icon, Public/Private, Edit, Delete ---
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Gère les icônes nulles
                     if (applet.triggerService != null &&
                         applet.reactionServices.isNotEmpty)
                       SizedBox(
@@ -62,7 +52,7 @@ class MyAreaCard extends StatelessWidget {
                             Positioned(
                               right: 0,
                               child: CircleAvatar(
-                                backgroundColor: Colors.white.withOpacity(0.8),
+                                backgroundColor: Colors.white,
                                 radius: 10,
                                 child: ClipOval(
                                   child: getServiceIcon(
@@ -75,7 +65,7 @@ class MyAreaCard extends StatelessWidget {
                             Positioned(
                               left: 0,
                               child: CircleAvatar(
-                                backgroundColor: Colors.white.withOpacity(0.95),
+                                backgroundColor: Colors.white,
                                 radius: 10,
                                 child: ClipOval(
                                   child: getServiceIcon(
@@ -90,7 +80,7 @@ class MyAreaCard extends StatelessWidget {
                       )
                     else if (applet.triggerService != null)
                       CircleAvatar(
-                        backgroundColor: Colors.white.withOpacity(0.9),
+                        backgroundColor: Colors.white,
                         radius: 10,
                         child: ClipOval(
                           child: getServiceIcon(
@@ -100,61 +90,18 @@ class MyAreaCard extends StatelessWidget {
                         ),
                       )
                     else
-                      // Fallback
                       CircleAvatar(
-                        backgroundColor: Colors.white.withOpacity(0.5),
+                        backgroundColor: Colors.white,
                         radius: 10,
-                        child: Icon(Icons.electrical_services,
-                            color: cardBackgroundColor.withOpacity(0.7),
-                            size: 12),
-                      ),
-                    
-                    const Spacer(), 
-
-                    // Bouton Public/Private
-                    if (onTogglePublic != null)
-                      TextButton(
-                        style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            minimumSize: Size.zero,
-                            visualDensity: VisualDensity.compact),
-                        onPressed: () => onTogglePublic!(!applet.isPublic),
-                        child: Text(
-                          applet.isPublic ? 'Public' : 'Private',
-                          style: TextStyle(
-                              color: textColor.withOpacity(0.9),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12),
+                        child: Icon(
+                          Icons.electrical_services,
+                          color: cardBackgroundColor,
+                          size: 12,
                         ),
-                      ),
-
-                    // Bouton Edit
-                    if (onEdit != null)
-                      IconButton(
-                        icon: Icon(Icons.edit_outlined,
-                            color: textColor, size: 20),
-                        onPressed: onEdit,
-                        tooltip: 'Edit',
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.all(4),
-                      ),
-
-                    // Bouton Delete
-                    if (onDelete != null)
-                      IconButton(
-                        icon: Icon(Icons.delete_outline,
-                            color: textColor, size: 20),
-                        onPressed: onDelete,
-                        tooltip: 'Delete',
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.all(4),
                       ),
                   ],
                 ),
                 const SizedBox(height: 12),
-
-                // --- Nom de l'Applet ---
                 Text(
                   applet.name,
                   style: TextStyle(
@@ -167,16 +114,12 @@ class MyAreaCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-
-                // --- Nom de l'utilisateur ---
                 Text(
                   'By ${applet.user.name}',
-                  style: TextStyle(
-                      color: textColor.withOpacity(0.7), fontSize: 12),
+                  style: TextStyle(color: textColor, fontSize: 12),
                 ),
                 const SizedBox(height: 12),
 
-                // --- Switch Enable/Disable ---
                 if (onToggleEnabled != null)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -184,20 +127,18 @@ class MyAreaCard extends StatelessWidget {
                       Text(
                         applet.isEnabled ? 'Enabled' : 'Disabled',
                         style: TextStyle(
-                            color: textColor.withOpacity(0.9),
-                            fontSize: 15, // Votre taille personnalisée
-                            fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(width: 20), // Votre espacement
-                      Transform.scale(
-                        scale: 1.5, // Votre taille de switch
-                        child: Switch(
-                          value: applet.isEnabled,
-                          onChanged: onToggleEnabled,
-                          activeThumbColor: Colors.white,
-                          inactiveTrackColor: Colors.black,
-                          inactiveThumbColor: Colors.grey,
+                          color: textColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      Switch(
+                        value: applet.isEnabled,
+                        onChanged: onToggleEnabled,
+                        activeThumbColor: Colors.white,
+                        inactiveTrackColor: Colors.black,
+                        inactiveThumbColor: Colors.grey.shade400,
                       ),
                     ],
                   ),

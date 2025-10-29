@@ -8,7 +8,7 @@ class MyAppletViewModel extends ChangeNotifier {
   final ServiceRepository _serviceRepository;
 
   MyAppletViewModel({required ServiceRepository serviceRepository})
-      : _serviceRepository = serviceRepository;
+    : _serviceRepository = serviceRepository;
 
   MyAppletState _state = MyAppletState.nothing;
   List<AppletModel> _applets = [];
@@ -27,7 +27,7 @@ class MyAppletViewModel extends ChangeNotifier {
       _setState(MyAppletState.success);
       return true;
     } catch (e) {
-      _errorMessage = "Impossible de charger les Applets: $e";
+      _errorMessage = "Failed to load Applets: $e";
       _setState(MyAppletState.error);
       return false;
     }
@@ -35,16 +35,14 @@ class MyAppletViewModel extends ChangeNotifier {
 
   Future<bool> deleteApplet(int appletId) async {
     final originalApplets = List<AppletModel>.from(_applets);
-    
     _applets.removeWhere((applet) => applet.id == appletId);
     _errorMessage = '';
     notifyListeners();
-
     try {
       await _serviceRepository.deleteArea(appletId);
       return true;
     } catch (e) {
-      _errorMessage = "Delete error: $e";
+      _errorMessage = "Failed to delete: $e";
       _applets = originalApplets;
       notifyListeners();
       return false;
@@ -54,22 +52,46 @@ class MyAppletViewModel extends ChangeNotifier {
   Future<bool> toggleAreaEnabled(int appletId) async {
     final index = _applets.indexWhere((a) => a.id == appletId);
     if (index == -1) return false;
-
     final currentApplet = _applets[index];
     final newState = !currentApplet.isEnabled;
     _applets[index] = _copyWithApplet(currentApplet, isEnabled: newState);
     _errorMessage = '';
     notifyListeners();
-
     try {
-      if (newState == true) {
+      if (newState) {
         await _serviceRepository.enableArea(appletId);
       } else {
         await _serviceRepository.disableArea(appletId);
       }
       return true;
     } catch (e) {
-      _errorMessage = "Error switch state: $e";
+      _errorMessage = "Toggle failed: $e";
+      _applets[index] = currentApplet;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> toggleAreaPublic(int appletId) async {
+    final index = _applets.indexWhere((a) => a.id == appletId);
+    if (index == -1) return false;
+
+    final currentApplet = _applets[index];
+    final newState = !currentApplet.isPublic;
+
+    _applets[index] = _copyWithApplet(currentApplet, isPublic: newState);
+    _errorMessage = '';
+    notifyListeners();
+
+    try {
+      if (newState == true) {
+        await _serviceRepository.publishArea(appletId);
+      } else {
+        await _serviceRepository.unpublishArea(appletId);
+      }
+      return true;
+    } catch (e) {
+      _errorMessage = "Visibility toggle failed: $e";
       _applets[index] = currentApplet;
       notifyListeners();
       return false;
@@ -83,7 +105,11 @@ class MyAppletViewModel extends ChangeNotifier {
     }
   }
 
-  AppletModel _copyWithApplet(AppletModel applet, {bool? isEnabled, bool? isPublic}) {
+  AppletModel _copyWithApplet(
+    AppletModel applet, {
+    bool? isEnabled,
+    bool? isPublic,
+  }) {
     return AppletModel(
       id: applet.id,
       name: applet.name,
