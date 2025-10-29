@@ -166,8 +166,12 @@ class Service:
         """Check if service is connected for current user."""
         return False
 
-    def oauth_link(self) -> str:
-        """Generate OAuth authorization URL."""
+    def oauth_link(self, state: str = None) -> str:
+        """Generate OAuth authorization URL.
+        
+        Args:
+            state: Optional OAuth state token for mobile flows
+        """
         return ""
 
     def oauth_callback(
@@ -193,8 +197,12 @@ class oauth_service:
         self.color: str = color
         self.image_url: str = img_url
 
-    def oauth_link(self) -> str:
-        """Generate OAuth authorization URL."""
+    def oauth_link(self, state: str = None) -> str:
+        """Generate OAuth authorization URL.
+        
+        Args:
+            state: Optional OAuth state token for mobile flows
+        """
         return ""
 
     def oauth_callback(

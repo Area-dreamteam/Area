@@ -9,6 +9,7 @@ from services.services_classes import Service, create_service_dictionnary, oauth
 from services.google import Gmail
 from services.microsoft import Outlook
 from services.todoist import Todoist
+from services.reddit import Reddit
 from services.date_and_time import DateAndTime
 from services.github import GithubOauth
 from services.google import GoogleOauth

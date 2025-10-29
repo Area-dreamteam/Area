@@ -16,8 +16,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
-// import Image from "next/image"
+import Image from "next/image"
 import { SpecificAction, SpecificReaction } from "@/app/types/actions"
+import { getImageUrl } from "@/app/functions/images"
 import {
   Select,
   SelectContent,
@@ -379,9 +380,9 @@ function ChooseTrigger({ act, service, type, setConfig,
             </p>
             <hr className="col-span-4 mb-[20px]" />
             <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto">
-            {/* {service.image_url &&
-                <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-            } */}
+            {service.image_url &&
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            }
             <p className="title inverted mb-[20px]">
                 {act?.name.replaceAll("_", " ")}
             </p>
@@ -441,9 +442,9 @@ function ChooseAct({ service, setService, setAction,
             </p>
             <hr className="col-span-4" />
             <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-              {/* {service.image_url &&
-                <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-              } */}
+              {service.image_url &&
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+              }
               <p className="subtitle inverted mt-[10%]">{service.name}</p>
             </div>
           </div>

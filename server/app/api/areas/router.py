@@ -163,5 +163,5 @@ def copy_area_public_by_id(id: int, session: SessionDep, user: CurrentUser):
     if not area:
         raise HTTPException(status_code=404, detail="Data not found")
 
-    create_copy_area(session, area, False)
+    create_copy_area(session, area, user.id, False)
     return {"message": "Area copy", "area_id": area.id, "user_id": user.id}

@@ -23,7 +23,7 @@ class InformationPage extends StatefulWidget {
 }
 
 class _InformationPageState extends State<InformationPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   late final int _serviceId;
   late Future<List<AppletModel>> _publicApplets;
@@ -36,6 +36,7 @@ class _InformationPageState extends State<InformationPage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 2, vsync: this);
 
     int? tempServiceId;
@@ -69,8 +70,16 @@ class _InformationPageState extends State<InformationPage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadServiceData();
+    }
   }
 
   Future<void> _loadServiceData() async {
@@ -169,7 +178,7 @@ class _InformationPageState extends State<InformationPage>
             ),
             child: Column(
               children: [
-                getServiceIcon(service.name, size: 60.0),
+                getServiceIcon(service.name, size: 60.0, imageUrl: service.imageUrl),
                 // ---
                 const SizedBox(height: 16),
                 Text(
@@ -260,7 +269,7 @@ class _InformationPageState extends State<InformationPage>
                 borderRadius: BorderRadius.circular(15),
               ),
               child: triggerService != null
-                  ? getServiceIcon(triggerService.name, size: 40.0)
+                  ? getServiceIcon(triggerService.name, size: 40.0, imageUrl: triggerService.imageUrl)
                   // ---
                   : const Icon(Icons.apps, color: Colors.white, size: 40),
             ),
@@ -283,7 +292,7 @@ class _InformationPageState extends State<InformationPage>
         if (triggerService != null)
           Row(
             children: [
-              getServiceIcon(triggerService.name, size: 30.0),
+              getServiceIcon(triggerService.name, size: 30.0, imageUrl: triggerService.imageUrl),
               // ---
               const SizedBox(width: 10),
               Text(
@@ -475,7 +484,7 @@ class _InformationPageState extends State<InformationPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (showIcon && serviceInfo != null) ...[
-            getServiceIcon(serviceInfo.name, size: 24.0),
+            getServiceIcon(serviceInfo.name, size: 24.0, imageUrl: serviceInfo.imageUrl),
             const SizedBox(width: 12),
           ] else if (showIcon) ...[
             const CircleAvatar(backgroundColor: Colors.blue, radius: 12),

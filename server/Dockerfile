@@ -11,5 +11,4 @@ WORKDIR /server/app
 RUN crontab -l
 
 ENV ENV=dev
-
 CMD crond && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --reload

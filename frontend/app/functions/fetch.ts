@@ -135,6 +135,17 @@ export async function fetchLogin(email: string, password: string) {
   return false;
 }
 
+export async function fetchLogout() {
+  try {
+    const res = await Calls.post("/auth/logout");
+    if (res.status != 200) return false;
+    return true;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+  return false;
+}
+
 export async function fetchRegister(email: string, password: string) {
   try {
     const res = await Calls.post("/auth/register", {

@@ -17,6 +17,10 @@ class OAuthService {
   Completer<OAuthLinkResult>? _linkCompleter;
 
   void initialize() {
+    // Handle initial deep link (when app is opened from deep link)
+    _checkInitialLink();
+    
+    // Listen to deep links while app is running
     _linkSubscription = _appLinks.uriLinkStream.listen(
       _handleDeepLink,
       onError: (err) {
@@ -27,8 +31,29 @@ class OAuthService {
     );
   }
 
+  Future<void> _checkInitialLink() async {
+    try {
+      final initialLink = await _appLinks.getInitialLink();
+      if (initialLink != null) {
+        print('Processing initial deep link: $initialLink');
+        _handleDeepLink(initialLink);
+      }
+    } catch (e) {
+      print('Error checking initial deep link: $e');
+    }
+  }
+
   void dispose() {
     _linkSubscription?.cancel();
+  }
+
+  Future<void> _clearOAuthState() async {
+    try {
+      await _storage.delete(key: 'oauth_operation');
+      await _storage.delete(key: 'oauth_service');
+    } catch (e) {
+      print('Error clearing OAuth state: $e');
+    }
   }
 
   Future<OAuthResult> loginWithOAuth(String serviceName) async {
@@ -38,26 +63,36 @@ class OAuthService {
     _oauthCompleter = Completer<OAuthResult>();
 
     try {
+      // Store the operation type for recovery after app restart
+      await _storage.write(key: 'oauth_operation', value: 'login');
+      await _storage.write(key: 'oauth_service', value: serviceName);
+      
       final oauthUrl = '$_baseUrl/oauth/login_index/$serviceName?mobile=true';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
+        await _clearOAuthState();
         _completeOAuth(OAuthResult.error('Could not launch OAuth URL'));
         return _oauthCompleter!.future;
       }
 
       final result = await _oauthCompleter!.future.timeout(
         const Duration(minutes: 5),
-        onTimeout: () => OAuthResult.error('OAuth timeout'),
+        onTimeout: () {
+          _clearOAuthState();
+          return OAuthResult.error('OAuth timeout');
+        },
       );
 
       if (result.isSuccess) {
         await _storeAuthToken(result.token!);
       }
+      await _clearOAuthState();
       return result;
     } catch (e) {
+      await _clearOAuthState();
       _completeOAuth(OAuthResult.error('OAuth failed: $e'));
       return _oauthCompleter!.future;
     }
@@ -72,22 +107,43 @@ class OAuthService {
     _linkCompleter = Completer<OAuthLinkResult>();
 
     try {
-      final oauthUrl = '$_baseUrl/oauth/link/$serviceName?mobile=true';
+      // Store the operation type for recovery after app restart
+      await _storage.write(key: 'oauth_operation', value: 'link');
+      await _storage.write(key: 'oauth_service', value: serviceName);
+      
+      // Get the auth token to pass to the backend
+      final sessionCookie = await _storage.read(key: 'session_cookie');
+      String? token;
+      if (sessionCookie != null && sessionCookie.startsWith('access_token=Bearer ')) {
+        token = sessionCookie.substring('access_token=Bearer '.length);
+      }
+      
+      final oauthUrl = token != null 
+        ? '$_baseUrl/oauth/index/$serviceName?mobile=true&token=$token'
+        : '$_baseUrl/oauth/index/$serviceName?mobile=true';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
+        await _clearOAuthState();
         _completeLink(OAuthLinkResult.error('Could not launch OAuth URL'));
         return _linkCompleter!.future;
       }
 
-      return await _linkCompleter!.future.timeout(
+      final result = await _linkCompleter!.future.timeout(
         const Duration(minutes: 5),
-        onTimeout: () => OAuthLinkResult.error('OAuth timeout'),
+        onTimeout: () {
+          _clearOAuthState();
+          return OAuthLinkResult.error('OAuth timeout');
+        },
       );
+      
+      await _clearOAuthState();
+      return result;
     } catch (e) {
       print('OAuth error: $e');
+      await _clearOAuthState();
       _completeLink(OAuthLinkResult.error('OAuth failed: $e'));
       return _linkCompleter!.future;
     }
@@ -95,7 +151,9 @@ class OAuthService {
 
   Future<List<OAuthProvider>> getAvailableProviders() async {
     try {
-      print('Fetching OAuth providers from: $_baseUrl/oauth/available_oauths_login');
+      print(
+        'Fetching OAuth providers from: $_baseUrl/oauth/available_oauths_login',
+      );
       final dio = Dio(
         BaseOptions(baseUrl: _baseUrl, responseType: ResponseType.json),
       );
@@ -107,10 +165,14 @@ class OAuthService {
         final providers = data
             .map((item) => OAuthProvider.fromJson(item as Map<String, dynamic>))
             .toList();
-        print('Parsed ${providers.length} OAuth providers: ${providers.map((p) => p.name).toList()}');
+        print(
+          'Parsed ${providers.length} OAuth providers: ${providers.map((p) => p.name).toList()}',
+        );
         return providers;
       } else {
-        print('Invalid response: status=${response.statusCode}, data type=${response.data.runtimeType}');
+        print(
+          'Invalid response: status=${response.statusCode}, data type=${response.data.runtimeType}',
+        );
       }
     } catch (e) {
       print('Error fetching OAuth providers: $e');
@@ -123,7 +185,15 @@ class OAuthService {
     return sessionCookie != null && sessionCookie.isNotEmpty;
   }
 
-  void _handleDeepLink(Uri uri) {
+  Future<String?> checkPendingLinkSuccess() async {
+    final service = await _storage.read(key: 'oauth_link_success');
+    if (service != null) {
+      await _storage.delete(key: 'oauth_link_success');
+    }
+    return service;
+  }
+
+  void _handleDeepLink(Uri uri) async {
     print('Received deeplink: $uri');
     if (uri.scheme == 'area' && uri.host == 'oauth-callback') {
       final token = uri.queryParameters['token'];
@@ -131,16 +201,33 @@ class OAuthService {
       final error = uri.queryParameters['error'];
       final linked = uri.queryParameters['linked'];
 
+      // Check stored OAuth operation if completers are null (app was restarted)
+      final storedOperation = await _storage.read(key: 'oauth_operation');
+      final storedService = await _storage.read(key: 'oauth_service');
+      
+      print('Stored operation: $storedOperation, service: $storedService');
+      print('Deep link params - token: ${token != null}, linked: $linked, error: $error');
+
       if (error != null) {
         _completeOAuth(OAuthResult.error('OAuth error: $error'));
         _completeLink(OAuthLinkResult.error('OAuth error: $error'));
+        await _clearOAuthState();
       } else if (token != null && service != null) {
         _completeOAuth(OAuthResult.success(token, service));
+        await _clearOAuthState();
       } else if (linked == 'true' && service != null) {
+        // If there's no active completer but we have a stored operation,
+        // this means the app was restarted. We need to notify the user somehow.
+        if (_linkCompleter == null && storedOperation == 'link') {
+          print('OAuth linking succeeded after app restart - storing success flag');
+          await _storage.write(key: 'oauth_link_success', value: service);
+        }
         _completeLink(OAuthLinkResult.success(service));
+        await _clearOAuthState();
       } else {
         _completeOAuth(OAuthResult.error('Invalid OAuth callback'));
         _completeLink(OAuthLinkResult.error('Invalid OAuth callback'));
+        await _clearOAuthState();
       }
     }
   }
@@ -166,6 +253,7 @@ class OAuthService {
     );
   }
 }
+
 class OAuthResult {
   final bool isSuccess;
   final String? token;
@@ -173,13 +261,13 @@ class OAuthResult {
   final String? error;
 
   OAuthResult.success(this.token, this.service)
-      : isSuccess = true,
-        error = null;
+    : isSuccess = true,
+      error = null;
 
   OAuthResult.error(this.error)
-      : isSuccess = false,
-        token = null,
-        service = null;
+    : isSuccess = false,
+      token = null,
+      service = null;
 }
 
 class OAuthLinkResult {
@@ -191,27 +279,19 @@ class OAuthLinkResult {
 
   OAuthLinkResult.error(this.error) : isSuccess = false, service = null;
 }
+
 class OAuthProvider {
   final String name;
-  final String imageUrl;
   final String color;
+  final String? imageUrl;
 
-  OAuthProvider({
-    required this.name,
-    required this.imageUrl,
-    required this.color,
-  });
+  OAuthProvider({required this.name, required this.color, this.imageUrl});
 
   factory OAuthProvider.fromJson(Map<String, dynamic> json) {
-    String originalName = json['name'] ?? '';
-
-    final regex = RegExp(r'_?oauth$', caseSensitive: false);
-    final cleanedName = originalName.replaceAll(regex, '');
-
     return OAuthProvider(
-      name: cleanedName,
-      imageUrl: json['image_url'] ?? '',
+      name: json['name'] ?? '',
       color: json['color'] ?? '#000000',
+      imageUrl: json['image_url'] as String?,
     );
   }
 }
