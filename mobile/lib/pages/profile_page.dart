@@ -227,7 +227,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
 
           return _buildLinkTile(
             displayName.toLowerCase(),
-            getServiceIcon(account.provider.name, size: 30.0),
+            getServiceIcon(account.provider.name, size: 30.0, imageUrl: account.provider.imageUrl),
             account.isLinked,
             () {
               if (account.isLinked) {

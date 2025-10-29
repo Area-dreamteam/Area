@@ -5,7 +5,7 @@
 ** Navbar components unit tests
 */
 
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import NavigationBar, { ConnectedNavbar } from '../Navbar';
 
 // Mock next/navigation
@@ -14,6 +14,11 @@ jest.mock('next/navigation', () => ({
 }));
 
 const { redirect: mockRedirect } = jest.requireMock('next/navigation');
+
+// Mock fetch functions
+jest.mock('@/app/functions/fetch', () => ({
+  fetchLogout: jest.fn().mockResolvedValue(undefined),
+}));
 
 // Mock next/link
 jest.mock('next/link', () => {
@@ -147,7 +152,7 @@ describe('ConnectedNavbar', () => {
     expect(menuItems).toHaveLength(9); // Create, My applets, Explore, Account, My services, Activity, Archive, Help, Log out
   });
 
-  it('dropdown menu items have correct click handlers for enabled items', () => {
+  it('dropdown menu items have correct click handlers for enabled items', async () => {
     render(<ConnectedNavbar />);
     
     const menuItems = screen.getAllByTestId('dropdown-menu-item');
@@ -159,6 +164,8 @@ describe('ConnectedNavbar', () => {
       expect(mockRedirect).toHaveBeenCalledWith('/settings');
     }
 
+    mockRedirect.mockClear();
+
     // Test Help menu item
     const helpItem = menuItems.find(item => item.textContent?.includes('Help'));
     if (helpItem) {
@@ -166,11 +173,15 @@ describe('ConnectedNavbar', () => {
       expect(mockRedirect).toHaveBeenCalledWith('/help');
     }
 
+    mockRedirect.mockClear();
+
     // Test Log out menu item
     const logoutItem = menuItems.find(item => item.textContent?.includes('Log out'));
     if (logoutItem) {
       fireEvent.click(logoutItem);
-      expect(mockRedirect).toHaveBeenCalledWith('/');
+      await waitFor(() => {
+        expect(mockRedirect).toHaveBeenCalledWith('/');
+      });
     }
   });
 

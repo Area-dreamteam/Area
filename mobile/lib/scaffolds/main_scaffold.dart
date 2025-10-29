@@ -256,7 +256,7 @@ Widget _buildOAuthOptionButton(
       Navigator.of(context).pop();
       onOAuthLogin(provider);
     },
-    icon: getServiceIcon(provider.name, size: 24.0),
+    icon: getServiceIcon(provider.name, size: 24.0, imageUrl: provider.imageUrl),
     label: Text(
       text,
       style: const TextStyle(color: Colors.black, fontSize: 16.0),

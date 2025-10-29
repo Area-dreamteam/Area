@@ -127,9 +127,9 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        getServiceIcon(actionService.name, size: 80),
+        getServiceIcon(actionService.name, size: 80, imageUrl: actionService.imageUrl),
         const SizedBox(width: 60),
-        getServiceIcon(reactionService.name, size: 80)
+        getServiceIcon(reactionService.name, size: 80, imageUrl: reactionService.imageUrl)
       ],
     );
   }

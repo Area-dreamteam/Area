@@ -135,6 +135,7 @@ class _ExplorePageState extends State<ExplorePage> {
                             id: serviceData.id,
                             name: serviceData.name,
                             colorHex: serviceData.color,
+                            imageUrl: serviceData.imageUrl,
                             onTap: () {
                               Navigator.push(
                                 context,

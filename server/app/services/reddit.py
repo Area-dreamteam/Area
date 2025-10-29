@@ -42,7 +42,7 @@ class Reddit(ServiceClass):
     """Reddit automation service."""
 
     def __init__(self) -> None:
-        super().__init__("Reddit", "social", "#FF4500", "reddit.com", True)
+        super().__init__("Reddit", "social", "#FF4500", "/images/Reddit_logo.png", True)
 
     class new_post(Action):
         """Trigger when a new post appears in a subreddit."""
@@ -237,10 +237,11 @@ class Reddit(ServiceClass):
     def _get_token(self, code: str) -> RedditOAuthTokenRes:
         url = "https://www.reddit.com/api/v1/access_token"
         auth = (settings.REDDIT_CLIENT_ID, settings.REDDIT_CLIENT_SECRET)
+        redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
         data = {
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": f"{settings.FRONT_URL}/callbacks/link/{self.name}",
+            "redirect_uri": redirect,
         }
         headers = {"User-Agent": "AreaApp/1.0"}
         r = requests.post(url, data=data, auth=auth, headers=headers)
@@ -256,8 +257,6 @@ class Reddit(ServiceClass):
         if r.status_code != 200:
             raise RedditApiError("Failed to get Reddit user info")
         data = r.json()
-        email = data.get("name", "") + "@reddit"
-        data["email"] = email
         return data
 
     def oauth_callback(
@@ -273,4 +272,6 @@ class Reddit(ServiceClass):
         except RedditApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token, request, is_mobile)
+        return oauth_add_link(
+            session, self.name, user, token_res.access_token, request, is_mobile
+        )

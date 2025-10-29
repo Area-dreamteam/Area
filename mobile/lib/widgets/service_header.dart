@@ -31,7 +31,7 @@ class ServiceHeader extends StatelessWidget implements PreferredSizeWidget {
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: getServiceIcon(service.name, size: 40.0),
+            child: getServiceIcon(service.name, size: 40.0, imageUrl: service.imageUrl),
           ),
           const SizedBox(height: 12),
 

@@ -45,7 +45,7 @@ class GoogleOauth(oauth_service):
     """Google OAuth service for user authentication."""
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(color="#4285F4", img_url="/images/Google_logo.png")
 
     def _get_token(self, code: str) -> GoogleOAuthTokenRes:
         base_url = "https://oauth2.googleapis.com/token"
@@ -190,7 +190,7 @@ class Gmail(ServiceClass):
                 logger.error(f"Gmail: error sending email - {e.message}")
 
     def __init__(self) -> None:
-        super().__init__("Service email de Google", "mail", "#0A378A", "", True)
+        super().__init__("Service email de Google", "mail", "#0A378A", "/images/Google_logo.png", True)
 
     def is_connected(self, session: Session, user_id: int) -> bool:
         user_service: UserService = session.exec(

@@ -9,12 +9,12 @@
 
 import { useEffect } from 'react';
 import { use, useState } from 'react';
-import { notFound } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import { redirect } from "next/navigation";
 import BackButton from '@/app/components/Back';
 import SettingsButton from '@/app/components/Settings';
-import { PrivateApplet, SpecificPrivateApplet } from "@/app/types/applet";
-import { fetchPersonalApplets, fetchDeletePersonalApplet, fetchPersonalAppletConnection, fetchPublishPersonalApplet, fetchPrivateApplet } from '@/app/functions/fetch';
+import { PrivateApplet, PublicApplet, SpecificPrivateApplet, SpecificPublicApplet } from "@/app/types/applet";
+import { fetchPersonalApplets, fetchDeletePersonalApplet, fetchPersonalAppletConnection, fetchPublishPersonalApplet, fetchPrivateApplet, fetchUnpublishPersonalApplet, fetchPersonalPublicApplets, fetchSpecificApplet } from '@/app/functions/fetch';
 
 type AppletProp = {
   params: Promise<{ slug: string }>;
@@ -33,23 +33,31 @@ async function AppletConnection(id: number, state: string,
     setConnectionChanged(true);
 }
 
-function publishApplet(id: number)
+async function UnpublishApplet(id: number)
 {
-    fetchPublishPersonalApplet(id);
+    await fetchUnpublishPersonalApplet(id);
+    redirect("/my_applets");
+}
+
+async function publishApplet(id: number)
+{
+    await fetchPublishPersonalApplet(id);
 }
 
 export default function AppletPage({ params }: AppletProp)
 {
     const slug = decodeURIComponent(use(params).slug);
+    const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
-    const [applets, setApplets] = useState<PrivateApplet[] | null>(null);
+    const published = searchParams.get('published') === 'true';
+    const [applets, setApplets] = useState<PublicApplet[] | PrivateApplet[] | null>(null);
     const [areaChanged, setAreaChanged] = useState<boolean>(false);
-    const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(undefined);
-    const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null);
+    const [currApplet, setCurrApplet] = useState<PublicApplet | PrivateApplet | undefined>(undefined);
+    const [myApplet, setMyApplet] = useState<SpecificPublicApplet | SpecificPrivateApplet | null>(null);
 
     useEffect(() => {
         const loadApplets = async () => {
-            await fetchPersonalApplets(setApplets);
+            await (published ? fetchPersonalPublicApplets(setApplets) : fetchPersonalApplets(setApplets));
         }
         loadApplets();
     }, []);
@@ -59,12 +67,12 @@ export default function AppletPage({ params }: AppletProp)
             const searched = applets.find(applet => applet.name.toLowerCase() == (slug.toLowerCase()));
             setCurrApplet(searched);
         }
-    }, [applets]);
+    }, [applets, slug]);
 
     useEffect(() => {
         if (currApplet)
             fetchPrivateApplet(setMyApplet, currApplet.id);
-    }, [currApplet])
+    }, [currApplet]);
 
     useEffect(() => {
         if (myApplet != null)
@@ -74,10 +82,15 @@ export default function AppletPage({ params }: AppletProp)
     useEffect(() => {
         if (!areaChanged)
             return;
-        if (currApplet)
-            fetchPrivateApplet(setMyApplet, currApplet.id);
+        if (currApplet) {
+            if (published) {
+                fetchSpecificApplet(setMyApplet, currApplet.id);
+            } else {
+                fetchPrivateApplet(setMyApplet, currApplet.id);
+            }
+        }
         setAreaChanged(false);
-    }, [areaChanged]);
+    }, [areaChanged, currApplet]);
 
     return (
         <div>
@@ -85,9 +98,9 @@ export default function AppletPage({ params }: AppletProp)
                 <p className="h-[700px] w-screen text-[50px] flex items-center justify-center">
                     Loading...
                 </p>
-            ) : (myApplet) ? (
+            ) : myApplet ? (
                 <div className="w-screen">
-                    <div className="grid grid-cols-4 text-white md:h-[500px] h-[300px] rounded-b-xl" style={{ background: myApplet.area_info.color }}>
+                    <div className={`grid grid-cols-4 text-white md:h-[500px] h-[300px] ${published ? "" : "rounded-b-xl"}`} style={{ background: myApplet.area_info.color }}>
                         <div className="ml-[20px] pt-[50px]">
                             <BackButton dir={"/my_applets"}/>
                         </div>
@@ -98,22 +111,34 @@ export default function AppletPage({ params }: AppletProp)
                             <p className="text-center simple-text inverted truncate">
                                 {myApplet.area_info.description}
                             </p>
-                            <button className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]" onClick={() => AppletConnection(myApplet.area_info.id, (myApplet.area_info.enable ? "disable" : "enable"), setAreaChanged)}>
-                                {myApplet.area_info.enable ? "Disconnect" : "Connect"}
-                            </button>
+                            {published ? (
+                                <button className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]" onClick={() => UnpublishApplet(myApplet.area_info.id)}>
+                                    Unpublish
+                                </button>
+
+                            ) : (
+                                <button className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]" onClick={() => {
+                                        const privApplet = myApplet as SpecificPrivateApplet;
+                                        AppletConnection(privApplet.area_info.id, (privApplet.area_info.enable ? "disable" : "enable"), setAreaChanged)
+                                    }}>
+                                    {(myApplet as SpecificPrivateApplet).area_info.enable ? "Disconnect" : "Connect"}
+                                </button>
+                            )}
                         </div>
                         <div className="flex justify-end pt-[50px] mr-[20px]">
                             <SettingsButton link={`/my_applets/${myApplet.area_info.name}/edit`}/>
                         </div>
                     </div>
-                    <div className='grid grid-cols-2'>
-                        <button className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted [--common-bg:#BA301C] [--common-hover:#801100]" onClick={() => deleteApplet(myApplet.area_info.id)}>
-                            Delete applet
-                        </button>
-                        <button className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted" onClick={() => publishApplet(myApplet.area_info.id)}>
-                            Publish
-                        </button>
-                    </div>
+                    {!published &&
+                        <div className='grid grid-cols-2'>
+                            <button className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted [--common-bg:#BA301C] [--common-hover:#801100]" onClick={() => deleteApplet(myApplet.area_info.id)}>
+                                Delete applet
+                            </button>
+                            <button className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted" onClick={() => publishApplet(myApplet.area_info.id)}>
+                                Publish
+                            </button>
+                        </div>
+                    }
                 </div>
             ) : notFound()}
         </div>

@@ -16,8 +16,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { redirect } from "next/navigation"
-// import Image from "next/image"
+import Image from "next/image"
 import { SpecificAction, SpecificReaction } from "@/app/types/actions"
+import { getImageUrl } from "@/app/functions/images"
 import {
   Select,
   SelectContent,
@@ -28,7 +29,6 @@ import {
 } from "@/components/ui/select"
 import { fetchIsConnected } from "@/app/functions/fetch"
 import { Checkbox } from "@/components/ui/checkbox"
-// import { useAuth } from "@/app/functions/hooks"
 
 //-- Buttons --//
 
@@ -110,6 +110,7 @@ function createApplet(action: Act, reaction: Act, title: string, actConfig: Conf
 function Creation({ action, reaction, setAction, setReaction, actConfig,
   reactConfig, setChoosingAction, setChoosingReaction }: CreationProp)
 {
+  const [nbReactions, setNbReactions] = useState<number>(1);
   const [validating, setValidating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(`if ${action?.name}, then ${reaction?.name}`);
 
@@ -147,7 +148,12 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
           <ActionButton buttonText="Then " replacementText="That" disable={action == null}
             setIsChoosing={setChoosingReaction} setChosen={setReaction} chosen={reaction} />
             {(action != null && reaction != null) &&
-              <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px]"} inverted={true}/>
+              <div>
+                <button className="mt-[5%] rounded-button inverted block mx-auto" onClick={() => setNbReactions(nbReactions + 1)}>
+                  +
+                </button>
+                <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px] mb-[5%]"} inverted={true}/>
+              </div>
             }
         </div>
       )}
@@ -374,9 +380,9 @@ function ChooseTrigger({ act, service, type, setConfig,
             </p>
             <hr className="col-span-4 mb-[20px]" />
             <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto">
-            {/* {service.image_url &&
-                <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-            } */}
+            {service.image_url &&
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            }
             <p className="title inverted mb-[20px]">
                 {act?.name.replaceAll("_", " ")}
             </p>
@@ -436,9 +442,9 @@ function ChooseAct({ service, setService, setAction,
             </p>
             <hr className="col-span-4" />
             <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-              {/* {service.image_url &&
-                <Image alt="service's logo" src={service.image_url} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
-              } */}
+              {service.image_url &&
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+              }
               <p className="subtitle inverted mt-[10%]">{service.name}</p>
             </div>
           </div>
@@ -557,12 +563,6 @@ export default function Create() {
   const [choosingReaction, setChoosingReaction] = useState(false);
   const [actConfig, setActConfig] = useState<ConfigRespAct[]>([]);
   const [reactConfig, setReactConfig] = useState<ConfigRespAct[]>([]);
-  // const { user } = useAuth();
-
-  // useEffect(() => {
-  //   if (!user)
-  //     redirect("/login");
-  // }, [user]); // to change
 
   return (
     <div>

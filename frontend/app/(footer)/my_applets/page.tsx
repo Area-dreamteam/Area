@@ -15,9 +15,14 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
 
-function redirectToApplet(applet: PublicApplet | PrivateApplet)
+function redirectToEditableApplet(applet: PublicApplet | PrivateApplet)
 {
-    redirect(`/my_applets/${applet.name}`);
+    redirect(`/my_applets/${applet.name}?published=false`);
+}
+
+function redirectToUnpublishableApplet(applet: PublicApplet | PrivateApplet)
+{
+    redirect(`/my_applets/${applet.name}?published=true`);
 }
 
 function FilterApplets(text: string, applets: PrivateApplet[] | null)
@@ -27,12 +32,6 @@ function FilterApplets(text: string, applets: PrivateApplet[] | null)
     if (text === "Enabled") {
         const filteredApplets = applets.filter(applet => (
             applet.enable
-        ))
-        return filteredApplets;
-    }
-    if (text === "Published") {
-        const filteredApplets = applets.filter(() => (
-            false // to modify when variable published will be added
         ))
         return filteredApplets;
     }
@@ -68,7 +67,7 @@ export default function My_applet()
                     {taskbarButton("Enabled", page, setPage, true)}
                 </div>
             </div>
-            <Applets search={searched} applets={page == "Published" ? publicApplets : FilterApplets(page, privateApplets)} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer mb-[20px] border-black border-[2px]" onClick={redirectToApplet}/>
+            <Applets search={searched} applets={page == "Published" ? publicApplets : FilterApplets(page, privateApplets)} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 justify-items-center" boxClassName="rounded-xl w-[250px] h-[300px] hover:cursor-pointer mb-[20px] border-black border-[2px]" onClick={page == "Published" ? redirectToUnpublishableApplet : redirectToEditableApplet}/>
         </div>
     )
 }
