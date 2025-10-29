@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:mobile/core/config.dart';
 import 'package:mobile/models/user_model.dart';
 import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/repositories/service_repository.dart';

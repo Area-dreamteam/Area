@@ -67,12 +67,12 @@ export default function AppletPage({ params }: AppletProp)
             const searched = applets.find(applet => applet.name.toLowerCase() == (slug.toLowerCase()));
             setCurrApplet(searched);
         }
-    }, [applets]);
+    }, [applets, slug]);
 
     useEffect(() => {
         if (currApplet)
-            (published ? fetchSpecificApplet(setMyApplet, currApplet.id) : fetchPrivateApplet(setMyApplet, currApplet.id));
-    }, [currApplet])
+            fetchPrivateApplet(setMyApplet, currApplet.id);
+    }, [currApplet]);
 
     useEffect(() => {
         if (myApplet != null)
@@ -85,7 +85,7 @@ export default function AppletPage({ params }: AppletProp)
         if (currApplet)
             (published ? fetchSpecificApplet(setMyApplet, currApplet.id) : fetchPrivateApplet(setMyApplet, currApplet.id));
         setAreaChanged(false);
-    }, [areaChanged]);
+    }, [areaChanged, currApplet]);
 
     return (
         <div>
@@ -93,7 +93,7 @@ export default function AppletPage({ params }: AppletProp)
                 <p className="h-[700px] w-screen text-[50px] flex items-center justify-center">
                     Loading...
                 </p>
-            ) : (myApplet) ? (
+            ) : myApplet ? (
                 <div className="w-screen">
                     <div className={`grid grid-cols-4 text-white md:h-[500px] h-[300px] ${published ? "" : "rounded-b-xl"}`} style={{ background: myApplet.area_info.color }}>
                         <div className="ml-[20px] pt-[50px]">
