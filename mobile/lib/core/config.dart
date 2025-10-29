@@ -18,4 +18,18 @@ class Config {
     }
     return apiUrl;
   }
+  
+  static String getImageUrl(String imagePath) {
+    if (imagePath.isEmpty) {
+      return '';
+    }
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    final baseUrl = getApiUrl();
+    if (imagePath.startsWith('/')) {
+      return '$baseUrl$imagePath';
+    }
+    return '$baseUrl/$imagePath';
+  }
 }

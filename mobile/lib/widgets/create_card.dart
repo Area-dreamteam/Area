@@ -77,7 +77,7 @@ class CreateCard extends StatelessWidget {
   Widget _buildSelectionDetails(CardDetails details) {
     return Row(
       children: [
-        getServiceIcon(details.serviceName, size: 40.0),
+        getServiceIcon(details.serviceName, size: 40.0, imageUrl: null),
 
         const SizedBox(width: 15),
         Expanded(

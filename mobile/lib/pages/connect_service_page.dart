@@ -67,7 +67,7 @@ class _ConnectServicePageState extends State<ConnectServicePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              getServiceIcon(widget.service.name, size: 100.0),
+              getServiceIcon(widget.service.name, size: 100.0, imageUrl: widget.service.imageUrl),
               const SizedBox(height: 24),
               Text(
                 widget.service.name,

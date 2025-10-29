@@ -92,7 +92,11 @@ class Todoist(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "A modern interconnected todolist", "LifeStyle", "#CE3608", "", True
+            "A modern interconnected todolist",
+            "LifeStyle",
+            "#CE3608",
+            "/images/Todoist_logo.png",
+            True,
         )
 
     def _is_token_valid(self, token):
@@ -265,4 +269,6 @@ class Todoist(ServiceClass):
         except TodoistApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token, request, is_mobile)
+        return oauth_add_link(
+            session, self.name, user, token_res.access_token, request, is_mobile
+        )
