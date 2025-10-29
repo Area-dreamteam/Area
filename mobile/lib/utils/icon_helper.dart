@@ -1,33 +1,35 @@
 import 'package:flutter/material.dart';
+import '../core/config.dart';
 
-const Map<String, String> _serviceIconMap = {
-  'google': 'assets/icons/logo_google.png',
-  'facebook': 'assets/icons/logo_facebook.png',
-  'github': 'assets/icons/logo_github.png',
-  'gmail': 'assets/icons/logo_gmail.png',
-  'todoist': 'assets/icons/logo_todoist.png',
-  'dateandtime': 'assets/icons/logo_dateAndTime.png',
-  'microsoft': 'assets/icons/logo_microsoft.png',
-  'outlook': 'assets/icons/logo_outlook.png',
-};
-
-Widget getServiceIcon(String serviceName, {double size = 30.0}) {
-  
-  final String normalizedName = serviceName.toLowerCase();
-
-  for (final key in _serviceIconMap.keys) {
-    if (normalizedName.contains(key)) {
-      final assetPath = _serviceIconMap[key]!;
-      return Image.asset(
-        assetPath,
-        width: size,
-        height: size,
-        errorBuilder: (context, error, stackTrace) {
-          return Icon(Icons.broken_image, size: size, color: Colors.grey);
-        },
-      );
-    }
+Widget getServiceIcon(String serviceName, {double size = 30.0, String? imageUrl}) {
+  // If imageUrl is provided, use it from the backend
+  if (imageUrl != null && imageUrl.isNotEmpty) {
+    final fullImageUrl = Config.getImageUrl(imageUrl);
+    return Image.network(
+      fullImageUrl,
+      width: size,
+      height: size,
+      errorBuilder: (context, error, stackTrace) {
+        return Icon(Icons.broken_image, size: size, color: Colors.grey);
+      },
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return SizedBox(
+          width: size,
+          height: size,
+          child: Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          ),
+        );
+      },
+    );
   }
 
+  // Fallback to default icon if no image URL is provided
   return Icon(Icons.link, size: size, color: Colors.white);
 }

@@ -42,7 +42,7 @@ class Reddit(ServiceClass):
     """Reddit automation service."""
 
     def __init__(self) -> None:
-        super().__init__("Reddit", "social", "#FF4500", "reddit.com", True)
+        super().__init__("Reddit", "social", "#FF4500", "/images/Reddit_logo.png", True)
 
     class new_post(Action):
         """Trigger when a new post appears in a subreddit."""
@@ -273,4 +273,6 @@ class Reddit(ServiceClass):
         except RedditApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token, request, is_mobile)
+        return oauth_add_link(
+            session, self.name, user, token_res.access_token, request, is_mobile
+        )

@@ -19,6 +19,8 @@ import { AlertCircleIcon } from "lucide-react"
 import { Password, Mail } from "../components/Forms"
 import { fetchLogin, fetchRegister } from "../functions/fetch"
 import { fetchAvailableOAuth, OAuthInfo, redirectOauth } from "../functions/oauth"
+import { getImageUrl } from "../functions/images"
+import Image from "next/image"
 
 interface LoginProps {
   isRegister: boolean
@@ -92,7 +94,16 @@ export default function Logins({ isRegister }: LoginProps) {
         {logins && logins.map((log) => {
           return (
             <ul className="centered" key={log.name}>
-              <button onClick={() => { redirectOauth(log.name, "/explore") }} className="rounded-button inverted border-1 mt-[2%]" >
+              <button onClick={() => { redirectOauth(log.name, "/explore") }} className="rounded-button inverted border-1 mt-[2%] flex items-center justify-center gap-2" >
+                {log.image_url && (
+                  <Image 
+                    src={getImageUrl(log.image_url)} 
+                    alt={`${log.name} icon`}
+                    width={24}
+                    height={24}
+                    className="object-contain"
+                  />
+                )}
                 Continue with {log.name.replace("Oauth", "")}
               </button>
             </ul>

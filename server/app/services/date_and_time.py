@@ -33,4 +33,6 @@ class DateAndTime(Service):
             return False
 
     def __init__(self) -> None:
-        super().__init__("Service Date&Time", "Time", "#000000", "", False)
+        super().__init__(
+            "Service Date&Time", "Time", "#4a4d4b", "/images/Time_logo.png", False
+        )

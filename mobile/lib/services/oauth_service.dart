@@ -19,7 +19,7 @@ class OAuthService {
   void initialize() {
     // Handle initial deep link (when app is opened from deep link)
     _checkInitialLink();
-    
+
     // Listen to deep links while app is running
     _linkSubscription = _appLinks.uriLinkStream.listen(
       _handleDeepLink,
@@ -66,7 +66,7 @@ class OAuthService {
       // Store the operation type for recovery after app restart
       await _storage.write(key: 'oauth_operation', value: 'login');
       await _storage.write(key: 'oauth_service', value: serviceName);
-      
+
       final oauthUrl = '$_baseUrl/oauth/login_index/$serviceName?mobile=true';
       final uri = Uri.parse(oauthUrl);
 
@@ -110,17 +110,18 @@ class OAuthService {
       // Store the operation type for recovery after app restart
       await _storage.write(key: 'oauth_operation', value: 'link');
       await _storage.write(key: 'oauth_service', value: serviceName);
-      
+
       // Get the auth token to pass to the backend
       final sessionCookie = await _storage.read(key: 'session_cookie');
       String? token;
-      if (sessionCookie != null && sessionCookie.startsWith('access_token=Bearer ')) {
+      if (sessionCookie != null &&
+          sessionCookie.startsWith('access_token=Bearer ')) {
         token = sessionCookie.substring('access_token=Bearer '.length);
       }
-      
-      final oauthUrl = token != null 
-        ? '$_baseUrl/oauth/index/$serviceName?mobile=true&token=$token'
-        : '$_baseUrl/oauth/index/$serviceName?mobile=true';
+
+      final oauthUrl = token != null
+          ? '$_baseUrl/oauth/index/$serviceName?mobile=true&token=$token'
+          : '$_baseUrl/oauth/index/$serviceName?mobile=true';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
@@ -138,7 +139,7 @@ class OAuthService {
           return OAuthLinkResult.error('OAuth timeout');
         },
       );
-      
+
       await _clearOAuthState();
       return result;
     } catch (e) {
@@ -204,9 +205,11 @@ class OAuthService {
       // Check stored OAuth operation if completers are null (app was restarted)
       final storedOperation = await _storage.read(key: 'oauth_operation');
       final storedService = await _storage.read(key: 'oauth_service');
-      
+
       print('Stored operation: $storedOperation, service: $storedService');
-      print('Deep link params - token: ${token != null}, linked: $linked, error: $error');
+      print(
+        'Deep link params - token: ${token != null}, linked: $linked, error: $error',
+      );
 
       if (error != null) {
         _completeOAuth(OAuthResult.error('OAuth error: $error'));
@@ -219,7 +222,9 @@ class OAuthService {
         // If there's no active completer but we have a stored operation,
         // this means the app was restarted. We need to notify the user somehow.
         if (_linkCompleter == null && storedOperation == 'link') {
-          print('OAuth linking succeeded after app restart - storing success flag');
+          print(
+            'OAuth linking succeeded after app restart - storing success flag',
+          );
           await _storage.write(key: 'oauth_link_success', value: service);
         }
         _completeLink(OAuthLinkResult.success(service));
@@ -283,13 +288,15 @@ class OAuthLinkResult {
 class OAuthProvider {
   final String name;
   final String color;
+  final String? imageUrl;
 
-  OAuthProvider({required this.name, required this.color});
+  OAuthProvider({required this.name, required this.color, this.imageUrl});
 
   factory OAuthProvider.fromJson(Map<String, dynamic> json) {
     return OAuthProvider(
       name: json['name'] ?? '',
       color: json['color'] ?? '#000000',
+      imageUrl: json['image_url'] as String?,
     );
   }
 }
