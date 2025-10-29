@@ -193,7 +193,7 @@ describe('Logins Component', () => {
        
        await waitFor(() => {
          expect(mockFetchRegister).toHaveBeenCalledWith('newuser@example.com', 'SecurePass123!');
-         expect(mockPush).toHaveBeenCalledWith('/login');
+         expect(mockPush).toHaveBeenCalledWith('/explore');
        });
      });
 

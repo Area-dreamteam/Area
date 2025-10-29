@@ -82,8 +82,13 @@ export default function AppletPage({ params }: AppletProp)
     useEffect(() => {
         if (!areaChanged)
             return;
-        if (currApplet)
-            (published ? fetchSpecificApplet(setMyApplet, currApplet.id) : fetchPrivateApplet(setMyApplet, currApplet.id));
+        if (currApplet) {
+            if (published) {
+                fetchSpecificApplet(setMyApplet, currApplet.id);
+            } else {
+                fetchPrivateApplet(setMyApplet, currApplet.id);
+            }
+        }
         setAreaChanged(false);
     }, [areaChanged, currApplet]);
 
