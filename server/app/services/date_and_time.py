@@ -18,7 +18,7 @@ class DateAndTime(Service):
             ]
             super().__init__(
                 "Déclenché une fois par heure à :00, :15, :30 ou :45 minutes après l'heure.",
-                config_schema,
+                config_schema, "* * * * *"
             )
 
         def check(
@@ -48,5 +48,5 @@ class DateAndTime(Service):
 
     def __init__(self) -> None:
         super().__init__(
-            "Service Date&Time", "Time", "#4a4d4b", "/images/Time_logo.png", False
+            "Service Date&Time", "Time", "#4a4d4b", "/images/DateAndTime_logo.webp", False
         )
