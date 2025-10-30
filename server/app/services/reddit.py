@@ -42,7 +42,9 @@ class Reddit(ServiceClass):
     """Reddit automation service."""
 
     def __init__(self) -> None:
-        super().__init__("Reddit", "social", "#FF4500", "/images/Reddit_logo.webp", True)
+        super().__init__(
+            "Reddit", "social", "#FF4500", "/images/Reddit_logo.webp", True
+        )
 
     class new_post(Action):
         """Trigger when a new post appears in a subreddit."""
@@ -58,23 +60,31 @@ class Reddit(ServiceClass):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            token: str = get_user_service_token(session, user_id, self.service.name)
-            subreddit = get_component(area_action.config, "subreddit", "values")
+            try:
+                token: str = get_user_service_token(session, user_id, self.service.name)
+                subreddit = get_component(area_action.config, "subreddit", "values")
 
-            url = f"https://oauth.reddit.com/r/{subreddit}/new?limit=1"
-            headers = {"Authorization": f"bearer {token}", "User-Agent": "AreaApp/1.0"}
+                url = f"https://oauth.reddit.com/r/{subreddit}/new?limit=1"
+                headers = {
+                    "Authorization": f"bearer {token}",
+                    "User-Agent": "AreaApp/1.0",
+                }
 
-            r = requests.get(url, headers=headers)
-            if r.status_code != 200:
-                logger.error(f"Reddit error: {r.text}")
-                return False
+                r = requests.get(url, headers=headers)
+                if r.status_code != 200:
+                    raise RedditApiError(f"Failed get new post {r.text}")
 
-            posts = r.json().get("data", {}).get("children", [])
-            if not posts:
-                return False
+                posts = r.json().get("data", {}).get("children", [])
+                if not posts:
+                    return False
 
-            latest_post = posts[0]["data"]
-            return self.service._compare_post_state(session, area_action, latest_post)
+                latest_post = posts[0]["data"]
+                return self.service._compare_post_state(
+                    session, area_action, latest_post
+                )
+            except RedditApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return False
 
     class new_hot_post(Action):
         """Trigger when a new hot post appears in a subreddit."""
@@ -90,23 +100,31 @@ class Reddit(ServiceClass):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            token: str = get_user_service_token(session, user_id, self.service.name)
-            subreddit = get_component(area_action.config, "subreddit", "values")
+            try:
+                token: str = get_user_service_token(session, user_id, self.service.name)
+                subreddit = get_component(area_action.config, "subreddit", "values")
 
-            url = f"https://oauth.reddit.com/r/{subreddit}/hot?limit=1"
-            headers = {"Authorization": f"bearer {token}", "User-Agent": "AreaApp/1.0"}
+                url = f"https://oauth.reddit.com/r/{subreddit}/hot?limit=1"
+                headers = {
+                    "Authorization": f"bearer {token}",
+                    "User-Agent": "AreaApp/1.0",
+                }
 
-            r = requests.get(url, headers=headers)
-            if r.status_code != 200:
-                logger.error(f"Reddit error: {r.text}")
-                return False
+                r = requests.get(url, headers=headers)
+                if r.status_code != 200:
+                    raise RedditApiError(f"Failed get new post {r.text}")
 
-            posts = r.json().get("data", {}).get("children", [])
-            if not posts:
-                return False
+                posts = r.json().get("data", {}).get("children", [])
+                if not posts:
+                    return False
 
-            latest_post = posts[0]["data"]
-            return self.service._compare_post_state(session, area_action, latest_post)
+                latest_post = posts[0]["data"]
+                return self.service._compare_post_state(
+                    session, area_action, latest_post
+                )
+            except RedditApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return False
 
     class new_top_post(Action):
         """Trigger when a new top post appears in a subreddit."""
@@ -122,23 +140,31 @@ class Reddit(ServiceClass):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            token: str = get_user_service_token(session, user_id, self.service.name)
-            subreddit = get_component(area_action.config, "subreddit", "values")
+            try:
+                token: str = get_user_service_token(session, user_id, self.service.name)
+                subreddit = get_component(area_action.config, "subreddit", "values")
 
-            url = f"https://oauth.reddit.com/r/{subreddit}/top?limit=1"
-            headers = {"Authorization": f"bearer {token}", "User-Agent": "AreaApp/1.0"}
+                url = f"https://oauth.reddit.com/r/{subreddit}/top?limit=1"
+                headers = {
+                    "Authorization": f"bearer {token}",
+                    "User-Agent": "AreaApp/1.0",
+                }
 
-            r = requests.get(url, headers=headers)
-            if r.status_code != 200:
-                logger.error(f"Reddit error: {r.text}")
-                return False
+                r = requests.get(url, headers=headers)
+                if r.status_code != 200:
+                    raise RedditApiError(f"Failed get new post {r.text}")
 
-            posts = r.json().get("data", {}).get("children", [])
-            if not posts:
-                return False
+                posts = r.json().get("data", {}).get("children", [])
+                if not posts:
+                    return False
 
-            latest_post = posts[0]["data"]
-            return self.service._compare_post_state(session, area_action, latest_post)
+                latest_post = posts[0]["data"]
+                return self.service._compare_post_state(
+                    session, area_action, latest_post
+                )
+            except RedditApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return False
 
     class post_message(Reaction):
         """Post a new message in a subreddit."""
@@ -154,27 +180,32 @@ class Reddit(ServiceClass):
             super().__init__("Post a new message to a subreddit", config_schema)
 
         def execute(self, session: Session, area_action: AreaReaction, user_id: int):
-            token: str = get_user_service_token(session, user_id, self.service.name)
-            subreddit = get_component(area_action.config, "subreddit", "values")
-            title = get_component(area_action.config, "title", "values")
-            text = get_component(area_action.config, "text", "values")
+            try:
+                token: str = get_user_service_token(session, user_id, self.service.name)
+                subreddit = get_component(area_action.config, "subreddit", "values")
+                title = get_component(area_action.config, "title", "values")
+                text = get_component(area_action.config, "text", "values")
 
-            url = "https://oauth.reddit.com/api/submit"
-            headers = {"Authorization": f"bearer {token}", "User-Agent": "AreaApp/1.0"}
-            data = {
-                "sr": subreddit,
-                "kind": "self",
-                "title": title,
-                "text": text,
-                "api_type": "json",
-                "resubmit": True,
-            }
+                url = "https://oauth.reddit.com/api/submit"
+                headers = {
+                    "Authorization": f"bearer {token}",
+                    "User-Agent": "AreaApp/1.0",
+                }
+                data = {
+                    "sr": subreddit,
+                    "kind": "self",
+                    "title": title,
+                    "text": text,
+                    "api_type": "json",
+                    "resubmit": True,
+                }
 
-            r = requests.post(url, headers=headers, data=data)
-            if r.status_code != 200:
-                logger.error(f"Reddit post error: {r.text}")
-                raise RedditApiError("Failed to post message")
-            logger.debug(f"Posted to r/{subreddit}")
+                r = requests.post(url, headers=headers, data=data)
+                if r.status_code != 200:
+                    raise RedditApiError("Failed to post message")
+                logger.debug(f"Reddit: Posted to r/{subreddit}")
+            except RedditApiError as e:
+                logger.error(f"{self.service.name}: {e}")
 
     def _compare_post_state(
         self, session: Session, area_action: AreaAction, post: Dict[str, Any]

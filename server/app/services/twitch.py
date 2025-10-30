@@ -54,21 +54,24 @@ class Twitch(ServiceClass):
             super().__init__("Triggered when you have a new follow", config_schema)
 
         def check(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            user_info = self.service._get_user_info(token)
-            logger.error(user_info)
-            broadcaster_id: int = user_info.get("id")
-            url = "https://api.twitch.tv/helix/channels/followers"
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Client-Id": settings.TWITCH_CLIENT_ID,
-            }
-            params = {"broadcaster_id": broadcaster_id}
-            r = requests.get(url, headers=headers, params=params)
-            if r.status_code != 200:
-                raise TwitchApiError("Failed to fetch followers")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                user_info = self.service._get_user_info(token)
+                logger.error(user_info)
+                broadcaster_id: int = user_info.get("id")
+                url = "https://api.twitch.tv/helix/channels/followers"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Client-Id": settings.TWITCH_CLIENT_ID,
+                }
+                params = {"broadcaster_id": broadcaster_id}
+                r = requests.get(url, headers=headers, params=params)
+                if r.status_code != 200:
+                    raise TwitchApiError("Failed to fetch followers")
 
-            nb_followed = {"total": r.json().get("total")} if r.json() else None
+                nb_followed = {"total": r.json().get("total")} if r.json() else None
+            except TwitchApiError as e:
+                logger.error(f"{self.service.name}: {e}")
             return self.service._compare_data(session, area_action, nb_followed)
 
     class you_follow_new_channel(Action):
@@ -81,21 +84,25 @@ class Twitch(ServiceClass):
             super().__init__("Triggered when you follow a new channel", config_schema)
 
         def check(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            user_info = self.service._get_user_info(token)
-            user_id: int = user_info.get("id")
-            url = "https://api.twitch.tv/helix/channels/followed"
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Client-Id": settings.TWITCH_CLIENT_ID,
-            }
-            params = {"user_id": user_id}
-            r = requests.get(url, headers=headers, params=params)
-            if r.status_code != 200:
-                raise TwitchApiError("Failed to fetch followed")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                user_info = self.service._get_user_info(token)
+                user_id: int = user_info.get("id")
+                url = "https://api.twitch.tv/helix/channels/followed"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Client-Id": settings.TWITCH_CLIENT_ID,
+                }
+                params = {"user_id": user_id}
+                r = requests.get(url, headers=headers, params=params)
+                if r.status_code != 200:
+                    raise TwitchApiError("Failed to fetch followed")
 
-            nb_followed = {"total": r.json().get("total")} if r.json() else None
+                nb_followed = {"total": r.json().get("total")} if r.json() else None
+            except TwitchApiError as e:
+                logger.error(f"{self.service.name}: {e}")
             return self.service._compare_data(session, area_action, nb_followed)
+
 
     class is_in_top_games(Action):
         """Triggered when your game is in Top 10 Games this day."""
@@ -107,23 +114,26 @@ class Twitch(ServiceClass):
             super().__init__("Triggered when your game is in Top 10 Games this day", config_schema, "* * 1 * *")
 
         def check(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            game_name = get_component(area_action.config, "game", "values")
-            url = "https://api.twitch.tv/helix/games/top"
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Client-Id": settings.TWITCH_CLIENT_ID,
-            }
-            params = {"first": 10}
-            r = requests.get(url, headers=headers, params=params)
-            if r.status_code != 200:
-                raise TwitchApiError("Failed to fetch followed")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                game_name = get_component(area_action.config, "game", "values")
+                url = "https://api.twitch.tv/helix/games/top"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Client-Id": settings.TWITCH_CLIENT_ID,
+                }
+                params = {"first": 10}
+                r = requests.get(url, headers=headers, params=params)
+                if r.status_code != 200:
+                    raise TwitchApiError("Failed to fetch followed")
 
-            games: Dict[str, Any] = r.json().get("data")
-            logger.error(games)
-            for game_info in games:
-                if game_name.lower() in game_info.get("name").lower():
-                    return True
+                games: Dict[str, Any] = r.json().get("data")
+                logger.error(games)
+                for game_info in games:
+                    if game_name.lower() in game_info.get("name").lower():
+                        return True
+            except TwitchApiError as e:
+                logger.error(f"{self.service.name}: {e}")
             return False
 
     def _compare_data(

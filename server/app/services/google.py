@@ -136,7 +136,7 @@ class Gmail(ServiceClass):
                 )
                 return self.service._compare_email_state(session, area_action, message)
             except GoogleApiError as e:
-                logger.error(f"Gmail: error checking new emails - {e.message}")
+                logger.error(f"{self.service.name}: {e}")
                 return False
 
     class new_email_inbox(Action):
@@ -159,7 +159,7 @@ class Gmail(ServiceClass):
                 )
                 return self.service._compare_email_state(session, area_action, message)
             except GoogleApiError as e:
-                logger.error(f"Gmail: error checking new emails - {e.message}")
+                logger.error(f"{self.service.name}: {e}")
                 return False
 
     class send_email(Reaction):
@@ -185,10 +185,16 @@ class Gmail(ServiceClass):
                 self.service._send_email(token, to, subject, body)
                 logger.debug(f"Gmail: Email sent to {to}")
             except GoogleApiError as e:
-                logger.error(f"Gmail: error sending email - {e.message}")
+                logger.error(f"{self.service.name}: {e}")
 
     def __init__(self) -> None:
-        super().__init__("Service email de Google", "mail", "#0A378A", "/images/Gmail_logo.webp", True)
+        super().__init__(
+            "Service email de Google",
+            "mail",
+            "#0A378A",
+            "/images/Gmail_logo.webp",
+            True,
+        )
 
     def is_connected(self, session: Session, user_id: int) -> bool:
         user_service: UserService = session.exec(
@@ -369,4 +375,6 @@ class Gmail(ServiceClass):
         except GoogleApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token, request, is_mobile)
+        return oauth_add_link(
+            session, self.name, user, token_res.access_token, request, is_mobile
+        )
