@@ -17,10 +17,7 @@ class OAuthService {
   Completer<OAuthLinkResult>? _linkCompleter;
 
   void initialize() {
-    // Handle initial deep link (when app is opened from deep link)
     _checkInitialLink();
-
-    // Listen to deep links while app is running
     _linkSubscription = _appLinks.uriLinkStream.listen(
       _handleDeepLink,
       onError: (err) {
@@ -63,7 +60,6 @@ class OAuthService {
     _oauthCompleter = Completer<OAuthResult>();
 
     try {
-      // Store the operation type for recovery after app restart
       await _storage.write(key: 'oauth_operation', value: 'login');
       await _storage.write(key: 'oauth_service', value: serviceName);
 
@@ -107,11 +103,9 @@ class OAuthService {
     _linkCompleter = Completer<OAuthLinkResult>();
 
     try {
-      // Store the operation type for recovery after app restart
       await _storage.write(key: 'oauth_operation', value: 'link');
       await _storage.write(key: 'oauth_service', value: serviceName);
 
-      // Get the auth token to pass to the backend
       final sessionCookie = await _storage.read(key: 'session_cookie');
       String? token;
       if (sessionCookie != null &&
@@ -202,7 +196,6 @@ class OAuthService {
       final error = uri.queryParameters['error'];
       final linked = uri.queryParameters['linked'];
 
-      // Check stored OAuth operation if completers are null (app was restarted)
       final storedOperation = await _storage.read(key: 'oauth_operation');
       final storedService = await _storage.read(key: 'oauth_service');
 
@@ -219,8 +212,6 @@ class OAuthService {
         _completeOAuth(OAuthResult.success(token, service));
         await _clearOAuthState();
       } else if (linked == 'true' && service != null) {
-        // If there's no active completer but we have a stored operation,
-        // this means the app was restarted. We need to notify the user somehow.
         if (_linkCompleter == null && storedOperation == 'link') {
           print(
             'OAuth linking succeeded after app restart - storing success flag',

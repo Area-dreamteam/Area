@@ -57,7 +57,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Widg
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       print('App resumed - checking for OAuth results');
-      // Give the deep link handler a moment to process
       Future.delayed(const Duration(milliseconds: 500), () {
         _checkAuthenticationStatus();
       });

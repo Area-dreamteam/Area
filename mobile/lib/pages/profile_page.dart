@@ -41,7 +41,6 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       print('ProfilePage: App resumed - reloading user data');
-      // Give the deep link handler a moment to process
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
           final viewModel = context.read<ProfileViewModel>();
