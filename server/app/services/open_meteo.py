@@ -96,7 +96,7 @@ class OpenMeteoApi(AreaApi):
 
         return float(res["current"]["relative_wind_speed_10m"])
 
-    def get_current_uv(
+    def get_current_uv_index(
         self, latitude: str, longitude: str, timezone: str = "auto"
     ) -> float:
         res = self.get(
@@ -389,9 +389,41 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_wind_speed = open_meteo_api.get_current_wind_speed(latitude, longitude, timezone)
+            current_uv_index = open_meteo_api.get_current_uv_index(latitude, longitude, timezone)
 
-            return current_wind_speed > uv_index_limit
+            return current_uv_index > uv_index_limit
+        
+    def __init__(self) -> None:
+        super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
+
+    class if_uv_index_fall_bellow(Action):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "uv_index_limit",
+                    "type": "input",
+                    "values": [],
+                },
+                *default_openmeteo_config_schema
+            ]
+            super().__init__(
+                "Check if uv index fall bellow a certain limit",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            uv_index_limit = float(
+                get_component(area_action.config, "uv_index_limit", "values")
+            )
+            longitude = get_component(area_action.config, "longitude", "values")
+            latitude = get_component(area_action.config, "latitude", "values")
+            timezone = get_component(area_action.config, "timezone", "values")
+
+            current_uv_index = open_meteo_api.get_current_uv_index(latitude, longitude, timezone)
+
+            return current_uv_index < uv_index_limit
         
     def __init__(self) -> None:
         super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
