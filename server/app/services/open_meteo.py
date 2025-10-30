@@ -41,6 +41,30 @@ class OpenMeteoApi(AreaApi):
         )
 
         return int(res["hourly"]["temperature_2m"][time_index])
+    
+    def get_current_visibility(
+        self, latitude: str, longitude: str, timezone: str = "auto"
+    ) -> int:
+        res = self.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+                "hourly": "visibility",
+                "forecast_days": 1,
+                "timezone": timezone,
+            },
+        )
+
+        time_list = res["hourly"]["time"]
+        time_objects = list(map(datetime.fromisoformat, time_list))
+        current_time = datetime.now()
+
+        time_index = time_objects.index(
+            current_time.replace(minute=0, second=0, microsecond=0)
+        )
+
+        return int(res["hourly"]["visibility"][time_index])
 
 
 open_meteo_api = OpenMeteoApi()
@@ -87,7 +111,7 @@ class OpenMeteo(Service):
         def __init__(self) -> None:
             config_schema = [
                 {
-                    "name": "temperature_limite",
+                    "name": "temperature_limit",
                     "type": "input",
                     "values": [],
                 },
@@ -101,8 +125,8 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            temperature_limite = int(
-                get_component(area_action.config, "temperature_limite", "values")
+            temperature_limit = int(
+                get_component(area_action.config, "temperature_limit", "values")
             )
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
@@ -112,13 +136,13 @@ class OpenMeteo(Service):
                 open_meteo_api.get_current_temperature(latitude, longitude, timezone)
             )
 
-            return current_temperature > temperature_limite
-    
+            return current_temperature > temperature_limit
+
     class if_temperature_drop_bellow(Action):
         def __init__(self) -> None:
             config_schema = [
                 {
-                    "name": "temperature_limite",
+                    "name": "temperature_limit",
                     "type": "input",
                     "values": [],
                 },
@@ -132,8 +156,8 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            temperature_limite = int(
-                get_component(area_action.config, "temperature_limite", "values")
+            temperature_limit = int(
+                get_component(area_action.config, "temperature_limit", "values")
             )
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
@@ -143,7 +167,38 @@ class OpenMeteo(Service):
                 open_meteo_api.get_current_temperature(latitude, longitude, timezone)
             )
 
-            return current_temperature < temperature_limite
+            return current_temperature < temperature_limit
+
+    class if_visibility_fall_bellow(Action):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "visibility_limit",
+                    "type": "input",
+                    "values": [],
+                },
+                *default_openmeteo_config_schema
+            ]
+            super().__init__(
+                "Vérifie si la temperature est inferieure a une limite",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            visibility_limit = int(
+                get_component(area_action.config, "visibility_limit", "values")
+            )
+            longitude = get_component(area_action.config, "longitude", "values")
+            latitude = get_component(area_action.config, "latitude", "values")
+            timezone = get_component(area_action.config, "timezone", "values")
+
+            current_visibility = int(
+                open_meteo_api.get_current_visibility(latitude, longitude, timezone)
+            )
+
+            return current_visibility < visibility_limit
 
     def __init__(self) -> None:
         super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
