@@ -55,12 +55,14 @@ class Todoist(ServiceClass):
     Supports project-based organization and priority settings.
     """
 
-    class task_completed(Action):
+    class new_completed_task(Action):
         service: "Todoist"
 
         def __init__(self) -> None:
-            config_schema = [{"name": "task_id", "type": "input", "values": []}]
-            super().__init__("checks when a task is completed", config_schema)
+            config_schema = [
+                {"name": "Project to watch", "type": "input", "values": []}
+            ]
+            super().__init__("Checks when a task is completed", config_schema)
 
         def check(self, session: Session, area_action: AreaAction, user_id: int):
             logger.debug(f"Checking task completion: {area_action.config}")
@@ -70,32 +72,29 @@ class Todoist(ServiceClass):
 
         def __init__(self) -> None:
             config_schema = [
-                {"name": "content", "type": "input", "values": []},
-                {"name": "project_name", "type": "input", "values": []},
+                {"name": "Content", "type": "input", "values": []},
+                {"name": "Project name", "type": "input", "values": []},
             ]
             super().__init__("creates a new task", config_schema)
 
         def execute(self, session: Session, area_action: AreaReaction, user_id: int):
-            token: str = get_user_service_token(session, user_id, self.service.name)
-            content: str = get_component(area_action.config, "content", "values")
-            project_name: str = get_component(
-                area_action.config, "project_name", "values"
-            )
-
             try:
+                token: str = get_user_service_token(session, user_id, self.service.name)
+                content: str = get_component(area_action.config, "Content", "values")
+                project_name: str = get_component(
+                    area_action.config, "Project name", "values"
+                )
                 self.service._create_task(token, content, project_name)
+                logger.debug(f"Todoist: Creating task for user {user_id}")
             except TodoistApiError as e:
-                logger.error(f"Error: Todoist create_task reaction {e}")
-                return
-
-            logger.debug(f"Todoist: Creating task for user {user_id}")
+                logger.error(f"{self.service.name}: {e}")
 
     def __init__(self) -> None:
         super().__init__(
             "A modern interconnected todolist",
             "LifeStyle",
             "#CE3608",
-            "/images/Todoist_logo.png",
+            "/images/Todoist_logo.webp",
             True,
         )
 
@@ -207,17 +206,17 @@ class Todoist(ServiceClass):
 
     def _create_task(self, token, content, project_name=None):
         base_url = "https://api.todoist.com/api/v1/tasks"
-        params = {"content": content}
+        data = {"content": content}
 
         if project_name is not None:
             project_id = self._get_projects_id(token, project_name)
             if project_id is not None:
-                params["project_id"] = project_id
+                data["project_id"] = project_id
             else:
                 return
 
         r = requests.post(
-            f"{base_url}", data=params, headers={"Authorization": f"Bearer {token}"}
+            f"{base_url}", data=data, headers={"Authorization": f"Bearer {token}"}
         )
 
         if r.status_code != 200:
