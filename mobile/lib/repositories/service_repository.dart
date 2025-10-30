@@ -162,7 +162,6 @@ class ServiceRepository {
         final actionData = data['action'] as Map<String, dynamic>;
         final reactionDataList = data['reactions'] as List<dynamic>;
 
-        // Parser manuellement les données dans le format AppletModel
         final triggerService = ServiceInfo.fromJson(actionData['service']);
         final reactionServices = reactionDataList
             .map((r) => ServiceInfo.fromJson(r['service']))
@@ -180,20 +179,20 @@ class ServiceRepository {
           color: areaInfo['color'],
           isEnabled: areaInfo['enable'],
           isPublic:
-              isPublic, // L'API ne renvoie pas cela, nous passons donc l'état actuel
+              isPublic,
 
           triggerService: triggerService,
           reactionServices: reactionServices,
 
-          actionId: actionData['id'], // ID de l'action
+          actionId: actionData['id'],
           actionConfigJson: _getConfigJson(
             actionData['config'],
-          ), // Config de l'action
+          ),
 
-          reactionId: firstReaction?['id'], // ID de la première réaction
+          reactionId: firstReaction?['id'],
           reactionConfigJson: _getConfigJson(
             firstReaction?['config'],
-          ), // Config de la réaction
+          ),
         );
       }
       throw Exception('Failed to load area details: ${response.statusCode}');

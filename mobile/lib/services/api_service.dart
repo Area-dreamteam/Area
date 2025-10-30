@@ -60,7 +60,7 @@ class ApiService {
     return _dio.get('/users/areas/me');
   }
 
-  Future<Response> getAreaDetails(int areaId) {
+Future<Response> getAreaDetails(int areaId) {
     return _dio.get('/areas/$areaId');
   }
 

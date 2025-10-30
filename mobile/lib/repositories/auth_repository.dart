@@ -16,9 +16,10 @@ class AuthRepository {
       if (response.statusCode == 200 || response.statusCode == 204) {
         if (response.headers.map['set-cookie'] != null) {
           String rawCookie = response.headers.map['set-cookie']![0];
+          String? sessionCookie = rawCookie.split(';').first;
 
           const storage = FlutterSecureStorage();
-          await storage.write(key: 'session_cookie', value: rawCookie);
+          await storage.write(key: 'session_cookie', value: sessionCookie);
         }
         return null;
       }
