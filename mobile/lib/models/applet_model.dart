@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'service_info_model.dart';
 
 class AppletUser {
@@ -22,7 +21,7 @@ String? _getConfigJson(dynamic configData) {
 
 int? _getFirstReactionId(List<dynamic>? reactions) {
   if (reactions == null || reactions.isEmpty) return null;
-  return reactions.first?['reaction_id'] as int?;
+  return (reactions.first?['id'] ?? reactions.first?['reaction_id']) as int?;
 }
 
 String? _getFirstReactionConfig(List<dynamic>? reactions) {
@@ -63,7 +62,7 @@ class AppletModel {
     this.reactionConfigJson,
   });
 
-  factory AppletModel.fromJson(Map<String, dynamic> json) {
+  factory AppletModel.fromJson(Map<String, dynamic> json, {bool? forceIsPublic}) {
     var reactionsList = <ServiceInfo>[];
     if (json['reactions'] != null && json['reactions'] is List) {
       reactionsList = (json['reactions'] as List)
@@ -86,8 +85,8 @@ class AppletModel {
       triggerService: trigger,
       reactionServices: reactionsList,
       isEnabled: json['enable'] as bool? ?? false,
-      isPublic: json['public'] as bool? ?? false,
-      actionId: json['action']?['action_id'] as int?,
+      isPublic: forceIsPublic ?? (json['public'] as bool? ?? false),
+      actionId: (json['action']?['id'] ?? json['action']?['action_id']) as int?,
       actionConfigJson: _getConfigJson(json['action']?['config']),
       reactionId: _getFirstReactionId(json['reactions'] as List<dynamic>?),
       reactionConfigJson: _getFirstReactionConfig(
