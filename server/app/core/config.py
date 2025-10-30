@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     REDDIT_CLIENT_SECRET: str
     STRAVA_CLIENT_ID: str
     STRAVA_CLIENT_SECRET: str
+    SPOTIFY_CLIENT_ID: str
+    SPOTIFY_CLIENT_SECRET: str
+    TWITCH_CLIENT_ID: str
+    TWITCH_CLIENT_SECRET: str
+    CLASHROYALE_API_KEY: str
     FRONT_URL: str
     CRON_USER: str = "root"
 
