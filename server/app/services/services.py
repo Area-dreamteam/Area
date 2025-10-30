@@ -18,6 +18,7 @@ from services.clash_royale import ClashRoyale
 from services.github import GithubOauth
 from services.google import GoogleOauth
 from services.microsoft import MicrosoftOauth
+from services.open_meteo import OpenMeteo
 
 # Service registries - automatically populated with all Service/oauth_service subclasses
 services_dico: Dict[str, Service] = create_service_dictionnary(Service)
