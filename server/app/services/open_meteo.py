@@ -162,9 +162,7 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_temperature = int(
-                open_meteo_api.get_current_temperature(latitude, longitude, timezone)
-            )
+            current_temperature = open_meteo_api.get_current_temperature(latitude, longitude, timezone)
 
             return current_temperature > temperature_limit
 
@@ -193,9 +191,7 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_temperature = int(
-                open_meteo_api.get_current_temperature(latitude, longitude, timezone)
-            )
+            current_temperature = open_meteo_api.get_current_temperature(latitude, longitude, timezone)
 
             return current_temperature < temperature_limit
 
@@ -224,9 +220,7 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_visibility = int(
-                open_meteo_api.get_current_visibility(latitude, longitude, timezone)
-            )
+            current_visibility = open_meteo_api.get_current_visibility(latitude, longitude, timezone)
 
             return current_visibility < visibility_limit
         
@@ -255,9 +249,7 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_humidity = int(
-                open_meteo_api.get_current_humidity(latitude, longitude, timezone)
-            )
+            current_humidity = open_meteo_api.get_current_humidity(latitude, longitude, timezone)
 
             return current_humidity < humidity_limit
 
@@ -286,9 +278,7 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_humidity = int(
-                open_meteo_api.get_current_humidity(latitude, longitude, timezone)
-            )
+            current_humidity = open_meteo_api.get_current_humidity(latitude, longitude, timezone)
 
             return current_humidity > humidity_limit
         
@@ -317,11 +307,38 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_wind_speed = int(
-                open_meteo_api.get_current_wind_speed(latitude, longitude, timezone)
-            )
+            current_wind_speed = open_meteo_api.get_current_wind_speed(latitude, longitude, timezone)
 
             return current_wind_speed > wind_speed_limit
+        
+    class if_wind_speed_fall_bellow(Action):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "wind_speed_limit",
+                    "type": "input",
+                    "values": [],
+                },
+                *default_openmeteo_config_schema
+            ]
+            super().__init__(
+                "check if wind speed fall bellow a certain limit",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            wind_speed_limit = int(
+                get_component(area_action.config, "wind_speed_limit", "values")
+            )
+            longitude = get_component(area_action.config, "longitude", "values")
+            latitude = get_component(area_action.config, "latitude", "values")
+            timezone = get_component(area_action.config, "timezone", "values")
+
+            current_wind_speed = open_meteo_api.get_current_wind_speed(latitude, longitude, timezone)
+
+            return current_wind_speed < wind_speed_limit
         
     def __init__(self) -> None:
         super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
