@@ -18,6 +18,7 @@ class OAuthService {
 
   void initialize() {
     _checkInitialLink();
+
     _linkSubscription = _appLinks.uriLinkStream.listen(
       _handleDeepLink,
       onError: (err) {
@@ -201,7 +202,11 @@ class OAuthService {
 
   void _handleDeepLink(Uri uri) async {
     print('Received deeplink: $uri');
-    if (uri.scheme == 'area' && uri.host == 'oauth-callback') {
+    bool isOAuthCallback =
+        (uri.scheme == 'area' && uri.host == 'oauth-callback') ||
+        (uri.scheme == 'https' && uri.path.startsWith('/oauth-callback'));
+
+    if (isOAuthCallback) {
       final token = uri.queryParameters['token'];
       final service = uri.queryParameters['service'];
       final error = uri.queryParameters['error'];
