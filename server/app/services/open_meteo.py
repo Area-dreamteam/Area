@@ -80,6 +80,21 @@ class OpenMeteoApi(AreaApi):
         )
 
         return int(res["current"]["relative_humidity_2m"])
+    
+    def get_current_wind_speed(
+        self, latitude: str, longitude: str, timezone: str = "auto"
+    ) -> int:
+        res = self.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+                "current": "relative_wind_speed_10m",
+                "timezone": timezone,
+            },
+        )
+
+        return int(res["current"]["relative_wind_speed_10m"])
 
 
 open_meteo_api = OpenMeteoApi()
@@ -276,6 +291,37 @@ class OpenMeteo(Service):
             )
 
             return current_humidity > humidity_limit
+        
+    class if_wind_speed_rise_above(Action):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "wind_speed_limit",
+                    "type": "input",
+                    "values": [],
+                },
+                *default_openmeteo_config_schema
+            ]
+            super().__init__(
+                "check if wind speed rise above a certain limit",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            wind_speed_limit = int(
+                get_component(area_action.config, "wind_speed_limit", "values")
+            )
+            longitude = get_component(area_action.config, "longitude", "values")
+            latitude = get_component(area_action.config, "latitude", "values")
+            timezone = get_component(area_action.config, "timezone", "values")
+
+            current_wind_speed = int(
+                open_meteo_api.get_current_wind_speed(latitude, longitude, timezone)
+            )
+
+            return current_wind_speed > wind_speed_limit
         
     def __init__(self) -> None:
         super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
