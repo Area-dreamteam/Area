@@ -148,7 +148,7 @@ class OpenMeteo(Service):
                 *default_openmeteo_config_schema
             ]
             super().__init__(
-                "Vérifie si la temperature est supérieure a une limite",
+                "Check if temperature rise above a certain limit",
                 config_schema,
             )
 
@@ -166,7 +166,7 @@ class OpenMeteo(Service):
 
             return current_temperature > temperature_limit
 
-    class if_temperature_drop_bellow(Action):
+    class if_temperature_fall_bellow(Action):
         def __init__(self) -> None:
             config_schema = [
                 {
@@ -177,7 +177,7 @@ class OpenMeteo(Service):
                 *default_openmeteo_config_schema
             ]
             super().__init__(
-                "Vérifie si la temperature est inferieure a une limite",
+                "Check if temperature fall bellow a certain limit",
                 config_schema,
             )
 
@@ -206,7 +206,7 @@ class OpenMeteo(Service):
                 *default_openmeteo_config_schema
             ]
             super().__init__(
-                "Vérifie si la visibilite est inferieure a une limite",
+                "Check if visibility fall bellow a certain limit",
                 config_schema,
             )
 
@@ -235,7 +235,7 @@ class OpenMeteo(Service):
                 *default_openmeteo_config_schema
             ]
             super().__init__(
-                "Vérifie si l'humidite est inferieure a une limite",
+                "Check if humidity fall bellow a certain limit",
                 config_schema,
             )
 
@@ -264,7 +264,7 @@ class OpenMeteo(Service):
                 *default_openmeteo_config_schema
             ]
             super().__init__(
-                "Vérifie si l'humidite est supérieur a une limite",
+                "Check if humidity rise above a certain limit",
                 config_schema,
             )
 
@@ -293,7 +293,7 @@ class OpenMeteo(Service):
                 *default_openmeteo_config_schema
             ]
             super().__init__(
-                "check if wind speed rise above a certain limit",
+                "Check if wind speed rise above a certain limit",
                 config_schema,
             )
 
@@ -322,7 +322,7 @@ class OpenMeteo(Service):
                 *default_openmeteo_config_schema
             ]
             super().__init__(
-                "check if wind speed fall bellow a certain limit",
+                "Check if wind speed fall bellow a certain limit",
                 config_schema,
             )
 
