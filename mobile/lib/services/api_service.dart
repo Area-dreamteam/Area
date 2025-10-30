@@ -188,6 +188,10 @@ Future<Response> getAreaDetails(int areaId) {
     return _dio.get('/services/$serviceId');
   }
 
+  Future<Response> copyPublicArea(int areaId) {
+    return _dio.post('/areas/public/$areaId/copy');
+  }
+
   Future<Response> updateArea({
     required int areaId,
     required String name,

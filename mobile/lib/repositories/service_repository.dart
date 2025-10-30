@@ -414,6 +414,17 @@ class ServiceRepository {
     }
   }
 
+  Future<void> copyPublicArea(int areaId) async {
+    try {
+      final response = await _apiService.copyPublicArea(areaId);
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception("Failed to copy area : ${response.data}");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> updateArea({
     required int areaId,
     required String name,
