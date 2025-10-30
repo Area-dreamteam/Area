@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET"/>
     <queries>
       <intent>
         <action android:name="android.intent.action.VIEW" />
@@ -12,7 +13,7 @@
       </intent>
     </queries>
     <application
-        android:label="mobile"
+        android:label="Area"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

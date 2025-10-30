@@ -63,7 +63,7 @@ class Todoist(ServiceClass):
             super().__init__("checks when a task is completed", config_schema)
 
         def check(self, session: Session, area_action: AreaAction, user_id: int):
-            print(f"Checking task completion: {area_action.config}")
+            logger.debug(f"Checking task completion: {area_action.config}")
 
     class create_task(Reaction):
         service: "Todoist"
@@ -92,7 +92,11 @@ class Todoist(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "A modern interconnected todolist", "LifeStyle", "#CE3608", "", True
+            "A modern interconnected todolist",
+            "LifeStyle",
+            "#CE3608",
+            "/images/Todoist_logo.png",
+            True,
         )
 
     def _is_token_valid(self, token):
@@ -239,12 +243,12 @@ class Todoist(ServiceClass):
         # refresh le token
         return True
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         base_url = "https://todoist.com/oauth/authorize"
         params = {
             "client_id": settings.TODOIST_CLIENT_ID,
             "scope": "data:read_write,data:delete,project:delete,backups:read",
-            "state": generate_state(),
+            "state": state if state else generate_state(),
         }
         return f"{base_url}?{urlencode(params)}"
 
@@ -265,4 +269,6 @@ class Todoist(ServiceClass):
         except TodoistApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(session, self.name, user, token_res.access_token)
+        return oauth_add_link(
+            session, self.name, user, token_res.access_token, request, is_mobile
+        )

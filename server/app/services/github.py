@@ -42,7 +42,7 @@ class GithubOauth(oauth_service):
     """GitHub OAuth service for user authentication."""
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(color="#000000", img_url="/images/Github_logo.png")
 
     def _get_token(self, client_id, client_secret, code):
         """Exchange authorization code for access token."""
@@ -74,7 +74,7 @@ class GithubOauth(oauth_service):
 
         return email_r.json()
 
-    def oauth_link(self) -> str:
+    def oauth_link(self, state: str = None) -> str:
         """Generate GitHub OAuth authorization URL."""
         base_url = "https://github.com/login/oauth/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/login/{self.name}"
@@ -87,6 +87,8 @@ class GithubOauth(oauth_service):
             "login": "",
             "force_verify": "true",
         }
+        if state:
+            params["state"] = state
         return f"{base_url}?{urlencode(params)}"
 
     def oauth_callback(

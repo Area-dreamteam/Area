@@ -284,7 +284,7 @@ class _LoginPageState extends State<LoginPage> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : getServiceIcon(provider.name, size: 20.0),
+                      : getServiceIcon(provider.name, size: 20.0, imageUrl: provider.imageUrl),
                   label: Text(
                     'Continue with $displayName',
                     style: const TextStyle(fontSize: 16),

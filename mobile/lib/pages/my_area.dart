@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/widgets/my_area_card.dart';
 import 'package:mobile/widgets/navbar.dart';
 import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/widgets/card.dart';
 
 class TabWithCount extends StatelessWidget {
   final int count;
@@ -64,7 +64,7 @@ class _MyAppletPageState extends State<MyAreaPage> {
       return const Center(
         child: Text(
           'No Applet.',
-          style: TextStyle(fontSize: 20, color: Colors.white70),
+          style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       );
     }
@@ -79,24 +79,12 @@ class _MyAppletPageState extends State<MyAreaPage> {
           ...viewModel.applets.map(
             (applet) => Padding(
               padding: const EdgeInsets.only(bottom: 20),
-              child: AppletCard( 
-                icon: Icons.electrical_services,
-                title: applet.name,
-                byText: 'ID: ${applet.id}',
-                onDelete: () async {
-                  final success = await viewModel.deleteApplet(applet.id);
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? "Applet deleted successfully"
-                            : viewModel.errorMessage,
-                      ),
-                      backgroundColor: success ? Colors.green : Colors.red,
-                    ),
-                  );
-                },
+              child: MyAreaCard(
+                applet: applet,
+                onEdit: () => {},
+                onDelete: () => {},
+                onToggleEnabled: (value) => {},
+                onTogglePublic: (value) => {},
               ),
             ),
           ),

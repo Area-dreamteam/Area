@@ -1,5 +1,6 @@
 from typing import List
 from crontab import CronTab
+from core.config import settings
 from sqlmodel import select, join
 from pathlib import Path
 from core.engine import engine
@@ -10,13 +11,13 @@ from models.services.action import Action
 
 
 def print_jobs():
-    cron = CronTab(user="root")
+    cron = CronTab(user=settings.CRON_USER)
     for job in cron:
         logger.info(job)
 
 
 def newJob(action_id: int):
-    cron = CronTab(user="root")
+    cron = CronTab(user=settings.CRON_USER)
 
     job = cron.new(
         command=f"python {Path(__file__).resolve().parent}/cron_scripts/time.py {action_id}"
@@ -39,7 +40,7 @@ def newJob(action_id: int):
 
 
 def deleteJob(action_id: int):
-    cron = CronTab(user="root")
+    cron = CronTab(user=settings.CRON_USER)
 
     jobs_to_remove = [job for job in cron if str(action_id) in job.command]
 
@@ -53,7 +54,7 @@ def deleteJob(action_id: int):
 
 
 def isCronExists(action_id: int):
-    cron = CronTab(user="root")
+    cron = CronTab(user=settings.CRON_USER)
 
     existing_jobs: list = [job for job in cron if " " + str(action_id) in job.command]
     if len(existing_jobs) == 0:

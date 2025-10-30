@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/user_model.dart';
 import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/repositories/service_repository.dart';
+import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/viewmodels/create_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -126,12 +127,9 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.network(actionService.imageUrl, width: 80, height: 80),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Icon(Icons.arrow_forward_ios, color: Colors.white, size: 30),
-        ),
-        Image.network(reactionService.imageUrl, width: 80, height: 80),
+        getServiceIcon(actionService.name, size: 80, imageUrl: actionService.imageUrl),
+        const SizedBox(width: 60),
+        getServiceIcon(reactionService.name, size: 80, imageUrl: reactionService.imageUrl)
       ],
     );
   }

@@ -6,9 +6,9 @@ class ServiceCard extends StatelessWidget {
   final int id;
   final String name;
   final String? description;
-  final String imageUrl;
   final String? category;
   final String? colorHex;
+  final String? imageUrl;
   final VoidCallback? onTap;
 
   const ServiceCard({
@@ -16,9 +16,9 @@ class ServiceCard extends StatelessWidget {
     required this.id,
     required this.name,
     this.description,
-    required this.imageUrl,
     this.category,
     this.colorHex,
+    this.imageUrl,
     this.onTap,
   });
 
@@ -44,7 +44,7 @@ class ServiceCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: ClipOval(
-              child: getServiceIcon(name, size: 20.0),
+              child: getServiceIcon(name, size: 20.0, imageUrl: imageUrl),
             ),
           ),
           const SizedBox(height: 18),

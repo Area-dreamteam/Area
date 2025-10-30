@@ -10,12 +10,8 @@ const nextConfig: NextConfig = {
         destination: `${API_URL}/:path*`,
       },
       {
-        source: '/client.apk',
-        destination: '/api/download/client',
-      },
-      {
         source: '/about.json',
-        destination: '/api/backend/about.json',
+        destination: `${API_URL}/about.json`,
       },
     ]
   },

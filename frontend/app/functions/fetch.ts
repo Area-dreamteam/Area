@@ -6,16 +6,15 @@
  */
 
 import axios from "axios";
-import { ConfigRespAct } from "../types/config";
 import { Act, ActDetails, Service, SpecificService } from "../types/service";
 import { MyProfileProp, UpdateProfileProp } from "../types/profile";
 import { SpecificAction, SpecificReaction } from "../types/actions";
 import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
 
 export const Calls = axios.create({
-  baseURL: "/api/backend",
+  baseURL: '/api/backend',
   withCredentials: true,
-});
+})
 
 Calls.interceptors.response.use(
   (response) => response,
@@ -24,295 +23,318 @@ Calls.interceptors.response.use(
       error.response &&
       (error.response.status === 401 || error.response.status === 403)
     ) {
-      window.location.href = "/login";
+      window.location.href = '/login'
     }
 
-    return Promise.reject(error);
-  },
-);
+    return Promise.reject(error)
+  }
+)
 
 export async function fetchDisconnectOauth(id: number) {
   try {
-    const res = await Calls.delete(`/oauth/oauth_login/${id}/disconnect`);
+    const res = await Calls.delete(`/oauth/oauth_login/${id}/disconnect`)
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
 export async function fetchDisconnectService(id: number) {
   try {
-    const res = await Calls.delete(`/services/${id}/disconnect`);
+    const res = await Calls.delete(`/services/${id}/disconnect`)
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
-export async function fetchMyself(setMyProfile: (arg: MyProfileProp | null) => void) {
+export async function fetchMyself(
+  setMyProfile: (arg: MyProfileProp | null) => void
+) {
   try {
-    const res = await Calls.get("/users/me");
+    const res = await Calls.get('/users/me')
     if (res.status != 200) {
-      setMyProfile(null);
-      return false;
+      setMyProfile(null)
+      return false
     }
-    setMyProfile(res.data);
-    return true;
+    setMyProfile(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setMyProfile(null);
-  return false;
+  setMyProfile(null)
+  return false
 }
 
-export async function fetchUpdateMyself(update: UpdateProfileProp, setMyProfile: (arg: MyProfileProp) => void)
-{
+export async function fetchUpdateMyself(
+  update: UpdateProfileProp,
+  setMyProfile: (arg: MyProfileProp) => void
+) {
   try {
-    const res = await Calls.patch("/users/me",
-    {
+    const res = await Calls.patch('/users/me', {
       name: update?.name,
-      email: update?.email
-    });
+      email: update?.email,
+    })
     if (res.status != 200) {
-      return false;
+      return false
     }
-    setMyProfile(res.data);
-    return true;
+    setMyProfile(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
 export async function fetchDeleteMyself() {
   try {
-    const res = await Calls.delete("/users/me");
-    if (res.status != 200) return false;
-    return true;
+    const res = await Calls.delete('/users/me')
+    if (res.status != 200) return false
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
-export async function fetchChangePassword(oldPassword: string, newPass: string)
-{
+export async function fetchChangePassword(
+  oldPassword: string,
+  newPass: string
+) {
   try {
-    const res = await Calls.patch("/users/me/password",
-    {
+    const res = await Calls.patch('/users/me/password', {
       current_password: oldPassword,
-      new_password: newPass
-    });
+      new_password: newPass,
+    })
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
 export async function fetchLogin(email: string, password: string) {
   try {
-    const res = await Calls.post("/auth/login", {
+    const res = await Calls.post('/auth/login', {
       email: email,
       password: password,
-    });
-    if (res.status != 200) return false;
-    return true;
+    })
+    if (res.status != 200) return false
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
+}
+
+export async function fetchLogout() {
+  try {
+    const res = await Calls.post('/auth/logout')
+    if (res.status != 200) return false
+    return true
+  } catch (err) {
+    console.log('Error: ', err)
+  }
+  return false
 }
 
 export async function fetchRegister(email: string, password: string) {
   try {
-    const res = await Calls.post("/auth/register", {
-      name: email.split("@")[0],
+    const res = await Calls.post('/auth/register', {
+      name: email.split('@')[0],
       email: email,
       password: password,
-    });
-    console.log(res);
+    })
+    console.log(res)
 
-    if (res.status != 200) return false;
-    return true;
+    if (res.status != 200) return false
+    return true
   } catch (err) {
-    console.log("An error occured: ", err);
+    console.log('An error occured: ', err)
   }
-  return false;
+  return false
 }
 
 export async function fetchActs(
   id: number,
   type: string,
-  setActs: (data: Act[]) => void,
+  setActs: (data: Act[]) => void
 ) {
   try {
-    const res = await Calls.get(`/services/${id}/${type}`);
+    const res = await Calls.get(`/services/${id}/${type}`)
 
-    if (res.status != 200) return false;
-    setActs(res.data);
-    return true;
+    if (res.status != 200) return false
+    setActs(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
-export async function fetchServices(setServices: (data: Service[] | null) => void) {
+export async function fetchServices(
+  setServices: (data: Service[] | null) => void
+) {
   try {
-    const res = await Calls.get("/services/list");
+    const res = await Calls.get('/services/list')
 
     if (res.status != 200) {
-      setServices(null);
-      return false;
+      setServices(null)
+      return false
     }
-    setServices(res.data);
-    return true;
+    setServices(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setServices(null);
-  return false;
+  setServices(null)
+  return false
 }
 
 export async function fetchSpecificService(
   setService: (data: SpecificService | null) => void,
-  id: number,
+  id: number
 ) {
   try {
-    const res = await Calls.get(`/services/${id}`);
+    const res = await Calls.get(`/services/${id}`)
 
     if (res.status != 200) {
-      setService(null);
-      return false;
+      setService(null)
+      return false
     }
-    setService(res.data);
-    return true;
+    setService(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setService(null);
-  return true;
+  setService(null)
+  return true
 }
 
-export async function fetchApplets(setApplets: (data: (PublicApplet | PrivateApplet)[] | null) => void) {
+export async function fetchApplets(
+  setApplets: (data: (PublicApplet | PrivateApplet)[] | null) => void
+) {
   try {
-    const res = await Calls.get("/areas/public");
+    const res = await Calls.get('/areas/public')
 
     if (res.status != 200) {
-      setApplets(null);
-      return false;
+      setApplets(null)
+      return false
     }
-    setApplets(res.data);
-    return true;
+    setApplets(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setApplets(null);
-  return false;
+  setApplets(null)
+  return false
 }
 
 export async function fetchSpecificApplet(
   setApplet: (data: SpecificPublicApplet | null) => void,
-  id: number,
+  id: number
 ) {
   try {
-    const res = await Calls.get(`/areas/public/${id}`);
+    const res = await Calls.get(`/areas/public/${id}`)
 
     if (res.status != 200) {
-      setApplet(null);
-      return false;
+      setApplet(null)
+      return false
     }
-    setApplet(res.data);
-    return true;
+    setApplet(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setApplet(null);
-  return true;
+  setApplet(null)
+  return true
 }
 
 export async function fetchCopyApplet(id: number) {
   try {
-    const res = await Calls.post(`/areas/public/${id}/copy`);
+    const res = await Calls.post(`/areas/public/${id}/copy`)
 
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return true;
+  return true
 }
 
 export async function fetchDeletePersonalApplet(id: number) {
   try {
-    const res = await Calls.delete(`/areas/${id}`);
+    const res = await Calls.delete(`/areas/${id}`)
 
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return true;
+  return true
 }
 
 export async function fetchPrivateApplet(
   setApplet: (data: SpecificPrivateApplet | null) => void,
-  id: number,
+  id: number
 ) {
   try {
-    const res = await Calls.get(`/areas/${id}`);
+    const res = await Calls.get(`/areas/${id}`)
 
     if (res.status != 200) {
-      setApplet(null);
-      return false;
+      setApplet(null)
+      return false
     }
-    setApplet(res.data);
-    return true;
+    setApplet(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setApplet(null);
-  return true;
+  setApplet(null)
+  return true
 }
 
 export async function fetchAction(
   id: number,
   type: string,
-  setAction: (data: SpecificAction | SpecificReaction | null) => void,
+  setAction: (data: SpecificAction | SpecificReaction | null) => void
 ) {
   try {
-    const res = await Calls.get(`/${type}/${id}`);
+    const res = await Calls.get(`/${type}/${id}`)
 
     if (res.status != 200) {
-      setAction(null);
-      return false;
+      setAction(null)
+      return false
     }
-    setAction(res.data);
-    return true;
+    setAction(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setAction(null);
-  return true;
+  setAction(null)
+  return true
 }
 
-export async function fetchUpdatePersonalApplets(name: string, desc: string, applet: SpecificPrivateApplet) {
+export async function fetchUpdatePersonalApplets(
+  name: string,
+  desc: string,
+  applet: SpecificPrivateApplet
+) {
   try {
     const res = await Calls.patch(`/users/areas/${applet.area_info.id}`, {
       name: name,
@@ -324,99 +346,99 @@ export async function fetchUpdatePersonalApplets(name: string, desc: string, app
       reactions: applet.reactions.map((reac) => {
         return {
           reaction_id: reac.id,
-          config: reac.config
+          config: reac.config,
         }
       }),
-    });
+    })
 
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
 export async function fetchPersonalApplets(
-  setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
+  setPersonalApplets: (data: PrivateApplet[] | null) => void
 ) {
   try {
-    const res = await Calls.get("/users/areas/me");
+    const res = await Calls.get('/users/areas/me')
 
     if (res.status != 200) {
-      setPersonalApplets(null);
-      return false;
+      setPersonalApplets(null)
+      return false
     }
-    setPersonalApplets(res.data);
-    return true;
+    setPersonalApplets(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setPersonalApplets(null);
-  return false;
+  setPersonalApplets(null)
+  return false
 }
 
 export async function fetchPersonalPublicApplets(
-  setPersonalApplets: (data: (PrivateApplet)[] | null) => void,
+  setPersonalApplets: (data: PrivateApplet[] | null) => void
 ) {
   try {
-    const res = await Calls.get("/users/areas/public");
+    const res = await Calls.get('/users/areas/public')
 
     if (res.status != 200) {
-      setPersonalApplets(null);
-      return false;
+      setPersonalApplets(null)
+      return false
     }
-    setPersonalApplets(res.data);
-    return true;
+    setPersonalApplets(res.data)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  setPersonalApplets(null);
-  return false;
+  setPersonalApplets(null)
+  return false
 }
 
-export async function fetchUnpublishPersonalApplet(id:number) {
+export async function fetchUnpublishPersonalApplet(id: number) {
   try {
-    const res = await Calls.delete(`/users/areas/public/${id}/unpublish`);
+    const res = await Calls.delete(`/users/areas/public/${id}/unpublish`)
 
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
-export async function fetchPublishPersonalApplet(id:number) {
+export async function fetchPublishPersonalApplet(id: number) {
   try {
-    const res = await Calls.post(`/users/areas/${id}/publish`);
+    const res = await Calls.post(`/users/areas/${id}/publish`)
 
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
-export async function fetchPersonalAppletConnection(id:number, state: string) {
+export async function fetchPersonalAppletConnection(id: number, state: string) {
   try {
-    const res = await Calls.patch(`/users/areas/${id}/${state}`);
+    const res = await Calls.patch(`/users/areas/${id}/${state}`)
 
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
 export async function fetchCreateApplet(
@@ -425,9 +447,9 @@ export async function fetchCreateApplet(
   title: string,
 ) {
   try {
-    const res = await Calls.post("/users/areas/me", {
-      name: title.replaceAll("_", " "),
-      description: "[description]",
+    const res = await Calls.post('/users/areas/me', {
+      name: title.replaceAll('_', ' '),
+      description: '[description]',
       action: {
         action_id: action.id,
         config: action.config,
@@ -439,25 +461,26 @@ export async function fetchCreateApplet(
     });
 
     if (res.status != 200) {
-      return false;
+      return false
     }
-    return true;
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }
 
-export async function fetchIsConnected(id: number | string, setIsConnected: (data: boolean) => void)
-{
+export async function fetchIsConnected(
+  id: number | string,
+  setIsConnected: (data: boolean) => void
+) {
   try {
-    const res = await Calls.get(`/services/${id}/is_connected`);
-    if (res.status != 200)
-      return false;
-    setIsConnected(res.data);
-    return true;
+    const res = await Calls.get(`/services/${id}/is_connected`)
+    if (res.status != 200) return false
+    setIsConnected(res.data.is_connected)
+    return true
   } catch (err) {
-    console.log("Error: ", err);
+    console.log('Error: ', err)
   }
-  return false;
+  return false
 }

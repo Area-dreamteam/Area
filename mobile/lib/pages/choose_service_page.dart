@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:mobile/models/service_model.dart';
 import 'package:mobile/repositories/service_repository.dart';
@@ -97,9 +99,9 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                       id: serviceFromList.id,
                       name: serviceFromList.name,
                       description: serviceFromList.description,
-                      imageUrl: serviceFromList.imageUrl,
                       category: serviceFromList.category,
                       colorHex: serviceFromList.color,
+                      imageUrl: serviceFromList.imageUrl,
                       onTap: () async {
                         showDialog(
                           context: context,

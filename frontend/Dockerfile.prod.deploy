@@ -1,15 +1,21 @@
 FROM instrumentisto/flutter AS mobile-builder
 WORKDIR /app
-RUN git config --global --add safe.directory /home/mobiledevops/.flutter-sdk
-COPY ./mobile .
-RUN flutter create .
-RUN flutter build apk --release
+
+COPY ./mobile/ ./
+
+RUN if [ -f ./build/app/outputs/apk/release/app-release.apk ]; then \
+      echo "Using pre-built APK from CI"; \
+    else \
+      echo "Building APK locally"; \
+      flutter build apk --release; \
+    fi
+
 RUN mkdir -p /app/target && \
     (mv ./build/app/outputs/apk/release/app-release.apk /app/target/client.apk || \
      mv ./build/app/outputs/flutter-apk/app-release.apk /app/target/client.apk)
 
-FROM node:20-alpine AS base
 
+FROM node:20-alpine AS base
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -20,7 +26,7 @@ RUN npm ci
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY ./frontend .
+COPY ./frontend/ ./
 
 RUN npm run build
 
@@ -45,3 +51,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
+
