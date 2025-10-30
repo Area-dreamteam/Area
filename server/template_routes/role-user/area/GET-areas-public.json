@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "name": "example_name",
+        "user": {
+            "name": "example_name"
+        },
+        "created_at": "ajd",
+        "color": "#000000"
+    },
+    {
+        "id": 2,
+        "name": "example_name",
+        "user": {
+            "name": "example_name"
+        },
+        "created_at": "ajd",
+        "color": "#000000"
+    }
+]

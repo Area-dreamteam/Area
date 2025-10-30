@@ -1,0 +1,71 @@
+services:
+  frontend:
+    container_name: area-frontend-dev
+    env_file: "./frontend/.env"
+    ports:
+      - "8081:3000"
+    volumes:
+      - "./frontend:/app"
+      - /app/node_modules
+      - /app/.next
+    restart: always
+    build:
+      context: "./frontend"
+    develop:
+      watch:
+        - path: ./frontend/src
+          action: sync
+          target: /app
+        - path: ./frontend
+          action: rebuild
+          ignore:
+            - ./frontend/app
+    networks:
+      - area_net
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
+  backend:
+    container_name: area-backend-dev
+    env_file: "./server/.env"
+    ports:
+      - "8080:8080"
+    build:
+      context: "./server"
+    volumes:
+      - "./server/app:/server/app"
+      - "./server/images:/server/app/images"
+    restart: always
+    networks:
+      - area_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17.6
+    container_name: pgdata
+    restart: always
+
+    env_file:
+      - "./server/.env"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - area_net
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"]
+      interval: 2s
+      timeout: 1s
+      retries: 20
+
+volumes:
+  pgdata:
+
+networks:
+  area_net:

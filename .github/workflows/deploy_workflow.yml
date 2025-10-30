@@ -1,0 +1,189 @@
+name: Github Action Deploy
+
+on:
+  push:
+    branches: ["main", "deployement*"]
+
+jobs:
+  build-mobile-apk:
+    name: Build Mobile APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for mobile changes
+        id: mobile-changes
+        run: |
+          if git diff --quiet HEAD^ HEAD -- ../mobile/ 2>/dev/null; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No mobile changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Mobile changes detected"
+          fi
+
+      - name: Cache APK
+        id: cache-apk
+        uses: actions/cache@v4
+        with:
+          path: mobile/build/app/outputs/apk/release/app-release.apk
+          key: ${{ runner.os }}-mobile-apk-${{ hashFiles('mobile/**', '!mobile/build/**', '!mobile/.dart_tool/**') }}
+          restore-keys: |
+            ${{ runner.os }}-mobile-apk-
+
+      - name: Cache Flutter dependencies
+        if: steps.cache-apk.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            mobile/.dart_tool
+          key: ${{ runner.os }}-flutter-${{ hashFiles('mobile/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Set up Flutter
+        if: steps.cache-apk.outputs.cache-hit != 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.35.4'
+          cache: true
+
+      - name: Install dependencies
+        if: steps.cache-apk.outputs.cache-hit != 'true'
+        run: flutter pub get
+
+      - name: Build APK (release)
+        if: steps.cache-apk.outputs.cache-hit != 'true'
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-apk
+          path: mobile/build/app/outputs/apk/release/app-release.apk
+          retention-days: 1
+
+  build-deploy-front:
+    name: Build and Push Docker Front Image
+    runs-on: ubuntu-latest
+    needs: build-mobile-apk
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mobile-apk
+          path: ./mobile-apk/
+
+      - name: Prepare APK for Docker build
+        run: |
+          mkdir -p mobile/build/app/outputs/apk/release/
+          cp ./mobile-apk/app-release.apk mobile/build/app/outputs/apk/release/app-release.apk
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-frontend-${{ hashFiles('frontend/**', '.dockerignore') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-frontend-
+
+      - name: Extract metadata
+        id: meta
+        run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_OUTPUT"
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push production image
+        uses: docker/build-push-action@v6
+        with:
+          context: "."
+          file: "./frontend/Dockerfile.prod.deploy"
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROD_REPO }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROD_REPO }}:${{ steps.meta.outputs.SHORT_SHA }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  build-deploy-back:
+    name: Build and Push Docker Back Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-backend-${{ hashFiles('server/**', 'server/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-backend-
+
+      - name: Extract metadata
+        id: meta
+        run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_OUTPUT"
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push production image
+        uses: docker/build-push-action@v6
+        with:
+          context: "./server"
+          file: "./server/Dockerfile.prod"
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROD_BACK_REPO }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROD_BACK_REPO }}:${{ steps.meta.outputs.SHORT_SHA }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+

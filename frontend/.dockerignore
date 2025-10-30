@@ -1,0 +1,9 @@
+Dockerfile*
+node_modules
+.next
+.git
+.gitignore
+README.md
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -1,0 +1,18 @@
+[
+  { "name": "input_example", "type": "input", "values": "" },
+  {
+    "name": "select_example",
+    "type": "select",
+    "values": "15m"
+  },
+  {
+    "name": "check_list_example",
+    "type": "check_list",
+    "values": {
+      "15m": true,
+      "30m": true,
+      "45m": false, 
+      "1h": false
+    }
+  }
+]

@@ -1,0 +1,26 @@
+services:
+  test-db:
+    image: postgres:17.6
+    container_name: area-test-db
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: area_test
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"
+    volumes:
+      - test-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d area_test"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
+    networks:
+      - test_net
+
+volumes:
+  test-pgdata:
+
+networks:
+  test_net:

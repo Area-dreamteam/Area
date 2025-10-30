@@ -1,0 +1,28 @@
+FROM instrumentisto/flutter
+
+WORKDIR /app
+
+RUN git config --global --add safe.directory /home/mobiledevops/.flutter-sdk
+
+COPY pubspec.yaml pubspec.lock ./
+
+RUN flutter pub get
+
+COPY lib/ ./lib/
+COPY android/ ./android/
+COPY assets/ ./assets/
+COPY analysis_options.yaml ./
+
+ARG API_URL
+ENV API_URL=${API_URL}
+
+RUN flutter build apk --release \
+    --dart-define=API_URL=${API_URL} \
+    --no-tree-shake-icons
+
+RUN mkdir -p /app/target && \
+    cp build/app/outputs/flutter-apk/app-release.apk /app/target/client.apk
+
+RUN ls -lh /app/target/client.apk
+
+CMD ["tail", "-f", "/dev/null"]
