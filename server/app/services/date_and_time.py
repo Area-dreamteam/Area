@@ -11,7 +11,7 @@ class DateAndTime(Service):
         def __init__(self) -> None:
             config_schema = [
                 {
-                    "name": "select_interval",
+                    "name": "Select interval",
                     "type": "select",
                     "values": ["00", "15", "30", "45"],
                 },
@@ -27,7 +27,7 @@ class DateAndTime(Service):
         ) -> bool:
             current_time = datetime.now()
             selected_minute: int = int(
-                get_component(area_action.config, "select_interval", "values")
+                get_component(area_action.config, "Select interval", "values")
             )
             if selected_minute == current_time.minute:
                 return True

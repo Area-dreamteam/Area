@@ -52,7 +52,7 @@ class Reddit(ServiceClass):
         service: "Reddit"
 
         def __init__(self) -> None:
-            config_schema = [{"name": "subreddit", "type": "input", "values": []}]
+            config_schema = [{"name": "Subreddit", "type": "input", "values": []}]
             super().__init__(
                 "Triggered when a new post appears in a subreddit", config_schema
             )
@@ -62,7 +62,7 @@ class Reddit(ServiceClass):
         ) -> bool:
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                subreddit = get_component(area_action.config, "subreddit", "values")
+                subreddit = get_component(area_action.config, "Subreddit", "values")
 
                 url = f"https://oauth.reddit.com/r/{subreddit}/new?limit=1"
                 headers = {
@@ -92,7 +92,7 @@ class Reddit(ServiceClass):
         service: "Reddit"
 
         def __init__(self) -> None:
-            config_schema = [{"name": "subreddit", "type": "input", "values": []}]
+            config_schema = [{"name": "Subreddit", "type": "input", "values": []}]
             super().__init__(
                 "Triggered when a new hot post appears in a subreddit", config_schema
             )
@@ -102,7 +102,7 @@ class Reddit(ServiceClass):
         ) -> bool:
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                subreddit = get_component(area_action.config, "subreddit", "values")
+                subreddit = get_component(area_action.config, "Subreddit", "values")
 
                 url = f"https://oauth.reddit.com/r/{subreddit}/hot?limit=1"
                 headers = {
@@ -132,7 +132,7 @@ class Reddit(ServiceClass):
         service: "Reddit"
 
         def __init__(self) -> None:
-            config_schema = [{"name": "subreddit", "type": "input", "values": []}]
+            config_schema = [{"name": "Subreddit", "type": "input", "values": []}]
             super().__init__(
                 "Triggered when a new top post appears in a subreddit", config_schema
             )
@@ -142,7 +142,7 @@ class Reddit(ServiceClass):
         ) -> bool:
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                subreddit = get_component(area_action.config, "subreddit", "values")
+                subreddit = get_component(area_action.config, "Subreddit", "values")
 
                 url = f"https://oauth.reddit.com/r/{subreddit}/top?limit=1"
                 headers = {
@@ -173,18 +173,18 @@ class Reddit(ServiceClass):
 
         def __init__(self) -> None:
             config_schema = [
-                {"name": "subreddit", "type": "input", "values": []},
-                {"name": "title", "type": "input", "values": []},
-                {"name": "text", "type": "input", "values": []},
+                {"name": "Subreddit", "type": "input", "values": []},
+                {"name": "Title", "type": "input", "values": []},
+                {"name": "Text", "type": "input", "values": []},
             ]
             super().__init__("Post a new message to a subreddit", config_schema)
 
         def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                subreddit = get_component(area_action.config, "subreddit", "values")
-                title = get_component(area_action.config, "title", "values")
-                text = get_component(area_action.config, "text", "values")
+                subreddit = get_component(area_action.config, "Subreddit", "values")
+                title = get_component(area_action.config, "Title", "values")
+                text = get_component(area_action.config, "Text", "values")
 
                 url = "https://oauth.reddit.com/api/submit"
                 headers = {

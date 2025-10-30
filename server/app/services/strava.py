@@ -90,7 +90,6 @@ class Strava(ServiceClass):
                 r = requests.get(
                     url, headers={"Authorization": f"Bearer {token}"}, params=params
                 )
-                logger.error(r.json())
                 if r.status_code != 200:
                     raise StravaApiError("Failed to fetch activities")
 
@@ -118,7 +117,6 @@ class Strava(ServiceClass):
                 r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
                 if r.status_code != 200:
                     raise StravaApiError("Failed to fetch athlete clubs")
-                logger.error(r.json())
                 club = r.json()[-1] if r.json() else None
                 logger.error(club)
             except StravaApiError as e:
@@ -132,25 +130,25 @@ class Strava(ServiceClass):
 
         def __init__(self):
             config_schema = [
-                {"name": "name", "type": "input", "values": []},
-                {"name": "description", "type": "input", "values": []},
-                {"name": "type", "type": "select", "values": ["Ride", "Run", "Walk"]},
-                {"name": "elapsed_time(seconds)", "type": "input", "values": []},
+                {"name": "Name", "type": "input", "values": []},
+                {"name": "Description", "type": "input", "values": []},
+                {"name": "Activity type", "type": "select", "values": ["Ride", "Run", "Walk"]},
+                {"name": "Elapsed time (seconds)", "type": "input", "values": []},
             ]
             super().__init__("Create a new manual activity", config_schema)
 
         def execute(self, session, area_reaction, user_id):
             try:
                 token = get_user_service_token(session, user_id, self.service.name)
-                name = get_component(area_reaction.config, "name", "values")
-                type = get_component(area_reaction.config, "type", "values")
+                name = get_component(area_reaction.config, "Name", "values")
+                type = get_component(area_reaction.config, "Type", "values")
                 try:
                     elapsed: int = get_component(
-                        area_reaction.config, "elapsed_time(seconds)", "values"
+                        area_reaction.config, "Elapsed time (seconds)", "values"
                     )
                 except Exception:
                     elapsed: int = 0
-                desc = get_component(area_reaction.config, "description", "values")
+                desc = get_component(area_reaction.config, "Description", "values")
 
                 url = "https://www.strava.com/api/v3/activities"
                 data = {
@@ -176,7 +174,7 @@ class Strava(ServiceClass):
 
         def __init__(self):
             config_schema = [
-                {"name": "new_weight", "type": "input", "values": []},
+                {"name": "New weight", "type": "input", "values": []},
             ]
             super().__init__("Update your weight on Strava", config_schema)
 
@@ -185,7 +183,7 @@ class Strava(ServiceClass):
                 token = get_user_service_token(session, user_id, self.service.name)
                 try:
                     new_weight: float = float(
-                        get_component(area_reaction.config, "new_weight", "values")
+                        get_component(area_reaction.config, "New weight", "values")
                     )
                 except Exception:
                     raise StravaApiError("Incorrect weight value")
