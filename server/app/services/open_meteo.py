@@ -470,5 +470,34 @@ class OpenMeteo(Service):
 
             return current_cloud_cover < cloud_cover_limit
         
+    class if_cloud_cover_rise_above(Action):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "cloud_cover_limit",
+                    "type": "input",
+                    "values": [],
+                },
+                *default_openmeteo_config_schema
+            ]
+            super().__init__(
+                "Check if cloud cover rise above a certain limit",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            cloud_cover_limit = float(
+                get_component(area_action.config, "cloud_cover_limit", "values")
+            )
+            longitude = get_component(area_action.config, "longitude", "values")
+            latitude = get_component(area_action.config, "latitude", "values")
+            timezone = get_component(area_action.config, "timezone", "values")
+
+            current_cloud_cover = open_meteo_api.get_current_cloud_cover(latitude, longitude, timezone)
+
+            return current_cloud_cover > cloud_cover_limit
+        
     def __init__(self) -> None:
         super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
