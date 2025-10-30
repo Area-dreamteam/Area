@@ -61,31 +61,35 @@ class Spotify(ServiceClass):
             )
 
         def check(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            device_name = get_component(area_action.config, "Device name", "values")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                device_name = get_component(area_action.config, "Device name", "values")
 
-            url = "https://api.spotify.com/v1/me/player"
-            r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+                url = "https://api.spotify.com/v1/me/player"
+                r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
 
-            if r.status_code == 204:
-                current_active: bool = False
-            elif r.status_code != 200:
-                raise SpotifyApiError("Failed to fetch connect devices")
-            else:
-                data: Dict[str, Any] = r.json()
-                current_device: str = data.get("device", {}).get("name", "").lower()
-                current_active: bool = (
-                    device_name.lower() in current_device
-                    and data.get("is_playing", False)
+                if r.status_code == 204:
+                    current_active: bool = False
+                elif r.status_code != 200:
+                    raise SpotifyApiError("Failed to fetch connect devices")
+                else:
+                    data: Dict[str, Any] = r.json()
+                    current_device: str = data.get("device", {}).get("name", "").lower()
+                    current_active: bool = (
+                        device_name.lower() in current_device
+                        and data.get("is_playing", False)
+                    )
+                previous_state: bool = (area_action.last_state or {}).get(
+                    "previous_state", False
                 )
-            previous_state: bool = (area_action.last_state or {}).get(
-                "previous_state", False
-            )
-            area_action.last_state = {"previous_state": current_active}
-            session.add(area_action)
-            session.commit()
+                area_action.last_state = {"previous_state": current_active}
+                session.add(area_action)
+                session.commit()
 
-            return current_active and not previous_state
+                return current_active and not previous_state
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return False
 
     class something_is_currently_playing(Action):
         """Triggered when something is currently playing."""
@@ -99,25 +103,29 @@ class Spotify(ServiceClass):
             )
 
         def check(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
 
-            url = "https://api.spotify.com/v1/me/player"
-            r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
-            if r.status_code == 204:
-                current_active: bool = False
-            elif r.status_code != 200:
-                raise SpotifyApiError("Failed to fetch player status info")
-            else:
-                current_active: bool = r.json().get("is_playing", False)
+                url = "https://api.spotify.com/v1/me/player"
+                r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+                if r.status_code == 204:
+                    current_active: bool = False
+                elif r.status_code != 200:
+                    raise SpotifyApiError("Failed to fetch player status info")
+                else:
+                    current_active: bool = r.json().get("is_playing", False)
 
-            previous_state: bool = (area_action.last_state or {}).get(
-                "previous_state", False
-            )
-            area_action.last_state = {"previous_state": current_active}
-            session.add(area_action)
-            session.commit()
+                previous_state: bool = (area_action.last_state or {}).get(
+                    "previous_state", False
+                )
+                area_action.last_state = {"previous_state": current_active}
+                session.add(area_action)
+                session.commit()
 
-            return current_active and not previous_state
+                return current_active and not previous_state
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return False
 
     class volume_above_threshold(Action):
         """Triggered when the Spotify player volume is above a certain threshold."""
@@ -149,32 +157,35 @@ class Spotify(ServiceClass):
             )
 
         def check(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
             try:
-                threshold = int(
-                    get_component(area_action.config, "Threshold", "values")
+                token = get_user_service_token(session, user_id, self.service.name)
+                try:
+                    threshold = int(
+                        get_component(area_action.config, "Threshold", "values")
+                    )
+                except Exception:
+                    raise SpotifyApiError("Incorrect threshold value")
+
+                url = "https://api.spotify.com/v1/me/player"
+                r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+                if r.status_code == 204:
+                    return False
+                if r.status_code != 200:
+                    raise SpotifyApiError(f"Failed to fetch player info: {r.text}")
+
+                volume: float = r.json().get("device", {}).get("volume_percent", 0)
+                previous_state: bool = (area_action.last_state or {}).get(
+                    "previous_state", False
                 )
-            except Exception:
-                raise SpotifyApiError("Incorrect threshold value")
+                current_state: bool = volume > threshold
 
-            url = "https://api.spotify.com/v1/me/player"
-            r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
-            if r.status_code == 204:
-                return False
-            if r.status_code != 200:
-                raise SpotifyApiError(f"Failed to fetch player info: {r.text}")
-
-            volume: float = r.json().get("device", {}).get("volume_percent", 0)
-            previous_state: bool = (area_action.last_state or {}).get(
-                "previous_state", False
-            )
-            current_state: bool = volume > threshold
-
-            area_action.last_state = {"previous_state": current_state}
-            session.add(area_action)
-            session.commit()
-            logger.error(f"volume above  {current_state}")
-            return current_state and not previous_state
+                area_action.last_state = {"previous_state": current_state}
+                session.add(area_action)
+                session.commit()
+                return current_state and not previous_state
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return False
 
     class volume_below_threshold(Action):
         """Triggered when the Spotify player volume is below a certain threshold."""
@@ -206,29 +217,32 @@ class Spotify(ServiceClass):
             )
 
         def check(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
             try:
-                threshold = int(
-                    get_component(area_action.config, "Threshold", "values")
+                token = get_user_service_token(session, user_id, self.service.name)
+                try:
+                    threshold = int(
+                        get_component(area_action.config, "Threshold", "values")
+                    )
+                except Exception:
+                    raise SpotifyApiError("Incorrect threshold value")
+                url = "https://api.spotify.com/v1/me/player"
+                r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+                if r.status_code == 204:
+                    return False
+                if r.status_code != 200:
+                    raise SpotifyApiError(f"Failed to fetch player info: {r.text}")
+                volume = r.json().get("device", {}).get("volume_percent", 0)
+                previous_state: bool = (area_action.last_state or {}).get(
+                    "previous_state", False
                 )
-            except Exception:
-                raise SpotifyApiError("Incorrect threshold value")
-            url = "https://api.spotify.com/v1/me/player"
-            r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
-            if r.status_code == 204:
-                return False
-            if r.status_code != 200:
-                raise SpotifyApiError(f"Failed to fetch player info: {r.text}")
-            volume = r.json().get("device", {}).get("volume_percent", 0)
-            previous_state: bool = (area_action.last_state or {}).get(
-                "previous_state", False
-            )
-            current_state: bool = volume < threshold
-            area_action.last_state = {"previous_state": current_state}
-            session.add(area_action)
-            session.commit()
-            logger.error(f"volume below  {current_state}")
-            return current_state and not previous_state
+                current_state: bool = volume < threshold
+                area_action.last_state = {"previous_state": current_state}
+                session.add(area_action)
+                session.commit()
+                return current_state and not previous_state
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return False
 
     class track_currently_playing(Action):
         """Triggered when something your track is currently playing."""
@@ -244,29 +258,33 @@ class Spotify(ServiceClass):
             )
 
         def check(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            track_name = get_component(area_action.config, "Track name", "values")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                track_name = get_component(area_action.config, "Track name", "values")
 
-            url = "https://api.spotify.com/v1/me/player"
-            r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
-            if r.status_code == 204:
-                current_track: str = None
-            elif r.status_code != 200:
-                raise SpotifyApiError("Failed to fetch track state")
-            else:
-                data: Dict[str, Any] = r.json()
-                current_track: str = data.get("item", {}).get("name", "").lower()
-                current_active: bool = track_name.lower() in current_track and data.get(
-                    "is_playing", False
+                url = "https://api.spotify.com/v1/me/player"
+                r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+                if r.status_code == 204:
+                    current_track: str = None
+                elif r.status_code != 200:
+                    raise SpotifyApiError("Failed to fetch track state")
+                else:
+                    data: Dict[str, Any] = r.json()
+                    current_track: str = data.get("item", {}).get("name", "").lower()
+                    current_active: bool = (
+                        track_name.lower() in current_track
+                        and data.get("is_playing", False)
+                    )
+                previous_state: bool = (area_action.last_state or {}).get(
+                    "previous_state", False
                 )
-            previous_state: bool = (area_action.last_state or {}).get(
-                "previous_state", False
-            )
-            area_action.last_state = {"previous_state": current_active}
-            session.add(area_action)
-            session.commit()
-
-            return current_active and not previous_state
+                area_action.last_state = {"previous_state": current_active}
+                session.add(area_action)
+                session.commit()
+                return current_active and not previous_state
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return False
 
     class set_volume(Reaction):
         """Set Spotify player volume to a specific value."""
@@ -296,23 +314,27 @@ class Spotify(ServiceClass):
             super().__init__("Set player volume", config_schema)
 
         def execute(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
             try:
-                volume_percent = int(
-                    get_component(area_action.config, "Volume percent", "values")
-                )
-            except Exception:
-                raise SpotifyApiError("Incorrect volume value")
+                token = get_user_service_token(session, user_id, self.service.name)
+                try:
+                    volume_percent = int(
+                        get_component(area_action.config, "Volume percent", "values")
+                    )
+                except Exception:
+                    raise SpotifyApiError("Incorrect volume value")
 
-            url = "https://api.spotify.com/v1/me/player/volume"
-            params = {"volume_percent": volume_percent}
-            r = requests.put(
-                url, headers={"Authorization": f"Bearer {token}"}, params=params
-            )
-            if r.status_code != 204:
-                logger.error(f"Spotify volume set error: {r.text}")
-                raise SpotifyApiError("Failed to set volume")
-            logger.debug(f"Spotify: volume set to {volume_percent}% for user {user_id}")
+                url = "https://api.spotify.com/v1/me/player/volume"
+                params = {"volume_percent": volume_percent}
+                r = requests.put(
+                    url, headers={"Authorization": f"Bearer {token}"}, params=params
+                )
+                if r.status_code != 204:
+                    raise SpotifyApiError("Failed to set volume")
+                logger.debug(
+                    f"Spotify: volume set to {volume_percent}% for user {user_id}"
+                )
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
 
     class set_repeat(Reaction):
         """Set the repeat mode for the user's playback."""
@@ -332,23 +354,25 @@ class Spotify(ServiceClass):
             )
 
         def execute(self, session, area_action, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            state = get_component(area_action.config, "State", "values")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                state = get_component(area_action.config, "State", "values")
 
-            url = "https://api.spotify.com/v1/me/player/repeat"
-            params = {"state": state}
-            r = requests.put(
-                url, headers={"Authorization": f"Bearer {token}"}, params=params
-            )
-            if r.status_code == 404:
-                logger.debug(
-                    f"Spotify {self.name}: no active playback for user {user_id}"
+                url = "https://api.spotify.com/v1/me/player/repeat"
+                params = {"state": state}
+                r = requests.put(
+                    url, headers={"Authorization": f"Bearer {token}"}, params=params
                 )
-                return
-            if r.status_code != 200:
-                logger.error(f"Spotify repeat error: {r.text}")
-                raise SpotifyApiError("Failed to set repeat mode")
-            logger.debug(f"Spotify: repeat mode set to {state} for user {user_id}")
+                if r.status_code == 404:
+                    logger.debug(
+                        f"Spotify {self.name}: no active playback for user {user_id}"
+                    )
+                    return
+                if r.status_code != 200:
+                    raise SpotifyApiError("Failed to set repeat mode")
+                logger.debug(f"Spotify: repeat mode set to {state} for user {user_id}")
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
 
     class skip_to_next(Reaction):
         """Skips to next track in the user's queue on Spotify."""
@@ -362,18 +386,20 @@ class Spotify(ServiceClass):
             )
 
         def execute(self, session, area_reaction, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            url = "https://api.spotify.com/v1/me/player/next"
-            r = requests.post(url, headers={"Authorization": f"Bearer {token}"})
-            if r.status_code == 404:
-                logger.debug(
-                    f"Spotify {self.name}: no active playback for user {user_id}"
-                )
-                return
-            if r.status_code != 200:
-                logger.error(f"Spotify post error: {r.text}")
-                raise SpotifyApiError(f"Failed to skip to next track: {r.text}")
-            logger.debug("Spotify: Skip to next track  for user {user_id}")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                url = "https://api.spotify.com/v1/me/player/next"
+                r = requests.post(url, headers={"Authorization": f"Bearer {token}"})
+                if r.status_code == 404:
+                    logger.debug(
+                        f"Spotify {self.name}: no active playback for user {user_id}"
+                    )
+                    return
+                if r.status_code != 200:
+                    raise SpotifyApiError(f"Failed to skip to next track: {r.text}")
+                logger.debug("Spotify: Skip to next track  for user {user_id}")
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
 
     class skip_to_previous(Reaction):
         """Skips to previous track in the user's queue on Spotify."""
@@ -387,18 +413,20 @@ class Spotify(ServiceClass):
             )
 
         def execute(self, session, area_reaction, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            url = "https://api.spotify.com/v1/me/player/previous"
-            r = requests.post(url, headers={"Authorization": f"Bearer {token}"})
-            if r.status_code == 404:
-                logger.debug(
-                    f"Spotify {self.name}: no active playback for user {user_id}"
-                )
-                return
-            if r.status_code != 200:
-                logger.error(f"Spotify post error: {r.text}")
-                raise SpotifyApiError(f"Failed to skip to previous track: {r.text}")
-            logger.debug("Spotify: Skip to previous track for user {user_id}")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                url = "https://api.spotify.com/v1/me/player/previous"
+                r = requests.post(url, headers={"Authorization": f"Bearer {token}"})
+                if r.status_code == 404:
+                    logger.debug(
+                        f"Spotify {self.name}: no active playback for user {user_id}"
+                    )
+                    return
+                if r.status_code != 200:
+                    raise SpotifyApiError(f"Failed to skip to previous track: {r.text}")
+                logger.debug("Spotify: Skip to previous track for user {user_id}")
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
 
     class pause_playback(Reaction):
         """Pause playback on the user's account."""
@@ -410,16 +438,20 @@ class Spotify(ServiceClass):
             super().__init__("Pause playback on the user's account", config_schema)
 
         def execute(self, session, area_reaction, user_id):
-            token = get_user_service_token(session, user_id, self.service.name)
-            url = "https://api.spotify.com/v1/me/player/pause"
-            r = requests.put(url, headers={"Authorization": f"Bearer {token}"})
-            if r.status_code == 404:
-                logger.error(f"Spotify {self.name}: no active playback")
-                return
-            if r.status_code != 200:
-                logger.debug(f"Spotify post error: {r.status_code} for user {user_id}")
-                raise SpotifyApiError(f"Failed to pause playback: {r.text}")
-            logger.debug("Spotify: Pause playback for user {user_id}")
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                url = "https://api.spotify.com/v1/me/player/pause"
+                r = requests.put(url, headers={"Authorization": f"Bearer {token}"})
+                if r.status_code == 404:
+                    logger.debug(
+                        f"Spotify {self.name}: no active playback for user {user_id}"
+                    )
+                    return
+                if r.status_code != 200:
+                    raise SpotifyApiError(f"Failed to pause playback: {r.text}")
+                logger.debug("Spotify: Pause playback for user {user_id}")
+            except SpotifyApiError as e:
+                logger.error(f"{self.service.name}: {e}")
 
     def is_connected(self, session: Session, user_id: int) -> bool:
         user_service: UserService = session.exec(
