@@ -97,7 +97,6 @@ class _MyAppletPageState extends State<MyAreaPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.layers_clear, size: 60, color: Colors.white38),
             const SizedBox(height: 20),
             const Text(
               'No Applets yet.',
@@ -199,7 +198,6 @@ class _MyAppletPageState extends State<MyAreaPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inbox_outlined, size: 48, color: Colors.white38),
             SizedBox(height: 16),
             Text(
               emptyTitle,

@@ -36,17 +36,12 @@ class ServiceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: ClipOval(
+          SizedBox(height: 20),
+            SizedBox(
+              width: 40,
+              height: 40,
               child: getServiceIcon(name, size: 20.0, imageUrl: imageUrl),
             ),
-          ),
           const SizedBox(height: 18),
           Text(
             name,
