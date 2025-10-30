@@ -4,7 +4,6 @@ from sqlmodel import Session
 from services.services_classes import Service, Action, Reaction, get_component
 from services.area_api import AreaApi
 from datetime import datetime
-from core.logger import logger
 
 
 class OpenMeteoApiError(Exception):
