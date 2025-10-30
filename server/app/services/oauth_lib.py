@@ -27,22 +27,42 @@ from sqlmodel import select
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 
-
-def windowCloseAndCookie(id: int, name: str, request: Request = None, is_mobile: bool = False, is_login: bool = False) -> Response:
+def windowCloseAndCookie(
+    id: int,
+    name: str,
+    request: Request | None = None,
+    is_mobile: bool = False,
+    is_login: bool = False,
+    use_https_deeplink: bool = False,
+) -> Response:
     token = sign_jwt(id)
-    
-    print(f"OAuth callback - Is mobile: {is_mobile}, Is login: {is_login}")
-    
+
+    print(
+        f"OAuth callback - Is mobile: {is_mobile}, Is login: {is_login}, Use HTTPS: {use_https_deeplink}"
+    )
+
     if is_mobile:
         from fastapi.responses import RedirectResponse
-        if is_login:
-            # Login flow - return token for authentication
-            deeplink_url = f"area://oauth-callback?token={token}&service={name}"
-            print(f"Redirecting to mobile login deeplink: {deeplink_url}")
+
+        if use_https_deeplink:
+            base_url = (
+                str(request.base_url).rstrip("/")
+                if request is not None
+                else settings.FRONT_URL.rstrip("/")
+            )
+            if is_login:
+                deeplink_url = f"{base_url}/oauth-callback?token={token}&service={name}"
+                print(f"Redirecting to HTTPS login deeplink: {deeplink_url}")
+            else:
+                deeplink_url = f"{base_url}/oauth-callback?linked=true&service={name}"
+                print(f"Redirecting to HTTPS link deeplink: {deeplink_url}")
         else:
-            # Link flow - return linked=true for service linking
-            deeplink_url = f"area://oauth-callback?linked=true&service={name}"
-            print(f"Redirecting to mobile link deeplink: {deeplink_url}")
+            if is_login:
+                deeplink_url = f"area://oauth-callback?token={token}&service={name}"
+                print(f"Redirecting to mobile login deeplink: {deeplink_url}")
+            else:
+                deeplink_url = f"area://oauth-callback?linked=true&service={name}"
+                print(f"Redirecting to mobile link deeplink: {deeplink_url}")
         return RedirectResponse(url=deeplink_url, status_code=302)
     html = f"""
     <script>
@@ -71,25 +91,30 @@ class OAuthApiError(Exception):
 
 
 def oauth_add_link(
-    session: Session, name: str, user: User, access_token: str, request: Request = None, is_mobile: bool = False
+    session: Session,
+    name: str,
+    user: User,
+    access_token: str,
+    request: Request | None = None,
+    is_mobile: bool = False,
 ) -> Response:
     """Link a service to existing authenticated user account.
 
     Creates or updates service connection with OAuth token.
     """
     existing = session.exec(select(User).where(User.id == user.id)).first()
-    
+
     service = session.exec(
         select(UserService)
         .join(Service, Service.id == UserService.service_id)
         .where(Service.name == name, UserService.user_id == existing.id)
     ).first()
-    
+
     if not service:
         """Already existing user, First time connecting to service"""
 
         service = session.exec(select(Service).where(Service.name == name)).first()
-        
+
         new_user_service = UserService(
             user_id=existing.id,
             service_id=service.id,
@@ -100,7 +125,7 @@ def oauth_add_link(
         session.refresh(new_user_service)
 
         return windowCloseAndCookie(existing.id, name, request, is_mobile)
-    
+
     """Already existing user, connecting to service"""
     service.access_token = access_token
     session.commit()
@@ -114,7 +139,7 @@ def oauth_add_login(
     user: User | None,
     access_token: str,
     user_mail: str,
-    request: Request = None,
+    request: Request | None = None,
     is_mobile: bool = False,
 ) -> Response:
     """Handle OAuth login flow - register new user or authenticate existing one.
@@ -147,7 +172,9 @@ def oauth_add_login(
         )
         session.add(new_user_service)
         session.commit()
-        return windowCloseAndCookie(new_user.id, name, request, is_mobile, is_login=True)
+        return windowCloseAndCookie(
+            new_user.id, name, request, is_mobile, is_login=True
+        )
     """User login with new oauth"""
 
     service = session.exec(
@@ -170,7 +197,9 @@ def oauth_add_login(
         )
         session.add(new_user_service)
         session.commit()
-        return windowCloseAndCookie(existing.id, name, request, is_mobile, is_login=True)
+        return windowCloseAndCookie(
+            existing.id, name, request, is_mobile, is_login=True
+        )
 
     """Already existing user, connecting to service"""
     service.access_token = access_token
