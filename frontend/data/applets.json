@@ -1,38 +1,36 @@
 {
-    "Steam":
-    {
-        "id": 2,
-        "name": "Steam",
-        "description": "Receive an email when a game is in discount !",
-        "user": {
-            "name": "someone"
-        },
-        "created_at": "ajd",
-        "color": "#486aef",
-        "activated": false
+  "Steam": {
+    "id": 2,
+    "name": "Steam",
+    "description": "Receive an email when a game is in discount !",
+    "user": {
+      "name": "someone"
     },
-    "Riot":
-    {
-        "id": 3,
-        "name": "Riot",
-        "description": "They made LoL.",
-        "user": {
-            "name": "someone"
-        },
-        "created_at": "22-05-2001",
-        "color": "#794694",
-        "activated": false
+    "created_at": "ajd",
+    "color": "#486aef",
+    "activated": false
+  },
+  "Riot": {
+    "id": 3,
+    "name": "Riot",
+    "description": "They made LoL.",
+    "user": {
+      "name": "someone"
     },
-    "Spotify":
-    {
-        "id": 4,
-        "name": "Spotify",
-        "description": "This is a music application.",
-        "user": {
-            "name": "Gauthier"
-        },
-        "created_at": "22-05-2001",
-        "color": "#11e59f",
-        "activated": true
-    }
+    "created_at": "22-05-2001",
+    "color": "#794694",
+    "activated": false
+  },
+  "Spotify": {
+    "id": 4,
+    "name": "Spotify",
+    "description": "This is a music application.",
+    "user": {
+      "name": "Gauthier"
+    },
+    "created_at": "22-05-2001",
+    "color": "#11e59f",
+    "activated": true
+  }
 }
+
