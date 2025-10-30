@@ -136,6 +136,30 @@ class OpenMeteoApi(AreaApi):
 
         return float(res["current"]["cloud_cover"])
     
+    def get_current_air_quality(
+        self, latitude: str, longitude: str, timezone: str = "auto"
+    ) -> int:
+        res = self.get(
+            "https://air-quality-api.open-meteo.com/v1/air-quality",
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+                "hourly": "european_aqi",
+                "timezone": timezone,
+            },
+        )
+
+        time_list = res["hourly"]["time"]
+        time_objects = list(map(datetime.fromisoformat, time_list))
+        current_time = datetime.now()
+
+        time_index = time_objects.index(
+            current_time.replace(minute=0, second=0, microsecond=0)
+        )
+
+        return int(res["hourly"]["european_aqi"][time_index])
+    
+    
 
 open_meteo_api = OpenMeteoApi()
 
@@ -498,6 +522,45 @@ class OpenMeteo(Service):
             current_cloud_cover = open_meteo_api.get_current_cloud_cover(latitude, longitude, timezone)
 
             return current_cloud_cover > cloud_cover_limit
+        
+    class check_air_quality(Action):
+        air_quality_level = [
+            ("Good", 20),
+            ("Fair", 40),
+            ("Moderate", 60),
+            ("Poor", 80),
+            ("Very Poor", 100)
+        ]
+            
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "alert_level",
+                    "type": "select",
+                    "values": ["Good", "Fair", "Moderate", "Poor", "Very Poor"],
+                },
+                *default_openmeteo_config_schema
+            ]
+            super().__init__(
+                "Check air quality attain or exceed an alert level",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            air_quality_alert = float(
+                get_component(area_action.config, "alert_level", "values")
+            )
+            longitude = get_component(area_action.config, "longitude", "values")
+            latitude = get_component(area_action.config, "latitude", "values")
+            timezone = get_component(area_action.config, "timezone", "values")
+
+            aqi = open_meteo_api.get_current_air_quality(latitude, longitude, timezone)
+
+            aqi_alert_level = next((air_quality_threshold for air_quality_tag, air_quality_threshold in self.air_quality_level if air_quality_tag == air_quality_alert), 100)
+
+            return aqi >= aqi_alert_level
         
     def __init__(self) -> None:
         super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
