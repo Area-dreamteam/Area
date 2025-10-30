@@ -42,7 +42,7 @@ class Twitch(ServiceClass):
     """Twitch automation service."""
 
     def __init__(self) -> None:
-        super().__init__("Twitch", "music", "#6441a5", "", True)
+        super().__init__("Twitch", "music", "#6441a5", "images/Twitch_logo.webp", True)
 
     class new_follower_on_channel(Action):
         """Triggered when you have a new follow."""
@@ -97,6 +97,35 @@ class Twitch(ServiceClass):
             nb_followed = {"total": r.json().get("total")} if r.json() else None
             return self.service._compare_data(session, area_action, nb_followed)
 
+    class is_in_top_games(Action):
+        """Triggered when your game is in Top 10 Games this day."""
+
+        service: "Twitch"
+
+        def __init__(self):
+            config_schema = [{"name": "game", "type": "input", "values": []}]
+            super().__init__("Triggered when your game is in Top 10 Games this day", config_schema, "* * 1 * *")
+
+        def check(self, session, area_action, user_id):
+            token = get_user_service_token(session, user_id, self.service.name)
+            game_name = get_component(area_action.config, "game", "values")
+            url = "https://api.twitch.tv/helix/games/top"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Client-Id": settings.TWITCH_CLIENT_ID,
+            }
+            params = {"first": 10}
+            r = requests.get(url, headers=headers, params=params)
+            if r.status_code != 200:
+                raise TwitchApiError("Failed to fetch followed")
+
+            games: Dict[str, Any] = r.json().get("data")
+            logger.error(games)
+            for game_info in games:
+                if game_name.lower() in game_info.get("name").lower():
+                    return True
+            return False
+
     def _compare_data(
         self, session: Session, area_action: AreaAction, data: Dict[str, Any]
     ) -> bool:
@@ -113,19 +142,6 @@ class Twitch(ServiceClass):
             session.commit()
             return True
         return False
-
-    # def _follow_user(self, token: str, target_user_id: str):
-    #     url = "https://api.twitch.tv/helix/users/follows"
-    #     headers = {
-    #         "Authorization": f"Bearer {token}",
-    #         "Client-Id": settings.TWITCH_CLIENT_ID,
-    #         "Content-Type": "application/json",
-    #     }
-    #     data = {"to_id": target_user_id}
-    #     r = requests.post(url, headers=headers, json=data)
-    #     if r.status_code != 204:
-    #         logger.error(f"Twitch follow error: {r.text}")
-    #         raise TwitchApiError("Failed to follow user")
 
     def is_connected(self, session: Session, user_id: int) -> bool:
         user_service: UserService = session.exec(

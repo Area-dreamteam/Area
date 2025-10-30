@@ -42,7 +42,7 @@ class Strava(ServiceClass):
     """Strava automation service."""
 
     def __init__(self) -> None:
-        super().__init__("Strava", "fitness", "#fc4c02", "", True)
+        super().__init__("Strava", "fitness", "#fc4c02", "images/Strava_logo.webp", True)
 
     class new_activity_by_you(Action):
         """Triggered when a new activity is uploaded."""
@@ -154,7 +154,7 @@ class Strava(ServiceClass):
             )
             if r.status_code != 201:
                 raise StravaApiError(f"Failed to create activity: {r.text}")
-            logger.info("Strava: created new activity")
+            logger.debug("Strava: created new activity for user {user_id}")
 
     class update_weight(Reaction):
         """Update your weight on Strava."""
@@ -174,7 +174,7 @@ class Strava(ServiceClass):
                     get_component(area_reaction.config, "new_weight", "values")
                 )
             except Exception:
-                new_weight: float = 0.0
+                raise StravaApiError("Incorrect weight value")
 
             url = "https://www.strava.com/api/v3/athlete"
             data = {
@@ -185,7 +185,7 @@ class Strava(ServiceClass):
             )
             if r.status_code != 200:
                 raise StravaApiError(f"Failed to update weight: {r.text}")
-            logger.info("Strava: update weight")
+            logger.debug("Strava: update weight for user {user_id}")
 
     def _compare_data(
         self, session: Session, area_action: AreaAction, data: Dict[str, Any]

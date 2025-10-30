@@ -42,7 +42,7 @@ class GithubOauth(oauth_service):
     """GitHub OAuth service for user authentication."""
 
     def __init__(self) -> None:
-        super().__init__(color="#000000", img_url="/images/Github_logo.png")
+        super().__init__(color="#000000", img_url="/images/Github_logo.webp")
 
     def _get_token(self, client_id, client_secret, code):
         """Exchange authorization code for access token."""

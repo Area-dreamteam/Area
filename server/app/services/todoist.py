@@ -95,7 +95,7 @@ class Todoist(ServiceClass):
             "A modern interconnected todolist",
             "LifeStyle",
             "#CE3608",
-            "/images/Todoist_logo.png",
+            "/images/Todoist_logo.webp",
             True,
         )
 

@@ -134,7 +134,6 @@ class Gmail(ServiceClass):
                 message: Dict[str, Any] = self.service._get_latest_email(
                     token, label="in:sent"
                 )
-                logger.info("Gmail: Found matching email.")
                 return self.service._compare_email_state(session, area_action, message)
             except GoogleApiError as e:
                 logger.error(f"Gmail: error checking new emails - {e.message}")
@@ -158,7 +157,6 @@ class Gmail(ServiceClass):
                 message: Dict[str, Any] = self.service._get_latest_email(
                     token, label="in:inbox"
                 )
-                logger.info("Gmail: Found matching email.")
                 return self.service._compare_email_state(session, area_action, message)
             except GoogleApiError as e:
                 logger.error(f"Gmail: error checking new emails - {e.message}")
@@ -185,12 +183,12 @@ class Gmail(ServiceClass):
 
             try:
                 self.service._send_email(token, to, subject, body)
-                logger.info(f"Gmail: Email sent to {to}")
+                logger.debug(f"Gmail: Email sent to {to}")
             except GoogleApiError as e:
                 logger.error(f"Gmail: error sending email - {e.message}")
 
     def __init__(self) -> None:
-        super().__init__("Service email de Google", "mail", "#0A378A", "/images/Google_logo.png", True)
+        super().__init__("Service email de Google", "mail", "#0A378A", "/images/Gmail_logo.webp", True)
 
     def is_connected(self, session: Session, user_id: int) -> bool:
         user_service: UserService = session.exec(
