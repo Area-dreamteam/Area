@@ -79,9 +79,6 @@ export default function AppletPage({ params }: AppletProp)
                                 Copy
                             </button>
                         </div>
-                        <div className="flex justify-end pt-[50px] mr-[20px]">
-                            <SettingsButton link={`/my_applets/${applet.area_info.name}/edit`}/>
-                        </div>
                     </div>
                 </div>
             ) : notFound()}

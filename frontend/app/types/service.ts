@@ -5,10 +5,18 @@
  ** service
  */
 
+import { ConfigRespAct } from "./config";
+
 export interface Act {
   id: number,
   name: string,
   description: string,
+}
+
+export interface ActDetails {
+  id: number,
+  act: Act,
+  config: ConfigRespAct[],
 }
 
 export interface Service {

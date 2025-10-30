@@ -7,7 +7,7 @@
 
 import axios from "axios";
 import { ConfigRespAct } from "../types/config";
-import { Act, Service, SpecificService } from "../types/service";
+import { Act, ActDetails, Service, SpecificService } from "../types/service";
 import { MyProfileProp, UpdateProfileProp } from "../types/profile";
 import { SpecificAction, SpecificReaction } from "../types/actions";
 import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
@@ -319,7 +319,7 @@ export async function fetchUpdatePersonalApplets(name: string, desc: string, app
       description: desc,
       action: {
         action_id: applet.action.id,
-        config: applet.action
+        config: applet.action.config
       },
       reactions: applet.reactions.map((reac) => {
         return {
@@ -420,11 +420,9 @@ export async function fetchPersonalAppletConnection(id:number, state: string) {
 }
 
 export async function fetchCreateApplet(
-  action: Act,
-  reaction: Act,
+  action: ActDetails,
+  reactions: ActDetails[],
   title: string,
-  actConfig: ConfigRespAct[],
-  reactConfig: ConfigRespAct[],
 ) {
   try {
     const res = await Calls.post("/users/areas/me", {
@@ -432,14 +430,12 @@ export async function fetchCreateApplet(
       description: "[description]",
       action: {
         action_id: action.id,
-        config: actConfig,
+        config: action.config,
       },
-      reactions: [
-        {
-          reaction_id: reaction.id,
-          config: reactConfig,
-        },
-      ],
+      reactions: reactions.map((reaction) => ({
+        reaction_id: reaction.act.id,
+        config: reaction.config,
+      }))
     });
 
     if (res.status != 200) {
