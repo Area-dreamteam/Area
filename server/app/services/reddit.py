@@ -42,7 +42,7 @@ class Reddit(ServiceClass):
     """Reddit automation service."""
 
     def __init__(self) -> None:
-        super().__init__("Reddit", "social", "#FF4500", "/images/Reddit_logo.png", True)
+        super().__init__("Reddit", "social", "#FF4500", "/images/Reddit_logo.webp", True)
 
     class new_post(Action):
         """Trigger when a new post appears in a subreddit."""
@@ -174,7 +174,7 @@ class Reddit(ServiceClass):
             if r.status_code != 200:
                 logger.error(f"Reddit post error: {r.text}")
                 raise RedditApiError("Failed to post message")
-            logger.info(f"Posted to r/{subreddit}")
+            logger.debug(f"Posted to r/{subreddit}")
 
     def _compare_post_state(
         self, session: Session, area_action: AreaAction, post: Dict[str, Any]
