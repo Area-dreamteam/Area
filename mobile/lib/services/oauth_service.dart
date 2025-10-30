@@ -64,7 +64,12 @@ class OAuthService {
       await _storage.write(key: 'oauth_operation', value: 'login');
       await _storage.write(key: 'oauth_service', value: serviceName);
 
-      final oauthUrl = '$_baseUrl/oauth/login_index/$serviceName?mobile=true';
+      final baseUrl = _baseUrl.endsWith('/')
+          ? _baseUrl.substring(0, _baseUrl.length - 1)
+          : _baseUrl;
+      
+      final path = '/oauth/login_index/$serviceName?mobile=true';
+      final oauthUrl = '$baseUrl$path';      
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
@@ -114,9 +119,15 @@ class OAuthService {
         token = sessionCookie.substring('access_token=Bearer '.length);
       }
 
-      final oauthUrl = token != null
-          ? '$_baseUrl/oauth/index/$serviceName?mobile=true&token=$token'
-          : '$_baseUrl/oauth/index/$serviceName?mobile=true';
+      final baseUrl = _baseUrl.endsWith('/')
+          ? _baseUrl.substring(0, _baseUrl.length - 1)
+          : _baseUrl;
+          
+      final path = token != null
+          ? '/oauth/index/$serviceName?mobile=true&token=$token'
+          : '/oauth/index/$serviceName?mobile=true';
+
+      final oauthUrl = '$baseUrl$path';      
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {

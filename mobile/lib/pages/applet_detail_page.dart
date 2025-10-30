@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
-import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 import 'package:provider/provider.dart';
@@ -190,17 +189,6 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (currentApplet.triggerService != null)
-                  getServiceIcon(
-                    currentApplet.triggerService!.name,
-                    size: 100.0,
-                  )
-                else
-                  const Icon(
-                    Icons.electrical_services,
-                    size: 100,
-                    color: Colors.white70,
-                  ),
                 const SizedBox(height: 24),
                 Text(
                   currentApplet.name,
@@ -246,8 +234,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
                     backgroundColor: Colors.redAccent,
                     foregroundColor: Colors.white,
                   ),
-                ]
-                else ...[
+                ] else ...[
                   _buildActionButton(
                     text: 'Edit',
                     icon: Icons.edit_outlined,

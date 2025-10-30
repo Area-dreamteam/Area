@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
-import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 
 class MyAreaCard extends StatelessWidget {
@@ -40,67 +39,6 @@ class MyAreaCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    if (applet.triggerService != null &&
-                        applet.reactionServices.isNotEmpty)
-                      SizedBox(
-                        width: 34,
-                        height: 20,
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              right: 0,
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                radius: 10,
-                                child: ClipOval(
-                                  child: getServiceIcon(
-                                    applet.reactionServices.first.name,
-                                    size: 12.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              left: 0,
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                radius: 10,
-                                child: ClipOval(
-                                  child: getServiceIcon(
-                                    applet.triggerService!.name,
-                                    size: 12.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else if (applet.triggerService != null)
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 10,
-                        child: ClipOval(
-                          child: getServiceIcon(
-                            applet.triggerService!.name,
-                            size: 12.0,
-                          ),
-                        ),
-                      )
-                    else
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 10,
-                        child: Icon(
-                          Icons.electrical_services,
-                          color: cardBackgroundColor,
-                          size: 12,
-                        ),
-                      ),
-                  ],
-                ),
                 const SizedBox(height: 12),
                 Text(
                   applet.name,

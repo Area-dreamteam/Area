@@ -421,7 +421,6 @@ class _InformationPageState extends State<InformationPage>
                 title: applet.name,
                 byText: 'By ${applet.user.name}',
                 colorHex: applet.color,
-                icon: Icons.public,
               ),
             );
           },
@@ -456,7 +455,6 @@ class _InformationPageState extends State<InformationPage>
                 title: applet.name,
                 byText: 'By ${applet.user.name}',
                 colorHex: applet.color,
-                icon: Icons.electrical_services_outlined,
               ),
             );
           },
