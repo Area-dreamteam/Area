@@ -120,6 +120,22 @@ class OpenMeteoApi(AreaApi):
 
         return float(res["daily"]["uv_index_max"][time_index])
     
+    def get_current_cloud_cover(
+        self, latitude: str, longitude: str, timezone: str = "auto"
+    ) -> float:
+        res = self.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+                "current": "cloud_cover",
+                "forecast_days": 1,
+                "timezone": timezone,
+            },
+        )
+
+        return float(res["current"]["cloud_cover"])
+    
 
 open_meteo_api = OpenMeteoApi()
 
@@ -424,6 +440,35 @@ class OpenMeteo(Service):
             current_uv_index = open_meteo_api.get_current_uv_index(latitude, longitude, timezone)
 
             return current_uv_index < uv_index_limit
+        
+    class if_cloud_cover_fall_bellow(Action):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "cloud_cover_limit",
+                    "type": "input",
+                    "values": [],
+                },
+                *default_openmeteo_config_schema
+            ]
+            super().__init__(
+                "Check if cloud cover fall bellow a certain limit",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            cloud_cover_limit = float(
+                get_component(area_action.config, "cloud_cover_limit", "values")
+            )
+            longitude = get_component(area_action.config, "longitude", "values")
+            latitude = get_component(area_action.config, "latitude", "values")
+            timezone = get_component(area_action.config, "timezone", "values")
+
+            current_cloud_cover = open_meteo_api.get_current_cloud_cover(latitude, longitude, timezone)
+
+            return current_cloud_cover < cloud_cover_limit
         
     def __init__(self) -> None:
         super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
