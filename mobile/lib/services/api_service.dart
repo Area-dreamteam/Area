@@ -157,6 +157,10 @@ Future<Response> getAreaDetails(int areaId) {
     return _dio.get('/users/me');
   }
 
+  Future<Response> getPublicUserAreas() {
+    return _dio.get('/users/areas/public');
+  }
+
   Future<Response> deleteUser() {
     return _dio.delete('/users/me');
   }

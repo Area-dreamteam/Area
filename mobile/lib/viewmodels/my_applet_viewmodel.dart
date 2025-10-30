@@ -11,52 +11,64 @@ class MyAppletViewModel extends ChangeNotifier {
     : _serviceRepository = serviceRepository;
 
   MyAppletState _state = MyAppletState.nothing;
-  List<AppletModel> _applets = [];
+  List<AppletModel> _privateApplets = [];
+  List<AppletModel> _publicApplets = [];
   String _errorMessage = '';
-
+  
   MyAppletState get state => _state;
-  List<AppletModel> get applets => List.unmodifiable(_applets);
+  List<AppletModel> get privateApplets => List.unmodifiable(_privateApplets);
+  List<AppletModel> get publicApplets => List.unmodifiable(_publicApplets);
+  List<AppletModel> get applets => List.unmodifiable([..._privateApplets, ..._publicApplets]);
   String get errorMessage => _errorMessage;
   bool get isLoading => _state == MyAppletState.loading;
 
   Future<bool> loadApplets() async {
     _setState(MyAppletState.loading);
     try {
-      _applets = await _serviceRepository.fetchMyAreas();
+      final privateFuture = _serviceRepository.fetchMyAreas();
+      final publicFuture = _serviceRepository.fetchPublicUserAreas();
+
+      final results = await Future.wait([privateFuture, publicFuture]);
+      
+      _privateApplets = results[0];
+      _publicApplets = results[1];
+      
       _errorMessage = '';
       _setState(MyAppletState.success);
       return true;
     } catch (e) {
       _errorMessage = "Failed to load Applets: $e";
+      _privateApplets = [];
+      _publicApplets = [];
       _setState(MyAppletState.error);
       return false;
     }
   }
 
   Future<bool> deleteApplet(int appletId) async {
-    final originalApplets = List<AppletModel>.from(_applets);
-    _applets.removeWhere((applet) => applet.id == appletId);
     _errorMessage = '';
     notifyListeners();
     try {
       await _serviceRepository.deleteArea(appletId);
+      await loadApplets();
       return true;
     } catch (e) {
       _errorMessage = "Failed to delete: $e";
-      _applets = originalApplets;
       notifyListeners();
       return false;
     }
   }
 
   Future<bool> toggleAreaEnabled(int appletId) async {
-    final index = _applets.indexWhere((a) => a.id == appletId);
+    final index = _privateApplets.indexWhere((a) => a.id == appletId);
     if (index == -1) return false;
-    final currentApplet = _applets[index];
+    
+    final currentApplet = _privateApplets[index];
     final newState = !currentApplet.isEnabled;
-    _applets[index] = _copyWithApplet(currentApplet, isEnabled: newState);
+    _privateApplets[index] = _copyWithApplet(currentApplet, isEnabled: newState);
     _errorMessage = '';
     notifyListeners();
+    
     try {
       if (newState) {
         await _serviceRepository.enableArea(appletId);
@@ -66,33 +78,26 @@ class MyAppletViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       _errorMessage = "Toggle failed: $e";
-      _applets[index] = currentApplet;
+      _privateApplets[index] = currentApplet;
       notifyListeners();
       return false;
     }
   }
 
-  Future<bool> toggleAreaPublic(int appletId) async {
-    final index = _applets.indexWhere((a) => a.id == appletId);
-    if (index == -1) return false;
-
-    final currentApplet = _applets[index];
-    final newState = !currentApplet.isPublic;
-
-    _applets[index] = _copyWithApplet(currentApplet, isPublic: newState);
+  Future<bool> toggleAreaPublic(int appletId, bool isCurrentlyPublic) async {
     _errorMessage = '';
     notifyListeners();
 
     try {
-      if (newState == true) {
-        await _serviceRepository.publishArea(appletId);
-      } else {
+      if (isCurrentlyPublic) {
         await _serviceRepository.unpublishArea(appletId);
+      } else {
+        await _serviceRepository.publishArea(appletId);
       }
+      await loadApplets();
       return true;
     } catch (e) {
       _errorMessage = "Visibility toggle failed: $e";
-      _applets[index] = currentApplet;
       notifyListeners();
       return false;
     }

@@ -141,9 +141,25 @@ class ServiceRepository {
       final response = await _apiService.getMyAreas();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.data);
-        return data.map((json) => AppletModel.fromJson(json)).toList();
+        return data.map((json) => AppletModel.fromJson(json, forceIsPublic: false)).toList();
       }
       throw Exception('Failed to load areas');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<AppletModel>> fetchPublicUserAreas() async {
+    try {
+      final response = await _apiService.getPublicUserAreas();
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.data);
+        return data
+            .map((json) => AppletModel.fromJson(json, forceIsPublic: true))
+            .toList();
+      }
+      throw Exception('Failed to load public user areas');
     } catch (e) {
       rethrow;
     }
@@ -222,7 +238,7 @@ class ServiceRepository {
       final response = await _apiService.getPublicAreas();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.data);
-        return data.map((json) => AppletModel.fromJson(json)).toList();
+        return data.map((json) => AppletModel.fromJson(json, forceIsPublic: true)).toList();
       }
       throw Exception('Failed to load public areas');
     } catch (e) {
@@ -256,7 +272,7 @@ class ServiceRepository {
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.data);
         List<AppletModel> applets = data
-            .map((json) => AppletModel.fromJson(json))
+            .map((json) => AppletModel.fromJson(json, forceIsPublic: true))
             .toList();
 
         if (serviceId != null) {

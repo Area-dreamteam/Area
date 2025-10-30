@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
@@ -21,7 +21,6 @@ class AppletDetailPage extends StatefulWidget {
 
 class _AppletDetailPageState extends State<AppletDetailPage> {
   late AppletModel currentApplet;
-  bool _hasChanges = false;
 
   @override
   void initState() {
@@ -32,27 +31,19 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
   Future<void> _togglePublic() async {
     final viewModel = context.read<MyAppletViewModel>();
     final String newStatusText = currentApplet.isPublic ? "private" : "public";
-
-    final success = await viewModel.toggleAreaPublic(currentApplet.id);
+    final success = await viewModel.toggleAreaPublic(
+      currentApplet.id,
+      currentApplet.isPublic,
+    );
 
     if (success && mounted) {
-      setState(() {
-        try {
-          currentApplet = viewModel.applets.firstWhere(
-            (a) => a.id == currentApplet.id,
-          );
-          _hasChanges = true;
-        } catch (e) {
-          Navigator.pop(context, true);
-        }
-      });
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Applet is now $newStatusText.'),
+          content: Text('Action successful. Applet is now $newStatusText.'),
           backgroundColor: Colors.green,
         ),
       );
+      Navigator.pop(context, true);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -69,18 +60,18 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF303030),
         title: const Text(
-          'Confirm delet ',
+          'Confirm Delete',
           style: TextStyle(color: Colors.white),
         ),
         content: Text(
-          'Delete ${currentApplet.name}.',
+          'Delete ${currentApplet.name}. This action is permanent.',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text(
-              'Annuler',
+              'Cancel',
               style: TextStyle(color: Colors.blueAccent),
             ),
           ),
@@ -170,9 +161,10 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
     final Color pageColor = hexToColor(currentApplet.color);
     final myAppletViewModel = context.watch<MyAppletViewModel>();
 
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context, _hasChanges);
+        Navigator.pop(context, false);
         return false;
       },
       child: Scaffold(
@@ -181,7 +173,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.pop(context, _hasChanges);
+              Navigator.pop(context, false);
             },
           ),
           title: Text(
@@ -210,7 +202,6 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
                     color: Colors.white70,
                   ),
                 const SizedBox(height: 24),
-
                 Text(
                   currentApplet.name,
                   textAlign: TextAlign.center,
@@ -221,7 +212,6 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 if (currentApplet.description != null &&
                     currentApplet.description!.isNotEmpty)
                   Text(
@@ -230,7 +220,6 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
                     style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 const SizedBox(height: 48),
-
                 if (myAppletViewModel.state == MyAppletState.error &&
                     myAppletViewModel.errorMessage.isNotEmpty)
                   Padding(
@@ -249,29 +238,38 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
                     ),
                   ),
 
-                _buildActionButton(
-                  text: 'Edit',
-                  icon: Icons.edit_outlined,
-                  onPressed: _navigateToEdit,
-                ),
-                const SizedBox(height: 16),
-
-                _buildActionButton(
-                  text: currentApplet.isPublic ? 'Make Private' : 'Make Public',
-                  icon: currentApplet.isPublic
-                      ? Icons.lock_outline
-                      : Icons.public_outlined,
-                  onPressed: _togglePublic,
-                ),
-                const SizedBox(height: 16),
-
-                _buildActionButton(
-                  text: 'Delete',
-                  icon: Icons.delete_outline,
-                  onPressed: _deleteApplet,
-                  backgroundColor: Colors.redAccent,
-                  foregroundColor: Colors.white,
-                ),
+                if (currentApplet.isPublic) ...[
+                  _buildActionButton(
+                    text: 'Unpublish',
+                    icon: Icons.public_off_outlined,
+                    onPressed: _togglePublic,
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                  ),
+                ]
+                else ...[
+                  _buildActionButton(
+                    text: 'Edit',
+                    icon: Icons.edit_outlined,
+                    onPressed: _navigateToEdit,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildActionButton(
+                    text: 'Publish',
+                    icon: Icons.public_outlined,
+                    onPressed: _togglePublic,
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildActionButton(
+                    text: 'Delete',
+                    icon: Icons.delete_outline,
+                    onPressed: _deleteApplet,
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                  ),
+                ],
               ],
             ),
           ),
