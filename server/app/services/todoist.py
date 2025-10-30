@@ -56,16 +56,52 @@ class Todoist(ServiceClass):
     """
 
     class new_completed_task(Action):
+        """Triggered when a task is marked complete."""
+
         service: "Todoist"
 
-        def __init__(self) -> None:
-            config_schema = [
-                {"name": "Project to watch", "type": "input", "values": []}
-            ]
-            super().__init__("Checks when a task is completed", config_schema)
+        def __init__(self):
+            config_schema = []
+            super().__init__("Triggered when a task is completed", config_schema)
 
-        def check(self, session: Session, area_action: AreaAction, user_id: int):
-            logger.debug(f"Checking task completion: {area_action.config}")
+        def check(self, session, area_action, user_id):
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                headers = {"Authorization": f"Bearer {token}"}
+                url = "https://api.todoist.com/sync/v9/completed/get_all"
+                r = requests.get(url, headers=headers)
+                if r.status_code != 200:
+                    raise TodoistApiError("Failed to fetch completed tasks")
+
+                data = r.json()
+                completed_task = data.get("items", [])[0] if data.get("items") else None
+            except TodoistApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return self.service._compare_data(session, area_action, completed_task, "task_id")
+
+    class new_task_added(Action):
+        """Triggered when a new task is added to Todoist."""
+
+        service: "Todoist"
+
+        def __init__(self):
+            config_schema = []
+            super().__init__("Triggered when a new task is added", config_schema)
+
+        def check(self, session, area_action, user_id):
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                headers = {"Authorization": f"Bearer {token}"}
+                url = "https://api.todoist.com/rest/v2/tasks"
+                r = requests.get(url, headers=headers)
+                logger.error(r.json())
+                if r.status_code != 200:
+                    raise TodoistApiError("Failed to fetch tasks")
+
+                task = r.json()[-1] if len(r.json()) > 0 else None
+            except TodoistApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return self.service._compare_data(session, area_action, task, "id")
 
     class create_task(Reaction):
         service: "Todoist"
@@ -97,6 +133,23 @@ class Todoist(ServiceClass):
             "/images/Todoist_logo.webp",
             True,
         )
+
+    def _compare_data(
+        self, session: Session, area_action: AreaAction, data: Dict[str, Any], key: str
+    ) -> bool:
+        """Check if the data is new compared to the last stored one."""
+        if not area_action.last_state:
+            area_action.last_state = data
+            session.add(area_action)
+            session.commit()
+            return False
+
+        if data and data[key] != area_action.last_state.get(key):
+            area_action.last_state = data
+            session.add(area_action)
+            session.commit()
+            return True
+        return False
 
     def _is_token_valid(self, token):
         try:
