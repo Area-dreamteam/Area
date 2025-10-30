@@ -111,7 +111,11 @@ class Outlook(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "Microsoft Outlook Service", "mail", "#0078D4", "/images/logo.png", True
+            "Microsoft Outlook Service",
+            "mail",
+            "#0078D4",
+            "/images/Outlook_logo.webp",
+            True,
         )
 
     class new_email_sent(Action):
@@ -137,10 +141,9 @@ class Outlook(ServiceClass):
                 message: Dict[str, Any] = self.service._get_latest_email(
                     token, folder="SentItems"
                 )
-                logger.info("Outlook: Found matching email.")
                 return self.service._compare_email_state(session, area_action, message)
             except MicrosoftApiError as e:
-                logger.error(f"Outlook: error checking new emails - {e.message}")
+                logger.error(f"{self.service.name}: {e}")
                 return False
 
     class new_email_inbox(Action):
@@ -166,10 +169,9 @@ class Outlook(ServiceClass):
                 message: Dict[str, Any] = self.service._get_latest_email(
                     token, folder="Inbox"
                 )
-                logger.info("Outlook: Found matching email.")
                 return self.service._compare_email_state(session, area_action, message)
             except MicrosoftApiError as e:
-                logger.error(f"Outlook: error checking new emails - {e.message}")
+                logger.error(f"{self.service.name}: {e}")
                 return False
 
     class send_email(Reaction):
@@ -186,16 +188,31 @@ class Outlook(ServiceClass):
             super().__init__("Send email to recipient", config_schema)
 
         def execute(self, session: Session, area_action: AreaReaction, user_id: int):
-            token: str = get_user_service_token(session, user_id, self.service.name)
-            to = get_component(area_action.config, "to", "values")
-            subject = get_component(area_action.config, "subject", "values")
-            body = get_component(area_action.config, "body", "values")
-
             try:
-                self.service._send_email(token, to, subject, body)
-                logger.info(f"Outlook: Email sent to {to}")
+                token: str = get_user_service_token(session, user_id, self.service.name)
+                to = get_component(area_action.config, "to", "values")
+                subject = get_component(area_action.config, "subject", "values")
+                body = get_component(area_action.config, "body", "values")
+
+                url = "https://graph.microsoft.com/v1.0/me/sendMail"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                }
+                payload = {
+                    "message": {
+                        "subject": subject,
+                        "body": {"contentType": "Text", "content": body},
+                        "toRecipients": [{"emailAddress": {"address": to}}],
+                    }
+                }
+                r = requests.post(url, headers=headers, data=json.dumps(payload))
+
+                if r.status_code not in (200, 202):
+                    raise MicrosoftApiError("Failed to send email")
+                logger.debug(f"Outlook: Email sent to {to}")
             except MicrosoftApiError as e:
-                logger.error(f"Outlook: error sending email - {e.message}")
+                logger.error(f"{self.service.name}: {e}")
 
     def is_connected(self, session: Session, user_id: int) -> bool:
         user_service: UserService = session.exec(
@@ -287,32 +304,11 @@ class Outlook(ServiceClass):
         headers = {"Authorization": f"Bearer {token}"}
 
         r = requests.get(base_url, headers=headers, params=params)
-        logger.error(r.status_code)
-        logger.error(params)
-        logger.error(base_url)
 
         if r.status_code != 200:
             raise MicrosoftApiError("Outlook: Failed to get messages")
         messages = r.json().get("value", [])
         return messages[0] if messages else None
-
-    def _send_email(self, token: str, to: str, subject: str, body: str):
-        url = "https://graph.microsoft.com/v1.0/me/sendMail"
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "message": {
-                "subject": subject,
-                "body": {"contentType": "Text", "content": body},
-                "toRecipients": [{"emailAddress": {"address": to}}],
-            }
-        }
-        r = requests.post(url, headers=headers, data=json.dumps(payload))
-
-        if r.status_code not in (200, 202):
-            raise MicrosoftApiError("Outlook: Failed to send email")
 
     def _get_user_info(self, token: str) -> Dict[str, Any]:
         url = "https://graph.microsoft.com/v1.0/me"
