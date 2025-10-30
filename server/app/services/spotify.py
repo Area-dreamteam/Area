@@ -230,6 +230,44 @@ class Spotify(ServiceClass):
             logger.error(f"volume below  {current_state}")
             return current_state and not previous_state
 
+    class track_currently_playing(Action):
+        """Triggered when something your track is currently playing."""
+
+        service: "Spotify"
+
+        def __init__(self):
+            config_schema = config_schema = [
+                {"name": "Track name", "type": "input", "values": []}
+            ]
+            super().__init__(
+                "Triggered when your track is currently playing", config_schema
+            )
+
+        def check(self, session, area_action, user_id):
+            token = get_user_service_token(session, user_id, self.service.name)
+            track_name = get_component(area_action.config, "Track name", "values")
+
+            url = "https://api.spotify.com/v1/me/player"
+            r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+            if r.status_code == 204:
+                current_track: str = None
+            elif r.status_code != 200:
+                raise SpotifyApiError("Failed to fetch track state")
+            else:
+                data: Dict[str, Any] = r.json()
+                current_track: str = data.get("item", {}).get("name", "").lower()
+                current_active: bool = track_name.lower() in current_track and data.get(
+                    "is_playing", False
+                )
+            previous_state: bool = (area_action.last_state or {}).get(
+                "previous_state", False
+            )
+            area_action.last_state = {"previous_state": current_active}
+            session.add(area_action)
+            session.commit()
+
+            return current_active and not previous_state
+
     class set_volume(Reaction):
         """Set Spotify player volume to a specific value."""
 
