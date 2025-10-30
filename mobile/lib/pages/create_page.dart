@@ -90,6 +90,7 @@ class _CreatePageState extends State<CreatePage> {
           ? CardDetails(
               serviceName: selectedAction.service.name,
               actionName: selectedAction.item.name,
+              imageUrl: selectedAction.service.imageUrl,
             )
           : null,
       onTap: () async {
@@ -117,6 +118,7 @@ class _CreatePageState extends State<CreatePage> {
           ? CardDetails(
               serviceName: selectedReaction.service.name,
               actionName: selectedReaction.item.name,
+              imageUrl: selectedReaction.service.imageUrl,
             )
           : null,
       onTap: () async {

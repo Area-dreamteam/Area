@@ -56,7 +56,6 @@ class _MyAppletPageState extends State<CreateAreaPage> {
               padding: const EdgeInsets.only(bottom: 20),
               child: AppletCard( 
                 color: Colors.black, 
-                icon: Icons.electrical_services,
                 title: applet.name,
                 byText: 'ID: ${applet.id}',
                 onDelete: () async {

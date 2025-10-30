@@ -4,10 +4,12 @@ import 'package:mobile/utils/icon_helper.dart';
 class CardDetails {
   final String serviceName;
   final String actionName;
+  final String? imageUrl;
 
   CardDetails({
     required this.serviceName,
     required this.actionName,
+    this.imageUrl,
   });
 }
 
@@ -77,7 +79,11 @@ class CreateCard extends StatelessWidget {
   Widget _buildSelectionDetails(CardDetails details) {
     return Row(
       children: [
-        getServiceIcon(details.serviceName, size: 40.0, imageUrl: null),
+        getServiceIcon(
+          details.serviceName,
+          size: 40.0,
+          imageUrl: details.imageUrl,
+        ),
 
         const SizedBox(width: 15),
         Expanded(
