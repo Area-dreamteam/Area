@@ -246,5 +246,36 @@ class OpenMeteo(Service):
 
             return current_humidity < humidity_limit
 
+    class if_humidity_rise_above(Action):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "humidity_limit",
+                    "type": "input",
+                    "values": [],
+                },
+                *default_openmeteo_config_schema
+            ]
+            super().__init__(
+                "Vérifie si l'humidite est supérieur a une limite",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            humidity_limit = int(
+                get_component(area_action.config, "humidity_limit", "values")
+            )
+            longitude = get_component(area_action.config, "longitude", "values")
+            latitude = get_component(area_action.config, "latitude", "values")
+            timezone = get_component(area_action.config, "timezone", "values")
+
+            current_humidity = int(
+                open_meteo_api.get_current_humidity(latitude, longitude, timezone)
+            )
+
+            return current_humidity > humidity_limit
+        
     def __init__(self) -> None:
         super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
