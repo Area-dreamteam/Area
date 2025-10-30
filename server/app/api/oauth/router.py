@@ -22,21 +22,23 @@ def test_state(session: SessionDep, user: CurrentUser):
     state = generate_state()
     store_oauth_state(state, user.id)
     logger.debug(f"Stored state {state} for user {user.id}")
-    
-    retrieved_id = get_user_from_state(state)
-    logger.debug(f"Retrieved user_id: {retrieved_id}, type: {type(retrieved_id)}")
-    
-    if retrieved_id is None:
+
+    state_data = get_user_from_state(state)
+    logger.debug(f"Retrieved state_data: {state_data}, type: {type(state_data)}")
+
+    if state_data is None:
         return {"error": "Failed to retrieve user_id from state"}
-    
+
+    retrieved_id, is_mobile = state_data
     retrieved_user = session.get(User, int(retrieved_id))
     logger.debug(f"Retrieved user: {retrieved_user}, type: {type(retrieved_user)}")
-    
+
     return {
         "status": "success",
         "original_user_id": user.id,
         "retrieved_user_id": retrieved_id,
-        "retrieved_user_email": retrieved_user.email if retrieved_user else None
+        "is_mobile": is_mobile,
+        "retrieved_user_email": retrieved_user.email if retrieved_user else None,
     }
 
 
@@ -50,54 +52,37 @@ def index(
     session: SessionDep,
     user: CurrentUserNoFail,
     mobile: bool = False,
-    token: Optional[str] = Query(None)
+    token: Optional[str] = Query(None),
 ):
-    # For mobile flows with token parameter, authenticate user from token
     actual_user = user
     if mobile and token and actual_user is None:
-        # Decode JWT token
         token_to_decode = token
         if token_to_decode.startswith("Bearer "):
             token_to_decode = token_to_decode[7:]
         payload = decode_jwt(token_to_decode)
         if not payload:
-            raise HTTPException(
-                status_code=403,
-                detail="Invalid authorization token"
-            )
+            raise HTTPException(status_code=403, detail="Invalid authorization token")
         user_id = payload.get("sub")
         if user_id is None:
-            raise HTTPException(
-                status_code=403,
-                detail="Invalid token"
-            )
+            raise HTTPException(status_code=403, detail="Invalid token")
         actual_user = session.get(User, int(user_id))
         if actual_user is None:
-            raise HTTPException(
-                status_code=403,
-                detail="User not found"
-            )
+            raise HTTPException(status_code=403, detail="User not found")
     elif actual_user is None:
-        # No token and no cookie - authentication required
-        raise HTTPException(
-            status_code=403,
-            detail="Authentication required"
-        )
-    
+        raise HTTPException(status_code=403, detail="Authentication required")
+
     if service not in services_dico:
         raise HTTPException(
             status_code=404,
             detail=f"{service} service not found",
         )
 
-    if mobile:
-        # Generate secure state token and store user_id mapping
-        state = generate_state()
-        store_oauth_state(state, actual_user.id)
-        oauth_url = services_dico[service].oauth_link(state=state)
-        logger.debug(f"Stored state {state} for user {actual_user.id}, redirecting to: {oauth_url}")
-    else:
-        oauth_url = services_dico[service].oauth_link()
+    state = generate_state()
+    store_oauth_state(state, actual_user.id, is_mobile=mobile)
+    oauth_url = services_dico[service].oauth_link(state=state)
+    logger.debug(
+        f"Stored state {state} for user {actual_user.id}, mobile={mobile}, redirecting to: {oauth_url}"
+    )
 
     raise HTTPException(
         status_code=302,
@@ -119,10 +104,15 @@ def login_index(service: str, mobile: bool = False):
             detail=f"{service} service not found",
         )
 
-    oauth_url = services_oauth[service].oauth_link()
-    if mobile:
-        separator = "&" if "?" in oauth_url else "?"
-        oauth_url += f"{separator}state=mobile"
+    # Generate state token and store mobile flag
+    # Use user_id=-1 as special marker for login flows (no authenticated user yet)
+    state = generate_state()
+    store_oauth_state(state, user_id=-1, is_mobile=mobile)
+    logger.debug(
+        f"Stored login state {state}, mobile={mobile}, redirecting to {service} OAuth"
+    )
+
+    oauth_url = services_oauth[service].oauth_link(state=state)
     raise HTTPException(
         status_code=302,
         detail=f"Redirecting to {service} OAuth",
@@ -132,47 +122,53 @@ def login_index(service: str, mobile: bool = False):
 
 @router.get("/oauth_token/{service}")
 def oauth_token(
-    service: str, 
-    code: str, 
-    session: SessionDep, 
-    user: CurrentUserNoFail, 
+    service: str,
+    code: str,
+    session: SessionDep,
+    user: CurrentUserNoFail,
     request: Request,
-    state: Optional[str] = None
+    state: Optional[str] = None,
+    mobile: bool = False,
 ):
-    logger.debug(f"Callback received - service: {service}, state: {state}, has_cookie_user: {user is not None}")
-    
-    # For mobile flows, retrieve user from state token
-    is_mobile = False
+    logger.debug(
+        f"Callback received - service: {service}, state: {state}, has_cookie_user: {user is not None}"
+    )
+
     actual_user = user
-    
-    if state and state != "mobile":
-        # This is a mobile flow with state token
+    is_mobile = mobile
+
+    if state:
         logger.debug(f"Looking up state token: {state}")
-        user_id = get_user_from_state(state)
-        logger.debug(f"State lookup result: user_id={user_id}, type={type(user_id)}")
-        if user_id is None:
-            raise HTTPException(
-                status_code=403, 
-                detail="Invalid or expired OAuth state token"
+        state_data = get_user_from_state(state)
+        logger.debug(f"State lookup result: {state_data}")
+
+        if state_data is None:
+            if actual_user is None:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Invalid or expired OAuth state token and no cookie authentication",
+                )
+            logger.debug(
+                f"State token invalid, using cookie authentication for user {actual_user.id}"
             )
-        logger.debug(f"Fetching user from database with id={user_id}")
-        actual_user = session.get(User, int(user_id))
-        logger.debug(f"Database query result: actual_user={actual_user}, type={type(actual_user)}")
-        if actual_user is None:
-            raise HTTPException(
-                status_code=403, 
-                detail="User not found"
+        else:
+            user_id, is_mobile = state_data
+            logger.debug(f"Fetching user from database with id={user_id}")
+            actual_user = session.get(User, int(user_id))
+            logger.debug(
+                f"Database query result: actual_user={actual_user}, type={type(actual_user)}"
             )
-        is_mobile = True
-        logger.debug(f"Successfully authenticated via state token for user {user_id}")
+            if actual_user is None:
+                raise HTTPException(status_code=403, detail="User not found")
+            logger.debug(
+                f"Successfully authenticated via state token for user {user_id}, is_mobile={is_mobile}"
+            )
     elif actual_user is None:
-        # No state and no cookie - authentication required
-        raise HTTPException(
-            status_code=403, 
-            detail="Authentication required"
-        )
-    
-    return services_dico[service].oauth_callback(session, code, actual_user, request, is_mobile)
+        raise HTTPException(status_code=403, detail="Authentication required")
+
+    return services_dico[service].oauth_callback(
+        session, code, actual_user, request, is_mobile
+    )
 
 
 @router.get("/login_oauth_token/{service}")
@@ -183,8 +179,23 @@ def login_oauth_token(
     user: CurrentUserNoFail,
     request: Request,
     state: Optional[str] = None,
+    mobile: bool = False,
 ):
-    is_mobile = state == "mobile"
+    # For login flows, retrieve mobile flag from state
+    # The user parameter may be None since this is a login flow
+    is_mobile = mobile
+
+    if state:
+        logger.debug(f"Login callback - Looking up state token: {state}")
+        state_data = get_user_from_state(state)
+        logger.debug(f"Login state lookup result: {state_data}")
+
+        if state_data is not None:
+            user_id, is_mobile = state_data
+            logger.debug(
+                f"Retrieved mobile flag from login state: is_mobile={is_mobile}"
+            )
+
     return services_oauth[service].oauth_callback(
         session, code, user, request, is_mobile
     )

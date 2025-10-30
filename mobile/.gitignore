@@ -44,3 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .metadata
+
+# Environment variables
+.env
+.env.local

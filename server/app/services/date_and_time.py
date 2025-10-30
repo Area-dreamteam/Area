@@ -19,6 +19,7 @@ class DateAndTime(Service):
             super().__init__(
                 "Déclenché une fois par heure à :00, :15, :30 ou :45 minutes après l'heure.",
                 config_schema,
+                "* * * * *",
             )
 
         def check(
@@ -28,10 +29,9 @@ class DateAndTime(Service):
             selected_minute: int = int(
                 get_component(area_action.config, "select_interval", "values")
             )
-            return True
-            # if selected_minute == current_time.minute:
-            #     return True
-            # return False
+            if selected_minute == current_time.minute:
+                return True
+            return False
 
     class reaction_debug(Reaction):
         from models import AreaReaction
@@ -48,5 +48,9 @@ class DateAndTime(Service):
 
     def __init__(self) -> None:
         super().__init__(
-            "Service Date&Time", "Time", "#4a4d4b", "/images/Time_logo.png", False
+            "Service Date&Time",
+            "Time",
+            "#4a4d4b",
+            "/images/DateAndTime_logo.webp",
+            False,
         )
