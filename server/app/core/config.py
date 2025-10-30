@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     SPOTIFY_CLIENT_SECRET: str
     TWITCH_CLIENT_ID: str
     TWITCH_CLIENT_SECRET: str
+    CLASHROYALE_API_KEY: str
     FRONT_URL: str
     CRON_USER: str = "root"
 

@@ -14,6 +14,7 @@ from services.strava import Strava
 from services.twitch import Twitch
 from services.spotify import Spotify
 from services.date_and_time import DateAndTime
+from services.clash_royale import ClashRoyale
 from services.github import GithubOauth
 from services.google import GoogleOauth
 from services.microsoft import MicrosoftOauth
