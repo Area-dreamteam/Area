@@ -445,8 +445,8 @@ function ChooseTrigger({ actInfos, service, type,
             </p>
             <hr className="col-span-4 mb-[20px]" />
             <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto">
-            {service.image_url &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            {service.image_url && getImageUrl(service.image_url) != "" &&
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[100%] h-[100%]" />
             }
             <p className="title inverted mb-[20px]">
                 {actInfos.name.replaceAll("_", " ")}
@@ -504,9 +504,9 @@ function ChooseAct({ service, setService, setAct, type, setIsChoosing,
               Choose a trigger
             </p>
             <hr className="col-span-4" />
-            <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-              {service.image_url &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            <div className="flex flex-col justify-center text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
+              {service.image_url && getImageUrl(service.image_url) != "" &&
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[50%] h-[50%] block mx-auto" />
               }
               <p className="subtitle inverted mt-[10%]">{service.name}</p>
             </div>
@@ -607,7 +607,7 @@ function ChooseService({ setIsChoosing, setAct, type, act,
             </p>
           </div>
           <Input className="w-[400px] mx-auto block mt-[50px] border-[4px] h-[50px] text-[20px] placeholder:text-[20px]" placeholder="Search services" onChange={(e) => setSearch(e.target.value)} />
-          <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected} />
+          <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[250px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected}/>
         </div>
       }
       {((selected && serviceConnected && chosenService?.oauth_required) || (selected && chosenService && !chosenService.oauth_required)) &&
