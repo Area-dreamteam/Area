@@ -16,4 +16,4 @@ class Action(SQLModel, table=True):
     __table_args__ = (UniqueConstraint("service_id", "name", name="uq_action_service_name"),)
 
     service: "Service" = Relationship(back_populates="actions")
-    areas: List["AreaAction"] = Relationship(back_populates="action")
+    areas: List["AreaAction"] = Relationship(back_populates="action", sa_relationship_kwargs={"cascade": "all, delete-orphan"})

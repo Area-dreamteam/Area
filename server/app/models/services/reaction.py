@@ -18,4 +18,4 @@ class Reaction(SQLModel, table=True):
     )
 
     service: "Service" = Relationship(back_populates="reactions")
-    area_reactions: List["AreaReaction"] = Relationship(back_populates="reaction")
+    area_reactions: List["AreaReaction"] = Relationship(back_populates="reaction", sa_relationship_kwargs={"cascade": "all, delete-orphan"})

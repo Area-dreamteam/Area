@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 class AreaReaction(SQLModel, table=True):
     __tablename__ = "area_reaction"
     id: int = Field(default=None, primary_key=True)
-    area_id: int = Field(foreign_key="area.id")
-    reaction_id: int = Field(foreign_key="reaction.id")
+    area_id: int = Field(foreign_key="area.id", ondelete="CASCADE")
+    reaction_id: int = Field(foreign_key="reaction.id", ondelete="CASCADE")
     order_index: int = Field(default=0)
     delay: int = Field(default=0)
     config: dict = Field(default_factory=dict, sa_column=Column(JSON))
