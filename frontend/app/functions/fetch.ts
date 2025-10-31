@@ -5,11 +5,16 @@
  ** fetch
  */
 
-import axios from "axios";
-import { Act, ActDetails, Service, SpecificService } from "../types/service";
-import { MyProfileProp, UpdateProfileProp } from "../types/profile";
-import { SpecificAction, SpecificReaction } from "../types/actions";
-import { PublicApplet, PrivateApplet, SpecificPublicApplet, SpecificPrivateApplet } from "../types/applet";
+import axios from 'axios'
+import { Act, ActDetails, Service, SpecificService } from '../types/service'
+import { MyProfileProp, UpdateProfileProp } from '../types/profile'
+import { SpecificAction, SpecificReaction } from '../types/actions'
+import {
+  PublicApplet,
+  PrivateApplet,
+  SpecificPublicApplet,
+  SpecificPrivateApplet,
+} from '../types/applet'
 
 export const Calls = axios.create({
   baseURL: '/api/backend',
@@ -341,7 +346,7 @@ export async function fetchUpdatePersonalApplets(
       description: desc,
       action: {
         action_id: applet.action.id,
-        config: applet.action.config
+        config: applet.action.config,
       },
       reactions: applet.reactions.map((reac) => {
         return {
@@ -444,21 +449,21 @@ export async function fetchPersonalAppletConnection(id: number, state: string) {
 export async function fetchCreateApplet(
   action: ActDetails,
   reactions: ActDetails[],
-  title: string,
+  title: string
 ) {
   try {
     const res = await Calls.post('/users/areas/me', {
       name: title.replaceAll('_', ' '),
       description: '[description]',
       action: {
-        action_id: action.id,
+        action_id: action.act.id,
         config: action.config,
       },
       reactions: reactions.map((reaction) => ({
         reaction_id: reaction.act.id,
         config: reaction.config,
-      }))
-    });
+      })),
+    })
 
     if (res.status != 200) {
       return false

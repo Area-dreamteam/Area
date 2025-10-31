@@ -9,7 +9,7 @@ def get_env_file() -> str:
     elif env == "dev":
         return ".env"
     elif env == "prod":
-        return ".env.prod"
+        return ".env"
     elif env == "tests":
         return ".env.tests"
 
@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     TWITCH_CLIENT_ID: str
     TWITCH_CLIENT_SECRET: str
     CLASHROYALE_API_KEY: str
+    GITHUB_LINK_CLIENT_ID: str
+    GITHUB_LINK_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
 
