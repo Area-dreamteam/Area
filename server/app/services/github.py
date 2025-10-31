@@ -172,6 +172,12 @@ class Github(ServiceClass):
                 else []
             )
 
+            if not area_action.last_state or "repo_ids" not in area_action.last_state:
+                area_action.last_state = {"repo_ids": list(repo_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
+
             area_action.last_state = {"repo_ids": list(repo_ids)}
             session.add(area_action)
             session.commit()
@@ -212,6 +218,12 @@ class Github(ServiceClass):
                 else []
             )
 
+            if not area_action.last_state or "issue_ids" not in area_action.last_state:
+                area_action.last_state = {"issue_ids": list(issue_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
+
             area_action.last_state = {"issue_ids": list(issue_ids)}
             session.add(area_action)
             session.commit()
@@ -251,6 +263,12 @@ class Github(ServiceClass):
                 if area_action.last_state
                 else []
             )
+
+            if not area_action.last_state or "pr_ids" not in area_action.last_state:
+                area_action.last_state = {"pr_ids": list(pr_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
 
             area_action.last_state = {"pr_ids": list(pr_ids)}
             session.add(area_action)
