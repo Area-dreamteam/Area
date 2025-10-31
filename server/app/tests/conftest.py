@@ -1,7 +1,5 @@
 import os
 import pytest
-import asyncio
-from pathlib import Path
 from sqlmodel import SQLModel, Session, create_engine
 from fastapi.testclient import TestClient
 
@@ -22,12 +20,6 @@ test_engine = create_engine(
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
     """Setup test database with all tables"""
-    from models.users.user import User
-    from models.areas.area import Area
-    from models.services.service import Service
-    from models.services.action import Action
-    from models.services.reaction import Reaction
-    from models.oauth.oauth_login import OAuthLogin
 
     SQLModel.metadata.create_all(test_engine)
     yield

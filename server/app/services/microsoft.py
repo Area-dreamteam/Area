@@ -1,11 +1,10 @@
 from sqlmodel import Session
 from pydantic import BaseModel
-from pydantic_core import ValidationError
 from sqlmodel import select
 import requests
 from urllib.parse import urlencode
 from fastapi import HTTPException, Response, Request
-from typing import Dict, Any, List
+from typing import Dict, Any
 import json
 
 from core.utils import generate_state

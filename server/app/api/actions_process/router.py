@@ -1,7 +1,7 @@
-from typing import List, Any
+from typing import List
 from fastapi import APIRouter, HTTPException
 from services.services import services_dico
-from sqlmodel import select, join
+from sqlmodel import select
 
 from models import (
     AreaAction,
@@ -11,10 +11,8 @@ from models import (
     Reaction,
     AreaReaction,
     User,
-    UserService,
 )
 from dependencies.db import SessionDep
-from core.logger import logger
 from cron.cron import deleteJob
 
 router = APIRouter(prefix="/actions_process", tags=["actions_process"])

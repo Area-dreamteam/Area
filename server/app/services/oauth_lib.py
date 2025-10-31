@@ -4,27 +4,17 @@ Common OAuth flow helpers for service authentication and user account linking.
 Provides unified OAuth callback handling for both login and service connection.
 """
 
-from typing import Dict, Any
 from models.oauth.oauth_login import OAuthLogin
 from models.users.user_oauth_login import UserOAuthLogin
-from models.areas import AreaAction, AreaReaction
-from services.services_classes import Service as ServiceClass, Action, Reaction
 from models.services.service import Service
-from schemas.services.todoist import Task, Project
 from core.config import settings
 from models.users.user import User
 from sqlmodel import Session
-from core.utils import generate_state
-from pydantic import BaseModel
-from pydantic_core import ValidationError
-from urllib.parse import urlencode
-import requests
-import json
-from fastapi import APIRouter, Request, HTTPException, Depends, Response, Query
+from fastapi import Request, Response
 from core.security import sign_jwt
 from models.users.user_service import UserService
 from sqlmodel import select
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse
 
 
 def windowCloseAndCookie(

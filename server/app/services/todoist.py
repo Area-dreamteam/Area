@@ -4,7 +4,6 @@ Provides task completion triggers and task creation reactions.
 Supports OAuth authentication and project-based task management.
 """
 
-from typing import Dict, Any
 from services.oauth_lib import oauth_add_link
 from models.areas import AreaAction, AreaReaction
 from services.services_classes import (
@@ -24,11 +23,9 @@ from pydantic_core import ValidationError
 from urllib.parse import urlencode
 import requests
 import json
-from fastapi import APIRouter, Request, HTTPException, Depends, Response, Query
-from core.security import sign_jwt
+from fastapi import Request, HTTPException, Response
 from models.users.user_service import UserService
 from sqlmodel import select
-from fastapi.responses import HTMLResponse, RedirectResponse
 from core.logger import logger
 from api.users.db import get_user_service_token
 

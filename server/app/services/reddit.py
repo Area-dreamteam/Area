@@ -3,7 +3,6 @@ from urllib.parse import urlencode
 from sqlmodel import Session, select
 from fastapi import HTTPException, Response, Request
 from typing import Dict, Any
-import json
 from pydantic import BaseModel
 
 from core.config import settings
