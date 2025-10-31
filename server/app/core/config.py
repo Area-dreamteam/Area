@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     CLASHROYALE_API_KEY: str
     GITHUB_LINK_CLIENT_ID: str
     GITHUB_LINK_CLIENT_SECRET: str
+    DISCORD_BOT_TOKEN: str
+    DISCORD_CLIENT_ID: str
+    DISCORD_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
 
