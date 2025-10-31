@@ -133,4 +133,5 @@ class ProfileViewModel extends ChangeNotifier {
       _setState(ProfileState.error);
     }
   }
+
 }
