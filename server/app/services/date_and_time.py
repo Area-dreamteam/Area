@@ -31,19 +31,6 @@ class DateAndTime(Service):
                 return True
             return False
 
-    class reaction_debug(Reaction):
-        from models import AreaReaction
-        def __init__(self) -> None:
-            config_schema = []
-            super().__init__(
-                "Reacion debug.",
-                config_schema,
-            )
-
-        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
-            logger.debug("Reaction debug")
-            pass
-
     def __init__(self) -> None:
         super().__init__(
             "Service Date&Time",
