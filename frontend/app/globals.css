@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -112,12 +112,11 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer components
-{
+@layer components {
   :root {
     --common-color: black;
     --common-bg: white;
-    --common-hover: #CCCCCC;
+    --common-hover: #cccccc;
   }
 
   .title {
@@ -173,7 +172,7 @@
     font-weight: bold;
     font-size: 70%;
   }
-  
+
   .logo {
     @media (width >= 40rem) {
       color: var(--common-color);
@@ -185,8 +184,8 @@
     }
     &:hover {
       @media (hover: hover) {
-          cursor: pointer;
-          color: #424242;
+        cursor: pointer;
+        color: #424242;
       }
     }
     margin-left: 2%;
@@ -203,8 +202,8 @@
   .activate-link {
     &:hover {
       @media (hover: hover) {
-          color: #4400ff;
-          text-decoration-line: underline;
+        color: #4400ff;
+        text-decoration-line: underline;
       }
     }
   }
@@ -213,7 +212,7 @@
     color: #0099ff;
     &:hover {
       @media (hover: hover) {
-          color: #0077c7;
+        color: #0077c7;
       }
     }
   }
@@ -228,7 +227,7 @@
     padding-right: 3%;
     font-weight: bold;
     cursor: pointer;
-  
+
     @media (width >= 40rem) {
       font-size: 200%;
     }
@@ -238,7 +237,7 @@
 
     &:hover {
       @media (hover: hover) {
-          background-color: var(--common-hover);
+        background-color: var(--common-hover);
       }
     }
   }
@@ -253,7 +252,7 @@
     padding-right: 2%;
     font-weight: bold;
     cursor: pointer;
-  
+
     @media (width >= 40rem) {
       font-size: 80%;
     }
@@ -263,7 +262,7 @@
 
     &:hover {
       @media (hover: hover) {
-          background-color: var(--common-hover);
+        background-color: var(--common-hover);
       }
     }
   }
@@ -278,7 +277,6 @@
       height: 25px;
       width: 100px;
       border-radius: calc(var(--radius) - 2px);
-      
     }
     /* md:w-[300px] w-[100px] outline-[1px] md:rounded-xl rounded-md mb-4 */
     outline-style: var(--tw-outline-style);
@@ -286,9 +284,9 @@
   }
 
   @property --tw-outline-style {
-      syntax: "*";
-      inherits: false;
-      initial-value: solid;
+    syntax: '*';
+    inherits: false;
+    initial-value: solid;
   }
 
   .inverted {
