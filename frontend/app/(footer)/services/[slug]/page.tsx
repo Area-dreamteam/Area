@@ -23,6 +23,7 @@ import {
   fetchDisconnectService,
 } from '@/app/functions/fetch'
 import { getImageUrl } from '@/app/functions/images'
+import Markdown from '@/app/components/Markdown'
 
 type ServiceProp = {
   params: Promise<{ slug: string }>
@@ -110,7 +111,9 @@ export default function ServicePage({ params }: ServiceProp) {
                   className="rounded-xl m-4"
                 />
               )}
-              <p className="mb-[20px]">{myService.description}</p>
+              <div className="mb-[20px]">
+                <Markdown>{myService.description}</Markdown>
+              </div>
               <p className="text-[20px]">{myService.name}</p>
             </div>
           </div>
