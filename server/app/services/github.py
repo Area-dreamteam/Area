@@ -8,18 +8,13 @@ Also provides GitHub automation service for repository and issue management.
 
 from typing import Dict, Any, List
 from services.oauth_lib import oauth_add_login, oauth_add_link
-from core.security import sign_jwt
 import requests
 from urllib.parse import urlencode
-from models.oauth.oauth_login import OAuthLogin
-from models.users.user_oauth_login import UserOAuthLogin
 from models.users.user import User
 from models.users.user_service import UserService
 from models.services.service import Service
-from models.areas import AreaAction, AreaReaction
 from sqlmodel import select
 from fastapi import HTTPException, Response, Request
-from fastapi.responses import HTMLResponse
 from core.config import settings
 
 from pydantic import BaseModel

@@ -1,4 +1,3 @@
-import json
 from models.oauth.oauth_login import OAuthLogin
 from sqlmodel import SQLModel, select, Session
 from sqlalchemy.dialects.postgresql import insert

@@ -8,7 +8,7 @@
 'use client'
 
 import { fetchCreateApplet, fetchServices, fetchAction, fetchActs, fetchSpecificService } from "@/app/functions/fetch"
-import { Service, Act, SpecificService } from "@/app/types/service"
+import { Service, Act, SpecificService, ActDetails } from "@/app/types/service"
 import { ConfigRespAct, ConfigReqAct } from "@/app/types/config"
 import ValidateButton from "@/app/components/Validation"
 import Services from "@/app/components/Services"
@@ -34,21 +34,23 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 interface ChoiceButtonProp {
   setIsChoosing: (data: boolean) => void,
-  setChosen: (arg: Act | null) => void,
+  setChosen: (arg: ActDetails | null) => void,
   replacementText?: string,
   buttonText?: string,
   disable?: boolean,
-  chosen: Act | null,
+  chosen: ActDetails | null,
+  setCurrentId: (id: number) => void,
+  setIsEditing: (editing: boolean) => void,
 }
 
 function ActionButton({ buttonText = "", replacementText = "", disable = false,
-  setIsChoosing, setChosen, chosen = null }: ChoiceButtonProp) {
+  setIsChoosing, setChosen, chosen, setCurrentId, setIsEditing }: ChoiceButtonProp) {
   return (
     <div className="mx-auto mt-[10%] w-[75%] h-[100px] md:h-[170px] rounded-xl text-white flex items-center" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
       <h1 className="flex-1 title inverted">
         {buttonText}
         {chosen ?
-          <p className="ml-[20px] tiny-text inverted">{chosen.name.replaceAll("_", " ")}</p>
+          <p className="ml-[20px] tiny-text inverted">{chosen.act.name.replaceAll("_", " ")}</p>
           :
           replacementText
         }
@@ -60,7 +62,7 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
       }
       {chosen &&
         <div>
-          <button className="mr-[20px] mb-[5%] py-[5%] rounded-button w-[75%] font-bold" onClick={() => setIsChoosing(true)}>
+          <button className="mr-[20px] mb-[5%] py-[5%] rounded-button w-[75%] font-bold" onClick={() => {setCurrentId(chosen.id); setIsChoosing(true); setIsEditing(true)}}>
             Edit
           </button>
           <button className="mr-[20px] py-[5%] rounded-button w-[75%] font-bold" onClick={() => setChosen(null)}>
@@ -87,32 +89,76 @@ function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
   )
 }
 
-interface CreationProp {
-    action: Act | null,
-    reaction: Act | null,
-    actConfig: ConfigRespAct[],
-    reactConfig: ConfigRespAct[],
-    setAction: (arg: Act | null) => void,
-    setReaction:(arg: Act | null) => void,
-    setChoosingAction: (data: boolean) => void,
-    setChoosingReaction: (data: boolean) => void,
-}
-
 //-- Send form --//
 
-function createApplet(action: Act, reaction: Act, title: string, actConfig: ConfigRespAct[], reactConfig: ConfigRespAct[]) {
-    fetchCreateApplet(action, reaction, title, actConfig, reactConfig);
+function createApplet(action: ActDetails, reactions: ActDetails[], title: string) {
+    fetchCreateApplet(action, reactions, title);
     redirect("/my_applets");
 }
 
 //-- Creation page --//
 
-function Creation({ action, reaction, setAction, setReaction, actConfig,
-  reactConfig, setChoosingAction, setChoosingReaction }: CreationProp)
+interface CreationProps {
+  theAction: ActDetails | null,
+  setTheAction: (action: ActDetails | null) => void,
+  theReactions: ActDetails[] | null,
+  setTheReactions: (reactions: ActDetails[] | null) => void,
+  setChoosingAction: (choosing: boolean) => void,
+  setChoosingReaction: (choosing: boolean) => void,
+  aReaction: ActDetails | null,
+  setCurrentId: (id: number) => void,
+  setIsEditing: (editing: boolean) => void,
+}
+
+function nextAvailableId(theReactions: ActDetails[], proposedId: number)
 {
-  const [nbReactions, setNbReactions] = useState<number>(1);
+  const newId: number = proposedId;
+
+  theReactions.map((reac) => {
+    if (reac.id == proposedId)
+      proposedId = proposedId + 1;
+  });
+  if (proposedId != newId)
+    return nextAvailableId(theReactions, proposedId);
+  return proposedId;
+}
+
+function Creation({ theAction, setTheAction, theReactions, setTheReactions, 
+  setChoosingAction, setChoosingReaction, aReaction, setCurrentId,
+  setIsEditing }: CreationProps)
+{
   const [validating, setValidating] = useState<boolean>(false);
-  const [title, setTitle] = useState<string>(`if ${action?.name}, then ${reaction?.name}`);
+  const [title, setTitle] = useState<string>(`if ${theAction?.act.name}, then ${theReactions ? theReactions[0].act.name : ""}`);
+
+  useEffect(() => {
+    const checkingReactions = (newReac: ActDetails) => {
+      if (!theReactions) {
+        setTheReactions([newReac]);
+        return;
+      }
+      const searched = theReactions.filter((insertedReac) =>
+        newReac.id == insertedReac.id
+      );
+      if (searched.length == 0) {
+        setTheReactions([...theReactions, newReac]);
+        return;
+      }
+      const updatedReactions = theReactions.map((insertedReac) =>
+        newReac.id == insertedReac.id ? newReac : insertedReac
+      );
+      setTheReactions(updatedReactions);
+    };
+    if (aReaction)
+      checkingReactions(aReaction);
+  }, [aReaction])
+
+  const deleteReaction = (id: number) => {
+    const newReactions = theReactions?.filter((reac) => reac.id != id);
+    if (newReactions?.length == 0)
+      setTheReactions(null);
+    else
+      setTheReactions(newReactions ? newReactions : null);
+  }
 
   return (
     <div>
@@ -130,7 +176,7 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
             <Input className="block mx-auto w-[75%] h-[10%] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="centered mt-[30px]">
-            <button className="rounded-button inverted px-[5%] py-[3%]" onClick={() => action && reaction && createApplet(action, reaction, title, actConfig, reactConfig)} disabled={title === ""}>
+            <button className="rounded-button inverted px-[5%] py-[3%]" onClick={() => createApplet(theAction as ActDetails, theReactions as ActDetails[], title)} disabled={title === "" || !theAction || !theReactions}>
               Finish
             </button>
           </div>
@@ -143,24 +189,27 @@ function Creation({ action, reaction, setAction, setReaction, actConfig,
               Create
             </p>
           </div>
-          <ActionButton buttonText="If " replacementText="This"
-            setIsChoosing={setChoosingAction} setChosen={setAction} chosen={action} />
-          <ActionButton buttonText="Then " replacementText="That" disable={action == null}
-            setIsChoosing={setChoosingReaction} setChosen={setReaction} chosen={reaction} />
-            {(action != null && reaction != null) &&
-              <div>
-                <button className="mt-[5%] rounded-button inverted block mx-auto" onClick={() => setNbReactions(nbReactions + 1)}>
-                  +
-                </button>
-                <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px] mb-[5%]"} inverted={true}/>
-              </div>
-            }
+          <ActionButton buttonText="If " replacementText="This" setIsChoosing={setChoosingAction} setChosen={setTheAction} chosen={theAction} setCurrentId={setCurrentId} setIsEditing={setIsEditing} />
+          {theReactions && theReactions.map((reac) => 
+            <ActionButton key={reac.id} buttonText="Then " replacementText="That" disable={theAction == null} setIsChoosing={setChoosingReaction} setChosen={(arg: ActDetails | null) => {if (arg == null) deleteReaction(reac.id)}} chosen={reac} setCurrentId={setCurrentId} setIsEditing={setIsEditing} />
+          )}
+          {!theReactions &&
+            <ActionButton buttonText="Then " replacementText="That" disable={theAction == null} setIsChoosing={setChoosingReaction} setChosen={() => ""} chosen={null} setCurrentId={setCurrentId} setIsEditing={setIsEditing}/>
+          }
+          {(theAction != null && theReactions != null) &&
+            <div>
+              <button className="mt-[5%] rounded-button inverted block mx-auto disabled:bg-gray-500" onClick={() => {setCurrentId(nextAvailableId(theReactions, 1)); setChoosingReaction(true)}}>
+                +
+              </button>
+              <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px] mb-[5%]"} inverted={true}/>
+            </div>
+          }
         </div>
       )}
     </div>
   )
 }
-
+// find a proper way to add or delete reactions
 //-- Affichage des triggers --//
 
 interface SelectElementProp {
@@ -234,7 +283,7 @@ function CheckboxElement({ content, config, handleChange }: SelectElementProp)
         const checkbox = checkboxes.find((item) => value in item);
         const checked = checkbox ? checkbox[value] : false;
 
-        return (<div className="flex items-center space-x-2">
+        return (<div className="flex items-center space-x-2" key={value}>
           <Checkbox
             id={value}
             checked={checked}
@@ -303,34 +352,48 @@ function DisplayAllTrigger({ config, configResp, setConfigResp }: AllTriggerProp
 //-- Choosing the trigger --//
 
 interface chooseTriggerProp {
-  act: Act,
   type: string,
+  actInfos: Act,
   service: Service,
-  configResp: ConfigRespAct[],
-  setAction: (arg: Act | null) => void
+  setIsChoosing: (data: boolean) => void,
+  setActInfos: (arg: Act | null) => void,
+  setAct: (arg: ActDetails | null) => void,
   setService: (arg: Service | null) => void,
   setChoosingTrigger: (arg: boolean) => void,
-  setChoosingAction: (data: boolean) => void,
-  setConfig: (arg: ConfigRespAct[]) => (void)
+  currentId: number,
+  isEditing: boolean,
+  setIsEditing: (editing: boolean) => void,
 }
 
 interface reinitProp {
   setService: (arg: Service | null) => void,
-  setAction: (arg: Act | null) => void
+  setAct: (arg: Act | null) => void
 }
 
-function reinitAll({setService, setAction}: reinitProp) {
+function reinitAll({setService, setAct}: reinitProp) {
     setService(null);
-    setAction(null);
+    setAct(null);
 }
 
-function unsetChoosingTime(setAction: (arg: Act | null) => void, setService:
-    (arg: Service | null) => void, setChoosingTrigger: (arg: boolean) => void,
-    setChoosingAction: (arg: boolean) => void)
+function unsetChoosingTime(actInfos: Act, configResp: ConfigRespAct[], setAct: (arg: ActDetails | null) => void,
+  setActInfos: (arg: Act | null) => void, setService: (arg: Service | null) => void,
+  setChoosingTrigger: (arg: boolean) => void, setIsChoosing: (arg: boolean) => void,
+  setConfigResp: (arg: ConfigRespAct[]) => void, currentId: number,
+  isEditing: boolean, setIsEditing: (editing: boolean) => void)
 {
+    const chosenAct : ActDetails = {
+      id: currentId,
+      act: actInfos,
+      config: configResp,
+    }
+    setAct(chosenAct);
     setService(null);
-    setChoosingAction(false);
+    setActInfos(null);
+    setConfigResp([]);
+    setIsChoosing(false);
     setChoosingTrigger(false);
+    if (isEditing)
+      setIsEditing(false);
 }
 
 function allTriggersValid(configResp: ConfigRespAct[], configReq: ConfigReqAct[] | undefined)
@@ -351,13 +414,15 @@ function allTriggersValid(configResp: ConfigRespAct[], configReq: ConfigReqAct[]
   return allValid;
 }
 
-function ChooseTrigger({ act, service, type, setConfig,
-    setChoosingTrigger, setAction, setService, configResp, setChoosingAction }: chooseTriggerProp)
+function ChooseTrigger({ actInfos, service, type,
+    setChoosingTrigger, setAct, setService, setIsChoosing, setActInfos,
+    currentId, isEditing, setIsEditing }: chooseTriggerProp)
 {
   const [trigger, setTrigger] = useState<SpecificAction | SpecificReaction | null>(null);
+  const [configResp, setConfigResp] = useState<ConfigRespAct[]>([]);
 
   useEffect(() => {
-    fetchAction(act.id, type, setTrigger);
+    fetchAction(actInfos.id, type, setTrigger);
   }, []);
 
   useEffect(() => {
@@ -367,7 +432,7 @@ function ChooseTrigger({ act, service, type, setConfig,
         type: cfg.type,
         values: cfg.type === "check_list" ? [] : (cfg.type === "select" ? (typeof cfg.values[0] === "string" ? cfg.values[0] : "") : ""),
       }));
-      setConfig(initialConfig);
+      setConfigResp(initialConfig);
     }
   }, [trigger]);
 
@@ -380,21 +445,21 @@ function ChooseTrigger({ act, service, type, setConfig,
             </p>
             <hr className="col-span-4 mb-[20px]" />
             <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto">
-            {service.image_url &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            {service.image_url && getImageUrl(service.image_url) != "" &&
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[100%] h-[100%]" />
             }
             <p className="title inverted mb-[20px]">
-                {act?.name.replaceAll("_", " ")}
+                {actInfos.name.replaceAll("_", " ")}
             </p>
             <p className="simple-text inverted centered mb-[20px]">
-                {act?.description}
+                {actInfos.description}
             </p>
             {trigger ? (
-                <DisplayAllTrigger config={trigger.config_schema} configResp={configResp} setConfigResp={setConfig}/>
+                <DisplayAllTrigger config={trigger.config_schema} configResp={configResp} setConfigResp={setConfigResp}/>
             ) : (
                 "No trigger available"
             )}
-            <Button className="rounded-full border-white text-white hover:bg-[#555555] bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp, trigger?.config_schema)} onClick={() => unsetChoosingTime(setAction, setService, setChoosingTrigger, setChoosingAction)}>
+            <Button className="rounded-full border-white text-white hover:bg-[#555555] bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp, trigger?.config_schema)} onClick={() => unsetChoosingTime(actInfos, configResp, setAct, setActInfos, setService, setChoosingTrigger, setIsChoosing, setConfigResp, currentId, isEditing, setIsEditing)}>
                 Create trigger
             </Button>
         </div>
@@ -403,47 +468,45 @@ function ChooseTrigger({ act, service, type, setConfig,
   )
 }
 
-//-- Selectiong the action --//
-
-function selectAct(setChoosingTrigger: (param: boolean) => void,
-  setAction: (param: Act | null) => void, act: Act) {
-  setChoosingTrigger(true);
-  setAction(act);
-}
-
 //-- Choosing the action --//
 
 interface ActionPageProp extends ChooseActProp {
-  type: string,
   service: Service,
-  setService: (arg: Service | null) => void
+  setService: (arg: Service | null) => void,
+  currentId: number,
+  isEditing: boolean,
+  setIsEditing: (editing: boolean) => void,
 }
 
-function ChooseAct({ service, setService, setAction,
-  setChoosingAction, setConfig, type, act, configResp }: ActionPageProp) {
+function ChooseAct({ service, setService, setAct, type, setIsChoosing,
+  currentId, isEditing, setIsEditing }: ActionPageProp) {
   const [acts, setActs] = useState<Act[] | null>(null);
+  const [actInfos, setActInfos] = useState<Act | null>(null);
   const [choosingTrigger, setChoosingTrigger] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchActs(service.id, type, setActs);
+    const getActs = async() => {
+      await fetchActs(service.id, type, setActs);
+    }
+    getActs();
   }, [])
 
   return (
     <div>
-      {choosingTrigger && act ? (
-        <ChooseTrigger act={act} type={type} service={service} setConfig={setConfig}
-          setChoosingTrigger={setChoosingTrigger} setService={setService} setAction={setAction} configResp={configResp} setChoosingAction={setChoosingAction}/>
+      {choosingTrigger && actInfos ? (
+        <ChooseTrigger actInfos={actInfos} setActInfos={setActInfos} type={type} service={service} setAct={setAct}
+          setChoosingTrigger={setChoosingTrigger} setIsChoosing={setIsChoosing} setService={setService} currentId={currentId} isEditing={isEditing} setIsEditing={setIsEditing}/>
       ) : (
         <div>
           <div className="grid grid-cols-4 text-white w-screen rounded-b-xl" style={{ background: service.color }}>
-            <LeftUpButton text="Back" act={() => reinitAll({setService, setAction})} param={true} color="white"/>
+            <LeftUpButton text="Back" act={() => reinitAll({setService:setService, setAct:setActInfos})} param={true} color="white"/>
             <p className="mt-[30%] mb-[20%] title inverted col-span-2">
               Choose a trigger
             </p>
             <hr className="col-span-4" />
-            <div className="flex flex-col justify-end text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
-              {service.image_url &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[250px] h-[250px]" />
+            <div className="flex flex-col justify-center text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
+              {service.image_url && getImageUrl(service.image_url) != "" &&
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[50%] h-[50%] block mx-auto" />
               }
               <p className="subtitle inverted mt-[10%]">{service.name}</p>
             </div>
@@ -451,7 +514,7 @@ function ChooseAct({ service, setService, setAction,
           {acts && acts.length > 0 ? (
             <div className=" w-[95%] mx-auto mt-[25px] grid xl:grid-cols-5 lg:grid-cols-4 grid-cols-3 gap-2">
               {acts.map((act) => (
-                <div key={act.id} className="rounded-xl md:w-[250px] w-[150px] md:h-[250px] h-[150px] hover:cursor-pointer relative" style={{ backgroundColor: service.color }} onClick={() => selectAct(setChoosingTrigger, setAction, act)}>
+                <div key={act.id} className="rounded-xl md:w-[250px] w-[150px] md:h-[250px] h-[150px] hover:cursor-pointer relative" style={{ backgroundColor: service.color }} onClick={() => {setActInfos(act); setChoosingTrigger(true);}}>
                   <div className="text-center pt-[5%]">
                     <p className="subtitle inverted m-[20px]">
                       {act.name.replaceAll("_", " ")}
@@ -478,23 +541,26 @@ function ChooseAct({ service, setService, setAction,
 
 interface ChooseActProp {
   type: string,
-  act: Act | null,
-  choosingAction: boolean,
-  configResp: ConfigRespAct[],
-  setAction: (arg: Act | null) => void,
-  setChoosingAction: (data: boolean) => void,
-  setConfig: (arg: ConfigRespAct[]) => void
+  act: ActDetails | null,
+  setIsChoosing: (arg: boolean) => void,
+  setAct: (arg: ActDetails | null) => void,
 }
 
-function ChooseService({ choosingAction, setChoosingAction,
-  setConfig, setAction, type, act, configResp }: ChooseActProp) {
+interface ChooseServiceProps extends ChooseActProp {
+  currentId: number,
+  isEditing: boolean,
+  setIsEditing: (editing: boolean) => void,
+}
+
+function ChooseService({ setIsChoosing, setAct, type, act,
+  currentId, isEditing, setIsEditing }: ChooseServiceProps)
+{
   const [search, setSearch] = useState<string>("");
   const [selected, setSelected] = useState<Service | null>(null);
   const [services, setServices] = useState<Service[] | null>(null);
   const [chosenService, setChosenService] = useState<SpecificService | null>(null);
   const [serviceConnected, setServiceConnected] = useState<boolean>(false);
   const [checkedConnection, setCheckedConnection] = useState<boolean>(false);
-  // const { user } = useAuth();
 
   useEffect(() => {
     fetchServices(setServices);
@@ -535,20 +601,18 @@ function ChooseService({ choosingAction, setChoosingAction,
       {!selected &&
         <div>
           <div className="grid grid-cols-4">
-            <LeftUpButton text="Back" act={(param: boolean | string) => setChoosingAction(param as boolean)} param={false} />
+            <LeftUpButton text="Back" act={(param: boolean | string) => {setIsChoosing(param as boolean); setIsEditing(false)}} param={false} />
             <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-2 text-center">
               Choose a service
             </p>
           </div>
           <Input className="w-[400px] mx-auto block mt-[50px] border-[4px] h-[50px] text-[20px] placeholder:text-[20px]" placeholder="Search services" onChange={(e) => setSearch(e.target.value)} />
-          <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[200px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected} />
+          <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[250px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected}/>
         </div>
       }
       {((selected && serviceConnected && chosenService?.oauth_required) || (selected && chosenService && !chosenService.oauth_required)) &&
-        <ChooseAct act={act} service={selected} setService={setSelected}
-          choosingAction={choosingAction} setAction={setAction}
-          setChoosingAction={setChoosingAction} type={type}
-          setConfig={setConfig} configResp={configResp}/>
+        <ChooseAct act={act} setAct={setAct} service={selected} setService={setSelected} setIsChoosing={setIsChoosing} type={type}
+          currentId={currentId} isEditing={isEditing} setIsEditing={setIsEditing}/>
       }
     </div>
   )
@@ -557,32 +621,49 @@ function ChooseService({ choosingAction, setChoosingAction,
 //-- Main page choosing which page to display --//
 
 export default function Create() {
-  const [action, setAction] = useState<Act | null>(null);
-  const [reaction, setReaction] = useState<Act | null>(null);
+  const [currentId, setCurrentId] = useState<number>(1);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [choosingAction, setChoosingAction] = useState(false);
   const [choosingReaction, setChoosingReaction] = useState(false);
-  const [actConfig, setActConfig] = useState<ConfigRespAct[]>([]);
-  const [reactConfig, setReactConfig] = useState<ConfigRespAct[]>([]);
+  const [theAction, setTheAction] = useState<ActDetails | null>(null);
+  const [aReaction, setAReaction] = useState<ActDetails | null>(null);
+  const [theReactions, setTheReactions] = useState<ActDetails[] | null>(null);
 
   return (
     <div>
       {(!choosingAction && !choosingReaction) &&
-        <Creation action={action} reaction={reaction}
-          setAction={setAction} setReaction={setReaction}
-          setChoosingReaction={setChoosingReaction}
+        <Creation 
+          theAction={theAction}
+          setTheAction={setTheAction}
+          theReactions={theReactions}
+          setTheReactions={setTheReactions}
           setChoosingAction={setChoosingAction}
-          actConfig={actConfig} reactConfig={reactConfig}/>
+          setChoosingReaction={setChoosingReaction}
+          aReaction={aReaction}
+          setCurrentId={setCurrentId}
+          setIsEditing={setIsEditing}
+        />
       }
       {choosingAction &&
-        <ChooseService act={action} setAction={setAction} type="actions"
-          setConfig={setActConfig} choosingAction={choosingAction}
-          setChoosingAction={setChoosingAction} configResp={actConfig}
+        <ChooseService 
+          setIsChoosing={setChoosingAction} 
+          act={theAction} 
+          setAct={setTheAction}
+          type="actions"
+          currentId={currentId}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
         />
       }
       {choosingReaction &&
-        <ChooseService act={reaction} setAction={setReaction} type="reactions"
-          choosingAction={choosingReaction} setConfig={setReactConfig}
-          setChoosingAction={setChoosingReaction} configResp={reactConfig}
+        <ChooseService 
+          setIsChoosing={setChoosingReaction} 
+          act={aReaction} 
+          setAct={setAReaction}
+          type="reactions"
+          currentId={currentId}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
         />
       }
     </div>

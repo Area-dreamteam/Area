@@ -359,7 +359,6 @@ class _InformationPageState extends State<InformationPage>
           _buildConnectButton(showIcon: true, serviceInfo: triggerService)
         else
           const SizedBox.shrink(),
-        
         const SizedBox(height: 30),
 
         _buildActionButton(
@@ -368,7 +367,6 @@ class _InformationPageState extends State<InformationPage>
           onPressed: _copyApplet,
           isLoading: _isCopying,
         ),
-        
         const SizedBox(height: 30),
 
         const Text(
