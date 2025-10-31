@@ -274,6 +274,7 @@ class TestSyncServicesCatalogToDB:
             [mock_existing_service],
             [],
             [],
+            [],
         ]
         mock_session.commit = Mock()
 
