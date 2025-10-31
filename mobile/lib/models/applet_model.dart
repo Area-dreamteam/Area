@@ -68,29 +68,30 @@ class AppletModel {
   }) {
     var reactionsList = <ServiceInfo>[];
     var reactionsInfoList = <AppletReactionInfo>[];
+    final dynamic rawReactions = json['reactions'];
 
-    if (json['reactions'] != null && json['reactions'] is List) {
-      reactionsList = (json['reactions'] as List)
+    if (rawReactions != null && rawReactions is List<dynamic>) {
+      reactionsList = rawReactions
           .where((r) => r is Map && r['service'] != null)
           .map((r) => ServiceInfo.fromJson(r['service']))
           .toList();
-    }
 
-    reactionsInfoList = (json['reactions'] as List)
-        .where(
-          (r) =>
-              r is Map &&
-              r['service'] != null &&
-              (r['id'] ?? r['reaction_id']) != null,
-        )
-        .map(
-          (r) => AppletReactionInfo(
-            id: (r['id'] ?? r['reaction_id']) as int,
-            configJson: _getConfigJson(r['config']),
-            service: ServiceInfo.fromJson(r['service']),
-          ),
-        )
-        .toList();
+      reactionsInfoList = rawReactions
+          .where(
+            (r) =>
+                r is Map &&
+                r['service'] != null &&
+                (r['id'] ?? r['reaction_id']) != null,
+          )
+          .map(
+            (r) => AppletReactionInfo(
+              id: (r['id'] ?? r['reaction_id']) as int,
+              configJson: _getConfigJson(r['config']),
+              service: ServiceInfo.fromJson(r['service']),
+            ),
+          )
+          .toList();
+    }
 
     ServiceInfo? trigger;
     if (json['action'] is Map && json['action']['service'] != null) {
@@ -142,5 +143,10 @@ extension AppletUserToJson on AppletUser {
 }
 
 extension ServiceInfoToJson on ServiceInfo {
-  Map<String, dynamic> toJson() => {'id': id, 'name': name};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'color': color,
+    'image_url': imageUrl,
+  };
 }
