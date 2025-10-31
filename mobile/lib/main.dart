@@ -24,6 +24,8 @@ Future<void> main() async {
   
   oauthService.initialize();
 
+  oauthService.initialize();
+
   runApp(
     MultiProvider(
       providers: [

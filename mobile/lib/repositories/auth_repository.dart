@@ -16,10 +16,10 @@ class AuthRepository {
       if (response.statusCode == 200 || response.statusCode == 204) {
         if (response.headers.map['set-cookie'] != null) {
           String rawCookie = response.headers.map['set-cookie']![0];
-          String cleanCookie = rawCookie.split(';')[0];
+          String? sessionCookie = rawCookie.split(';').first;
 
           const storage = FlutterSecureStorage();
-          await storage.write(key: 'session_cookie', value: cleanCookie);
+          await storage.write(key: 'session_cookie', value: sessionCookie);
         }
         return null;
       }
@@ -65,6 +65,10 @@ class AuthRepository {
 
   Future<void> logout() async {
     await _apiService.logout();
+  }
+
+  Future<void> deleteProfile(int userId) async {
+    await _apiService.deleteUser(userId);
   }
 
   String _handleDioError(DioException e, String defaultMessage) {

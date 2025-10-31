@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user_model.dart';
 import 'package:mobile/pages/my_area.dart';
@@ -24,9 +22,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   void initState() {
     super.initState();
 
+    final viewModel = context.read<CreateViewModel>();
     _userFuture = context.read<ServiceRepository>().fetchCurrentUser();
 
-    final viewModel = context.read<CreateViewModel>();
+    _nameController.text = viewModel.name;
+    _descriptionController.text = viewModel.description;
 
     _nameController.addListener(() {
       viewModel.setName(_nameController.text);
@@ -66,7 +66,6 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 20),
                 _buildLogos(viewModel),
                 const SizedBox(height: 40),
-
                 const Text(
                   'Applet title',
                   style: TextStyle(
@@ -78,10 +77,9 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _nameController,
-                  hint: "Ex: Post new GitHub issues to Slack",
+                  hint: "Title Area",
                   maxLines: 3,
                 ),
-
                 const SizedBox(height: 24),
                 const Text(
                   'Description',
@@ -94,10 +92,9 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _descriptionController,
-                  hint: "A short description of what this Applet does.",
+                  hint: "Describe your area",
                   maxLines: 5,
                 ),
-
                 const SizedBox(height: 20),
                 _buildUserInfo(),
                 const SizedBox(height: 40),
@@ -112,9 +109,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
 
   Widget _buildLogos(CreateViewModel viewModel) {
     final actionService = viewModel.selectedAction?.service;
-    final reactionService = viewModel.selectedReaction?.service;
+    final reactionServices = viewModel.selectedReactions
+        .map((r) => r.service)
+        .toList();
 
-    if (actionService == null || reactionService == null) {
+    if (actionService == null || reactionServices.isEmpty) {
       return const Center(
         child: Text(
           'Error loading services',
@@ -126,9 +125,29 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        getServiceIcon(actionService.name, size: 80, imageUrl: actionService.imageUrl),
-        const SizedBox(width: 60),
-        getServiceIcon(reactionService.name, size: 80, imageUrl: reactionService.imageUrl)
+        getServiceIcon(
+          actionService.name,
+          size: 80,
+          imageUrl: actionService.imageUrl,
+        ),
+        const SizedBox(width: 20),
+        const Icon(Icons.arrow_forward, color: Colors.white, size: 30),
+        const SizedBox(width: 20),
+
+        Expanded(
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 15.0,
+            runSpacing: 10.0,
+            children: reactionServices.map((service) {
+              return getServiceIcon(
+                service.name,
+                size: 60,
+                imageUrl: service.imageUrl,
+              );
+            }).toList(),
+          ),
+        ),
       ],
     );
   }
@@ -144,7 +163,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black45),
+        hintStyle: const TextStyle(color: Colors.black),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -159,7 +178,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     return FutureBuilder<UserModel>(
       future: _userFuture,
       builder: (context, snapshot) {
-        String username = '...';
+        String username = '';
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
             username = snapshot.data!.name;
@@ -177,7 +196,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   }
 
   Widget _buildCreateButton(BuildContext context, CreateViewModel viewModel) {
-    final bool isReady = viewModel.isReadyToCreate;
+    final bool isReady = viewModel.isReadyToCreateOrUpdate;
+
+    final String buttonText = viewModel.isEditing
+        ? 'Update Applet'
+        : 'Create Applet';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -194,7 +217,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
           ),
           onPressed: isReady && !viewModel.isLoading
               ? () async {
-                  final success = await viewModel.createApplet();
+                  final success = await viewModel.saveApplet();
 
                   if (success && context.mounted) {
                     Navigator.pushAndRemoveUntil(
@@ -213,7 +236,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                   width: 24,
                   child: CircularProgressIndicator(color: Colors.white),
                 )
-              : const Text('Create Applet', style: TextStyle(fontSize: 18)),
+              : Text(buttonText, style: const TextStyle(fontSize: 18)),
         ),
       ],
     );

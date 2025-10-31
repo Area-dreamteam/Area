@@ -19,6 +19,7 @@ from services.spotify import Spotify
 from services.strava import Strava
 from services.todoist import Todoist
 from services.twitch import Twitch
+from services.google_calendar import GoogleCalendar
 
 __all__ = [
     "ClashRoyale",
@@ -33,6 +34,7 @@ __all__ = [
     "Strava",
     "Todoist",
     "Twitch",
+    "GoogleCalendar",
 ]
 
 # Service registries - automatically populated with all Service/oauth_service subclasses
