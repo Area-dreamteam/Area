@@ -39,13 +39,12 @@ interface ChoiceButtonProp {
   buttonText?: string,
   disable?: boolean,
   chosen: ActDetails | null,
-  currentId: number,
   setCurrentId: (id: number) => void,
   setIsEditing: (editing: boolean) => void,
 }
 
 function ActionButton({ buttonText = "", replacementText = "", disable = false,
-  setIsChoosing, setChosen, chosen, currentId, setCurrentId, setIsEditing }: ChoiceButtonProp) {
+  setIsChoosing, setChosen, chosen, setCurrentId, setIsEditing }: ChoiceButtonProp) {
   return (
     <div className="mx-auto mt-[10%] w-[75%] h-[100px] md:h-[170px] rounded-xl text-white flex items-center" onClick={() => ""} style={{ background: (disable ? "grey" : "black") }}>
       <h1 className="flex-1 title inverted">
@@ -107,14 +106,13 @@ interface CreationProps {
   setChoosingAction: (choosing: boolean) => void,
   setChoosingReaction: (choosing: boolean) => void,
   aReaction: ActDetails | null,
-  currentId: number,
   setCurrentId: (id: number) => void,
   setIsEditing: (editing: boolean) => void,
 }
 
 function nextAvailableId(theReactions: ActDetails[], proposedId: number)
 {
-  let newId: number = proposedId;
+  const newId: number = proposedId;
 
   theReactions.map((reac) => {
     if (reac.id == proposedId)
@@ -126,7 +124,7 @@ function nextAvailableId(theReactions: ActDetails[], proposedId: number)
 }
 
 function Creation({ theAction, setTheAction, theReactions, setTheReactions, 
-  setChoosingAction, setChoosingReaction, aReaction, currentId, setCurrentId,
+  setChoosingAction, setChoosingReaction, aReaction, setCurrentId,
   setIsEditing }: CreationProps)
 {
   const [validating, setValidating] = useState<boolean>(false);
@@ -191,12 +189,12 @@ function Creation({ theAction, setTheAction, theReactions, setTheReactions,
               Create
             </p>
           </div>
-          <ActionButton buttonText="If " replacementText="This" setIsChoosing={setChoosingAction} setChosen={setTheAction} chosen={theAction} currentId={currentId} setCurrentId={setCurrentId} setIsEditing={setIsEditing} />
+          <ActionButton buttonText="If " replacementText="This" setIsChoosing={setChoosingAction} setChosen={setTheAction} chosen={theAction} setCurrentId={setCurrentId} setIsEditing={setIsEditing} />
           {theReactions && theReactions.map((reac) => 
-            <ActionButton key={reac.id} buttonText="Then " replacementText="That" disable={theAction == null} setIsChoosing={setChoosingReaction} setChosen={(_: ActDetails | null) => deleteReaction(reac.id)} chosen={reac} currentId={currentId} setCurrentId={setCurrentId} setIsEditing={setIsEditing} />
+            <ActionButton key={reac.id} buttonText="Then " replacementText="That" disable={theAction == null} setIsChoosing={setChoosingReaction} setChosen={(arg: ActDetails | null) => {if (arg == null) deleteReaction(reac.id)}} chosen={reac} setCurrentId={setCurrentId} setIsEditing={setIsEditing} />
           )}
           {!theReactions &&
-            <ActionButton buttonText="Then " replacementText="That" disable={theAction == null} setIsChoosing={setChoosingReaction} setChosen={() => ""} chosen={null} currentId={currentId} setCurrentId={setCurrentId} setIsEditing={setIsEditing}/>
+            <ActionButton buttonText="Then " replacementText="That" disable={theAction == null} setIsChoosing={setChoosingReaction} setChosen={() => ""} chosen={null} setCurrentId={setCurrentId} setIsEditing={setIsEditing}/>
           }
           {(theAction != null && theReactions != null) &&
             <div>
@@ -357,7 +355,6 @@ interface chooseTriggerProp {
   type: string,
   actInfos: Act,
   service: Service,
-  act: ActDetails | null,
   setIsChoosing: (data: boolean) => void,
   setActInfos: (arg: Act | null) => void,
   setAct: (arg: ActDetails | null) => void,
@@ -417,7 +414,7 @@ function allTriggersValid(configResp: ConfigRespAct[], configReq: ConfigReqAct[]
   return allValid;
 }
 
-function ChooseTrigger({ act, actInfos, service, type,
+function ChooseTrigger({ actInfos, service, type,
     setChoosingTrigger, setAct, setService, setIsChoosing, setActInfos,
     currentId, isEditing, setIsEditing }: chooseTriggerProp)
 {
@@ -481,7 +478,7 @@ interface ActionPageProp extends ChooseActProp {
   setIsEditing: (editing: boolean) => void,
 }
 
-function ChooseAct({ service, setService, act, setAct, type, setIsChoosing,
+function ChooseAct({ service, setService, setAct, type, setIsChoosing,
   currentId, isEditing, setIsEditing }: ActionPageProp) {
   const [acts, setActs] = useState<Act[] | null>(null);
   const [actInfos, setActInfos] = useState<Act | null>(null);
@@ -497,7 +494,7 @@ function ChooseAct({ service, setService, act, setAct, type, setIsChoosing,
   return (
     <div>
       {choosingTrigger && actInfos ? (
-        <ChooseTrigger act={act} actInfos={actInfos} setActInfos={setActInfos} type={type} service={service} setAct={setAct}
+        <ChooseTrigger actInfos={actInfos} setActInfos={setActInfos} type={type} service={service} setAct={setAct}
           setChoosingTrigger={setChoosingTrigger} setIsChoosing={setIsChoosing} setService={setService} currentId={currentId} isEditing={isEditing} setIsEditing={setIsEditing}/>
       ) : (
         <div>
@@ -625,7 +622,6 @@ function ChooseService({ setIsChoosing, setAct, type, act,
 
 export default function Create() {
   const [currentId, setCurrentId] = useState<number>(1);
-  const [maxId, setMaxId] = useState<number>(1);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [choosingAction, setChoosingAction] = useState(false);
   const [choosingReaction, setChoosingReaction] = useState(false);
@@ -644,7 +640,6 @@ export default function Create() {
           setChoosingAction={setChoosingAction}
           setChoosingReaction={setChoosingReaction}
           aReaction={aReaction}
-          currentId={currentId}
           setCurrentId={setCurrentId}
           setIsEditing={setIsEditing}
         />
