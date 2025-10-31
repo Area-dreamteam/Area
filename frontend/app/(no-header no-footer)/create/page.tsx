@@ -437,7 +437,7 @@ function ChooseTrigger({ actInfos, service, type,
   }, [trigger]);
 
   return (
-    <div className="text-white w-screen h-screen" style={{ background: service.color }}>
+    <div className="text-white w-screen h-max" style={{ background: service.color }}>
         <div className="grid grid-cols-4 " >
             <LeftUpButton text="Back" act={(param: boolean | string) => setChoosingTrigger(param as boolean)} param={false} color="white" />
             <p className="mt-[5%] title inverted col-span-4 mb-[10%]">
@@ -446,7 +446,7 @@ function ChooseTrigger({ actInfos, service, type,
             <hr className="col-span-4 mb-[20px]" />
             <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto">
             {service.image_url && getImageUrl(service.image_url) != "" &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[100%] h-[100%]" />
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[150px] h-[150px] mx-auto" />
             }
             <p className="title inverted mb-[20px]">
                 {actInfos.name.replaceAll("_", " ")}
@@ -506,7 +506,7 @@ function ChooseAct({ service, setService, setAct, type, setIsChoosing,
             <hr className="col-span-4" />
             <div className="flex flex-col justify-center text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
               {service.image_url && getImageUrl(service.image_url) != "" &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[50%] h-[50%] block mx-auto" />
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="mt-[5%] rounded-xl w-[150px] h-[150px] block mx-auto" />
               }
               <p className="subtitle inverted mt-[10%]">{service.name}</p>
             </div>
