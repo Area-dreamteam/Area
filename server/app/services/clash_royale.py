@@ -130,7 +130,7 @@ class ClashRoyale(ServiceClass):
                     }
                     session.add(area_action)
                     session.commit()
-                    return True
+                    return False
 
                 last_battle_time_str = last_state.get("last_battle_time", "")
                 if latest_battle.battleTime != last_battle_time_str:
@@ -189,7 +189,7 @@ class ClashRoyale(ServiceClass):
                     }
                     session.add(area_action)
                     session.commit()
-                    return battle_result.is_victory
+                    return False
 
                 last_battle_time_str = last_state.get("last_battle_time", "")
                 if battle_result.battleTime != last_battle_time_str:
@@ -248,7 +248,7 @@ class ClashRoyale(ServiceClass):
                     }
                     session.add(area_action)
                     session.commit()
-                    return not battle_result.is_victory
+                    return False
 
                 last_battle_time_str = last_state.get("last_battle_time", "")
                 if battle_result.battleTime != last_battle_time_str:
@@ -307,7 +307,7 @@ class ClashRoyale(ServiceClass):
                     }
                     session.add(area_action)
                     session.commit()
-                    return battle_result.is_victory and battle_result.crowns_won == 3
+                    return False
 
                 last_battle_time_str = last_state.get("last_battle_time", "")
                 if battle_result.battleTime != last_battle_time_str:

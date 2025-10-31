@@ -169,17 +169,17 @@ class Gmail(ServiceClass):
 
         def __init__(self) -> None:
             config_schema = [
-                {"name": "to", "type": "input", "values": []},
-                {"name": "subject", "type": "input", "values": []},
-                {"name": "body", "type": "input", "values": []},
+                {"name": "To", "type": "input", "values": []},
+                {"name": "Subject", "type": "input", "values": []},
+                {"name": "Body", "type": "input", "values": []},
             ]
             super().__init__("Send email to recipient", config_schema)
 
         def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             token: str = get_user_service_token(session, user_id, self.service.name)
-            to = get_component(area_action.config, "to", "values")
-            subject = get_component(area_action.config, "subject", "values")
-            body = get_component(area_action.config, "body", "values")
+            to = get_component(area_action.config, "To", "values")
+            subject = get_component(area_action.config, "Subject", "values")
+            body = get_component(area_action.config, "Body", "values")
 
             try:
                 self.service._send_email(token, to, subject, body)

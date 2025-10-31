@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class Area(SQLModel, table=True):
     __tablename__ = "area"
     id: int = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id", ondelete="CASCADE")
     name: str
     description: Optional[str] = None
     enable: bool = Field(default=False)

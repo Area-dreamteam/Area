@@ -444,9 +444,9 @@ function ChooseTrigger({ actInfos, service, type,
             Complete trigger fields
             </p>
             <hr className="col-span-4 mb-[20px]" />
-            <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto">
+            <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto items-center">
             {service.image_url && getImageUrl(service.image_url) != "" &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[100%] h-[100%]" />
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl" />
             }
             <p className="title inverted mb-[20px]">
                 {actInfos.name.replaceAll("_", " ")}

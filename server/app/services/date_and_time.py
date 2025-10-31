@@ -9,7 +9,7 @@ class DateAndTime(Service):
         def __init__(self) -> None:
             config_schema = [
                 {
-                    "name": "select_interval",
+                    "name": "Select interval",
                     "type": "select",
                     "values": ["00", "15", "30", "45"],
                 },
@@ -25,24 +25,11 @@ class DateAndTime(Service):
         ) -> bool:
             current_time = datetime.now()
             selected_minute: int = int(
-                get_component(area_action.config, "select_interval", "values")
+                get_component(area_action.config, "Select interval", "values")
             )
             if selected_minute == current_time.minute:
                 return True
             return False
-
-    class reaction_debug(Reaction):
-        from models import AreaReaction
-        def __init__(self) -> None:
-            config_schema = []
-            super().__init__(
-                "Reacion debug.",
-                config_schema,
-            )
-
-        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
-            logger.debug("Reaction debug")
-            pass
 
     def __init__(self) -> None:
         super().__init__(

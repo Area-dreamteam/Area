@@ -18,4 +18,4 @@ class Service(SQLModel, table=True):
 
     actions: List["Action"] = Relationship(back_populates="service", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     reactions: List["Reaction"] = Relationship(back_populates="service", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
-    users: List["UserService"] = Relationship(back_populates="service")
+    users: List["UserService"] = Relationship(back_populates="service", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
