@@ -56,7 +56,7 @@ class _CreatePageState extends State<CreatePage> {
                     size: 30,
                   ),
                   const SizedBox(height: 20),
-                  _thenThatCard(context, viewModel),
+                  _thenThatSection(context, viewModel),
                   const SizedBox(height: 40),
                   _feedbackAndActionButton(context, viewModel),
                 ],
@@ -109,31 +109,49 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
 
-  Widget _thenThatCard(BuildContext context, CreateViewModel viewModel) {
-    final selectedReaction = viewModel.selectedReaction;
+  Widget _thenThatSection(BuildContext context, CreateViewModel viewModel) {
+    final selectedReactions = viewModel.selectedReactions;
 
-    return CreateCard(
-      title: 'Then That',
-      details: selectedReaction != null
-          ? CardDetails(
-              serviceName: selectedReaction.service.name,
-              actionName: selectedReaction.item.name,
-              imageUrl: selectedReaction.service.imageUrl,
-            )
-          : null,
-      onTap: () async {
-        final result = await Navigator.push<ConfiguredItem<dynamic>?>(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ChooseServicePage(type: 'reaction'),
-          ),
-        );
-        if (result != null && context.mounted) {
-          context.read<CreateViewModel>().selectReaction(
-            result as ConfiguredItem<Reaction>,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ...selectedReactions.map((reaction) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: CreateCard(
+              title: 'Then That',
+              details: CardDetails(
+                serviceName: reaction.service.name,
+                actionName: reaction.item.name,
+                imageUrl: reaction.service.imageUrl,
+              ),
+              onTap: () {
+              },
+              onRemove: () {
+                viewModel.removeReaction(reaction);
+              },
+            ),
           );
-        }
-      },
+        }),
+
+        CreateCard(
+          title: 'Then That',
+          details: null,
+          onTap: () async {
+            final result = await Navigator.push<ConfiguredItem<dynamic>?>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ChooseServicePage(type: 'reaction'),
+              ),
+            );
+            if (result != null && context.mounted) {
+              context.read<CreateViewModel>().addReaction(
+                result as ConfiguredItem<Reaction>,
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 

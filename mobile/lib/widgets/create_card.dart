@@ -17,12 +17,14 @@ class CreateCard extends StatelessWidget {
   final String title;
   final CardDetails? details;
   final VoidCallback onTap;
+  final VoidCallback? onRemove;
 
   const CreateCard({
     super.key,
     required this.title,
     required this.onTap,
     this.details,
+    this.onRemove,
   });
 
   @override
@@ -40,13 +42,27 @@ class CreateCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (details != null && onRemove != null)
+                  GestureDetector(
+                    onTap: onRemove,
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.redAccent,
+                      size: 24,
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 20),
             details == null

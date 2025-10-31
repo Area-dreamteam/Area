@@ -24,10 +24,10 @@ class CreateViewModel extends ChangeNotifier {
   final ServiceRepository _serviceRepository;
 
   CreateViewModel({required ServiceRepository serviceRepository})
-      : _serviceRepository = serviceRepository;
+    : _serviceRepository = serviceRepository;
 
   ConfiguredItem<ActionModel>? _selectedAction;
-  ConfiguredItem<Reaction>? _selectedReaction;
+  List<ConfiguredItem<Reaction>> _selectedReactions = [];
   String _name = '';
   String _description = '';
   String _errorMessage = '';
@@ -37,7 +37,7 @@ class CreateViewModel extends ChangeNotifier {
   int? _editingAppletId;
 
   ConfiguredItem<ActionModel>? get selectedAction => _selectedAction;
-  ConfiguredItem<Reaction>? get selectedReaction => _selectedReaction;
+  List<ConfiguredItem<Reaction>> get selectedReactions => _selectedReactions;
   String get name => _name;
   String get description => _description;
   CreateState get state => _state;
@@ -46,10 +46,12 @@ class CreateViewModel extends ChangeNotifier {
   bool get isEditing => _isEditing;
 
   bool get isActionAndReactionSelected =>
-      _selectedAction != null && _selectedReaction != null;
+      _selectedAction != null && _selectedReactions.isNotEmpty;
 
   bool get isReadyToCreateOrUpdate =>
-      _selectedAction != null && _selectedReaction != null && _name.isNotEmpty;
+      _selectedAction != null &&
+      _selectedReactions.isNotEmpty &&
+      _name.isNotEmpty;
 
   void setName(String name) {
     if (_name != name) {
@@ -70,66 +72,91 @@ class CreateViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectReaction(ConfiguredItem<Reaction> reaction) {
-    _selectedReaction = reaction;
+  void addReaction(ConfiguredItem<Reaction> reaction) {
+    _selectedReactions.add(reaction);
     notifyListeners();
+  }
+
+  void removeReaction(ConfiguredItem<Reaction> reaction) {
+    _selectedReactions.remove(reaction);
+    notifyListeners();
+  }
+
+  List<dynamic> _decodeConfig(String? configJson) {
+    if (configJson != null && configJson.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(configJson);
+        if (decoded is List) {
+          return decoded;
+        }
+      } catch (e) {
+        print("Erreur décodage config: $e");
+      }
+    }
+    return [];
   }
 
   Future<bool> startEditing(AppletModel appletToEdit) async {
     _setState(CreateState.loading);
     try {
       if (appletToEdit.actionId == null ||
-          appletToEdit.reactionId == null ||
-          appletToEdit.triggerService == null ||
-          appletToEdit.reactionServices.isEmpty) {
+          appletToEdit.reactions.isEmpty ||
+          appletToEdit.triggerService == null) {
         throw Exception("Données Applet incomplètes pour l'édition.");
       }
 
-      final actionDetailsFuture = _serviceRepository.fetchActionDetails(appletToEdit.actionId!);
-      final reactionDetailsFuture = _serviceRepository.fetchReactionDetails(appletToEdit.reactionId!);
-      final triggerServiceFuture = _serviceRepository.fetchServiceDetails(appletToEdit.triggerService!.id);
-      final reactionServiceFuture = _serviceRepository.fetchServiceDetails(appletToEdit.reactionServices.first.id);
+      final actionDetailsFuture = _serviceRepository.fetchActionDetails(
+        appletToEdit.actionId!,
+      );
+      final triggerServiceFuture = _serviceRepository.fetchServiceDetails(
+        appletToEdit.triggerService!.id,
+      );
 
-      final results = await Future.wait([
-        actionDetailsFuture,
-        reactionDetailsFuture,
-        triggerServiceFuture,
-        reactionServiceFuture,
-      ]);
+      List<Future<Reaction>> reactionDetailsFutures = [];
+      List<Future<Service>> reactionServiceFutures = [];
 
-      final actionModel = results[0] as ActionModel;
-      final reactionModel = results[1] as Reaction;
-      final triggerServiceDetails = results[2] as Service;
-      final reactionServiceDetails = results[3] as Service;
-
-      List<dynamic> actionConfig = [];
-      if (appletToEdit.actionConfigJson != null && appletToEdit.actionConfigJson!.isNotEmpty) {
-        try { actionConfig = jsonDecode(appletToEdit.actionConfigJson!); } catch (e) { print("Erreur décodage config action: $e"); /* Config reste vide */ }
+      for (var reactionInfo in appletToEdit.reactions) {
+        reactionDetailsFutures.add(
+          _serviceRepository.fetchReactionDetails(reactionInfo.id),
+        );
+        reactionServiceFutures.add(
+          _serviceRepository.fetchServiceDetails(reactionInfo.service.id),
+        );
       }
-      List<dynamic> reactionConfig = [];
-      if (appletToEdit.reactionConfigJson != null && appletToEdit.reactionConfigJson!.isNotEmpty) {
-        try { reactionConfig = jsonDecode(appletToEdit.reactionConfigJson!); } catch (e) { print("Erreur décodage config réaction: $e"); /* Config reste vide */ }
-      }
+
+      final actionDetails = await actionDetailsFuture;
+      final triggerServiceDetails = await triggerServiceFuture;
+      final reactionModels = await Future.wait(reactionDetailsFutures);
+      final reactionServiceDetailsList = await Future.wait(
+        reactionServiceFutures,
+      );
 
       _isEditing = true;
       _editingAppletId = appletToEdit.id;
       _name = appletToEdit.name;
       _description = appletToEdit.description ?? '';
+
       _selectedAction = ConfiguredItem<ActionModel>(
         service: triggerServiceDetails,
-        item: actionModel,
-        config: actionConfig,
+        item: actionDetails,
+        config: _decodeConfig(appletToEdit.actionConfigJson),
       );
-      _selectedReaction = ConfiguredItem<Reaction>(
-        service: reactionServiceDetails,
-        item: reactionModel,
-        config: reactionConfig,
-      );
+
+      _selectedReactions = [];
+      for (int i = 0; i < appletToEdit.reactions.length; i++) {
+        final reactionInfo = appletToEdit.reactions[i];
+        _selectedReactions.add(
+          ConfiguredItem<Reaction>(
+            service: reactionServiceDetailsList[i],
+            item: reactionModels[i],
+            config: _decodeConfig(reactionInfo.configJson),
+          ),
+        );
+      }
 
       _setState(CreateState.nothing);
       notifyListeners();
       return true;
-
     } catch (e) {
       _errorMessage = "Erreur préparation édition: $e";
       _setState(CreateState.error);
@@ -139,15 +166,20 @@ class CreateViewModel extends ChangeNotifier {
       return false;
     }
   }
+
   Future<bool> saveApplet() async {
     if (!isReadyToCreateOrUpdate) {
-      _errorMessage = 'Veuillez sélectionner une action, une réaction et donner un nom.';
+      _errorMessage =
+          'Choose one action and at least one reactions.';
       _setState(CreateState.error);
       return false;
     }
     _setState(CreateState.loading);
-
     try {
+      final reactionsPayload = _selectedReactions
+          .map((item) => {'reaction_id': item.item.id, 'config': item.config})
+          .toList();
+
       if (_isEditing && _editingAppletId != null) {
         await _serviceRepository.updateArea(
           areaId: _editingAppletId!,
@@ -155,25 +187,21 @@ class CreateViewModel extends ChangeNotifier {
           description: _description,
           actionId: _selectedAction!.item.id,
           actionConfig: _selectedAction!.config,
-          reactionId: _selectedReaction!.item.id,
-          reactionConfig: _selectedReaction!.config,
+          reactions: reactionsPayload,
         );
-      }
-      else {
+      } else {
         await _serviceRepository.createApplet(
           name: _name,
           description: _description,
           actionId: _selectedAction!.item.id,
           actionConfig: _selectedAction!.config,
-          reactionId: _selectedReaction!.item.id,
-          reactionConfig: _selectedReaction!.config,
+          reactions: reactionsPayload,
         );
       }
 
       _setState(CreateState.success);
       clearSelection();
       return true;
-
     } catch (e) {
       _errorMessage = 'Erreur sauvegarde Applet: $e';
       _setState(CreateState.error);
@@ -183,7 +211,7 @@ class CreateViewModel extends ChangeNotifier {
 
   void clearSelection() {
     _selectedAction = null;
-    _selectedReaction = null;
+    _selectedReactions = [];
     _name = '';
     _description = '';
     _isEditing = false;
