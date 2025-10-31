@@ -1,5 +1,3 @@
-// ignore_for_file: empty_catches, avoid_print
-
 import 'package:app_links/app_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

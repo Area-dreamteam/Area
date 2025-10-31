@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/models/service_info_model.dart';

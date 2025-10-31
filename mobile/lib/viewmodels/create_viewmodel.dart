@@ -102,7 +102,7 @@ class CreateViewModel extends ChangeNotifier {
       if (appletToEdit.actionId == null ||
           appletToEdit.reactions.isEmpty ||
           appletToEdit.triggerService == null) {
-        throw Exception("Données Applet incomplètes pour l'édition.");
+        throw Exception("Missing information for edit.");
       }
 
       final actionDetailsFuture = _serviceRepository.fetchActionDetails(
@@ -158,7 +158,7 @@ class CreateViewModel extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = "Erreur préparation édition: $e";
+      _errorMessage = "Error edition: $e";
       _setState(CreateState.error);
       _isEditing = false;
       _editingAppletId = null;
@@ -203,7 +203,7 @@ class CreateViewModel extends ChangeNotifier {
       clearSelection();
       return true;
     } catch (e) {
-      _errorMessage = 'Erreur sauvegarde Applet: $e';
+      _errorMessage = 'Error save Applet: $e';
       _setState(CreateState.error);
       return false;
     }

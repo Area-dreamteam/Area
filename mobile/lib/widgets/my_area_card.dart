@@ -27,7 +27,6 @@ class MyAreaCard extends StatelessWidget {
       opacity: applet.isEnabled ? 1.0 : 0.65,
       child: Material(
         borderRadius: BorderRadius.circular(14),
-        elevation: applet.isEnabled ? 4 : 1,
         color: cardBackgroundColor,
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
@@ -76,7 +75,7 @@ class MyAreaCard extends StatelessWidget {
                         onChanged: onToggleEnabled,
                         activeThumbColor: Colors.white,
                         inactiveTrackColor: Colors.black,
-                        inactiveThumbColor: Colors.grey.shade400,
+                        inactiveThumbColor: Colors.grey.shade500,
                       ),
                     ],
                   ),
