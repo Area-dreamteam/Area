@@ -101,7 +101,7 @@ export default function ServicePage({ params }: ServiceProp) {
               <BackButton dir={'/explore'} />
             </div>
             <div className="col-span-2 flex flex-col items-center justify-center text-[35px] font-bold text-center">
-              {myService.image_url && (
+              {myService.image_url && getImageUrl(myService.image_url) != "" && (
                 <Image
                   alt="myService's image"
                   src={getImageUrl(myService.image_url)}

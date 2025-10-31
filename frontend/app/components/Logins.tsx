@@ -116,7 +116,7 @@ export default function Logins({ isRegister }: LoginProps) {
                   }}
                   className="rounded-button inverted border-1 mt-[2%] flex items-center justify-center gap-2"
                 >
-                  {log.image_url && (
+                  {log.image_url && getImageUrl(log.image_url) != "" && (
                     <Image
                       src={getImageUrl(log.image_url)}
                       alt={`${log.name} icon`}
