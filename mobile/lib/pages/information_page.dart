@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/models/service_info_model.dart';
@@ -12,6 +10,7 @@ import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:mobile/widgets/card.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/pages/my_area.dart'; 
 
 class InformationPage extends StatefulWidget {
   final ExploreItem item;
@@ -30,7 +29,8 @@ class _InformationPageState extends State<InformationPage>
 
   bool _isLoading = true;
   Service? _detailedService;
-  bool _isConnected = false;
+  bool _isConnected = false;  
+  bool _isCopying = false;
 
   @override
   void initState() {
@@ -84,15 +84,12 @@ class _InformationPageState extends State<InformationPage>
   Future<void> _loadServiceData() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
-
     try {
       final repo = context.read<ServiceRepository>();
-
       final results = await Future.wait([
         repo.fetchServiceDetails(_serviceId),
         repo.isServiceConnected(_serviceId),
       ]);
-
       if (mounted) {
         setState(() {
           _detailedService = results[0] as Service;
@@ -115,14 +112,11 @@ class _InformationPageState extends State<InformationPage>
 
   Future<void> _linkService() async {
     if (_detailedService == null) return;
-
     final oauthService = context.read<OAuthService>();
     final serviceName = _detailedService!.name;
-
     setState(() => _isLoading = true);
     try {
       final result = await oauthService.linkWithOAuth(serviceName);
-
       if (result.isSuccess && mounted) {
         final repo = context.read<ServiceRepository>();
         final status = await repo.isServiceConnected(_serviceId);
@@ -146,6 +140,44 @@ class _InformationPageState extends State<InformationPage>
     }
   }
 
+  Future<void> _copyApplet() async {
+    if (_isCopying) return;
+    
+    setState(() => _isCopying = true);
+    
+    final applet = widget.item.data as AppletModel;
+    final repo = context.read<ServiceRepository>();
+
+    try {
+      await repo.copyPublicArea(applet.id);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Applet copied to your Private Areas!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MyAreaPage()),
+        (Route<dynamic> route) => false,
+      );
+
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isCopying = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to copy Applet: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final bool isApplet = widget.item.type == 'Applet';
@@ -165,7 +197,6 @@ class _InformationPageState extends State<InformationPage>
 
   Widget _buildServiceLayout(BuildContext context, Color color) {
     final service = widget.item.data as Service;
-
     return Container(
       color: color,
       child: Column(
@@ -177,7 +208,11 @@ class _InformationPageState extends State<InformationPage>
             ),
             child: Column(
               children: [
-                getServiceIcon(service.name, size: 60.0, imageUrl: service.imageUrl),
+                getServiceIcon(
+                  service.name,
+                  size: 60.0,
+                  imageUrl: service.imageUrl,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   service.name,
@@ -198,7 +233,6 @@ class _InformationPageState extends State<InformationPage>
                   ),
                 ),
                 const SizedBox(height: 24),
-
                 if (_isLoading)
                   const SizedBox(
                     height: 50,
@@ -267,12 +301,12 @@ class _InformationPageState extends State<InformationPage>
                 borderRadius: BorderRadius.circular(15),
               ),
               child: triggerService != null
-                  ? getServiceIcon(triggerService.name, size: 40.0, imageUrl: triggerService.imageUrl)
+                  ? getServiceIcon(
+                      triggerService.name,
+                      size: 40.0,
+                      imageUrl: triggerService.imageUrl,
+                    )
                   : const Icon(Icons.apps, color: Colors.white, size: 40),
-            ),
-            IconButton(
-              icon: const Icon(Icons.ios_share, color: Colors.white),
-              onPressed: () {},
             ),
           ],
         ),
@@ -289,7 +323,11 @@ class _InformationPageState extends State<InformationPage>
         if (triggerService != null)
           Row(
             children: [
-              getServiceIcon(triggerService.name, size: 30.0, imageUrl: triggerService.imageUrl),
+              getServiceIcon(
+                triggerService.name,
+                size: 30.0,
+                imageUrl: triggerService.imageUrl,
+              ),
               const SizedBox(width: 10),
               Text(
                 triggerService.name,
@@ -322,6 +360,15 @@ class _InformationPageState extends State<InformationPage>
         else
           const SizedBox.shrink(),
         const SizedBox(height: 30),
+
+        _buildActionButton(
+          text: 'Get this Applet',
+          icon: Icons.download_for_offline_outlined,
+          onPressed: _copyApplet,
+          isLoading: _isCopying,
+        ),
+        const SizedBox(height: 30),
+
         const Text(
           "Description",
           style: TextStyle(
@@ -350,9 +397,7 @@ class _InformationPageState extends State<InformationPage>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-
         final applets = snapshot.data ?? [];
-
         if (applets.isEmpty) {
           return const Center(
             child: Text(
@@ -361,7 +406,6 @@ class _InformationPageState extends State<InformationPage>
             ),
           );
         }
-
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: applets.length,
@@ -373,7 +417,6 @@ class _InformationPageState extends State<InformationPage>
                 title: applet.name,
                 byText: 'By ${applet.user.name}',
                 colorHex: applet.color,
-                icon: Icons.public,
               ),
             );
           },
@@ -388,9 +431,7 @@ class _InformationPageState extends State<InformationPage>
         if (viewModel.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
-
-        final myAppletsForThisService = viewModel.applets;
-
+        final myAppletsForThisService = viewModel.privateApplets;
         if (myAppletsForThisService.isEmpty) {
           return const Center(
             child: Text(
@@ -399,7 +440,6 @@ class _InformationPageState extends State<InformationPage>
             ),
           );
         }
-
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: myAppletsForThisService.length,
@@ -411,7 +451,6 @@ class _InformationPageState extends State<InformationPage>
                 title: applet.name,
                 byText: 'By ${applet.user.name}',
                 colorHex: applet.color,
-                icon: Icons.electrical_services_outlined,
               ),
             );
           },
@@ -420,8 +459,10 @@ class _InformationPageState extends State<InformationPage>
     );
   }
 
-  Widget _buildConnectButton(
-      {required bool showIcon, ServiceInfo? serviceInfo}) {
+  Widget _buildConnectButton({
+    required bool showIcon,
+    ServiceInfo? serviceInfo,
+  }) {
     if (_isLoading) {
       return ElevatedButton(
         onPressed: null,
@@ -439,7 +480,6 @@ class _InformationPageState extends State<InformationPage>
         ),
       );
     }
-
     if (_isConnected) {
       return ElevatedButton(
         onPressed: null,
@@ -464,7 +504,6 @@ class _InformationPageState extends State<InformationPage>
         ),
       );
     }
-
     return ElevatedButton(
       onPressed: _linkService,
       style: ElevatedButton.styleFrom(
@@ -479,7 +518,11 @@ class _InformationPageState extends State<InformationPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (showIcon && serviceInfo != null) ...[
-            getServiceIcon(serviceInfo.name, size: 24.0, imageUrl: serviceInfo.imageUrl),
+            getServiceIcon(
+              serviceInfo.name,
+              size: 24.0,
+              imageUrl: serviceInfo.imageUrl,
+            ),
             const SizedBox(width: 12),
           ] else if (showIcon) ...[
             const CircleAvatar(backgroundColor: Colors.blue, radius: 12),
@@ -490,6 +533,44 @@ class _InformationPageState extends State<InformationPage>
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+    Color backgroundColor = Colors.white,
+    Color foregroundColor = Colors.black,
+    bool isLoading = false,
+  }) {
+    return ElevatedButton.icon(
+      icon: isLoading
+          ? const SizedBox.shrink()
+          : Icon(icon, size: 20),
+      label: isLoading
+          ? SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                color: foregroundColor,
+                strokeWidth: 3,
+              ),
+            )
+          : Text(
+              text,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+      onPressed: isLoading ? null : onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        elevation: 2,
       ),
     );
   }
