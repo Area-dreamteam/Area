@@ -234,7 +234,6 @@ class Strava(ServiceClass):
             return True
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
 
     def _is_token_valid(self, token: str) -> bool:

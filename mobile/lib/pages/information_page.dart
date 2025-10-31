@@ -31,7 +31,6 @@ class _InformationPageState extends State<InformationPage>
   bool _isLoading = true;
   Service? _detailedService;
   bool _isConnected = false;
-  // ---
 
   @override
   void initState() {
@@ -179,7 +178,6 @@ class _InformationPageState extends State<InformationPage>
             child: Column(
               children: [
                 getServiceIcon(service.name, size: 60.0, imageUrl: service.imageUrl),
-                // ---
                 const SizedBox(height: 16),
                 Text(
                   service.name,
@@ -270,7 +268,6 @@ class _InformationPageState extends State<InformationPage>
               ),
               child: triggerService != null
                   ? getServiceIcon(triggerService.name, size: 40.0, imageUrl: triggerService.imageUrl)
-                  // ---
                   : const Icon(Icons.apps, color: Colors.white, size: 40),
             ),
             IconButton(
@@ -293,7 +290,6 @@ class _InformationPageState extends State<InformationPage>
           Row(
             children: [
               getServiceIcon(triggerService.name, size: 30.0, imageUrl: triggerService.imageUrl),
-              // ---
               const SizedBox(width: 10),
               Text(
                 triggerService.name,
@@ -325,7 +321,6 @@ class _InformationPageState extends State<InformationPage>
           _buildConnectButton(showIcon: true, serviceInfo: triggerService)
         else
           const SizedBox.shrink(),
-        // ---
         const SizedBox(height: 30),
         const Text(
           "Description",

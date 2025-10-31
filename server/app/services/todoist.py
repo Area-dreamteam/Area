@@ -171,9 +171,6 @@ class Todoist(ServiceClass):
         tasks = self._get_tasks(token, project_name)
 
         tasks_id = set(task.task_id for task in tasks)
-        # tasks_id -= set(task.task_id for task in user_data["last_state"])
-
-        # user_data["last_state"] = self._get_tasks(token)
 
         return tasks_id
 
@@ -236,7 +233,6 @@ class Todoist(ServiceClass):
 
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
 
     def oauth_link(self, state: str = None) -> str:

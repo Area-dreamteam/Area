@@ -1,10 +1,3 @@
-/*
- ** EPITECH PROJECT, 2025
- ** Area_Mirroring
- ** File description:
- ** Navbar
- */
-
 'use client'
 
 import {
@@ -19,7 +12,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  // DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { redirect } from 'next/navigation'
@@ -37,7 +29,6 @@ export default function NavigationBar() {
   )
 }
 
-//<DropdownMenuShortcut>User#84395</DropdownMenuShortcut> mock data
 function ProfileDropdown() {
   return (
     <div className="overflow-hidden rounded-full">

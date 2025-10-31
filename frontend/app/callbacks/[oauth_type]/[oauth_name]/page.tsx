@@ -25,12 +25,10 @@ export default function Page({ params }: CallbackProps) {
         return
       }
 
-      // Add state parameter if present
       if (state) {
         url += `&state=${state}`
       }
 
-      // For mobile flows, close the tab after a brief delay
       if (state === 'mobile') {
         setTimeout(() => {
           window.close()

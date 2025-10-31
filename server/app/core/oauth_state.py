@@ -11,11 +11,9 @@ from typing import Dict, Optional, Tuple
 from threading import Lock
 from core.logger import logger
 
-# In-memory state storage: state_token -> (user_id, expiry_timestamp, is_mobile)
 _oauth_states: Dict[str, Tuple[int, float, bool]] = {}
 _state_lock = Lock()
 
-# State tokens expire after 10 minutes
 STATE_EXPIRY_SECONDS = 600
 
 
@@ -57,10 +55,8 @@ def get_user_from_state(state: str) -> Optional[Tuple[int, bool]]:
 
         user_id, expiry, is_mobile = _oauth_states[state]
 
-        # Remove the state (single-use)
         del _oauth_states[state]
 
-        # Check if expired
         if time.time() > expiry:
             logger.debug(f"State expired: {state}")
             return None

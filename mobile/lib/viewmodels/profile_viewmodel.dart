@@ -39,7 +39,6 @@ class ProfileViewModel extends ChangeNotifier {
     }
     _setState(ProfileState.loading);
     try {
-      // Check if there's a pending OAuth link success from app restart
       final pendingLinkService = await _oauthService.checkPendingLinkSuccess();
       if (pendingLinkService != null) {
         print('Found pending OAuth link success for: $pendingLinkService');

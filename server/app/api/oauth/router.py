@@ -104,8 +104,6 @@ def login_index(service: str, mobile: bool = False):
             detail=f"{service} service not found",
         )
 
-    # Generate state token and store mobile flag
-    # Use user_id=-1 as special marker for login flows (no authenticated user yet)
     state = generate_state()
     store_oauth_state(state, user_id=-1, is_mobile=mobile)
     logger.debug(
@@ -181,8 +179,6 @@ def login_oauth_token(
     state: Optional[str] = None,
     mobile: bool = False,
 ):
-    # For login flows, retrieve mobile flag from state
-    # The user parameter may be None since this is a login flow
     is_mobile = mobile
 
     if state:

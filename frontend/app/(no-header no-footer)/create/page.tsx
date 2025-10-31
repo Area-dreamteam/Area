@@ -36,8 +36,6 @@ import {
 import { fetchIsConnected } from '@/app/functions/fetch'
 import { Checkbox } from '@/components/ui/checkbox'
 
-//-- Buttons --//
-
 interface ChoiceButtonProp {
   setIsChoosing: (data: boolean) => void
   setChosen: (arg: Act | null) => void
@@ -128,8 +126,6 @@ interface CreationProp {
   setChoosingReaction: (data: boolean) => void
 }
 
-//-- Send form --//
-
 function createApplet(
   action: Act,
   reaction: Act,
@@ -140,8 +136,6 @@ function createApplet(
   fetchCreateApplet(action, reaction, title, actConfig, reactConfig)
   redirect('/my_applets')
 }
-
-//-- Creation page --//
 
 function Creation({
   action,
@@ -248,8 +242,6 @@ function Creation({
     </div>
   )
 }
-
-//-- Affichage des triggers --//
 
 interface SelectElementProp {
   content: string[]
@@ -416,8 +408,6 @@ function DisplayAllTrigger({
   })
 }
 
-//-- Choosing the trigger --//
-
 interface chooseTriggerProp {
   act: Act
   type: string
@@ -568,8 +558,6 @@ function ChooseTrigger({
   )
 }
 
-//-- Selectiong the action --//
-
 function selectAct(
   setChoosingTrigger: (param: boolean) => void,
   setAction: (param: Act | null) => void,
@@ -578,8 +566,6 @@ function selectAct(
   setChoosingTrigger(true)
   setAction(act)
 }
-
-//-- Choosing the action --//
 
 interface ActionPageProp extends ChooseActProp {
   type: string
@@ -678,8 +664,6 @@ function ChooseAct({
   )
 }
 
-//-- Choosing the service --//
-
 interface ChooseActProp {
   type: string
   act: Act | null
@@ -707,7 +691,6 @@ function ChooseService({
   )
   const [serviceConnected, setServiceConnected] = useState<boolean>(false)
   const [checkedConnection, setCheckedConnection] = useState<boolean>(false)
-  // const { user } = useAuth();
 
   useEffect(() => {
     fetchServices(setServices)
@@ -787,8 +770,6 @@ function ChooseService({
     </div>
   )
 }
-
-//-- Main page choosing which page to display --//
 
 export default function Create() {
   const [action, setAction] = useState<Act | null>(null)

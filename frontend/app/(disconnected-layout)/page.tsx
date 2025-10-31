@@ -11,7 +11,6 @@ import { redirect } from 'next/navigation'
 
 function RecommandedApplets() {
   return <div></div>
-  // I'll put the applets later, now i'm focusing on the login and register
 }
 
 export default function Home() {

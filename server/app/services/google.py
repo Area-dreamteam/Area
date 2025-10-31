@@ -211,25 +211,7 @@ class Gmail(ServiceClass):
             return True
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
-
-    # def _refresh_token(self, refresh_token: str) -> GoogleOAuthTokenRes:
-    #     """Refresh Google OAuth token using refresh_token."""
-    #     base_url = "https://oauth2.googleapis.com/token"
-    #     params = {
-    #         "client_id": settings.GOOGLE_CLIENT_ID,
-    #         "client_secret": settings.GOOGLE_CLIENT_SECRET,
-    #         "refresh_token": refresh_token,
-    #         "grant_type": "refresh_token",
-    #     }
-    #     r = requests.post(base_url, data=params)
-    #     if r.status_code != 200:
-    #         raise GoogleApiError("Failed to refresh Google access token")
-    #     try:
-    #         return GoogleOAuthTokenRes(**r.json())
-    #     except ValidationError:
-    #         raise GoogleApiError("Invalid Google refresh token response")
 
     def _is_token_valid(self, token: str) -> bool:
         try:

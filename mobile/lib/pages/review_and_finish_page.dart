@@ -40,7 +40,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   @override
   void dispose() {
     _nameController.dispose();
-    _descriptionController.dispose(); // C'est bien ici
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -67,7 +67,6 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 _buildLogos(viewModel),
                 const SizedBox(height: 40),
 
-                // --- CHAMP TITRE ---
                 const Text(
                   'Applet title',
                   style: TextStyle(

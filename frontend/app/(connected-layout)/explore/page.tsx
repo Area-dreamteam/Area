@@ -49,7 +49,6 @@ interface FilterProp {
 }
 
 function Filter({ services, filter, setFilter }: FilterProp) {
-  // const dropdownTitles = (services? services.map(service => service.category) : ""); // to ensure there's no doublons. Need to complete by searching how to get doubles off
   const dropdownFilters = services
     ? services.map((service) => {
         return customDropdown(
