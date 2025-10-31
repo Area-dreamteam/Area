@@ -110,6 +110,9 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
             _buildSaveButton(viewModel),
             const SizedBox(height: 40),
             _buildLogoutButton(context),
+            const SizedBox(height: 40),
+            _buildDeleteButton(context, viewModel),
+            const SizedBox(height: 40),
           ],
         ),
         if (viewModel.state == ProfileState.saving)
@@ -313,6 +316,76 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
               'Save',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+    );
+  }
+
+  Widget _buildDeleteButton(BuildContext context, ProfileViewModel viewmodels) {
+    return TextButton(
+      onPressed: () async {
+        final bool? confirm = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              backgroundColor: Color(0xFF212121),
+              title: const Text(
+                "Confirm to delete account",
+                style: TextStyle(color: Colors.white),
+              ),
+              content: const Text(
+                "Are you sure to delete your account ?",
+                style: TextStyle(color: Colors.white),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext, false);
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.blueAccent),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext, true);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.redAccent,
+                  ),
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        );
+        if (confirm == true && context.mounted) {
+          final authRepository = context.read<AuthRepository>();
+          final navigator = Navigator.of(context);
+          final scaffoldMessenger = ScaffoldMessenger.of(context);
+          try {
+            await authRepository.deleteProfile(viewmodels.currentUser!.id);
+            if (mounted) {
+              navigator.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const MainPageApp()),
+                (Route<dynamic> route) => false,
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  content: Text("Account delete failed: $e"),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        }
+      },
+      child: const Text(
+        "Delete Account",
+        style: TextStyle(color: Colors.red, fontSize: 20),
+      ),
     );
   }
 

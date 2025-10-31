@@ -67,6 +67,10 @@ class AuthRepository {
     await _apiService.logout();
   }
 
+  Future<void> deleteProfile(int userId) async {
+    await _apiService.deleteUser(userId);
+  }
+
   String _handleDioError(DioException e, String defaultMessage) {
     if (e.response != null &&
         e.response?.data is String &&

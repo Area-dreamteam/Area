@@ -158,8 +158,8 @@ Future<Response> getAreaDetails(int areaId) {
     return _dio.get('/users/areas/public');
   }
 
-  Future<Response> deleteUser() {
-    return _dio.delete('/users/me');
+  Future<Response> deleteUser(int userId) {
+    return _dio.delete('/users/$userId');
   }
 
   Future<Response> updateCurrentUser({String? name, String? email}) {

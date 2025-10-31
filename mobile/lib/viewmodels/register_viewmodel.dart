@@ -27,8 +27,18 @@ class RegisterViewModel extends ChangeNotifier {
     );
 
     if (error == null) {
-      _setState(RegisterState.success);
-      return true;
+      final loginError = await _authRepository.loginWithEmailPassword(
+        email,
+        password,
+      );
+      if (loginError == null) {
+        _setState(RegisterState.success);
+        return true;
+      } else {
+        _errorMessage = "Account created but error to login";
+        _setState(RegisterState.error);
+        return false;
+      }
     } else {
       _errorMessage = error;
       _setState(RegisterState.error);
