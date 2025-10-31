@@ -31,9 +31,7 @@ export default function AppletPage({ params }: AppletProp) {
   const slug = decodeURIComponent(use(params).slug)
   const [loading, setLoading] = useState(true)
   const [applets, setApplets] = useState<PublicApplet[] | null>(null)
-  const [currApplet, setCurrApplet] = useState<PublicApplet | undefined>(
-    undefined
-  )
+  const [currApplet, setCurrApplet] = useState<PublicApplet | undefined>(undefined)
   const [applet, setApplet] = useState<SpecificPublicApplet | null>(null)
 
   useEffect(() => {

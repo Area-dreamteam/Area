@@ -19,6 +19,7 @@ function Footer() {
           <Link href="/services">Services</Link>
           <Link href="/applets">Applets</Link>
           <Link href="/help">Help center</Link>
+          <Link href="/client.apk">Client apk</Link>
         </div>
       </div>
       <p className="pb-[25px] centered">
