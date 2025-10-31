@@ -4,6 +4,7 @@ Provides task completion triggers and task creation reactions.
 Supports OAuth authentication and project-based task management.
 """
 
+from typing import Dict, Any
 from services.oauth_lib import oauth_add_link
 from models.areas import AreaAction, AreaReaction
 from services.services_classes import (
