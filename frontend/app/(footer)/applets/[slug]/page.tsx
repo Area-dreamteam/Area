@@ -36,26 +36,31 @@ export default function AppletPage({ params }: AppletProp) {
 
   useEffect(() => {
     const loadApplets = async () => {
-      await fetchApplets(setApplets)
+      await fetchApplets(setApplets);
+      console.log(applets);
     }
-    loadApplets()
+    loadApplets();
   }, [])
 
   useEffect(() => {
     if (applets != null) {
+      console.log(applets)
       const searched = applets.find(
         (applet) => applet.name.toLowerCase() == slug.toLowerCase()
       )
-      setCurrApplet(searched)
+      setCurrApplet(searched);
     }
   }, [applets])
 
   useEffect(() => {
-    if (currApplet) fetchSpecificApplet(setApplet, currApplet.id)
+    console.log(applets);
+    if (currApplet)
+      fetchSpecificApplet(setApplet, currApplet.id)
   }, [currApplet])
 
   useEffect(() => {
-    if (applet != null) setLoading(false)
+    console.log(currApplet);
+    setLoading(false);
   }, [applet])
 
   return (
@@ -81,6 +86,7 @@ export default function AppletPage({ params }: AppletProp) {
                 {applet.area_info.description}
               </p>
               <button
+
                 className="my-[35%] little-rounded-button centered w-[60%]"
                 onClick={() => copyApplet(applet.area_info.id)}
               >

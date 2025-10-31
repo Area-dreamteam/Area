@@ -227,18 +227,21 @@ export async function fetchApplets(
 ) {
   try {
     const res = await Calls.get('/areas/public')
-
     if (res.status != 200) {
-      setApplets(null)
-      return false
+      console.log("failed")
+      // setApplets(null);
+      return false;
     }
+    console.log(res.data)
     setApplets(res.data)
-    return true
+    console.log(res.data)
+    return true;
   } catch (err) {
     console.log('Error: ', err)
   }
-  setApplets(null)
-  return false
+  console.log("failed")
+  // setApplets(null);
+  return false;
 }
 
 export async function fetchSpecificApplet(
@@ -451,7 +454,7 @@ export async function fetchCreateApplet(
       name: title.replaceAll('_', ' '),
       description: '[description]',
       action: {
-        action_id: action.id,
+        action_id: action.act.id,
         config: action.config,
       },
       reactions: reactions.map((reaction) => ({

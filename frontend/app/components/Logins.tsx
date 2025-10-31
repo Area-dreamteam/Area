@@ -87,14 +87,6 @@ export default function Logins({ isRegister }: LoginProps) {
             )}
           </Alert>
         )}
-        {!isRegister && (
-          <Link
-            href="/passwords/forgot"
-            className="centered simple-text activate-link sm:mt-4 mt-2"
-          >
-            Forgot your password ?
-          </Link>
-        )}
         <div className="centered">
           <button className="rounded-button inverted m-[5%]" type="submit">
             {isRegister ? 'Get started' : 'Log in'}

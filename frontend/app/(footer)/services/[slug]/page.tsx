@@ -138,7 +138,7 @@ export default function ServicePage({ params }: ServiceProp) {
               className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto"
               onClick={() => disconnectOauth(myService.id, setReload, reload)}
             >
-              Disconnect
+              Disconnect to {myService.name}
             </button>
           ) : null}
         </div>

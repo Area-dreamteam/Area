@@ -62,7 +62,9 @@ function Filter({ services, filter, setFilter }: FilterProp) {
 
   return (
     <div className="centered">
-      <DropdownMenu>
+      <DropdownMenu
+        aria-label="You can filter according to the type of service you're looking for"
+      >
         <DropdownMenuTrigger asChild>
           <Button className="ring-[2px] ring-black bg-white text-black text-[15px] hover:bg-white font-bold">
             {filter ? filter : 'All services'}
@@ -147,6 +149,7 @@ export default function Explore() {
       </div>
       <br />
       <Input
+        aria-label="You can search by name"
         className="mx-auto block w-[400px]"
         placeholder="Search Applets or Services"
         onChange={(e) => setSearched(e.target.value)}
