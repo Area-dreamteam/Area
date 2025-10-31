@@ -123,12 +123,11 @@ class MyAppletViewModel extends ChangeNotifier {
       color: applet.color,
       triggerService: applet.triggerService,
       reactionServices: applet.reactionServices,
+      reactions: applet.reactions,
       isEnabled: isEnabled ?? applet.isEnabled,
       isPublic: isPublic ?? applet.isPublic,
       actionId: applet.actionId,
       actionConfigJson: applet.actionConfigJson,
-      reactionId: applet.reactionId,
-      reactionConfigJson: applet.reactionConfigJson,
     );
   }
 }

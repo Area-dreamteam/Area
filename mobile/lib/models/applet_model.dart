@@ -19,14 +19,16 @@ String? _getConfigJson(dynamic configData) {
   return null;
 }
 
-int? _getFirstReactionId(List<dynamic>? reactions) {
-  if (reactions == null || reactions.isEmpty) return null;
-  return (reactions.first?['id'] ?? reactions.first?['reaction_id']) as int?;
-}
+class AppletReactionInfo {
+  final int id;
+  final String? configJson;
+  final ServiceInfo service;
 
-String? _getFirstReactionConfig(List<dynamic>? reactions) {
-  if (reactions == null || reactions.isEmpty) return null;
-  return _getConfigJson(reactions.first?['config']);
+  AppletReactionInfo({
+    required this.id,
+    this.configJson,
+    required this.service,
+  });
 }
 
 class AppletModel {
@@ -38,13 +40,12 @@ class AppletModel {
 
   final ServiceInfo? triggerService;
   final List<ServiceInfo> reactionServices;
+  final List<AppletReactionInfo> reactions;
 
   final bool isEnabled;
   final bool isPublic;
   final int? actionId;
   final String? actionConfigJson;
-  final int? reactionId;
-  final String? reactionConfigJson;
 
   AppletModel({
     required this.id,
@@ -54,20 +55,41 @@ class AppletModel {
     required this.color,
     this.triggerService,
     this.reactionServices = const [],
+    this.reactions = const [],
     required this.isEnabled,
     required this.isPublic,
     this.actionId,
     this.actionConfigJson,
-    this.reactionId,
-    this.reactionConfigJson,
   });
 
-  factory AppletModel.fromJson(Map<String, dynamic> json, {bool? forceIsPublic}) {
+  factory AppletModel.fromJson(
+    Map<String, dynamic> json, {
+    bool? forceIsPublic,
+  }) {
     var reactionsList = <ServiceInfo>[];
-    if (json['reactions'] != null && json['reactions'] is List) {
-      reactionsList = (json['reactions'] as List)
+    var reactionsInfoList = <AppletReactionInfo>[];
+    final dynamic rawReactions = json['reactions'];
+
+    if (rawReactions != null && rawReactions is List<dynamic>) {
+      reactionsList = rawReactions
           .where((r) => r is Map && r['service'] != null)
           .map((r) => ServiceInfo.fromJson(r['service']))
+          .toList();
+
+      reactionsInfoList = rawReactions
+          .where(
+            (r) =>
+                r is Map &&
+                r['service'] != null &&
+                (r['id'] ?? r['reaction_id']) != null,
+          )
+          .map(
+            (r) => AppletReactionInfo(
+              id: (r['id'] ?? r['reaction_id']) as int,
+              configJson: _getConfigJson(r['config']),
+              service: ServiceInfo.fromJson(r['service']),
+            ),
+          )
           .toList();
     }
 
@@ -84,14 +106,11 @@ class AppletModel {
       color: json['color'] as String? ?? '#CCCCCC',
       triggerService: trigger,
       reactionServices: reactionsList,
+      reactions: reactionsInfoList,
       isEnabled: json['enable'] as bool? ?? false,
       isPublic: forceIsPublic ?? (json['public'] as bool? ?? false),
       actionId: (json['action']?['id'] ?? json['action']?['action_id']) as int?,
       actionConfigJson: _getConfigJson(json['action']?['config']),
-      reactionId: _getFirstReactionId(json['reactions'] as List<dynamic>?),
-      reactionConfigJson: _getFirstReactionConfig(
-        json['reactions'] as List<dynamic>?,
-      ),
     );
   }
 
@@ -107,8 +126,15 @@ class AppletModel {
     'is_public': isPublic,
     if (actionId != null) 'action_id': actionId,
     if (actionConfigJson != null) 'action_config': actionConfigJson,
-    if (reactionId != null) 'reaction_id': reactionId,
-    if (reactionConfigJson != null) 'reaction_config': reactionConfigJson,
+    'reactions': reactions
+        .map(
+          (r) => {
+            'id': r.id,
+            'config': r.configJson,
+            'service': r.service.toJson(),
+          },
+        )
+        .toList(),
   };
 }
 
@@ -117,5 +143,10 @@ extension AppletUserToJson on AppletUser {
 }
 
 extension ServiceInfoToJson on ServiceInfo {
-  Map<String, dynamic> toJson() => {'id': id, 'name': name};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'color': color,
+    'image_url': imageUrl,
+  };
 }

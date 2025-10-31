@@ -104,8 +104,7 @@ class ServiceRepository {
     required String description,
     required int actionId,
     required List<dynamic> actionConfig,
-    required int reactionId,
-    required List<dynamic> reactionConfig,
+    required List<Map<String, dynamic>> reactions,
   }) async {
     try {
       final response = await _apiService.createApplet(
@@ -113,8 +112,7 @@ class ServiceRepository {
         description: description,
         actionId: actionId,
         actionConfig: actionConfig,
-        reactionId: reactionId,
-        reactionConfig: reactionConfig,
+        reactions: reactions,
       );
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw Exception('Failed to create applet: ${response.data}');
@@ -141,7 +139,9 @@ class ServiceRepository {
       final response = await _apiService.getMyAreas();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.data);
-        return data.map((json) => AppletModel.fromJson(json, forceIsPublic: false)).toList();
+        return data
+            .map((json) => AppletModel.fromJson(json, forceIsPublic: false))
+            .toList();
       }
       throw Exception('Failed to load areas');
     } catch (e) {
@@ -183,9 +183,15 @@ class ServiceRepository {
             .map((r) => ServiceInfo.fromJson(r['service']))
             .toList();
 
-        final firstReaction = reactionDataList.isNotEmpty
-            ? reactionDataList.first
-            : null;
+        final reactionsInfoList = reactionDataList
+            .map(
+              (r) => AppletReactionInfo(
+                id: r['id'],
+                configJson: _getConfigJson(r['config']),
+                service: ServiceInfo.fromJson(r['service']),
+              ),
+            )
+            .toList();
 
         return AppletModel(
           id: areaInfo['id'],
@@ -194,21 +200,14 @@ class ServiceRepository {
           user: AppletUser.fromJson(areaInfo['user']),
           color: areaInfo['color'],
           isEnabled: areaInfo['enable'],
-          isPublic:
-              isPublic,
+          isPublic: isPublic,
 
           triggerService: triggerService,
           reactionServices: reactionServices,
+          reactions: reactionsInfoList,
 
           actionId: actionData['id'],
-          actionConfigJson: _getConfigJson(
-            actionData['config'],
-          ),
-
-          reactionId: firstReaction?['id'],
-          reactionConfigJson: _getConfigJson(
-            firstReaction?['config'],
-          ),
+          actionConfigJson: _getConfigJson(actionData['config']),
         );
       }
       throw Exception('Failed to load area details: ${response.statusCode}');
@@ -238,7 +237,9 @@ class ServiceRepository {
       final response = await _apiService.getPublicAreas();
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.data);
-        return data.map((json) => AppletModel.fromJson(json, forceIsPublic: true)).toList();
+        return data
+            .map((json) => AppletModel.fromJson(json, forceIsPublic: true))
+            .toList();
       }
       throw Exception('Failed to load public areas');
     } catch (e) {
@@ -431,8 +432,7 @@ class ServiceRepository {
     required String description,
     required int actionId,
     required List<dynamic> actionConfig,
-    required int reactionId,
-    required List<dynamic> reactionConfig,
+    required List<Map<String, dynamic>> reactions,
   }) async {
     try {
       final response = await _apiService.updateArea(
@@ -441,8 +441,7 @@ class ServiceRepository {
         description: description,
         actionId: actionId,
         actionConfig: actionConfig,
-        reactionId: reactionId,
-        reactionConfig: reactionConfig,
+        reactions: reactions,
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {

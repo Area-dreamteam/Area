@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:mobile/models/action_model.dart';
 import 'package:mobile/models/reaction_model.dart';
@@ -61,6 +60,7 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
         );
       }
 
+      if (!mounted) return;
       final String itemDescription =
           detailedItem.description ?? 'No description';
 
@@ -78,6 +78,7 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
           ),
         );
 
+        if (!mounted) return;
         if (result != null) {
           finalConfig = result;
         }

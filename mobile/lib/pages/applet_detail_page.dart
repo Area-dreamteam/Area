@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
@@ -64,7 +62,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
         ),
         content: Text(
           'Delete ${currentApplet.name}. This action is permanent.',
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: Colors.white),
         ),
         actions: [
           TextButton(
@@ -117,12 +115,12 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
 
       if (!mounted) return;
 
-      final prepared = await createViewModel.startEditing(completeApplet);
+      final edit = await createViewModel.startEditing(completeApplet);
 
       if (!mounted) return;
       Navigator.pop(context);
 
-      if (prepared) {
+      if (edit) {
         final editResult = await Navigator.push<bool>(
           context,
           MaterialPageRoute(builder: (_) => const CreatePage()),
@@ -160,13 +158,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
     final Color pageColor = hexToColor(currentApplet.color);
     final myAppletViewModel = context.watch<MyAppletViewModel>();
 
-    // ignore: deprecated_member_use
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context, false);
-        return false;
-      },
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: pageColor,
         appBar: AppBar(
           leading: IconButton(
@@ -261,8 +253,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildActionButton({

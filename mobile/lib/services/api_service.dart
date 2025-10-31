@@ -136,9 +136,8 @@ Future<Response> getAreaDetails(int areaId) {
     required String name,
     required String description,
     required int actionId,
-    required int reactionId,
     required List<dynamic> actionConfig,
-    required List<dynamic> reactionConfig,
+    required List<Map<String, dynamic>> reactions, 
   }) {
     return _dio.post(
       '/users/areas/me',
@@ -146,9 +145,7 @@ Future<Response> getAreaDetails(int areaId) {
         'name': name,
         'description': description,
         'action': {'action_id': actionId, 'config': actionConfig},
-        'reactions': [
-          {'reaction_id': reactionId, 'config': reactionConfig},
-        ],
+        'reactions': reactions,
       },
     );
   }
@@ -198,16 +195,13 @@ Future<Response> getAreaDetails(int areaId) {
     required String description,
     required int actionId,
     required List<dynamic> actionConfig,
-    required int reactionId,
-    required List<dynamic> reactionConfig,
+    required List<Map<String, dynamic>> reactions,
   }) {
     final Map<String, dynamic> data = {
       'name': name,
       'description': description,
       'action': {'action_id': actionId, 'config': actionConfig},
-      'reactions': [
-        {'reaction_id': reactionId, 'config': reactionConfig},
-      ],
+      'reactions': reactions,
     };
 
     return _dio.patch('/users/areas/$areaId', data: data);

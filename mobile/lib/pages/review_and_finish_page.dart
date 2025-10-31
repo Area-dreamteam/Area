@@ -109,9 +109,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
 
   Widget _buildLogos(CreateViewModel viewModel) {
     final actionService = viewModel.selectedAction?.service;
-    final reactionService = viewModel.selectedReaction?.service;
+    final reactionServices = viewModel.selectedReactions
+        .map((r) => r.service)
+        .toList();
 
-    if (actionService == null || reactionService == null) {
+    if (actionService == null || reactionServices.isEmpty) {
       return const Center(
         child: Text(
           'Error loading services',
@@ -128,11 +130,23 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
           size: 80,
           imageUrl: actionService.imageUrl,
         ),
-        const SizedBox(width: 60),
-        getServiceIcon(
-          reactionService.name,
-          size: 80,
-          imageUrl: reactionService.imageUrl,
+        const SizedBox(width: 20),
+        const Icon(Icons.arrow_forward, color: Colors.white, size: 30),
+        const SizedBox(width: 20),
+
+        Expanded(
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 15.0,
+            runSpacing: 10.0,
+            children: reactionServices.map((service) {
+              return getServiceIcon(
+                service.name,
+                size: 60,
+                imageUrl: service.imageUrl,
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
@@ -149,7 +163,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black45),
+        hintStyle: const TextStyle(color: Colors.black),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -164,7 +178,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     return FutureBuilder<UserModel>(
       future: _userFuture,
       builder: (context, snapshot) {
-        String username = '...';
+        String username = '';
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
             username = snapshot.data!.name;

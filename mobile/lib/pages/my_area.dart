@@ -56,13 +56,6 @@ class _MyAppletPageState extends State<MyAreaPage>
         title: const Text('My Areas', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF212121),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () => appletViewModel.loadApplets(),
-            tooltip: 'Refresh',
-          ),
-        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.blue,
@@ -140,7 +133,7 @@ class _MyAppletPageState extends State<MyAreaPage>
               decoration: BoxDecoration(
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade400, width: 1),
+                border: Border.all(color: Colors.red, width: 1),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

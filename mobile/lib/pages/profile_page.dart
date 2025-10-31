@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/viewmodels/profile_viewmodel.dart';
@@ -187,7 +185,9 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+              MaterialPageRoute(
+                builder: (context) => const ChangePasswordPage(),
+              ),
             );
           },
           child: const Text(
@@ -226,7 +226,11 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
 
           return _buildLinkTile(
             displayName.toLowerCase(),
-            getServiceIcon(account.provider.name, size: 30.0, imageUrl: account.provider.imageUrl),
+            getServiceIcon(
+              account.provider.name,
+              size: 30.0,
+              imageUrl: account.provider.imageUrl,
+            ),
             account.isLinked,
             () {
               if (account.isLinked) {
@@ -315,19 +319,20 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
   Widget _buildLogoutButton(BuildContext context) {
     return TextButton(
       onPressed: () async {
+        final authRepository = context.read<AuthRepository>();
+        final navigator = Navigator.of(context);
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
         try {
-          final authRepository = context.read<AuthRepository>();
           await authRepository.logout();
           if (mounted) {
-            Navigator.pushAndRemoveUntil(
-              context,
+            navigator.pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const MainPageApp()),
               (Route<dynamic> route) => false,
             );
           }
         } catch (e) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            scaffoldMessenger.showSnackBar(
               SnackBar(
                 content: Text('Logout failed: $e'),
                 backgroundColor: Colors.red,
