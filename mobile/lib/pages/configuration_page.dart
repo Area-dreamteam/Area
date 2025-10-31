@@ -136,17 +136,17 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final List<Map<String, dynamic>> finalPayload = [];
+      final List<Map<String, dynamic>> information = [];
 
       for (var field in widget.configSchema) {
         final name = field['name'];
         final type = field['type'];
         final value = _configData[name];
 
-        finalPayload.add({'name': name, 'type': type, 'values': value});
+        information.add({'name': name, 'type': type, 'values': value});
       }
 
-      Navigator.pop(context, finalPayload);
+      Navigator.pop(context, information);
     }
   }
 
@@ -177,9 +177,9 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             'input' => TextFormField(
               initialValue: _configData[name] as String?,
               decoration: InputDecoration(
-                labelStyle: const TextStyle(color: Colors.white70),
+                labelStyle: const TextStyle(color: Colors.white),
                 enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white54),
+                  borderSide: BorderSide(color: Colors.white),
                 ),
                 focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue),
@@ -195,16 +195,16 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             'select' => DropdownButtonFormField<String>(
               initialValue: _configData[name] as String?,
               decoration: InputDecoration(
-                labelStyle: const TextStyle(color: Colors.white70),
+                labelStyle: const TextStyle(color: Colors.white),
                 enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white54),
+                  borderSide: BorderSide(color: Colors.white),
                 ),
                 focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue),
                 ),
                 border: const OutlineInputBorder(),
               ),
-              dropdownColor: Colors.black87,
+              dropdownColor: Colors.black,
               style: const TextStyle(color: Colors.white),
               items: (values as List<dynamic>).map((option) {
                 return DropdownMenuItem(

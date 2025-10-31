@@ -60,6 +60,10 @@ class ApiService {
     return _dio.get('/users/areas/me');
   }
 
+Future<Response> getAreaDetails(int areaId) {
+    return _dio.get('/areas/$areaId');
+  }
+
   Future<Response> getServices() {
     return _dio.get('/services/list');
   }
@@ -92,6 +96,22 @@ class ApiService {
     return _dio.get('/services/$serviceId/is_connected');
   }
 
+  Future<Response> enableArea(int areaId) {
+    return _dio.patch('/users/areas/$areaId/enable');
+  }
+
+  Future<Response> disableArea(int areaId) {
+    return _dio.patch('/users/areas/$areaId/disable');
+  }
+
+  Future<Response> publishArea(int areaId) {
+    return _dio.post('/users/areas/$areaId/publish');
+  }
+
+  Future<Response> unpublishArea(int areaId) {
+    return _dio.delete('/users/areas/public/$areaId/unpublish');
+  }
+
   Future<Response> getServiceAuthUrl(String serviceName) {
     return _dio.get(
       '/oauth/index/$serviceName',
@@ -116,9 +136,8 @@ class ApiService {
     required String name,
     required String description,
     required int actionId,
-    required int reactionId,
     required List<dynamic> actionConfig,
-    required List<dynamic> reactionConfig,
+    required List<Map<String, dynamic>> reactions, 
   }) {
     return _dio.post(
       '/users/areas/me',
@@ -126,9 +145,7 @@ class ApiService {
         'name': name,
         'description': description,
         'action': {'action_id': actionId, 'config': actionConfig},
-        'reactions': [
-          {'reaction_id': reactionId, 'config': reactionConfig},
-        ],
+        'reactions': reactions,
       },
     );
   }
@@ -137,8 +154,12 @@ class ApiService {
     return _dio.get('/users/me');
   }
 
-  Future<Response> deleteUser() {
-    return _dio.delete('/users/me');
+  Future<Response> getPublicUserAreas() {
+    return _dio.get('/users/areas/public');
+  }
+
+  Future<Response> deleteUser(int userId) {
+    return _dio.delete('/users/$userId');
   }
 
   Future<Response> updateCurrentUser({String? name, String? email}) {
@@ -162,5 +183,27 @@ class ApiService {
 
   Future<Response> getServiceDetails(int serviceId) {
     return _dio.get('/services/$serviceId');
+  }
+
+  Future<Response> copyPublicArea(int areaId) {
+    return _dio.post('/areas/public/$areaId/copy');
+  }
+
+  Future<Response> updateArea({
+    required int areaId,
+    required String name,
+    required String description,
+    required int actionId,
+    required List<dynamic> actionConfig,
+    required List<Map<String, dynamic>> reactions,
+  }) {
+    final Map<String, dynamic> data = {
+      'name': name,
+      'description': description,
+      'action': {'action_id': actionId, 'config': actionConfig},
+      'reactions': reactions,
+    };
+
+    return _dio.patch('/users/areas/$areaId', data: data);
   }
 }
