@@ -4,7 +4,6 @@ Defines the core service system with automatic action/reaction discovery,
 OAuth integration, and JSON serialization for API and database operations.
 """
 
-import json
 from typing import Dict, Optional, Any, Union
 from core.logger import logger
 from models import User, AreaAction, AreaReaction

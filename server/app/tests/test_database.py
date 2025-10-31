@@ -1,7 +1,5 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock, call
-from sqlmodel import Session, select
-import json
+from unittest.mock import Mock, patch
+from sqlmodel import Session
 
 from core.db import (
     upsert_data,
@@ -11,8 +9,7 @@ from core.db import (
     sync_services_oauth_catalog_to_db,
     init_db,
 )
-from models import Service, Action, Reaction
-from models.oauth.oauth_login import OAuthLogin
+from models import Service
 
 
 class TestUpsertData:

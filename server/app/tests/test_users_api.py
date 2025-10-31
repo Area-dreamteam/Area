@@ -1,6 +1,3 @@
-import pytest
-from models.users.user import User
-from core.security import hash_password
 
 
 class TestUsersAPIAuthentication:

@@ -11,31 +11,30 @@ from typing import Dict, Optional, Tuple
 from threading import Lock
 from core.logger import logger
 
-# In-memory state storage: state_token -> (user_id, expiry_timestamp)
-_oauth_states: Dict[str, Tuple[int, float]] = {}
+_oauth_states: Dict[str, Tuple[int, float, bool]] = {}
 _state_lock = Lock()
 
-# State tokens expire after 10 minutes
 STATE_EXPIRY_SECONDS = 600
 
 
-def store_oauth_state(state: str, user_id: int) -> None:
-    """Store OAuth state token with associated user ID for all platforms.
+def store_oauth_state(state: str, user_id: int, is_mobile: bool = False) -> None:
+    """Store OAuth state token with associated user ID and platform info.
 
     Args:
         state: Unique state token generated for the OAuth flow
         user_id: ID of the authenticated user initiating the OAuth flow
+        is_mobile: Whether this OAuth flow is from a mobile device
     """
     expiry = time.time() + STATE_EXPIRY_SECONDS
     with _state_lock:
-        _oauth_states[state] = (user_id, expiry)
+        _oauth_states[state] = (user_id, expiry, is_mobile)
         logger.debug(
-            f"Stored state: {state} -> user_id={user_id}, expires_in={STATE_EXPIRY_SECONDS}s, total_states={len(_oauth_states)}"
+            f"Stored state: {state} -> user_id={user_id}, is_mobile={is_mobile}, expires_in={STATE_EXPIRY_SECONDS}s, total_states={len(_oauth_states)}"
         )
 
 
-def get_user_from_state(state: str) -> Optional[int]:
-    """Retrieve user ID from OAuth state token and remove it.
+def get_user_from_state(state: str) -> Optional[Tuple[int, bool]]:
+    """Retrieve user ID and mobile flag from OAuth state token and remove it.
 
     State tokens are single-use and automatically removed after retrieval.
     Expired tokens are also removed and return None.
@@ -44,7 +43,7 @@ def get_user_from_state(state: str) -> Optional[int]:
         state: OAuth state token from callback
 
     Returns:
-        User ID if state is valid and not expired, None otherwise
+        Tuple of (user_id, is_mobile) if state is valid and not expired, None otherwise
     """
     with _state_lock:
         logger.debug(
@@ -54,18 +53,16 @@ def get_user_from_state(state: str) -> Optional[int]:
             logger.debug(f"State not found: {state}")
             return None
 
-        user_id, expiry = _oauth_states[state]
+        user_id, expiry, is_mobile = _oauth_states[state]
 
-        # Remove the state (single-use)
         del _oauth_states[state]
 
-        # Check if expired
         if time.time() > expiry:
             logger.debug(f"State expired: {state}")
             return None
 
-        logger.debug(f"State valid: {state} -> user_id={user_id}")
-        return user_id
+        logger.debug(f"State valid: {state} -> user_id={user_id}, is_mobile={is_mobile}")
+        return (user_id, is_mobile)
 
 
 def cleanup_expired_states() -> None:
@@ -75,10 +72,9 @@ def cleanup_expired_states() -> None:
     """
     current_time = time.time()
     with _state_lock:
-        expired = [
-            state
-            for state, (_, expiry) in _oauth_states.items()
-            if current_time > expiry
-        ]
+        expired = []
+        for state, (_, expiry, _) in _oauth_states.items():
+            if current_time > expiry:
+                expired.append(state)
         for state in expired:
             del _oauth_states[state]

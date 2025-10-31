@@ -2,10 +2,8 @@ import requests
 from urllib.parse import urlencode
 from sqlmodel import Session, select
 from fastapi import HTTPException, Response, Request
-from typing import Dict, Any, List
-import json
+from typing import Dict, Any
 from pydantic import BaseModel
-from datetime import datetime, timezone
 
 from core.config import settings
 from core.utils import generate_state
@@ -14,10 +12,9 @@ from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
     Action,
-    Reaction,
     get_component,
 )
-from models import AreaAction, AreaReaction, UserService, Service, User
+from models import AreaAction, UserService, Service, User
 from api.users.db import get_user_service_token
 
 
@@ -168,7 +165,6 @@ class Twitch(ServiceClass):
             return True
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
 
     def _is_token_valid(self, token: str) -> bool:

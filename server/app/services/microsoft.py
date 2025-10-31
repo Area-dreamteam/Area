@@ -1,11 +1,10 @@
 from sqlmodel import Session
 from pydantic import BaseModel
-from pydantic_core import ValidationError
 from sqlmodel import select
 import requests
 from urllib.parse import urlencode
 from fastapi import HTTPException, Response, Request
-from typing import Dict, Any, List
+from typing import Dict, Any
 import json
 
 from core.utils import generate_state
@@ -134,8 +133,6 @@ class Outlook(ServiceClass):
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
             token: str = get_user_service_token(session, user_id, self.service.name)
-            # receiver_filter = get_component(area_action.config, "to", "values")
-            # subject_filter = get_component(area_action.config, "subject", "values")
 
             try:
                 message: Dict[str, Any] = self.service._get_latest_email(
@@ -162,8 +159,6 @@ class Outlook(ServiceClass):
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
             token: str = get_user_service_token(session, user_id, self.service.name)
-            # sender_filter = get_component(area_action.config, "from", "values")
-            # subject_filter = get_component(area_action.config, "subject", "values")
 
             try:
                 message: Dict[str, Any] = self.service._get_latest_email(
@@ -229,7 +224,6 @@ class Outlook(ServiceClass):
             return True
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
 
     def _is_token_valid(self, token: str) -> bool:
@@ -267,19 +261,6 @@ class Outlook(ServiceClass):
             return False
         if message is None:
             return False
-        # last_state_values = (
-        #     area_action.last_state.get("snippet", ""),
-        #     area_action.last_state.get("historyId", ""),
-        # )
-        # message_values = (
-        #     message.get("snippet", ""),
-        #     message.get("historyId", ""),
-        # )
-        # if last_state_values == message_values:
-        #     return False
-        # area_action.last_state = message
-        # session.add(area_action)
-        # session.commit()
         return True
 
     def _get_latest_email(

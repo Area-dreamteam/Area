@@ -323,7 +323,7 @@ class TestRoleDependencies:
 
     def test_current_user_and_admin_are_annotated_types(self):
         """Test that CurrentUser and CurrentAdmin are properly defined Annotated types"""
-        from dependencies.roles import CurrentUser, CurrentAdmin, CurrentUserNoFail
+        from dependencies.roles import CurrentUserNoFail
 
         assert CurrentUser is not None
         assert CurrentAdmin is not None

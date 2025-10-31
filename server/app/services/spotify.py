@@ -2,10 +2,8 @@ import requests
 from urllib.parse import urlencode
 from sqlmodel import Session, select
 from fastapi import HTTPException, Response, Request
-from typing import Dict, Any, List
-import json
+from typing import Dict, Any
 from pydantic import BaseModel
-from datetime import datetime, timezone
 import base64
 
 from core.config import settings
@@ -18,7 +16,7 @@ from services.services_classes import (
     Reaction,
     get_component,
 )
-from models import AreaAction, AreaReaction, UserService, Service, User
+from models import UserService, Service, User
 from api.users.db import get_user_service_token
 
 
@@ -468,7 +466,6 @@ class Spotify(ServiceClass):
             return True
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
 
     def _is_token_valid(self, token: str) -> bool:

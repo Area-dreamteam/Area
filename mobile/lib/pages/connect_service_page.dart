@@ -1,5 +1,3 @@
-// pages/connect_service_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/service_model.dart';
 import 'package:mobile/services/oauth_service.dart';
