@@ -1,9 +1,7 @@
-from typing import Dict, Any
-from models import User, AreaAction
+from models import AreaAction
 from sqlmodel import Session
-from services.services_classes import Service, Action, Reaction, get_component
+from services.services_classes import Service, Action, get_component
 from datetime import datetime
-from core.logger import logger
 
 
 class DateAndTime(Service):

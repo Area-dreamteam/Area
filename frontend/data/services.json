@@ -1,30 +1,26 @@
-
 {
-    "Discord":
-    {
-        "id": 5896,
-        "user_id": 454226,
-        "name": "Discord",
-        "desc": "no caption yet",
-        "color": "#85bcf9",
-        "logo": "/images/Discord_icon.png"
-    },
-    "Snapchat":
-    {
-        "id": 8794,
-        "user_id": 46576,
-        "name": "Snapchat",
-        "desc": "stupid invention",
-        "color": "#FFFC00",
-        "logo": "/images/Snapchat_icon.png"
-    },
-    "Instagram":
-    {
-        "id": 3221,
-        "user_id": 454226,
-        "name": "Instagram",
-        "desc": "no caption yet",
-        "color": "#880729",
-        "logo": "/images/Instagram_icon.webp"
-    }
+  "Discord": {
+    "id": 5896,
+    "user_id": 454226,
+    "name": "Discord",
+    "desc": "no caption yet",
+    "color": "#85bcf9",
+    "logo": "/images/Discord_icon.png"
+  },
+  "Snapchat": {
+    "id": 8794,
+    "user_id": 46576,
+    "name": "Snapchat",
+    "desc": "stupid invention",
+    "color": "#FFFC00",
+    "logo": "/images/Snapchat_icon.png"
+  },
+  "Instagram": {
+    "id": 3221,
+    "user_id": 454226,
+    "name": "Instagram",
+    "desc": "no caption yet",
+    "color": "#880729",
+    "logo": "/images/Instagram_icon.webp"
+  }
 }

@@ -2,7 +2,6 @@ from schemas import Role
 from fastapi import HTTPException, Depends
 from typing import Annotated
 from .auth import get_current_user, get_current_user_no_fail
-from core.logger import logger
 
 from models import User
 

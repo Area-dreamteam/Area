@@ -1,5 +1,4 @@
 from core.config import settings
-from cron.cron import print_jobs
 from services.services import get_json_services, get_json_services_login
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles

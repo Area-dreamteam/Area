@@ -1,7 +1,6 @@
 import pytest
 from datetime import datetime
 from pydantic import ValidationError
-from unittest.mock import Mock, patch
 
 from models.users.user import User
 from models.areas.area import Area

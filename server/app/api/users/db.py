@@ -2,10 +2,9 @@ from sqlmodel import select
 from models import UserService, User
 from sqlmodel import Session
 from fastapi import HTTPException
-from sqlmodel import select
 from schemas import UserIdGet, UserOauthLoginGet
 
-from models import User, UserService, UserOAuthLogin, OAuthLogin, Service
+from models import UserOAuthLogin, OAuthLogin, Service
 from dependencies.db import SessionDep
 
 

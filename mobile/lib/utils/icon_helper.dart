@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../core/config.dart';
 
 Widget getServiceIcon(String serviceName, {double size = 30.0, String? imageUrl}) {
-  // If imageUrl is provided, use it from the backend
   if (imageUrl != null && imageUrl.isNotEmpty) {
     final fullImageUrl = Config.getImageUrl(imageUrl);
     return Image.network(
@@ -30,6 +29,5 @@ Widget getServiceIcon(String serviceName, {double size = 30.0, String? imageUrl}
     );
   }
 
-  // Fallback to default icon if no image URL is provided
   return Icon(Icons.link, size: size, color: Colors.white);
 }
