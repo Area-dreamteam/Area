@@ -9,6 +9,7 @@ from services.services_classes import Service, create_service_dictionnary, oauth
 
 from services.clash_royale import ClashRoyale
 from services.date_and_time import DateAndTime
+from services.discord import Discord
 from services.github import Github
 from services.google import Gmail
 from services.microsoft import Outlook
@@ -18,11 +19,13 @@ from services.spotify import Spotify
 from services.strava import Strava
 from services.todoist import Todoist
 from services.twitch import Twitch
+from services.google_calendar import GoogleCalendar
 from services.trakt import Trakt
 
 __all__ = [
     "ClashRoyale",
     "DateAndTime",
+    "Discord",
     "Github",
     "Gmail",
     "Outlook",
@@ -32,6 +35,7 @@ __all__ = [
     "Strava",
     "Todoist",
     "Twitch",
+    "GoogleCalendar",
     "Trakt"
 ]
 

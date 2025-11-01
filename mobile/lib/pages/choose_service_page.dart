@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/service_model.dart';
 import 'package:mobile/repositories/service_repository.dart';
@@ -107,23 +105,28 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                           context: context,
                           barrierDismissible: false,
                           builder: (context) => const Center(
-                            child: CircularProgressIndicator(color: Colors.white),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
                           ),
                         );
-
                         Service detailedService;
                         try {
                           detailedService = await serviceRepo
                               .fetchServiceDetails(serviceFromList.id);
                           if (context.mounted) Navigator.pop(context);
                         } catch (e) {
-                          if (context.mounted) Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text("Error fetching service details: $e"),
-                                backgroundColor: Colors.red),
-                          );
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Error fetching service details: $e",
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                           return;
                         }
                         bool proceedToActions = false;
@@ -139,8 +142,9 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                             final connectionResult = await Navigator.push<bool>(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    ConnectServicePage(service: detailedService),
+                                builder: (context) => ConnectServicePage(
+                                  service: detailedService,
+                                ),
                               ),
                             );
                             if (connectionResult == true) {
@@ -154,16 +158,15 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                         if (proceedToActions && context.mounted) {
                           final result =
                               await Navigator.push<ConfiguredItem<dynamic>?>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChooseActionPage(
-                                service:
-                                    detailedService,
-                                type: widget.type,
-                                serviceRepository: serviceRepo,
-                              ),
-                            ),
-                          );
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChooseActionPage(
+                                    service: detailedService,
+                                    type: widget.type,
+                                    serviceRepository: serviceRepo,
+                                  ),
+                                ),
+                              );
                           if (result != null && context.mounted) {
                             Navigator.pop(context, result);
                           }

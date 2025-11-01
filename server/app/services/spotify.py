@@ -480,7 +480,7 @@ class Spotify(ServiceClass):
         localhost_domain: str = settings.FRONT_URL.find("localhost")
         redirect_domain: str = settings.FRONT_URL
         if localhost_domain > -1:
-            redirect_domain = "http://127.0.0.1:3000"
+            redirect_domain = "http://127.0.0.1:8081"
         redirect = f"{redirect_domain}/callbacks/link/{self.name}"
 
         params = {
@@ -498,7 +498,7 @@ class Spotify(ServiceClass):
         localhost_domain: str = settings.FRONT_URL.find("localhost")
         redirect_domain: str = settings.FRONT_URL
         if localhost_domain > -1:
-            redirect_domain = "http://127.0.0.1:3000"
+            redirect_domain = "http://127.0.0.1:8081"
         redirect = f"{redirect_domain}/callbacks/link/{self.name}"
 
         auth_str = f"{settings.SPOTIFY_CLIENT_ID}:{settings.SPOTIFY_CLIENT_SECRET}"

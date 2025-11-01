@@ -62,7 +62,7 @@ class AppletCard extends StatelessWidget {
             style: TextStyle(
               color: textColor,
               fontSize: 24,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.bold,
               height: 1.2,
             ),
           ),
