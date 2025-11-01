@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ItemCard extends StatelessWidget {
   final String name;
@@ -43,14 +44,25 @@ class ItemCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 42),
+                  child: MarkdownBody(
+                    data: description,
+                    styleSheet: MarkdownStyleSheet(
+                      p: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                      a: const TextStyle(
+                        color: Colors.lightBlue,
+                        decoration: TextDecoration.underline,
+                      ),
+                      strong: const TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

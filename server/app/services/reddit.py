@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -42,7 +43,7 @@ class Reddit(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "Reddit", "social", "#FF4500", "/images/Reddit_logo.webp", True
+            "Reddit", ServiceCategory.SOCIAL, "#FF4500", "/images/Reddit_logo.webp", True
         )
 
     class new_post(Action):

@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 def get_env_file() -> str:
     env = os.getenv("ENV")
     if env is None:
-        raise "No env file found"
+        return "No env file found"
     elif env == "dev":
         return ".env"
     elif env == "prod":
@@ -43,6 +43,15 @@ class Settings(BaseSettings):
     CLASHROYALE_API_KEY: str
     GITHUB_LINK_CLIENT_ID: str
     GITHUB_LINK_CLIENT_SECRET: str
+    DISCORD_BOT_TOKEN: str
+    DISCORD_CLIENT_ID: str
+    DISCORD_CLIENT_SECRET: str
+    TRAKT_CLIENT_ID: str
+    TRAKT_CLIENT_SECRET: str
+    DROPBOX_CLIENT_ID: str
+    DROPBOX_CLIENT_SECRET: str
+    NOTION_CLIENT_ID: str
+    NOTION_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
 

@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -42,7 +43,7 @@ class Strava(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "Strava", "fitness", "#fc4c02", "images/Strava_logo.webp", True
+            "Strava", ServiceCategory.FITNESS, "#fc4c02", "images/Strava_logo.webp", True
         )
 
     class new_activity_by_you(Action):

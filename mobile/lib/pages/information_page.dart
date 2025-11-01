@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/models/service_info_model.dart';
 import 'package:mobile/viewmodels/explore_viewmodel.dart';
@@ -223,13 +224,47 @@ class _InformationPageState extends State<InformationPage>
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  _detailedService?.description ?? service.description ?? "",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                    height: 1.5,
+                MarkdownBody(
+                  data: _detailedService?.description ?? service.description ?? "",
+                  styleSheet: MarkdownStyleSheet(
+                    textAlign: WrapAlignment.center,
+                    p: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                      height: 1.5,
+                    ),
+                    a: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                    strong: const TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    em: const TextStyle(
+                      color: Colors.white70,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    h1: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    h2: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    h3: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    listBullet: const TextStyle(color: Colors.white70),
+                    code: const TextStyle(
+                      backgroundColor: Color(0xFF424242),
+                      color: Colors.white70,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -378,12 +413,46 @@ class _InformationPageState extends State<InformationPage>
           ),
         ),
         const SizedBox(height: 10),
-        Text(
-          applet.description ?? "",
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 16,
-            height: 1.5,
+        MarkdownBody(
+          data: applet.description ?? "",
+          styleSheet: MarkdownStyleSheet(
+            p: const TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+              height: 1.5,
+            ),
+            a: const TextStyle(
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
+            ),
+            strong: const TextStyle(
+              color: Colors.white70,
+              fontWeight: FontWeight.bold,
+            ),
+            em: const TextStyle(
+              color: Colors.white70,
+              fontStyle: FontStyle.italic,
+            ),
+            h1: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+            h2: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+            h3: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            listBullet: const TextStyle(color: Colors.white70),
+            code: const TextStyle(
+              backgroundColor: Color(0xFF424242),
+              color: Colors.white70,
+            ),
           ),
         ),
       ],

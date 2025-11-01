@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select"
 import { fetchIsConnected } from "@/app/functions/fetch"
 import { Checkbox } from "@/components/ui/checkbox"
+import Markdown from "@/app/components/Markdown"
 
 //-- Buttons --//
 
@@ -451,9 +452,9 @@ function ChooseTrigger({ actInfos, service, type,
             <p className="title inverted mb-[20px]">
                 {actInfos.name.replaceAll("_", " ")}
             </p>
-            <p className="simple-text inverted centered mb-[20px]">
-                {actInfos.description}
-            </p>
+            <div className="simple-text inverted centered mb-[20px]">
+                <Markdown>{actInfos.description}</Markdown>
+            </div>
             {trigger ? (
                 <DisplayAllTrigger config={trigger.config_schema} configResp={configResp} setConfigResp={setConfigResp}/>
             ) : (
@@ -519,9 +520,9 @@ function ChooseAct({ service, setService, setAct, type, setIsChoosing,
                     <p className="subtitle inverted m-[20px]">
                       {act.name.replaceAll("_", " ")}
                     </p>
-                    <p className="simple-text inverted m-[20px] truncate">
-                      {act.description.replaceAll("_", " ")}
-                    </p>
+                    <div className="simple-text inverted m-[20px] line-clamp-2">
+                      <Markdown>{act.description.replaceAll("_", " ")}</Markdown>
+                    </div>
                   </div>
                 </div>
               ))}

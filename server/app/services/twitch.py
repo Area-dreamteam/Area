@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -39,7 +40,7 @@ class Twitch(ServiceClass):
     """Twitch automation service."""
 
     def __init__(self) -> None:
-        super().__init__("Twitch", "music", "#6441a5", "images/Twitch_logo.webp", True)
+        super().__init__("Twitch", ServiceCategory.STREAMING, "#6441a5", "images/Twitch_logo.webp", True)
 
     class new_follower_on_channel(Action):
         """Triggered when you have a new follow."""

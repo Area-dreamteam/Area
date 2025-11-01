@@ -16,6 +16,7 @@ from models.services.service import Service
 from sqlmodel import select
 from fastapi import HTTPException, Response, Request
 from core.config import settings
+from core.categories import ServiceCategory
 
 from pydantic import BaseModel
 from services.services_classes import (
@@ -139,7 +140,7 @@ class Github(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "GitHub Repository and Issue Management",
-            "developer",
+            ServiceCategory.DEVELOPER,
             "#000000",
             "images/Github_logo.webp",
             True,
