@@ -88,16 +88,22 @@ export default function AppletPage({ params }: AppletProp) {
         (applet) => applet.id == Number(slug)
       )
       setCurrApplet(searched)
+      // If no applet found after applets are loaded, stop loading
+      if (!searched) {
+        setLoading(false)
+      }
     }
   }, [applets, slug])
 
   useEffect(() => {
-    if (currApplet) fetchPrivateApplet(setMyApplet, currApplet.id)
+    const loadApplet = async () => {
+      if (currApplet) {
+        await fetchPrivateApplet(setMyApplet, currApplet.id)
+        setLoading(false)
+      }
+    }
+    loadApplet()
   }, [currApplet])
-
-  useEffect(() => {
-    setLoading(false)
-  }, [myApplet])
 
   useEffect(() => {
     if (!areaChanged) return
@@ -136,7 +142,7 @@ export default function AppletPage({ params }: AppletProp) {
               {published ? (
                 <button
                   className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]"
-                  onClick={() => {UnpublishApplet(myApplet.area_info.id); router.push("/my_applets")}}
+                  onClick={() => { UnpublishApplet(myApplet.area_info.id); router.push("/my_applets") }}
                 >
                   Unpublish
                 </button>
@@ -168,7 +174,7 @@ export default function AppletPage({ params }: AppletProp) {
             <div className="grid grid-cols-2">
               <button
                 className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted [--common-bg:#BA301C] [--common-hover:#801100]"
-                onClick={() => {deleteApplet(myApplet.area_info.id);router.push('/my_applets');}}
+                onClick={() => { deleteApplet(myApplet.area_info.id); router.push('/my_applets'); }}
               >
                 Delete applet
               </button>
