@@ -19,11 +19,11 @@ import { useState, useEffect } from 'react'
 import { redirect } from 'next/navigation'
 
 function redirectToEditableApplet(applet: PublicApplet | PrivateApplet) {
-  redirect(`/my_applets/${applet.name}?published=false`)
+  redirect(`/my_applets/${applet.id}?published=false`)
 }
 
 function redirectToUnpublishableApplet(applet: PublicApplet | PrivateApplet) {
-  redirect(`/my_applets/${applet.name}?published=true`)
+  redirect(`/my_applets/${applet.id}?published=true`)
 }
 
 function FilterApplets(text: string, applets: PrivateApplet[] | null) {

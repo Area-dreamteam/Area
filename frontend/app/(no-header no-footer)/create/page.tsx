@@ -15,7 +15,7 @@ import Services from "@/app/components/Services"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
-import { redirect } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import Image from "next/image"
 import { SpecificAction, SpecificReaction } from "@/app/types/actions"
 import { getImageUrl } from "@/app/functions/images"
@@ -92,9 +92,8 @@ function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
 
 //-- Send form --//
 
-function createApplet(action: ActDetails, reactions: ActDetails[], title: string) {
-    fetchCreateApplet(action, reactions, title);
-    redirect("/my_applets");
+async function createApplet(action: ActDetails, reactions: ActDetails[], title: string) {
+    await fetchCreateApplet(action, reactions, title);
 }
 
 //-- Creation page --//
@@ -130,6 +129,7 @@ function Creation({ theAction, setTheAction, theReactions, setTheReactions,
 {
   const [validating, setValidating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(`if ${theAction?.act.name}, then ${theReactions ? theReactions[0].act.name : ""}`);
+  const router = useRouter();
 
   useEffect(() => {
     const checkingReactions = (newReac: ActDetails) => {
@@ -177,7 +177,7 @@ function Creation({ theAction, setTheAction, theReactions, setTheReactions,
             <Input className="block mx-auto w-[75%] h-[10%] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="centered mt-[30px]">
-            <button className="rounded-button inverted px-[5%] py-[3%]" onClick={() => createApplet(theAction as ActDetails, theReactions as ActDetails[], title)} disabled={title === "" || !theAction || !theReactions}>
+            <button className="rounded-button inverted px-[5%] py-[3%]" onClick={() => {createApplet(theAction as ActDetails, theReactions as ActDetails[], title); router.push("/my_applets");}} disabled={title === "" || !theAction || !theReactions}>
               Finish
             </button>
           </div>
@@ -185,7 +185,7 @@ function Creation({ theAction, setTheAction, theReactions, setTheReactions,
       ) : (
         <div>
           <div className="grid grid-cols-4">
-            <LeftUpButton text="Cancel" act={(param: boolean | string) => redirect(param as string)} param={"/my_applets"} />
+            <LeftUpButton text="Cancel" act={(param: boolean | string) => router.push(param as string)} param={"/my_applets"} />
             <p className="mt-[35px] flex flex-col title col-span-2 text-center">
               Create
             </p>
@@ -438,7 +438,7 @@ function ChooseTrigger({ actInfos, service, type,
   }, [trigger]);
 
   return (
-    <div className="text-white w-screen h-screen" style={{ background: service.color }}>
+    <div className="text-white w-screen h-max" style={{ background: service.color }}>
         <div className="grid grid-cols-4 " >
             <LeftUpButton text="Back" act={(param: boolean | string) => setChoosingTrigger(param as boolean)} param={false} color="white" />
             <p className="mt-[5%] title inverted col-span-4 mb-[10%]">
@@ -447,7 +447,7 @@ function ChooseTrigger({ actInfos, service, type,
             <hr className="col-span-4 mb-[20px]" />
             <div className="flex flex-col mb-[20px] font-bold col-span-4 mx-auto items-center">
             {service.image_url && getImageUrl(service.image_url) != "" &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl" />
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[150px] h-[150px] mx-auto" />
             }
             <p className="title inverted mb-[20px]">
                 {actInfos.name.replaceAll("_", " ")}
@@ -507,7 +507,7 @@ function ChooseAct({ service, setService, setAct, type, setIsChoosing,
             <hr className="col-span-4" />
             <div className="flex flex-col justify-center text-[35px] mb-[20px] font-bold col-span-4 mx-auto">
               {service.image_url && getImageUrl(service.image_url) != "" &&
-                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="rounded-xl w-[50%] h-[50%] block mx-auto" />
+                <Image alt="service's logo" src={getImageUrl(service.image_url)} width={200} height={200} className="mt-[5%] rounded-xl w-[150px] h-[150px] block mx-auto" />
               }
               <p className="subtitle inverted mt-[10%]">{service.name}</p>
             </div>
@@ -562,6 +562,7 @@ function ChooseService({ setIsChoosing, setAct, type, act,
   const [chosenService, setChosenService] = useState<SpecificService | null>(null);
   const [serviceConnected, setServiceConnected] = useState<boolean>(false);
   const [checkedConnection, setCheckedConnection] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     fetchServices(setServices);
@@ -593,7 +594,7 @@ function ChooseService({ setIsChoosing, setAct, type, act,
     console.log(serviceConnected)
     console.log(chosenService?.oauth_required);
     if (!serviceConnected && chosenService.oauth_required)
-      redirect(`/services/${chosenService.name}`);
+      router.push(`/services/${chosenService.name}`);
     setCheckedConnection(false);
   }, [checkedConnection]);
 

@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { redirect } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { fetchLogout } from '@/app/functions/fetch'
 
 export default function NavigationBar() {
@@ -30,6 +30,8 @@ export default function NavigationBar() {
 }
 
 function ProfileDropdown() {
+  const router = useRouter();
+
   return (
     <div className="overflow-hidden rounded-full">
       <DropdownMenu>
@@ -40,25 +42,25 @@ function ProfileDropdown() {
           <DropdownMenuGroup>
             <DropdownMenuItem
               className="hover:cursor-pointer md:hidden"
-              onClick={() => redirect('/create')}
+              onClick={() => router.push('/create')}
             >
               Create
             </DropdownMenuItem>
             <DropdownMenuItem
               className="hover:cursor-pointer md:hidden"
-              onClick={() => redirect('/my_applets')}
+              onClick={() => router.push('/my_applets')}
             >
               My applets
             </DropdownMenuItem>
             <DropdownMenuItem
               className="hover:cursor-pointer md:hidden"
-              onClick={() => redirect('/explore')}
+              onClick={() => router.push('/explore')}
             >
               Explore
             </DropdownMenuItem>
             <DropdownMenuItem
               className="hover:cursor-pointer"
-              onClick={() => redirect('/settings')}
+              onClick={() => router.push('/settings')}
             >
               Account
             </DropdownMenuItem>
@@ -67,7 +69,7 @@ function ProfileDropdown() {
             <DropdownMenuItem disabled>Archive</DropdownMenuItem>
             <DropdownMenuItem
               className="hover:cursor-pointer"
-              onClick={() => redirect('/help')}
+              onClick={() => router.push('/help')}
             >
               Help
             </DropdownMenuItem>
@@ -75,7 +77,7 @@ function ProfileDropdown() {
               className="hover:cursor-pointer"
               onClick={async () => {
                 await fetchLogout()
-                redirect('/')
+                router.push('/')
               }}
             >
               Log out
