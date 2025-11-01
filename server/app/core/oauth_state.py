@@ -1,10 +1,4 @@
-"""OAuth state management for all authentication flows.
-
-Provides in-memory storage for OAuth state tokens that map to user IDs.
-State tokens are used to maintain user context during OAuth callbacks
-for all platforms (web, mobile, etc.) as a secure alternative to relying
-solely on cookies.
-"""
+"""OAuth state management for all authentication flows."""
 
 import time
 from typing import Dict, Optional, Tuple
@@ -18,13 +12,7 @@ STATE_EXPIRY_SECONDS = 600
 
 
 def store_oauth_state(state: str, user_id: int, is_mobile: bool = False) -> None:
-    """Store OAuth state token with associated user ID and platform info.
-
-    Args:
-        state: Unique state token generated for the OAuth flow
-        user_id: ID of the authenticated user initiating the OAuth flow
-        is_mobile: Whether this OAuth flow is from a mobile device
-    """
+    """Store OAuth state token with associated user ID and platform info."""
     expiry = time.time() + STATE_EXPIRY_SECONDS
     with _state_lock:
         _oauth_states[state] = (user_id, expiry, is_mobile)
@@ -61,15 +49,14 @@ def get_user_from_state(state: str) -> Optional[Tuple[int, bool]]:
             logger.debug(f"State expired: {state}")
             return None
 
-        logger.debug(f"State valid: {state} -> user_id={user_id}, is_mobile={is_mobile}")
+        logger.debug(
+            f"State valid: {state} -> user_id={user_id}, is_mobile={is_mobile}"
+        )
         return (user_id, is_mobile)
 
 
 def cleanup_expired_states() -> None:
-    """Remove expired state tokens from storage.
-
-    Should be called periodically to prevent memory leaks.
-    """
+    """Remove expired state tokens from storage."""
     current_time = time.time()
     with _state_lock:
         expired = []
