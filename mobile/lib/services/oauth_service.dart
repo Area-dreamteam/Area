@@ -6,15 +6,21 @@ import 'package:mobile/core/config.dart';
 import 'dart:async';
 
 class OAuthService {
-  final String _baseUrl = Config.getApiUrl();
+  String _baseUrl = 'http://localhost:8080';
   static const _storage = FlutterSecureStorage();
 
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
   Completer<OAuthResult>? _oauthCompleter;
   Completer<OAuthLinkResult>? _linkCompleter;
+  bool _initialized = false;
 
-  void initialize() {
+  Future<void> initialize() async {
+    if (_initialized) return;
+    
+    _baseUrl = await Config.getApiUrl();
+    _initialized = true;
+    
     _checkInitialLink();
 
     _linkSubscription = _appLinks.uriLinkStream.listen(
@@ -25,6 +31,10 @@ class OAuthService {
         _completeLink(OAuthLinkResult.error('Deeplink handling error'));
       },
     );
+  }
+
+  Future<void> updateBaseUrl(String newUrl) async {
+    _baseUrl = newUrl;
   }
 
   Future<void> _checkInitialLink() async {

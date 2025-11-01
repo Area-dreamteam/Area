@@ -4,13 +4,17 @@ import 'package:mobile/core/config.dart';
 
 class ApiService {
   late Dio _dio;
-  final String _baseUrl = Config.getApiUrl();
   final _storage = const FlutterSecureStorage();
+  bool _initialized = false;
 
   ApiService() {
+    _initializeWithDefaultUrl();
+  }
+
+  void _initializeWithDefaultUrl() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: _baseUrl,
+        baseUrl: 'http://localhost:8080',
         validateStatus: (status) {
           return status != null && status < 500;
         },
@@ -35,6 +39,18 @@ class ApiService {
         },
       ),
     );
+  }
+
+  Future<void> initialize() async {
+    if (_initialized) return;
+    
+    final baseUrl = await Config.getApiUrl();
+    _dio.options.baseUrl = baseUrl;
+    _initialized = true;
+  }
+
+  Future<void> updateBaseUrl(String newUrl) async {
+    _dio.options.baseUrl = newUrl;
   }
 
   Future<Response> loginWithEmail(String email, String password) {
