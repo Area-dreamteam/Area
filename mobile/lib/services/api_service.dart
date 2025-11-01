@@ -60,7 +60,7 @@ class ApiService {
     return _dio.get('/users/areas/me');
   }
 
-Future<Response> getAreaDetails(int areaId) {
+  Future<Response> getAreaDetails(int areaId) {
     return _dio.get('/areas/$areaId');
   }
 
@@ -137,7 +137,7 @@ Future<Response> getAreaDetails(int areaId) {
     required String description,
     required int actionId,
     required List<dynamic> actionConfig,
-    required List<Map<String, dynamic>> reactions, 
+    required List<Map<String, dynamic>> reactions,
   }) {
     return _dio.post(
       '/users/areas/me',
@@ -173,12 +173,12 @@ Future<Response> getAreaDetails(int areaId) {
     return _dio.patch('/users/me', data: data);
   }
 
-  Future<Response> updateUserPassword({required String newPassword}) {
-    return _dio.patch('/users/me/password', data: {"password": newPassword});
-  }
-
-  Future<Response> unlinkOAuthAccount(String providerName) {
-    return _dio.delete('/oauth/unlink/$providerName');
+  Future<Response> updateUserPassword({
+    required String newPassword,
+    required String currentPassword,
+  }) {
+    return _dio.patch('/users/me/password',
+        data: {"current_password": currentPassword, "new_password": newPassword});
   }
 
   Future<Response> getServiceDetails(int serviceId) {
@@ -205,5 +205,13 @@ Future<Response> getAreaDetails(int areaId) {
     };
 
     return _dio.patch('/users/areas/$areaId', data: data);
+  }
+
+  Future<Response> disconnectService(int serviceId) {
+    return _dio.delete('/services/$serviceId/disconnect');
+  }
+
+  Future<Response> disconnectOAuthLogin(int oauthLoginId) {
+    return _dio.delete('/oauth/oauth_login/$oauthLoginId/disconnect');
   }
 }

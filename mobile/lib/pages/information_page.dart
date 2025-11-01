@@ -10,7 +10,7 @@ import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:mobile/widgets/card.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/pages/my_area.dart'; 
+import 'package:mobile/pages/my_area.dart';
 
 class InformationPage extends StatefulWidget {
   final ExploreItem item;
@@ -29,7 +29,7 @@ class _InformationPageState extends State<InformationPage>
 
   bool _isLoading = true;
   Service? _detailedService;
-  bool _isConnected = false;  
+  bool _isConnected = false;
   bool _isCopying = false;
 
   @override
@@ -140,11 +140,39 @@ class _InformationPageState extends State<InformationPage>
     }
   }
 
+  Future<void> _unlinkService() async {
+    if (_detailedService == null) return;
+
+    final repo = context.read<ServiceRepository>();
+
+    setState(() => _isLoading = true);
+    try {
+      await repo.disconnectService(_serviceId);
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isConnected = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to disconnect service: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _copyApplet() async {
     if (_isCopying) return;
-    
+
     setState(() => _isCopying = true);
-    
+
     final applet = widget.item.data as AppletModel;
     final repo = context.read<ServiceRepository>();
 
@@ -162,9 +190,8 @@ class _InformationPageState extends State<InformationPage>
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const MyAreaPage()),
-        (Route<dynamic> route) => false,
+            (Route<dynamic> route) => false,
       );
-
     } catch (e) {
       if (!mounted) return;
       setState(() => _isCopying = false);
@@ -176,7 +203,6 @@ class _InformationPageState extends State<InformationPage>
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -302,10 +328,10 @@ class _InformationPageState extends State<InformationPage>
               ),
               child: triggerService != null
                   ? getServiceIcon(
-                      triggerService.name,
-                      size: 40.0,
-                      imageUrl: triggerService.imageUrl,
-                    )
+                triggerService.name,
+                size: 40.0,
+                imageUrl: triggerService.imageUrl,
+              )
                   : const Icon(Icons.apps, color: Colors.white, size: 40),
             ),
           ],
@@ -482,9 +508,9 @@ class _InformationPageState extends State<InformationPage>
     }
     if (_isConnected) {
       return ElevatedButton(
-        onPressed: null,
+        onPressed: _unlinkService,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.redAccent,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),
@@ -494,10 +520,10 @@ class _InformationPageState extends State<InformationPage>
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 20),
+            Icon(Icons.link_off, size: 20),
             SizedBox(width: 12),
             Text(
-              "Connected",
+              "Disconnect",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
@@ -546,22 +572,20 @@ class _InformationPageState extends State<InformationPage>
     bool isLoading = false,
   }) {
     return ElevatedButton.icon(
-      icon: isLoading
-          ? const SizedBox.shrink()
-          : Icon(icon, size: 20),
+      icon: isLoading ? const SizedBox.shrink() : Icon(icon, size: 20),
       label: isLoading
           ? SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                color: foregroundColor,
-                strokeWidth: 3,
-              ),
-            )
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          color: foregroundColor,
+          strokeWidth: 3,
+        ),
+      )
           : Text(
-              text,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+        text,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
