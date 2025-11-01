@@ -163,6 +163,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
+            tooltip: 'Return',
             onPressed: () {
               Navigator.pop(context, false);
             },
