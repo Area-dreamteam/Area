@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from core.config import settings
 from core.logger import logger
 from core.utils import generate_state
+from api.users.db import get_user_service_token
 from core.categories import ServiceCategory
 from fastapi import HTTPException, Request, Response
 from models import AreaAction, Service, User, UserService
@@ -46,12 +47,42 @@ class TraktApi(AreaApi):
                 "User-Agent": "Area/0.0.1",
                 "Content-Type": "application/json",
                 "trakt-api-key": settings.TRAKT_CLIENT_ID,
-                "trakt-api-version": 2,
+                "trakt-api-version": "2",
                 "Authorization": f"Bearer {token}",
             },
         )
         logger.debug(f"test movie {res}")
         return True
+
+    def get_profile(self, token):
+        res = self.get(
+            "https://api.trakt.tv/users/settings",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+
+        return res
+
+    def get_username(self, token):
+        return self.get_profile(token)["user"]["username"]
+
+    def get_watchlist(self, token):
+        res = self.get(
+            "https://api.trakt.tv/sync/watchlist/movies/added/asc",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+        return res
 
     def get_token(self, code: str) -> TraktOAuthTokenRes:
         url = "https://api.trakt.tv/oauth/token"
@@ -85,6 +116,62 @@ trakt_api = TraktApi()
 class Trakt(ServiceClass):
     def __init__(self) -> None:
         super().__init__("Service Trakt", ServiceCategory.MOVIE, "#2596be", "", True)
+
+    class new_movie_in_watchlist(Action):
+        def __init__(self) -> None:
+            super().__init__("Check if a movie was added to watchlist")
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            token = get_user_service_token(session, user_id, self.service.name)
+            last_state = area_action.last_state
+
+            watchlist = trakt_api.get_watchlist(token)
+            if not watchlist:
+                return False
+
+            last_movie_title = trakt_api.get_watchlist(token)[0]["movie"]["title"]
+
+            if (
+                last_state is None
+                or "last_movie_title" not in last_state
+                or last_state["last_movie_title"] != last_movie_title
+            ):
+                area_action.last_state = {"last_movie_title": last_movie_title}
+                session.add(area_action)
+                session.commit()
+                return True
+
+            return False
+
+    class new_movie_in_watchlist(Action):
+        def __init__(self) -> None:
+            super().__init__("Check if a movie was added to watchlist")
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            token = get_user_service_token(session, user_id, self.service.name)
+            last_state = area_action.last_state
+
+            watchlist = trakt_api.get_watchlist(token)
+            if not watchlist:
+                return False
+
+            last_movie_title = trakt_api.get_watchlist(token)[0]["movie"]["title"]
+
+            if (
+                last_state is None
+                or "last_movie_title" not in last_state
+                or last_state["last_movie_title"] != last_movie_title
+            ):
+                area_action.last_state = {"last_movie_title": last_movie_title}
+                session.add(area_action)
+                session.commit()
+                return True
+
+            return False
 
     # class if_temperature_rise_above(Action):
     #     def __init__(self) -> None:
