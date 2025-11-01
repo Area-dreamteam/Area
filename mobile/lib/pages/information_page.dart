@@ -143,14 +143,12 @@ class _InformationPageState extends State<InformationPage>
   Future<void> _unlinkService() async {
     if (_detailedService == null) return;
 
-    final oauthService = context.read<ServiceRepository>();
-    final serviceName = _detailedService!.name;
+    final repo = context.read<ServiceRepository>();
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
     try {
-      await oauthService.unlinkOAuthAccount(serviceName);
+      await repo.disconnectService(_serviceId);
+
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -159,9 +157,7 @@ class _InformationPageState extends State<InformationPage>
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Failed to disconnect service: $e"),
@@ -194,7 +190,7 @@ class _InformationPageState extends State<InformationPage>
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const MyAreaPage()),
-        (Route<dynamic> route) => false,
+            (Route<dynamic> route) => false,
       );
     } catch (e) {
       if (!mounted) return;
@@ -332,10 +328,10 @@ class _InformationPageState extends State<InformationPage>
               ),
               child: triggerService != null
                   ? getServiceIcon(
-                      triggerService.name,
-                      size: 40.0,
-                      imageUrl: triggerService.imageUrl,
-                    )
+                triggerService.name,
+                size: 40.0,
+                imageUrl: triggerService.imageUrl,
+              )
                   : const Icon(Icons.apps, color: Colors.white, size: 40),
             ),
           ],
@@ -524,7 +520,7 @@ class _InformationPageState extends State<InformationPage>
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 20),
+            Icon(Icons.link_off, size: 20),
             SizedBox(width: 12),
             Text(
               "Disconnect",
@@ -579,17 +575,17 @@ class _InformationPageState extends State<InformationPage>
       icon: isLoading ? const SizedBox.shrink() : Icon(icon, size: 20),
       label: isLoading
           ? SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                color: foregroundColor,
-                strokeWidth: 3,
-              ),
-            )
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          color: foregroundColor,
+          strokeWidth: 3,
+        ),
+      )
           : Text(
-              text,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+        text,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,

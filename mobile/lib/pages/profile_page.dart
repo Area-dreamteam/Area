@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/user_model.dart';
 import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/viewmodels/profile_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,6 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
         if (mounted && viewModel.currentUser != null) {
           _usernameController.text = viewModel.currentUser!.name;
           _emailController.text = viewModel.currentUser!.email;
-          _emailController.addListener(() {});
         }
       });
     });
@@ -220,9 +220,8 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           style: TextStyle(color: Colors.white70, fontSize: 14),
         ),
         const SizedBox(height: 16),
-
         ...viewModel.linkedAccounts.map((account) {
-          final String displayName = account.provider.name.replaceAll(
+          final String displayName = account.name.replaceAll(
             '_oauth',
             '',
           );
@@ -230,16 +229,15 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           return _buildLinkTile(
             displayName.toLowerCase(),
             getServiceIcon(
-              account.provider.name,
+              account.name,
               size: 30.0,
-              imageUrl: account.provider.imageUrl,
+              imageUrl: account.imageUrl,
             ),
-            account.isLinked,
-            () {
-              if (account.isLinked) {
-                viewModel.unlinkAccount(account.provider.name);
+            account.connected,
+                () {
+              if (account.connected) {
+                viewModel.unlinkAccount(account.id);
               } else {
-                viewModel.linkAccount(account.provider.name);
               }
             },
           );
@@ -249,11 +247,11 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
   }
 
   Widget _buildLinkTile(
-    String name,
-    Widget leadingWidget,
-    bool isLinked,
-    VoidCallback onPressed,
-  ) {
+      String name,
+      Widget leadingWidget,
+      bool isLinked,
+      VoidCallback onPressed,
+      ) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: SizedBox(width: 30, height: 30, child: leadingWidget),
@@ -279,21 +277,21 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
       onPressed: viewModel.isLoading
           ? null
           : () async {
-              final newName = _usernameController.text.trim();
-              final newEmail = _emailController.text.trim();
-              await viewModel.saveInformation(
-                newName: newName,
-                newEmail: newEmail,
-              );
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Profile updated.'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              }
-            },
+        final newName = _usernameController.text.trim();
+        final newEmail = _emailController.text.trim();
+        await viewModel.saveInformation(
+          newName: newName,
+          newEmail: newEmail,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile updated.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -305,17 +303,17 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
       ),
       child: viewModel.state == ProfileState.saving
           ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                color: Colors.black,
-              ),
-            )
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 3,
+          color: Colors.black,
+        ),
+      )
           : const Text(
-              'Save',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+        'Save',
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -367,7 +365,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
             if (mounted) {
               navigator.pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const MainPageApp()),
-                (Route<dynamic> route) => false,
+                    (Route<dynamic> route) => false,
               );
             }
           } catch (e) {
@@ -400,7 +398,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           if (mounted) {
             navigator.pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const MainPageApp()),
-              (Route<dynamic> route) => false,
+                  (Route<dynamic> route) => false,
             );
           }
         } catch (e) {
