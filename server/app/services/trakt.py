@@ -83,7 +83,7 @@ trakt_api = TraktApi()
 
 class Trakt(ServiceClass):
     def __init__(self) -> None:
-        super().__init__("Service Trakt", "Movie", "#2596be", "", True)
+        super().__init__("Service Trakt", "Movie", "#9F42C6", "images/Trakt_logo.webp", True)
 
     # class if_temperature_rise_above(Action):
     #     def __init__(self) -> None:

@@ -201,7 +201,7 @@ default_openmeteo_config_schema = [
 
 class OpenMeteo(Service):            
     def __init__(self) -> None:
-        super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
+        super().__init__("Service OpenMeteo", "Meteo", "#2596be", "images/OpenMeteo_logo.webp", False)
 
     class if_temperature_rise_above(Action):
         def __init__(self) -> None:
