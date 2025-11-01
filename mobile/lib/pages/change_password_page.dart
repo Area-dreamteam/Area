@@ -176,6 +176,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     : Icons.visibility,
                 color: Colors.white,
               ),
+              tooltip: 'hide password',
               onPressed: toggleObscure,
             ),
           ),
