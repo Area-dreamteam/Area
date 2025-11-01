@@ -14,6 +14,7 @@ from services.github import Github
 from services.google import Gmail
 from services.microsoft import Outlook
 from services.open_meteo import OpenMeteo
+from services.podcast import Podcast
 from services.reddit import Reddit
 from services.spotify import Spotify
 from services.strava import Strava
@@ -31,6 +32,7 @@ __all__ = [
     "Gmail",
     "Outlook",
     "OpenMeteo",
+    "Podcast",
     "Reddit",
     "Spotify",
     "Strava",
