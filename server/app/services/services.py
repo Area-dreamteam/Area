@@ -10,6 +10,7 @@ from services.services_classes import Service, create_service_dictionnary, oauth
 from services.clash_royale import ClashRoyale
 from services.date_and_time import DateAndTime
 from services.discord import Discord
+from services.email import Email
 from services.github import Github
 from services.ign import IGN
 from services.google import Gmail
@@ -31,6 +32,7 @@ __all__ = [
     "ClashRoyale",
     "DateAndTime",
     "Discord",
+    "Email",
     "Github",
     "IGN",
     "Gmail",

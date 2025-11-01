@@ -54,6 +54,8 @@ class Settings(BaseSettings):
     NOTION_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
+    EMAIL: str
+    EMAIL_PASSWORD: str
 
     class Config:
         env_file = get_env_file()

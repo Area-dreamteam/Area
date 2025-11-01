@@ -275,7 +275,7 @@ class Podcast(Service):
 
         def __init__(self) -> None:
             config_schema = _get_podcast_selection_fields() + [
-                {"name": "Log Message", "type": "textarea", "values": []},
+                {"name": "Log Message", "type": "input", "values": []},
             ]
             super().__init__(
                 "Log custom message with podcast information", config_schema
