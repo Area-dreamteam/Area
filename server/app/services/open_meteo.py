@@ -41,7 +41,7 @@ class OpenMeteoApi(AreaApi):
         )
 
         return int(res["hourly"]["temperature_2m"][time_index])
-    
+
     def get_current_visibility(
         self, latitude: str, longitude: str, timezone: str = "auto"
     ) -> int:
@@ -65,7 +65,7 @@ class OpenMeteoApi(AreaApi):
         )
 
         return int(res["hourly"]["visibility"][time_index])
-    
+
     def get_current_humidity(
         self, latitude: str, longitude: str, timezone: str = "auto"
     ) -> int:
@@ -80,7 +80,7 @@ class OpenMeteoApi(AreaApi):
         )
 
         return int(res["current"]["relative_humidity_2m"])
-    
+
     def get_current_wind_speed(
         self, latitude: str, longitude: str, timezone: str = "auto"
     ) -> float:
@@ -119,7 +119,7 @@ class OpenMeteoApi(AreaApi):
         )
 
         return float(res["daily"]["uv_index_max"][time_index])
-    
+
     def get_current_cloud_cover(
         self, latitude: str, longitude: str, timezone: str = "auto"
     ) -> float:
@@ -135,7 +135,7 @@ class OpenMeteoApi(AreaApi):
         )
 
         return float(res["current"]["cloud_cover"])
-    
+
     def get_current_air_quality(
         self, latitude: str, longitude: str, timezone: str = "auto"
     ) -> int:
@@ -158,8 +158,7 @@ class OpenMeteoApi(AreaApi):
         )
 
         return int(res["hourly"]["european_aqi"][time_index])
-    
-    
+
 
 open_meteo_api = OpenMeteoApi()
 
@@ -200,9 +199,11 @@ default_openmeteo_config_schema = [
 ]
 
 
-class OpenMeteo(Service):            
+class OpenMeteo(Service):
     def __init__(self) -> None:
-        super().__init__("Service OpenMeteo", ServiceCategory.WEATHER, "#2596be", "", False)
+        super().__init__(
+            "Service OpenMeteo", ServiceCategory.WEATHER, "#2596be", "", False
+        )
 
     class if_temperature_rise_above(Action):
         def __init__(self) -> None:
@@ -212,7 +213,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if temperature rise above a certain limit",
@@ -229,7 +230,9 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_temperature = open_meteo_api.get_current_temperature(latitude, longitude, timezone)
+            current_temperature = open_meteo_api.get_current_temperature(
+                latitude, longitude, timezone
+            )
 
             return current_temperature > temperature_limit
 
@@ -241,7 +244,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if temperature fall bellow a certain limit",
@@ -258,7 +261,9 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_temperature = open_meteo_api.get_current_temperature(latitude, longitude, timezone)
+            current_temperature = open_meteo_api.get_current_temperature(
+                latitude, longitude, timezone
+            )
 
             return current_temperature < temperature_limit
 
@@ -270,7 +275,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if visibility fall bellow a certain limit",
@@ -287,10 +292,12 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_visibility = open_meteo_api.get_current_visibility(latitude, longitude, timezone)
+            current_visibility = open_meteo_api.get_current_visibility(
+                latitude, longitude, timezone
+            )
 
             return current_visibility < visibility_limit
-        
+
     class if_humidity_fall_bellow(Action):
         def __init__(self) -> None:
             config_schema = [
@@ -299,7 +306,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if humidity fall bellow a certain limit",
@@ -316,7 +323,9 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_humidity = open_meteo_api.get_current_humidity(latitude, longitude, timezone)
+            current_humidity = open_meteo_api.get_current_humidity(
+                latitude, longitude, timezone
+            )
 
             return current_humidity < humidity_limit
 
@@ -328,7 +337,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if humidity rise above a certain limit",
@@ -345,10 +354,12 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_humidity = open_meteo_api.get_current_humidity(latitude, longitude, timezone)
+            current_humidity = open_meteo_api.get_current_humidity(
+                latitude, longitude, timezone
+            )
 
             return current_humidity > humidity_limit
-        
+
     class if_wind_speed_rise_above(Action):
         def __init__(self) -> None:
             config_schema = [
@@ -357,7 +368,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if wind speed rise above a certain limit",
@@ -374,10 +385,12 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_wind_speed = open_meteo_api.get_current_wind_speed(latitude, longitude, timezone)
+            current_wind_speed = open_meteo_api.get_current_wind_speed(
+                latitude, longitude, timezone
+            )
 
             return current_wind_speed > wind_speed_limit
-        
+
     class if_wind_speed_fall_bellow(Action):
         def __init__(self) -> None:
             config_schema = [
@@ -386,7 +399,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if wind speed fall bellow a certain limit",
@@ -403,10 +416,12 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_wind_speed = open_meteo_api.get_current_wind_speed(latitude, longitude, timezone)
+            current_wind_speed = open_meteo_api.get_current_wind_speed(
+                latitude, longitude, timezone
+            )
 
             return current_wind_speed < wind_speed_limit
-        
+
     class if_uv_index_rise_above(Action):
         def __init__(self) -> None:
             config_schema = [
@@ -415,7 +430,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if uv index rise above a certain limit",
@@ -432,7 +447,9 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_uv_index = open_meteo_api.get_current_uv_index(latitude, longitude, timezone)
+            current_uv_index = open_meteo_api.get_current_uv_index(
+                latitude, longitude, timezone
+            )
 
             return current_uv_index > uv_index_limit
 
@@ -444,7 +461,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if uv index fall bellow a certain limit",
@@ -461,10 +478,12 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_uv_index = open_meteo_api.get_current_uv_index(latitude, longitude, timezone)
+            current_uv_index = open_meteo_api.get_current_uv_index(
+                latitude, longitude, timezone
+            )
 
             return current_uv_index < uv_index_limit
-        
+
     class if_cloud_cover_fall_bellow(Action):
         def __init__(self) -> None:
             config_schema = [
@@ -473,7 +492,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if cloud cover fall bellow a certain limit",
@@ -490,10 +509,12 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_cloud_cover = open_meteo_api.get_current_cloud_cover(latitude, longitude, timezone)
+            current_cloud_cover = open_meteo_api.get_current_cloud_cover(
+                latitude, longitude, timezone
+            )
 
             return current_cloud_cover < cloud_cover_limit
-        
+
     class if_cloud_cover_rise_above(Action):
         def __init__(self) -> None:
             config_schema = [
@@ -502,7 +523,7 @@ class OpenMeteo(Service):
                     "type": "input",
                     "values": [],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check if cloud cover rise above a certain limit",
@@ -519,19 +540,21 @@ class OpenMeteo(Service):
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
 
-            current_cloud_cover = open_meteo_api.get_current_cloud_cover(latitude, longitude, timezone)
+            current_cloud_cover = open_meteo_api.get_current_cloud_cover(
+                latitude, longitude, timezone
+            )
 
             return current_cloud_cover > cloud_cover_limit
-        
+
     class check_air_quality(Action):
         air_quality_level = [
             ("Good", 20),
             ("Fair", 40),
             ("Moderate", 60),
             ("Poor", 80),
-            ("Very Poor", 100)
+            ("Very Poor", 100),
         ]
-            
+
         def __init__(self) -> None:
             config_schema = [
                 {
@@ -539,7 +562,7 @@ class OpenMeteo(Service):
                     "type": "select",
                     "values": ["Good", "Fair", "Moderate", "Poor", "Very Poor"],
                 },
-                *default_openmeteo_config_schema
+                *default_openmeteo_config_schema,
             ]
             super().__init__(
                 "Check air quality attain or exceed an alert level",
@@ -558,6 +581,13 @@ class OpenMeteo(Service):
 
             aqi = open_meteo_api.get_current_air_quality(latitude, longitude, timezone)
 
-            aqi_alert_level = next((air_quality_threshold for air_quality_tag, air_quality_threshold in self.air_quality_level if air_quality_tag == air_quality_alert), 100)
+            aqi_alert_level = next(
+                (
+                    air_quality_threshold
+                    for air_quality_tag, air_quality_threshold in self.air_quality_level
+                    if air_quality_tag == air_quality_alert
+                ),
+                100,
+            )
 
             return aqi >= aqi_alert_level
