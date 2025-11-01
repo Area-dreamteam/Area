@@ -16,9 +16,16 @@ from models.services.service import Service
 from sqlmodel import select
 from fastapi import HTTPException, Response, Request
 from core.config import settings
+from core.categories import ServiceCategory
 
 from pydantic import BaseModel
-from services.services_classes import oauth_service, Service as ServiceClass, Action, Reaction, get_component
+from services.services_classes import (
+    oauth_service,
+    Service as ServiceClass,
+    Action,
+    Reaction,
+    get_component,
+)
 from sqlmodel import Session
 from pydantic_core import ValidationError
 from core.utils import generate_state
@@ -133,7 +140,7 @@ class Github(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "GitHub Repository and Issue Management",
-            "developer",
+            ServiceCategory.DEVELOPER,
             "#000000",
             "images/Github_logo.webp",
             True,
@@ -147,7 +154,7 @@ class Github(ServiceClass):
         def __init__(self):
             super().__init__(
                 "Triggered when a new repository is created by the authenticated user",
-                []
+                [],
             )
 
         def check(self, session, area_action, user_id):
@@ -160,7 +167,17 @@ class Github(ServiceClass):
                 return False
 
             repo_ids = {repo["id"] for repo in repositories}
-            previous_repo_ids = set(area_action.last_state.get("repo_ids", []) if area_action.last_state else [])
+            previous_repo_ids = set(
+                area_action.last_state.get("repo_ids", [])
+                if area_action.last_state
+                else []
+            )
+
+            if not area_action.last_state or "repo_ids" not in area_action.last_state:
+                area_action.last_state = {"repo_ids": list(repo_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
 
             area_action.last_state = {"repo_ids": list(repo_ids)}
             session.add(area_action)
@@ -181,7 +198,7 @@ class Github(ServiceClass):
             ]
             super().__init__(
                 "Triggered when a new issue is created in a watched repository",
-                config_schema
+                config_schema,
             )
 
         def check(self, session, area_action, user_id):
@@ -196,7 +213,17 @@ class Github(ServiceClass):
                 return False
 
             issue_ids = {issue["id"] for issue in issues}
-            previous_issue_ids = set(area_action.last_state.get("issue_ids", []) if area_action.last_state else [])
+            previous_issue_ids = set(
+                area_action.last_state.get("issue_ids", [])
+                if area_action.last_state
+                else []
+            )
+
+            if not area_action.last_state or "issue_ids" not in area_action.last_state:
+                area_action.last_state = {"issue_ids": list(issue_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
 
             area_action.last_state = {"issue_ids": list(issue_ids)}
             session.add(area_action)
@@ -217,7 +244,7 @@ class Github(ServiceClass):
             ]
             super().__init__(
                 "Triggered when a new pull request is created in a watched repository",
-                config_schema
+                config_schema,
             )
 
         def check(self, session, area_action, user_id):
@@ -232,7 +259,17 @@ class Github(ServiceClass):
                 return False
 
             pr_ids = {pr["id"] for pr in pulls}
-            previous_pr_ids = set(area_action.last_state.get("pr_ids", []) if area_action.last_state else [])
+            previous_pr_ids = set(
+                area_action.last_state.get("pr_ids", [])
+                if area_action.last_state
+                else []
+            )
+
+            if not area_action.last_state or "pr_ids" not in area_action.last_state:
+                area_action.last_state = {"pr_ids": list(pr_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
 
             area_action.last_state = {"pr_ids": list(pr_ids)}
             session.add(area_action)
@@ -254,14 +291,16 @@ class Github(ServiceClass):
             ]
             super().__init__(
                 "Triggered when a repository reaches a star count threshold",
-                config_schema
+                config_schema,
             )
 
         def check(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
             owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
             repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
-            threshold_str = get_component(area_action.config, "Star Threshold", "values")  # type: ignore
+            threshold_str = get_component(
+                area_action.config, "Star Threshold", "values"
+            )  # type: ignore
 
             try:
                 threshold = int(threshold_str)  # type: ignore
@@ -276,7 +315,11 @@ class Github(ServiceClass):
                 return False
 
             current_stars = repo_data.get("stargazers_count", 0)
-            previous_triggered = area_action.last_state.get("triggered", False) if area_action.last_state else False
+            previous_triggered = (
+                area_action.last_state.get("triggered", False)
+                if area_action.last_state
+                else False
+            )
 
             if current_stars >= threshold and not previous_triggered:
                 area_action.last_state = {"triggered": True}
@@ -302,8 +345,7 @@ class Github(ServiceClass):
                 {"name": "Issue Body", "type": "input", "values": []},
             ]
             super().__init__(
-                "Create a new issue in a specified repository",
-                config_schema
+                "Create a new issue in a specified repository", config_schema
             )
 
         def execute(self, session, area_action, user_id):
@@ -329,10 +371,7 @@ class Github(ServiceClass):
                 {"name": "Repository Owner", "type": "input", "values": []},
                 {"name": "Repository Name", "type": "input", "values": []},
             ]
-            super().__init__(
-                "Star a repository on GitHub",
-                config_schema
-            )
+            super().__init__("Star a repository on GitHub", config_schema)
 
         def execute(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
@@ -357,10 +396,7 @@ class Github(ServiceClass):
                 {"name": "PR Number", "type": "input", "values": []},
                 {"name": "Comment Body", "type": "input", "values": []},
             ]
-            super().__init__(
-                "Add a comment to a pull request",
-                config_schema
-            )
+            super().__init__("Add a comment to a pull request", config_schema)
 
         def execute(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
@@ -376,12 +412,16 @@ class Github(ServiceClass):
                 return
 
             try:
-                self.service._comment_on_pull_request(token, owner, repo, pr_number, comment)  # type: ignore
+                self.service._comment_on_pull_request(
+                    token, owner, repo, pr_number, comment
+                )  # type: ignore
                 logger.info(f"Commented on PR #{pr_number} in {owner}/{repo}")
             except GithubApiError as e:
                 logger.error(f"Failed to comment on PR: {e.message}")
 
-    def _get_token(self, client_id: str, client_secret: str, code: str) -> GithubOAuthTokenRes:
+    def _get_token(
+        self, client_id: str, client_secret: str, code: str
+    ) -> GithubOAuthTokenRes:
         """Exchange authorization code for access token."""
         base_url = "https://github.com/login/oauth/access_token"
         params = {"client_id": client_id, "client_secret": client_secret, "code": code}
@@ -404,7 +444,7 @@ class Github(ServiceClass):
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28"
+            "X-GitHub-Api-Version": "2022-11-28",
         }
         r = requests.get(url, headers=headers)
 
@@ -467,7 +507,9 @@ class Github(ServiceClass):
     ) -> List[Dict[str, Any]]:
         """Fetch issues for a specific repository."""
         result = self._make_github_request(
-            token, f"/repos/{owner}/{repo}/issues?state=all&per_page=100", return_list=True
+            token,
+            f"/repos/{owner}/{repo}/issues?state=all&per_page=100",
+            return_list=True,
         )
         return result if isinstance(result, list) else []
 
@@ -476,7 +518,9 @@ class Github(ServiceClass):
     ) -> List[Dict[str, Any]]:
         """Fetch pull requests for a specific repository."""
         result = self._make_github_request(
-            token, f"/repos/{owner}/{repo}/pulls?state=all&per_page=100", return_list=True
+            token,
+            f"/repos/{owner}/{repo}/pulls?state=all&per_page=100",
+            return_list=True,
         )
         return result if isinstance(result, list) else []
 
@@ -535,7 +579,7 @@ class Github(ServiceClass):
         base_url = "https://github.com/login/oauth/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
         params = {
-            "client_id": settings.GITHUB_CLIENT_ID,
+            "client_id": settings.GITHUB_LINK_CLIENT_ID,
             "redirect_uri": redirect,
             "scope": "repo read:user read:org",
             "state": state if state else generate_state(),
@@ -553,8 +597,8 @@ class Github(ServiceClass):
         """Handle GitHub OAuth callback for service linking."""
         try:
             token_res = self._get_token(
-                settings.GITHUB_CLIENT_ID,
-                settings.GITHUB_CLIENT_SECRET,
+                settings.GITHUB_LINK_CLIENT_ID,
+                settings.GITHUB_LINK_CLIENT_SECRET,
                 code,
             )
         except GithubApiError as e:

@@ -18,6 +18,7 @@ import {
   fetchSpecificApplet,
   fetchCopyApplet,
 } from '@/app/functions/fetch'
+import Markdown from '@/app/components/Markdown'
 
 type AppletProp = {
   params: Promise<{ slug: string }>
@@ -91,9 +92,9 @@ export default function AppletPage({ params }: AppletProp) {
               <p className="text-center simple-text inverted truncate">
                 {applet.area_info.name}
               </p>
-              <p className="text-center simple-text inverted truncate">
-                {applet.area_info.description}
-              </p>
+              <div className="text-center simple-text inverted line-clamp-3">
+                <Markdown>{applet.area_info.description}</Markdown>
+              </div>
               <button
   
                 className="my-[35%] little-rounded-button centered w-[60%]"

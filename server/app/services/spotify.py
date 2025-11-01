@@ -9,6 +9,7 @@ import base64
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -43,7 +44,7 @@ class Spotify(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "Spotify", "music", "#1DB954", "images/Spotify_logo.webp", True
+            "Spotify", ServiceCategory.MUSIC, "#1DB954", "images/Spotify_logo.webp", True
         )
 
     class device_connect_to_spotify(Action):
@@ -480,7 +481,7 @@ class Spotify(ServiceClass):
         localhost_domain: str = settings.FRONT_URL.find("localhost")
         redirect_domain: str = settings.FRONT_URL
         if localhost_domain > -1:
-            redirect_domain = "http://127.0.0.1:3000"
+            redirect_domain = "http://127.0.0.1:8081"
         redirect = f"{redirect_domain}/callbacks/link/{self.name}"
 
         params = {
@@ -498,7 +499,7 @@ class Spotify(ServiceClass):
         localhost_domain: str = settings.FRONT_URL.find("localhost")
         redirect_domain: str = settings.FRONT_URL
         if localhost_domain > -1:
-            redirect_domain = "http://127.0.0.1:3000"
+            redirect_domain = "http://127.0.0.1:8081"
         redirect = f"{redirect_domain}/callbacks/link/{self.name}"
 
         auth_str = f"{settings.SPOTIFY_CLIENT_ID}:{settings.SPOTIFY_CLIENT_SECRET}"

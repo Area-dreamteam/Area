@@ -8,6 +8,7 @@ from typing import Dict, Any
 import json
 
 from core.utils import generate_state
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link, oauth_add_login
 from models import AreaAction, UserService, AreaReaction, User, Service
 from core.config import settings
@@ -111,7 +112,7 @@ class Outlook(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "Microsoft Outlook Service",
-            "mail",
+            ServiceCategory.MAIL,
             "#0078D4",
             "/images/Outlook_logo.webp",
             True,
@@ -176,18 +177,18 @@ class Outlook(ServiceClass):
 
         def __init__(self) -> None:
             config_schema = [
-                {"name": "to", "type": "input", "values": []},
-                {"name": "subject", "type": "input", "values": []},
-                {"name": "body", "type": "input", "values": []},
+                {"name": "To", "type": "input", "values": []},
+                {"name": "Subject", "type": "input", "values": []},
+                {"name": "Body", "type": "input", "values": []},
             ]
             super().__init__("Send email to recipient", config_schema)
 
         def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                to = get_component(area_action.config, "to", "values")
-                subject = get_component(area_action.config, "subject", "values")
-                body = get_component(area_action.config, "body", "values")
+                to = get_component(area_action.config, "To", "values")
+                subject = get_component(area_action.config, "Subject", "values")
+                body = get_component(area_action.config, "Body", "values")
 
                 url = "https://graph.microsoft.com/v1.0/me/sendMail"
                 headers = {

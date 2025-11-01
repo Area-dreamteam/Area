@@ -64,8 +64,7 @@ class TestBasicAPI:
         assert response.status_code in [200, 401, 403, 422]
 
     @patch("main.init_db")
-    @patch("main.print_jobs")
-    def test_app_startup_lifecycle(self, mock_print_jobs, mock_init_db, client):
+    def test_app_startup_lifecycle(self, mock_init_db, client):
         """Test application startup components"""
         response = client.get("/")
         assert response.status_code == 200

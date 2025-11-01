@@ -4,26 +4,24 @@ import 'package:mobile/widgets/hex_convert.dart';
 
 class MyAreaCard extends StatelessWidget {
   final AppletModel applet;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
+  final VoidCallback? onTap;
   final ValueChanged<bool>? onToggleEnabled;
-  final ValueChanged<bool>? onTogglePublic;
 
   const MyAreaCard({
     super.key,
     required this.applet,
-    this.onEdit,
-    this.onDelete,
+    this.onTap,
     this.onToggleEnabled,
-    this.onTogglePublic,
   });
 
   @override
   Widget build(BuildContext context) {
     final Color cardBackgroundColor = applet.isEnabled
-        ? hexToColor(applet.triggerService!.color)
-        : Colors.black;
-    final Color textColor = applet.isEnabled ? Colors.black : Colors.white;
+        ? hexToColor(applet.color)
+        : Colors.grey.shade800;
+    final Color textColor = applet.isEnabled
+        ? Colors.white
+        : Colors.grey.shade500;
 
     return Opacity(
       opacity: applet.isEnabled ? 1.0 : 0.65,
@@ -32,7 +30,7 @@ class MyAreaCard extends StatelessWidget {
         color: cardBackgroundColor,
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: onEdit,
+          onTap: onTap,
           child: Container(
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
             width: double.infinity,
@@ -53,7 +51,6 @@ class MyAreaCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-
                 Text(
                   'By ${applet.user.name}',
                   style: TextStyle(color: textColor, fontSize: 12),
@@ -66,18 +63,19 @@ class MyAreaCard extends StatelessWidget {
                     children: [
                       Text(
                         applet.isEnabled ? 'Enabled' : 'Disabled',
-                        style: TextStyle(color: textColor, fontSize: 15),
-                      ),
-                      const SizedBox(width: 20),
-                      Transform.scale(
-                        scale: 1.5,
-                        child: Switch(
-                          value: applet.isEnabled,
-                          onChanged: onToggleEnabled,
-                          activeThumbColor: Colors.white,
-                          inactiveTrackColor: Colors.black,
-                          inactiveThumbColor: Colors.grey,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      Switch(
+                        value: applet.isEnabled,
+                        onChanged: onToggleEnabled,
+                        activeThumbColor: Colors.white,
+                        inactiveTrackColor: Colors.black,
+                        inactiveThumbColor: Colors.grey.shade500,
                       ),
                     ],
                   ),

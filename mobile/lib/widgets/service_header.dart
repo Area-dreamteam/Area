@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:mobile/models/service_model.dart';
 import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/widgets/hex_convert.dart';
@@ -49,15 +50,26 @@ class ServiceHeader extends StatelessWidget implements PreferredSizeWidget {
             const SizedBox(height: 6),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                service.description!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 14,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 40),
+                child: MarkdownBody(
+                  data: service.description!,
+                  styleSheet: MarkdownStyleSheet(
+                    textAlign: WrapAlignment.center,
+                    p: TextStyle(
+                      color: textColor,
+                      fontSize: 14,
+                    ),
+                    a: TextStyle(
+                      color: textColor,
+                      decoration: TextDecoration.underline,
+                    ),
+                    strong: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

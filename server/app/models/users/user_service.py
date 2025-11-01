@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING, Optional
-from sqlmodel import SQLModel, Field, Relationship
+from typing import TYPE_CHECKING, Optional, Dict, Any
+from sqlmodel import SQLModel, Field, Relationship, Column
+from sqlalchemy import JSON
 
 if TYPE_CHECKING:
     from .user import User
@@ -12,6 +13,7 @@ class UserService(SQLModel, table=True):
     service_id: int = Field(foreign_key="service.id", ondelete="CASCADE")
     access_token: str
     refresh_token: Optional[str] = None
+    service_metadata: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSON))
 
     user: "User" = Relationship(back_populates="services")
     service: "Service" = Relationship(back_populates="users")

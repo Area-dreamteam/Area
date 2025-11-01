@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -39,7 +40,7 @@ class Twitch(ServiceClass):
     """Twitch automation service."""
 
     def __init__(self) -> None:
-        super().__init__("Twitch", "music", "#6441a5", "images/Twitch_logo.webp", True)
+        super().__init__("Twitch", ServiceCategory.STREAMING, "#6441a5", "images/Twitch_logo.webp", True)
 
     class new_follower_on_channel(Action):
         """Triggered when you have a new follow."""
@@ -107,13 +108,13 @@ class Twitch(ServiceClass):
         service: "Twitch"
 
         def __init__(self):
-            config_schema = [{"name": "game", "type": "input", "values": []}]
+            config_schema = [{"name": "Game name", "type": "input", "values": []}]
             super().__init__("Triggered when your game is in Top 10 Games this day", config_schema, "* * 1 * *")
 
         def check(self, session, area_action, user_id):
             try:
                 token = get_user_service_token(session, user_id, self.service.name)
-                game_name = get_component(area_action.config, "game", "values")
+                game_name = get_component(area_action.config, "Game name", "values")
                 url = "https://api.twitch.tv/helix/games/top"
                 headers = {
                     "Authorization": f"Bearer {token}",

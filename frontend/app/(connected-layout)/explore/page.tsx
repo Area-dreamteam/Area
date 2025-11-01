@@ -51,18 +51,13 @@ interface FilterProp {
 }
 
 function Filter({ services, filter, setFilter }: FilterProp) {
-  const dropdownFilters = services
-  ? Array.from(new Set(services.map((service) => service.category)))
-      .map((category) => {
-        const service = services.find(s => s.category === category);
-        return customDropdown(
-          category.toLowerCase(),
-          filter === category,
-          setFilter,
-          service?.id ?? -1
-        );
-      })
-  : '';
+  const uniqueCategories = services
+    ? Array.from(new Set(services.map((service) => service.category)))
+    : []
+
+  const dropdownFilters = uniqueCategories.map((category, index) => {
+    return customDropdown(category, filter == category, setFilter, index)
+  })
 
   return (
     <div className="centered">

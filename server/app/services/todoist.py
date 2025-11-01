@@ -4,6 +4,7 @@ Provides task completion triggers and task creation reactions.
 Supports OAuth authentication and project-based task management.
 """
 
+from typing import Dict, Any
 from services.oauth_lib import oauth_add_link
 from models.areas import AreaAction, AreaReaction
 from services.services_classes import (
@@ -15,6 +16,7 @@ from services.services_classes import (
 from models.services.service import Service
 from schemas.services.todoist import Task, Project
 from core.config import settings
+from core.categories import ServiceCategory
 from models.users.user import User
 from sqlmodel import Session
 from core.utils import generate_state
@@ -53,16 +55,51 @@ class Todoist(ServiceClass):
     """
 
     class new_completed_task(Action):
+        """Triggered when a task is marked complete."""
+
         service: "Todoist"
 
-        def __init__(self) -> None:
-            config_schema = [
-                {"name": "Project to watch", "type": "input", "values": []}
-            ]
-            super().__init__("Checks when a task is completed", config_schema)
+        def __init__(self):
+            config_schema = []
+            super().__init__("Triggered when a task is completed", config_schema)
 
-        def check(self, session: Session, area_action: AreaAction, user_id: int):
-            logger.debug(f"Checking task completion: {area_action.config}")
+        def check(self, session, area_action, user_id):
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                headers = {"Authorization": f"Bearer {token}"}
+                url = "https://api.todoist.com/sync/v9/completed/get_all"
+                r = requests.get(url, headers=headers)
+                if r.status_code != 200:
+                    raise TodoistApiError("Failed to fetch completed tasks")
+
+                data = r.json()
+                completed_task = data.get("items", [])[0] if data.get("items") else None
+            except TodoistApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return self.service._compare_data(session, area_action, completed_task, "task_id")
+
+    class new_task_added(Action):
+        """Triggered when a new task is added to Todoist."""
+
+        service: "Todoist"
+
+        def __init__(self):
+            config_schema = []
+            super().__init__("Triggered when a new task is added", config_schema)
+
+        def check(self, session, area_action, user_id):
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                headers = {"Authorization": f"Bearer {token}"}
+                url = "https://api.todoist.com/rest/v2/tasks"
+                r = requests.get(url, headers=headers)
+                if r.status_code != 200:
+                    raise TodoistApiError("Failed to fetch tasks")
+
+                task = r.json()[-1] if len(r.json()) > 0 else None
+            except TodoistApiError as e:
+                logger.error(f"{self.service.name}: {e}")
+            return self.service._compare_data(session, area_action, task, "id")
 
     class create_task(Reaction):
         service: "Todoist"
@@ -89,11 +126,28 @@ class Todoist(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "A modern interconnected todolist",
-            "LifeStyle",
+            ServiceCategory.LIFESTYLE,
             "#CE3608",
             "/images/Todoist_logo.webp",
             True,
         )
+
+    def _compare_data(
+        self, session: Session, area_action: AreaAction, data: Dict[str, Any], key: str
+    ) -> bool:
+        """Check if the data is new compared to the last stored one."""
+        if not area_action.last_state:
+            area_action.last_state = data
+            session.add(area_action)
+            session.commit()
+            return False
+
+        if data and data[key] != area_action.last_state.get(key):
+            area_action.last_state = data
+            session.add(area_action)
+            session.commit()
+            return True
+        return False
 
     def _is_token_valid(self, token):
         try:

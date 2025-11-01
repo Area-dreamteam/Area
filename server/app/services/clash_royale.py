@@ -12,6 +12,7 @@ from services.services_classes import (
 )
 from models.areas import AreaAction
 from core.config import settings
+from core.categories import ServiceCategory
 from sqlmodel import Session
 from pydantic import BaseModel
 import requests
@@ -66,21 +67,12 @@ class PlayerInfo(BaseModel):
 
 
 class ClashRoyale(ServiceClass):
-    """Clash Royale automation service.
-
-    Comprehensive battle tracking and player monitoring:
-    - Battle outcomes (victories, defeats, three crowns)
-    - Trophy changes (gains, losses, thresholds)
-    - Win streak tracking
-    - Player statistics
-
-    Uses JWT Bearer token authentication via shared API key.
-    """
+    """Clash Royale automation service."""
 
     def __init__(self) -> None:
         super().__init__(
             "Track player statistics and battle logs from Clash Royale",
-            "Gaming",
+            ServiceCategory.GAMING,
             "#09304D",
             "/images/ClashRoyale_logo.png",
         )
@@ -130,7 +122,7 @@ class ClashRoyale(ServiceClass):
                     }
                     session.add(area_action)
                     session.commit()
-                    return True
+                    return False
 
                 last_battle_time_str = last_state.get("last_battle_time", "")
                 if latest_battle.battleTime != last_battle_time_str:
@@ -189,7 +181,7 @@ class ClashRoyale(ServiceClass):
                     }
                     session.add(area_action)
                     session.commit()
-                    return battle_result.is_victory
+                    return False
 
                 last_battle_time_str = last_state.get("last_battle_time", "")
                 if battle_result.battleTime != last_battle_time_str:
@@ -248,7 +240,7 @@ class ClashRoyale(ServiceClass):
                     }
                     session.add(area_action)
                     session.commit()
-                    return not battle_result.is_victory
+                    return False
 
                 last_battle_time_str = last_state.get("last_battle_time", "")
                 if battle_result.battleTime != last_battle_time_str:
@@ -307,7 +299,7 @@ class ClashRoyale(ServiceClass):
                     }
                     session.add(area_action)
                     session.commit()
-                    return battle_result.is_victory and battle_result.crowns_won == 3
+                    return False
 
                 last_battle_time_str = last_state.get("last_battle_time", "")
                 if battle_result.battleTime != last_battle_time_str:
