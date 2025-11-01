@@ -10,12 +10,24 @@ class AreaApi:
         self.exception_class = exception_class
     
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
-    def get(self, url, params={}, headers={}):
+    def get(self, url, params={}, headers=None):
         try:
             r = requests.get(url=url, params=params, headers=headers)
             
             if r.status_code != 200:
                 raise self.exception_class(f"Can't access resource (link = {url + "?" + urlencode(params)}, header = {headers})")
+            
+            return r.json()
+        except requests.exceptions.ConnectionError:
+            raise self.exception_class(f"Can't connect to the website \"{url}\"")
+
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
+    def post(self, url, data=None, auth=None, headers=None):
+        try:
+            r = requests.post(url, json=data, auth=auth, headers=headers)
+            
+            if r.status_code != 200:
+                raise self.exception_class(f"Can't access resource (link = {url}, header = {headers}), data = {data}, auth = {auth}, res = {r.content}, error code = {r.status_code}")
             
             return r.json()
         except requests.exceptions.ConnectionError:

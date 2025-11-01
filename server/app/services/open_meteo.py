@@ -199,7 +199,10 @@ default_openmeteo_config_schema = [
 ]
 
 
-class OpenMeteo(Service):
+class OpenMeteo(Service):            
+    def __init__(self) -> None:
+        super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
+
     class if_temperature_rise_above(Action):
         def __init__(self) -> None:
             config_schema = [
@@ -431,9 +434,6 @@ class OpenMeteo(Service):
             current_uv_index = open_meteo_api.get_current_uv_index(latitude, longitude, timezone)
 
             return current_uv_index > uv_index_limit
-        
-    def __init__(self) -> None:
-        super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
 
     class if_uv_index_fall_bellow(Action):
         def __init__(self) -> None:
@@ -560,6 +560,3 @@ class OpenMeteo(Service):
             aqi_alert_level = next((air_quality_threshold for air_quality_tag, air_quality_threshold in self.air_quality_level if air_quality_tag == air_quality_alert), 100)
 
             return aqi >= aqi_alert_level
-        
-    def __init__(self) -> None:
-        super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
