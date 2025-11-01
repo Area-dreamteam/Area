@@ -115,7 +115,7 @@ trakt_api = TraktApi()
 
 class Trakt(ServiceClass):
     def __init__(self) -> None:
-        super().__init__("Service Trakt", ServiceCategory.MOVIE, "#2596be", "", True)
+        super().__init__("Service Trakt", ServiceCategory.MOVIE, "#9F42C6", "images/Trakt_logo.webp", True)
 
     class new_movie_in_watchlist(Action):
         def __init__(self) -> None:
