@@ -33,7 +33,7 @@ function RecommandedApplets()
       key={applet.id}
       className="rounded-xl w-[250px] h-[300px] hover:cursor-pointer"
       style={{ backgroundColor: applet.color }}
-      onClick={() => router.push(`/applets/applet.name`)}
+      onClick={() => router.push(`/applets/${applet.id}`)}
     >
       <div className="centered bg-black rounded-t-lg">
         <p className="font-bold text-white text-[20px] m-[20px]">
@@ -82,7 +82,7 @@ export default function Home()
             aria-label="Click here to register or login to Area"
             onClick={(e) => {
               e.preventDefault()
-              redirect('/register')
+              router.push('/register')
             }}
             className="rounded-button m-[5%]"
           >

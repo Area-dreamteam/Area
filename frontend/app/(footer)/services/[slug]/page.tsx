@@ -10,7 +10,7 @@
 import Image from 'next/image'
 import { useEffect } from 'react'
 import { use, useState } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import { redirect } from 'next/navigation'
 import BackButton from '@/app/components/Back'
 import { useAuth } from '@/app/functions/hooks'
@@ -46,6 +46,7 @@ export default function ServicePage({ params }: ServiceProp) {
   const [currService, setCurrService] = useState<Service | undefined>(undefined)
   const [serviceConnected, setserviceConnected] = useState<boolean>(false)
   const { user } = useAuth()
+  const router = useRouter();
 
   useEffect(() => {
     const loadServices = async () => {
@@ -119,7 +120,7 @@ export default function ServicePage({ params }: ServiceProp) {
               className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto"
               onClick={(e) => {
                 e.preventDefault()
-                redirect('/create')
+                router.push('/create')
               }}
             >
               Create applet

@@ -9,7 +9,7 @@
 
 import { useEffect } from 'react'
 import { use, useState } from 'react'
-import { notFound, useSearchParams } from 'next/navigation'
+import { notFound, useRouter, useSearchParams } from 'next/navigation'
 import { redirect } from 'next/navigation'
 import BackButton from '@/app/components/Back'
 import SettingsButton from '@/app/components/Settings'
@@ -36,7 +36,6 @@ type AppletProp = {
 
 async function deleteApplet(id: number) {
   await fetchDeletePersonalApplet(id)
-  redirect('/my_applets')
 }
 
 async function AppletConnection(
@@ -50,7 +49,6 @@ async function AppletConnection(
 
 async function UnpublishApplet(id: number) {
   await fetchUnpublishPersonalApplet(id)
-  redirect('/my_applets')
 }
 
 async function publishApplet(id: number) {
@@ -58,7 +56,7 @@ async function publishApplet(id: number) {
 }
 
 export default function AppletPage({ params }: AppletProp) {
-  const slug = decodeURIComponent(use(params).slug)
+  const slug = use(params).slug;
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const published = searchParams.get('published') === 'true'
@@ -72,6 +70,7 @@ export default function AppletPage({ params }: AppletProp) {
   const [myApplet, setMyApplet] = useState<
     SpecificPublicApplet | SpecificPrivateApplet | null
   >(null)
+  const router = useRouter();
 
   useEffect(() => {
     const loadApplets = async () => {
@@ -85,7 +84,7 @@ export default function AppletPage({ params }: AppletProp) {
   useEffect(() => {
     if (applets != null) {
       const searched = applets.find(
-        (applet) => applet.name.toLowerCase() == slug.toLowerCase()
+        (applet) => applet.id == Number(slug)
       )
       setCurrApplet(searched)
     }
@@ -96,7 +95,7 @@ export default function AppletPage({ params }: AppletProp) {
   }, [currApplet])
 
   useEffect(() => {
-    if (myApplet != null) setLoading(false)
+    setLoading(false)
   }, [myApplet])
 
   useEffect(() => {
@@ -136,7 +135,7 @@ export default function AppletPage({ params }: AppletProp) {
               {published ? (
                 <button
                   className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]"
-                  onClick={() => UnpublishApplet(myApplet.area_info.id)}
+                  onClick={() => {UnpublishApplet(myApplet.area_info.id); router.push("/my_applets")}}
                 >
                   Unpublish
                 </button>
@@ -160,7 +159,7 @@ export default function AppletPage({ params }: AppletProp) {
             </div>
             <div className="flex justify-end pt-[50px] mr-[20px]">
               <SettingsButton
-                link={`/my_applets/${myApplet.area_info.name}/edit`}
+                link={`/my_applets/${myApplet.area_info.id}/edit`}
               />
             </div>
           </div>
@@ -168,7 +167,7 @@ export default function AppletPage({ params }: AppletProp) {
             <div className="grid grid-cols-2">
               <button
                 className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted [--common-bg:#BA301C] [--common-hover:#801100]"
-                onClick={() => deleteApplet(myApplet.area_info.id)}
+                onClick={() => {deleteApplet(myApplet.area_info.id);router.push('/my_applets');}}
               >
                 Delete applet
               </button>

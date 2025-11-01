@@ -51,7 +51,7 @@ export default function Logins({ isRegister }: LoginProps) {
   return (
     <div className="font-bold">
       <p
-        onClick={() => redirect('/')}
+        onClick={() => router.push('/')}
         className="w-[200px] mx-auto centered title logo"
       >
         Area

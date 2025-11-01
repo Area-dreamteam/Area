@@ -223,7 +223,7 @@ export async function fetchSpecificService(
 }
 
 export async function fetchApplets(
-  setApplets: (data: (PublicApplet | PrivateApplet)[] | null) => void
+  setApplets: (data: PublicApplet[] | PrivateApplet[] | null) => void
 ) {
   try {
     const res = await Calls.get('/areas/public')
@@ -232,9 +232,7 @@ export async function fetchApplets(
       // setApplets(null);
       return false;
     }
-    console.log(res.data)
     setApplets(res.data)
-    console.log(res.data)
     return true;
   } catch (err) {
     console.log('Error: ', err)

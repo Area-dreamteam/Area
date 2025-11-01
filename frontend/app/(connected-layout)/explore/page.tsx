@@ -31,6 +31,8 @@ function customDropdown(
   setFilter: (str: string | null) => void,
   id: number
 ) {
+  if (id == -1)
+    return ("");
   return (
     <DropdownMenuCheckboxItem
       key={id}
@@ -50,15 +52,17 @@ interface FilterProp {
 
 function Filter({ services, filter, setFilter }: FilterProp) {
   const dropdownFilters = services
-    ? services.map((service) => {
+  ? Array.from(new Set(services.map((service) => service.category)))
+      .map((category) => {
+        const service = services.find(s => s.category === category);
         return customDropdown(
-          service.category,
-          filter == service.category,
+          category.toLowerCase(),
+          filter === category,
           setFilter,
-          service.id
-        )
+          service?.id ?? -1
+        );
       })
-    : ''
+  : '';
 
   return (
     <div className="centered">
@@ -120,7 +124,7 @@ function redirectToService(service: Service) {
 }
 
 function redirectToApplet(applet: PublicApplet | PrivateApplet) {
-  redirect(`/applets/${applet.name}`)
+  redirect(`/applets/${applet.id}`)
 }
 
 export default function Explore() {

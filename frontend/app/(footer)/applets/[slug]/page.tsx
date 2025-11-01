@@ -9,7 +9,7 @@
 
 import { useEffect } from 'react'
 import { use, useState } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, useSearchParams } from 'next/navigation'
 import BackButton from '@/app/components/Back'
 import SettingsButton from '@/app/components/Settings'
 import { PublicApplet, SpecificPublicApplet } from '@/app/types/applet'
@@ -28,40 +28,49 @@ async function copyApplet(id: number) {
 }
 
 export default function AppletPage({ params }: AppletProp) {
-  const slug = decodeURIComponent(use(params).slug)
-  const [loading, setLoading] = useState(true)
-  const [applets, setApplets] = useState<PublicApplet[] | null>(null)
-  const [currApplet, setCurrApplet] = useState<PublicApplet | undefined>(undefined)
-  const [applet, setApplet] = useState<SpecificPublicApplet | null>(null)
+  const slug = use(params).slug;
+  const [loading, setLoading] = useState(true);
+  const [applets, setApplets] = useState<
+    PublicApplet[] | null
+  >(null)
+  const [areaChanged, setAreaChanged] = useState<boolean>(false)
+  const [currApplet, setCurrApplet] = useState<
+    PublicApplet | undefined
+  >(undefined)
+  const [applet, setMyApplet] = useState<
+    SpecificPublicApplet | null
+  >(null)
 
   useEffect(() => {
-    const loadApplets = async () => {
-      await fetchApplets(setApplets);
-      console.log(applets);
-    }
-    loadApplets();
+    fetchApplets(setApplets)
   }, [])
 
   useEffect(() => {
     if (applets != null) {
-      console.log(applets)
       const searched = applets.find(
-        (applet) => applet.name.toLowerCase() == slug.toLowerCase()
+        (applet) => applet.id == Number(slug)
       )
-      setCurrApplet(searched);
+      setCurrApplet(searched)
     }
-  }, [applets])
+    console.log(applets)
+    console.log(currApplet)
+  }, [applets, slug])
 
   useEffect(() => {
-    console.log(applets);
-    if (currApplet)
-      fetchSpecificApplet(setApplet, currApplet.id)
+    if (currApplet) fetchSpecificApplet(setMyApplet, currApplet.id)
   }, [currApplet])
 
   useEffect(() => {
-    console.log(currApplet);
-    setLoading(false);
+    if (applet != null) setLoading(false)
   }, [applet])
+
+  useEffect(() => {
+    if (!areaChanged) return;
+    if (currApplet) {
+      fetchSpecificApplet(setMyApplet, currApplet.id)
+    }
+    setAreaChanged(false)
+  }, [areaChanged, currApplet]);
 
   return (
     <div>
@@ -86,7 +95,7 @@ export default function AppletPage({ params }: AppletProp) {
                 {applet.area_info.description}
               </p>
               <button
-
+  
                 className="my-[35%] little-rounded-button centered w-[60%]"
                 onClick={() => copyApplet(applet.area_info.id)}
               >
@@ -95,7 +104,7 @@ export default function AppletPage({ params }: AppletProp) {
             </div>
             <div className="flex justify-end pt-[50px] mr-[20px]">
               <SettingsButton
-                link={`/my_applets/${applet.area_info.name}/edit`}
+                link={`/my_applets/${applet.area_info.id}/edit`}
               />
             </div>
           </div>
