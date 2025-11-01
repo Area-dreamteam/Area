@@ -10,6 +10,7 @@ import base64
 from email.mime.text import MIMEText
 
 from core.utils import generate_state
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link, oauth_add_login
 from models import AreaAction, UserService, AreaReaction, User, Service
 from core.config import settings
@@ -190,7 +191,7 @@ class Gmail(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "Service email de Google",
-            "mail",
+            ServiceCategory.MAIL,
             "#0A378A",
             "/images/Gmail_logo.webp",
             True,

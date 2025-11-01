@@ -16,6 +16,7 @@ from services.services_classes import (
 from models.services.service import Service
 from schemas.services.todoist import Task, Project
 from core.config import settings
+from core.categories import ServiceCategory
 from models.users.user import User
 from sqlmodel import Session
 from core.utils import generate_state
@@ -92,7 +93,6 @@ class Todoist(ServiceClass):
                 headers = {"Authorization": f"Bearer {token}"}
                 url = "https://api.todoist.com/rest/v2/tasks"
                 r = requests.get(url, headers=headers)
-                logger.error(r.json())
                 if r.status_code != 200:
                     raise TodoistApiError("Failed to fetch tasks")
 
@@ -126,7 +126,7 @@ class Todoist(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "A modern interconnected todolist",
-            "LifeStyle",
+            ServiceCategory.LIFESTYLE,
             "#CE3608",
             "/images/Todoist_logo.webp",
             True,

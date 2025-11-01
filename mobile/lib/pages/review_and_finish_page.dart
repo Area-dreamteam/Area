@@ -66,13 +66,26 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 20),
                 _buildLogos(viewModel),
                 const SizedBox(height: 40),
-                const Text(
-                  'Applet title',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                const Row(
+                  children: [
+                    Text(
+                      'Applet title',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      '*',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 _buildTextField(
@@ -238,6 +251,20 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 )
               : Text(buttonText, style: const TextStyle(fontSize: 18)),
         ),
+        if (!isReady && !viewModel.isLoading)
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: Text(
+              viewModel.name.isEmpty 
+                  ? 'Please enter an applet title to continue'
+                  : 'Please complete all required fields',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ),
       ],
     );
   }

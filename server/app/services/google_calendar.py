@@ -19,6 +19,7 @@ from services.services_classes import (
 )
 from core.logger import logger
 from api.users.db import get_user_service_token
+from core.categories import ServiceCategory
 
 
 class GoogleOAuthTokenRes(BaseModel):
@@ -42,7 +43,7 @@ class GoogleCalendar(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "Service email de Google",
-            "calendar",
+            ServiceCategory.CALENDAR,
             "#4285F4",
             "/images/GoogleCalendar_logo.webp",
             True,

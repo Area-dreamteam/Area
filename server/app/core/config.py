@@ -48,6 +48,8 @@ class Settings(BaseSettings):
     DISCORD_CLIENT_SECRET: str
     TRAKT_CLIENT_ID: str
     TRAKT_CLIENT_SECRET: str
+    DROPBOX_CLIENT_ID: str
+    DROPBOX_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
 

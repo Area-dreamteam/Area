@@ -8,6 +8,7 @@ from typing import Dict, Any
 import json
 
 from core.utils import generate_state
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link, oauth_add_login
 from models import AreaAction, UserService, AreaReaction, User, Service
 from core.config import settings
@@ -111,7 +112,7 @@ class Outlook(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "Microsoft Outlook Service",
-            "mail",
+            ServiceCategory.MAIL,
             "#0078D4",
             "/images/Outlook_logo.webp",
             True,

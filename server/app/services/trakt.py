@@ -6,6 +6,7 @@ from core.config import settings
 from core.logger import logger
 from core.utils import generate_state
 from api.users.db import get_user_service_token
+from core.categories import ServiceCategory
 from fastapi import HTTPException, Request, Response
 from models import AreaAction, Service, User, UserService
 from services.area_api import AreaApi
@@ -114,7 +115,35 @@ trakt_api = TraktApi()
 
 class Trakt(ServiceClass):
     def __init__(self) -> None:
-        super().__init__("Service Trakt", "Movie", "#2596be", "", True)
+        super().__init__("Service Trakt", ServiceCategory.MOVIE, "#2596be", "", True)
+
+    class new_movie_in_watchlist(Action):
+        def __init__(self) -> None:
+            super().__init__("Check if a movie was added to watchlist")
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            token = get_user_service_token(session, user_id, self.service.name)
+            last_state = area_action.last_state
+
+            watchlist = trakt_api.get_watchlist(token)
+            if not watchlist:
+                return False
+
+            last_movie_title = trakt_api.get_watchlist(token)[0]["movie"]["title"]
+
+            if (
+                last_state is None
+                or "last_movie_title" not in last_state
+                or last_state["last_movie_title"] != last_movie_title
+            ):
+                area_action.last_state = {"last_movie_title": last_movie_title}
+                session.add(area_action)
+                session.commit()
+                return True
+
+            return False
 
     class new_movie_in_watchlist(Action):
         def __init__(self) -> None:

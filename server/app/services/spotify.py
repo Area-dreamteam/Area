@@ -9,6 +9,7 @@ import base64
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -43,7 +44,7 @@ class Spotify(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "Spotify", "music", "#1DB954", "images/Spotify_logo.webp", True
+            "Spotify", ServiceCategory.MUSIC, "#1DB954", "images/Spotify_logo.webp", True
         )
 
     class device_connect_to_spotify(Action):
