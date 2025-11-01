@@ -92,7 +92,6 @@ class Todoist(ServiceClass):
                 headers = {"Authorization": f"Bearer {token}"}
                 url = "https://api.todoist.com/rest/v2/tasks"
                 r = requests.get(url, headers=headers)
-                logger.error(r.json())
                 if r.status_code != 200:
                     raise TodoistApiError("Failed to fetch tasks")
 
