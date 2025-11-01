@@ -203,7 +203,6 @@ class Outlook(ServiceClass):
                     }
                 }
                 r = requests.post(url, headers=headers, data=json.dumps(payload))
-
                 if r.status_code not in (200, 202):
                     raise MicrosoftApiError("Failed to send email")
                 logger.debug(f"Outlook: Email sent to {to}")
@@ -295,7 +294,6 @@ class Outlook(ServiceClass):
     def _get_user_info(self, token: str) -> Dict[str, Any]:
         url = "https://graph.microsoft.com/v1.0/me"
         r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
-        logger.error(r.json())
         if r.status_code != 200:
             raise MicrosoftApiError("Invalid token or expired")
         return r.json()
@@ -307,7 +305,7 @@ class Outlook(ServiceClass):
             "client_id": settings.MICROSOFT_CLIENT_ID,
             "response_type": "code",
             "redirect_uri": redirect,
-            "scope": "offline_access Mail.Read Mail.Send User.Read",
+            "scope": "offline_access email openid profile https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Mail.Send https://graph.microsoft.com/User.Read",
             "state": state if state else generate_state(),
         }
         return f"{base_url}?{urlencode(params)}"
