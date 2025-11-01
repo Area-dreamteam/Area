@@ -206,7 +206,7 @@ def get_oauths(session: SessionDep) -> list[OauthLoginGet]:
     oauths = session.exec(select(Service)).all()
     if not oauths:
         raise HTTPException(status_code=404, detail="Data not found")
-    return oauths  # type: ignore
+    return oauths
 
 
 @router.get("/available_oauths_login")
@@ -214,7 +214,7 @@ def get_oauths_login(session: SessionDep) -> list[OauthLoginGet]:
     oauths = session.exec(select(OAuthLogin)).all()
     if not oauths:
         raise HTTPException(status_code=404, detail="Data not found")
-    return oauths  # type: ignore
+    return oauths
 
 
 @router.delete("/oauth_login/{id}/disconnect")

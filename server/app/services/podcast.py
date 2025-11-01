@@ -62,8 +62,8 @@ def _get_podcast_selection_fields() -> List[Dict[str, Any]]:
 
 def _resolve_rss_url(config: Any) -> str:
     """Resolve RSS URL from config (handles preset selection or custom URL)."""
-    preset_name = get_component(config, "Podcast Selection", "values")  # type: ignore
-    custom_url = get_component(config, "Custom RSS Feed URL", "values")  # type: ignore
+    preset_name = get_component(config, "Podcast Selection", "values")
+    custom_url = get_component(config, "Custom RSS Feed URL", "values")
 
     if preset_name == "Custom URL":
         return str(custom_url) if custom_url else ""
@@ -95,7 +95,7 @@ class Podcast(Service):
                     logger.error("RSS Feed URL is required")
                     return False
 
-                episodes = self.service._get_episodes_from_rss(rss_url)  # type: ignore
+                episodes = self.service._get_episodes_from_rss(rss_url)
 
                 if not episodes:
                     return False
@@ -152,7 +152,7 @@ class Podcast(Service):
                 rss_url = _resolve_rss_url(area_action.config)
                 threshold_str = get_component(
                     area_action.config, "Episode Count Threshold", "values"
-                )  # type: ignore
+                )
 
                 if not rss_url or not rss_url.strip():
                     logger.error("RSS Feed URL is required")
@@ -164,7 +164,7 @@ class Podcast(Service):
                     logger.error(f"Invalid threshold value: {threshold_str}")
                     return False
 
-                episodes = self.service._get_episodes_from_rss(rss_url)  # type: ignore
+                episodes = self.service._get_episodes_from_rss(rss_url)
                 current_count = len(episodes)
 
                 previous_count = (
@@ -213,7 +213,7 @@ class Podcast(Service):
             """Check if new episode title contains keyword."""
             try:
                 rss_url = _resolve_rss_url(area_action.config)
-                keyword = get_component(area_action.config, "Keyword", "values")  # type: ignore
+                keyword = get_component(area_action.config, "Keyword", "values")
 
                 if not rss_url or not rss_url.strip():
                     logger.error("RSS Feed URL is required")
@@ -225,7 +225,7 @@ class Podcast(Service):
 
                 keyword_lower = keyword.lower()
 
-                episodes = self.service._get_episodes_from_rss(rss_url)  # type: ignore
+                episodes = self.service._get_episodes_from_rss(rss_url)
 
                 if not episodes:
                     return False
@@ -285,13 +285,13 @@ class Podcast(Service):
             """Log podcast information."""
             try:
                 rss_url = _resolve_rss_url(area_action.config)
-                log_message = get_component(area_action.config, "Log Message", "values")  # type: ignore
+                log_message = get_component(area_action.config, "Log Message", "values")
 
                 if not rss_url or not rss_url.strip():
                     logger.error("RSS Feed URL is required")
                     return
 
-                podcast_info = self.service._get_podcast_info(rss_url)  # type: ignore
+                podcast_info = self.service._get_podcast_info(rss_url)
 
                 message = log_message if log_message else "Podcast update"
                 logger.info(
@@ -325,7 +325,7 @@ class Podcast(Service):
                 rss_url = _resolve_rss_url(area_action.config)
                 num_episodes_str = get_component(
                     area_action.config, "Number of Episodes", "values"
-                )  # type: ignore
+                )
 
                 if not rss_url or not rss_url.strip():
                     logger.error("RSS Feed URL is required")
@@ -336,7 +336,7 @@ class Podcast(Service):
                 except (ValueError, TypeError):
                     num_episodes = 10
 
-                episodes = self.service._get_episodes_from_rss(rss_url)  # type: ignore
+                episodes = self.service._get_episodes_from_rss(rss_url)
                 episodes = episodes[:num_episodes]
 
                 episode_list = "\n".join(
