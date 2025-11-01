@@ -27,6 +27,7 @@ from services.trakt import Trakt
 from services.youtube import Youtube
 from services.dropbox import Dropbox
 from services.notion import Notion
+from services.linkedin import LinkedIn
 
 __all__ = [
     "ClashRoyale",
@@ -47,8 +48,9 @@ __all__ = [
     "GoogleCalendar",
     "Trakt",
     "Youtube",
+    "LinkedIn",
     "Dropbox",
-    "Notion"
+    "Notion",
 ]
 
 # Service registries - automatically populated with all Service/oauth_service subclasses
