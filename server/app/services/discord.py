@@ -11,6 +11,7 @@ from models.users.user_service import UserService
 from services.oauth_lib import oauth_add_link
 from core.config import settings
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.services_classes import (
     Service as ServiceClass,
     Action,
@@ -40,7 +41,7 @@ class Discord(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             description=f"Discord Bot for server and channel automation. Invite the bot after connecting: [here]({self.get_bot_invite_link()})",
-            category="communication",
+            category=ServiceCategory.COMMUNICATION,
             color="#5865F2",
             img_url="images/Discord_logo.webp",
             oauth=True,  # type: ignore

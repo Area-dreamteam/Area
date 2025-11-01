@@ -8,6 +8,7 @@ from models import AreaAction, AreaReaction
 from sqlmodel import Session
 from services.services_classes import Service, Action, Reaction, get_component
 from core.logger import logger
+from core.categories import ServiceCategory
 from typing import List, Dict, Any
 import requests
 import xml.etree.ElementTree as ET
@@ -355,7 +356,7 @@ class Podcast(Service):
     def __init__(self) -> None:
         super().__init__(
             description="Monitor and manage podcast RSS feeds",
-            category="Media",
+            category=ServiceCategory.MEDIA,
             color="#9b59b6",
             img_url="/images/Podcast_logo.webp",
             oauth=False,

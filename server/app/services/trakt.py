@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from core.config import settings
 from core.logger import logger
 from core.utils import generate_state
+from core.categories import ServiceCategory
 from fastapi import HTTPException, Request, Response
 from models import AreaAction, Service, User, UserService
 from services.area_api import AreaApi
@@ -46,7 +47,7 @@ class TraktApi(AreaApi):
                 "Content-Type": "application/json",
                 "trakt-api-key": settings.TRAKT_CLIENT_ID,
                 "trakt-api-version": 2,
-                "Authorization": f"Bearer {token}"
+                "Authorization": f"Bearer {token}",
             },
         )
         logger.debug(f"test movie {res}")
@@ -83,7 +84,7 @@ trakt_api = TraktApi()
 
 class Trakt(ServiceClass):
     def __init__(self) -> None:
-        super().__init__("Service Trakt", "Movie", "#2596be", "", True)
+        super().__init__("Service Trakt", ServiceCategory.MOVIE, "#2596be", "", True)
 
     # class if_temperature_rise_above(Action):
     #     def __init__(self) -> None:

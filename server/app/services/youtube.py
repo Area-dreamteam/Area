@@ -8,6 +8,7 @@ from fastapi import HTTPException, Response, Request
 
 from typing import Dict, Any
 from core.utils import generate_state
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from models import AreaAction, UserService, AreaReaction, User, Service
 from core.config import settings
@@ -42,7 +43,7 @@ class Youtube(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "Service youtube de Google",
-            "medias",
+            ServiceCategory.MEDIA,
             "#CC1717",
             "/images/Youtube_logo.webp",
             True,

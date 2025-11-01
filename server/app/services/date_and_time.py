@@ -7,6 +7,7 @@ No OAuth required - purely time-based condition checking.
 from models import AreaAction
 from sqlmodel import Session
 from services.services_classes import Service, Action, get_component
+from core.categories import ServiceCategory
 from datetime import datetime, time as dt_time
 from core.logger import logger
 
@@ -587,7 +588,7 @@ class DateAndTime(Service):
     def __init__(self) -> None:
         super().__init__(
             "Date and Time triggers for automation workflows",
-            "Time",
+            ServiceCategory.TIME,
             "#4a4d4b",
             "/images/DateAndTime_logo.webp",
             False,

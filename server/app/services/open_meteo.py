@@ -2,6 +2,7 @@ from models import AreaAction
 from sqlmodel import Session
 from services.services_classes import Service, Action, get_component
 from services.area_api import AreaApi
+from core.categories import ServiceCategory
 from datetime import datetime
 
 
@@ -201,7 +202,7 @@ default_openmeteo_config_schema = [
 
 class OpenMeteo(Service):            
     def __init__(self) -> None:
-        super().__init__("Service OpenMeteo", "Meteo", "#2596be", "", False)
+        super().__init__("Service OpenMeteo", ServiceCategory.WEATHER, "#2596be", "", False)
 
     class if_temperature_rise_above(Action):
         def __init__(self) -> None:
