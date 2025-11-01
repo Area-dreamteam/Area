@@ -172,6 +172,7 @@ class _LoginPageState extends State<LoginPage> {
               icon: Icon(
                 _obscurePassword ? Icons.visibility_off : Icons.visibility,
               ),
+              tooltip: "hide password",
               onPressed: () {
                 setState(() {
                   _obscurePassword = !_obscurePassword;
@@ -269,8 +270,8 @@ class _LoginPageState extends State<LoginPage> {
                       ? null
                       : () => _loginWithOAuth(provider.name),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
