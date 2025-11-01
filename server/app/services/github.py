@@ -94,7 +94,7 @@ class GithubOauth(oauth_service):
             "redirect_uri": redirect,
             "prompt": "select_account",
             "allow_signup": "true",
-            "scope": "user:read",
+            "scope": "read:user user:email",
             "login": "",
             "force_verify": "true",
         }
