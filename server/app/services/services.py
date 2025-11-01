@@ -28,6 +28,7 @@ from services.youtube import Youtube
 from services.dropbox import Dropbox
 from services.notion import Notion
 from services.linkedin import LinkedIn
+from services.figma import Figma
 
 __all__ = [
     "ClashRoyale",
@@ -51,6 +52,7 @@ __all__ = [
     "LinkedIn",
     "Dropbox",
     "Notion",
+    "Figma"
 ]
 
 # Service registries - automatically populated with all Service/oauth_service subclasses
