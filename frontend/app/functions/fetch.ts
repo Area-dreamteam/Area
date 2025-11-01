@@ -228,22 +228,23 @@ export async function fetchSpecificService(
 }
 
 export async function fetchApplets(
-  setApplets: (data: (PublicApplet | PrivateApplet)[] | null) => void
+  setApplets: (data: PublicApplet[] | PrivateApplet[] | null) => void
 ) {
   try {
     const res = await Calls.get('/areas/public')
-
     if (res.status != 200) {
-      setApplets(null)
-      return false
+      console.log("failed")
+      // setApplets(null);
+      return false;
     }
     setApplets(res.data)
-    return true
+    return true;
   } catch (err) {
     console.log('Error: ', err)
   }
-  setApplets(null)
-  return false
+  console.log("failed")
+  // setApplets(null);
+  return false;
 }
 
 export async function fetchSpecificApplet(

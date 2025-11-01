@@ -15,6 +15,7 @@ export default function taskbarButton(
 ) {
   return (
     <Button
+      aria-label={`See ${buttonName}`}
       className="bg-white hover:bg-white hover:text-[#424242] text-black font-bold text-[15px] hover:cursor-pointer"
       onClick={() => setPage(buttonName)}
       style={{ textDecoration: selected == buttonName ? 'underline' : '' }}
