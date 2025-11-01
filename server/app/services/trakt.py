@@ -83,6 +83,19 @@ class TraktApi(AreaApi):
             },
         )
         return res
+    
+    def get_watch_history(self, token):
+        res = self.get(
+            "https://api.trakt.tv/sync/history/movies",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+        return res
 
     def get_token(self, code: str) -> TraktOAuthTokenRes:
         url = "https://api.trakt.tv/oauth/token"
@@ -131,7 +144,7 @@ class Trakt(ServiceClass):
             if not watchlist:
                 return False
 
-            last_movie_title = trakt_api.get_watchlist(token)[0]["movie"]["title"]
+            last_movie_title = watchlist[0]["movie"]["title"]
 
             if (
                 last_state is None
@@ -145,9 +158,9 @@ class Trakt(ServiceClass):
 
             return False
 
-    class new_movie_in_watchlist(Action):
+    class new_movie_watched(Action):
         def __init__(self) -> None:
-            super().__init__("Check if a movie was added to watchlist")
+            super().__init__("Check if a new movie was watched")
 
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
@@ -155,11 +168,11 @@ class Trakt(ServiceClass):
             token = get_user_service_token(session, user_id, self.service.name)
             last_state = area_action.last_state
 
-            watchlist = trakt_api.get_watchlist(token)
-            if not watchlist:
+            watch_history = trakt_api.get_watch_history(token)
+            if not watch_history:
                 return False
 
-            last_movie_title = trakt_api.get_watchlist(token)[0]["movie"]["title"]
+            last_movie_title = watch_history[0]["movie"]["title"]
 
             if (
                 last_state is None

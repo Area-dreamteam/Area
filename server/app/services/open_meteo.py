@@ -4,6 +4,7 @@ from services.services_classes import Service, Action, get_component
 from services.area_api import AreaApi
 from core.categories import ServiceCategory
 from datetime import datetime
+from core.logger import logger
 
 
 class OpenMeteoApiError(Exception):
