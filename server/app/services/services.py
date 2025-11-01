@@ -11,6 +11,7 @@ from services.clash_royale import ClashRoyale
 from services.date_and_time import DateAndTime
 from services.discord import Discord
 from services.github import Github
+from services.ign import IGN
 from services.google import Gmail
 from services.microsoft import Outlook
 from services.open_meteo import OpenMeteo
@@ -24,12 +25,14 @@ from services.google_calendar import GoogleCalendar
 from services.trakt import Trakt
 from services.youtube import Youtube
 from services.dropbox import Dropbox
+from services.notion import Notion
 
 __all__ = [
     "ClashRoyale",
     "DateAndTime",
     "Discord",
     "Github",
+    "IGN",
     "Gmail",
     "Outlook",
     "OpenMeteo",
@@ -42,7 +45,8 @@ __all__ = [
     "GoogleCalendar",
     "Trakt",
     "Youtube",
-    "Dropbox"
+    "Dropbox",
+    "Notion"
 ]
 
 # Service registries - automatically populated with all Service/oauth_service subclasses

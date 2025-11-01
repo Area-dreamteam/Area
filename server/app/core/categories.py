@@ -19,6 +19,8 @@ class ServiceCategory(str, Enum):
     CALENDAR = "calendar"
     MAIL = "mail"
 
+    PRODUCTIVITY = "productivity"
+
     DEVELOPER = "developer"
 
     FITNESS = "fitness"
@@ -44,6 +46,7 @@ class ServiceCategory(str, Enum):
             cls.LIFESTYLE: "Lifestyle",
             cls.CALENDAR: "Calendar",
             cls.MAIL: "Email",
+            cls.PRODUCTIVITY: "Productivity",
             cls.DEVELOPER: "Developer Tools",
             cls.FITNESS: "Fitness",
             cls.TIME: "Time & Date",
