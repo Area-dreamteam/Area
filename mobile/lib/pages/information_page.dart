@@ -10,7 +10,7 @@ import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:mobile/widgets/card.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/pages/my_area.dart'; 
+import 'package:mobile/pages/my_area.dart';
 
 class InformationPage extends StatefulWidget {
   final ExploreItem item;
@@ -29,7 +29,7 @@ class _InformationPageState extends State<InformationPage>
 
   bool _isLoading = true;
   Service? _detailedService;
-  bool _isConnected = false;  
+  bool _isConnected = false;
   bool _isCopying = false;
 
   @override
@@ -140,11 +140,43 @@ class _InformationPageState extends State<InformationPage>
     }
   }
 
+  Future<void> _unlinkService() async {
+    if (_detailedService == null) return;
+
+    final oauthService = context.read<ServiceRepository>();
+    final serviceName = _detailedService!.name;
+
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await oauthService.unlinkOAuthAccount(serviceName);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isConnected = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to disconnect service: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _copyApplet() async {
     if (_isCopying) return;
-    
+
     setState(() => _isCopying = true);
-    
+
     final applet = widget.item.data as AppletModel;
     final repo = context.read<ServiceRepository>();
 
@@ -164,7 +196,6 @@ class _InformationPageState extends State<InformationPage>
         MaterialPageRoute(builder: (context) => const MyAreaPage()),
         (Route<dynamic> route) => false,
       );
-
     } catch (e) {
       if (!mounted) return;
       setState(() => _isCopying = false);
@@ -176,7 +207,6 @@ class _InformationPageState extends State<InformationPage>
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -482,9 +512,9 @@ class _InformationPageState extends State<InformationPage>
     }
     if (_isConnected) {
       return ElevatedButton(
-        onPressed: null,
+        onPressed: _unlinkService,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.redAccent,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),
@@ -497,7 +527,7 @@ class _InformationPageState extends State<InformationPage>
             Icon(Icons.check_circle_outline, size: 20),
             SizedBox(width: 12),
             Text(
-              "Connected",
+              "Disconnect",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
@@ -546,9 +576,7 @@ class _InformationPageState extends State<InformationPage>
     bool isLoading = false,
   }) {
     return ElevatedButton.icon(
-      icon: isLoading
-          ? const SizedBox.shrink()
-          : Icon(icon, size: 20),
+      icon: isLoading ? const SizedBox.shrink() : Icon(icon, size: 20),
       label: isLoading
           ? SizedBox(
               width: 24,
