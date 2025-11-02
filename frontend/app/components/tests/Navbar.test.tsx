@@ -148,10 +148,11 @@ describe('NavigationBar', () => {
     expect(nav).toHaveClass('flex', 'flex-row-reverse')
   })
 
-  it('renders menu buttons for Explore, Login, and Register', () => {
+  it('renders menu buttons for Explore, Download App, Login, and Register', () => {
     render(<NavigationBar />)
 
     expect(screen.getByTestId('menu-button-explore')).toBeInTheDocument()
+    expect(screen.getByTestId('menu-button-download-app')).toBeInTheDocument()
     expect(screen.getByTestId('menu-button-login')).toBeInTheDocument()
     expect(screen.getByTestId('menu-button-register')).toBeInTheDocument()
   })
@@ -162,12 +163,16 @@ describe('NavigationBar', () => {
     const exploreLink = screen
       .getByTestId('menu-button-explore')
       .querySelector('a')
+    const downloadAppLink = screen
+      .getByTestId('menu-button-download-app')
+      .querySelector('a')
     const loginLink = screen.getByTestId('menu-button-login').querySelector('a')
     const registerLink = screen
       .getByTestId('menu-button-register')
       .querySelector('a')
 
     expect(exploreLink).toHaveAttribute('href', '/explore')
+    expect(downloadAppLink).toHaveAttribute('href', '/client.apk')
     expect(loginLink).toHaveAttribute('href', '/login')
     expect(registerLink).toHaveAttribute('href', '/register')
   })
@@ -216,7 +221,7 @@ describe('ConnectedNavbar', () => {
     render(<ConnectedNavbar />)
 
     const menuItems = screen.getAllByTestId('dropdown-menu-item')
-    expect(menuItems).toHaveLength(6) // Create, My applets, Explore, Account, Help, Log out
+    expect(menuItems).toHaveLength(7) // Create, My applets, Explore, Account, Help, Download Mobile App, Log out
   })
 
   it('dropdown menu items have correct click handlers for enabled items', async () => {
@@ -242,6 +247,17 @@ describe('ConnectedNavbar', () => {
     if (helpItem) {
       fireEvent.click(helpItem)
       expect(mockPush).toHaveBeenCalledWith('/help')
+    }
+
+    mockPush.mockClear()
+
+    // Test Download Mobile App menu item
+    const downloadItem = menuItems.find((item) =>
+      item.textContent?.includes('Download Mobile App')
+    )
+    if (downloadItem) {
+      fireEvent.click(downloadItem)
+      expect(mockPush).toHaveBeenCalledWith('/client.apk')
     }
 
     mockPush.mockClear()

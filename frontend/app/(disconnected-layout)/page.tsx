@@ -88,6 +88,18 @@ export default function Home()
             Start now
           </button>
         </div>
+        <div className="centered mt-[2%]">
+          <button
+            aria-label="Download mobile app"
+            onClick={(e) => {
+              e.preventDefault()
+              router.push('/client.apk')
+            }}
+            className="rounded-button inverted m-[5%]"
+          >
+            Download Mobile App
+          </button>
+        </div>
       </div>
       <RecommandedApplets/>
       <br/>
