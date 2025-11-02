@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2025
+** Area_Mirroring
+** File description:
+** page
+*/
+
 'use client'
 
 import { useEffect } from 'react'
