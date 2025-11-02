@@ -175,7 +175,8 @@ cd server && source .venv/bin/activate && pip install -r requirements.txt
 Area/
 ├── frontend/         # Next.js web app (port 8081)
 │   ├── app/          # Routes and page components
-│   └── components/   # Reusable UI components
+│   ├── components/   # Reusable UI components
+│   └── functions/    # Communication with the backend
 ├── server/           # FastAPI backend (port 8080)
 │   └── app/
 │       ├── api/      # API endpoints
