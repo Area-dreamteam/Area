@@ -43,7 +43,7 @@ interface UpButtonProp {
 
 function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
   return (
-    <Button className={`ml-[10%] mt-[20%] rounded-full border-${color} text-${color} hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[120px] text-[20px]`} onClick={() => act(param)}>
+    <Button className={`ml-[10%] mt-[20%] rounded-full border-${color} text-${color} hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[50%] text-[100%]`} onClick={() => act(param)}>
       {text}
     </Button>
   )
@@ -597,12 +597,12 @@ function ChooseService({ setIsChoosing, setAct, type, act,
         <div>
           <div className="grid grid-cols-4">
             <LeftUpButton text="Back" act={(param: boolean | string) => {setIsChoosing(param as boolean); setIsEditing(false)}} param={false} />
-            <p className="mt-[35px] flex flex-col text-[50px] font-bold col-span-2 text-center">
+            <p className="mt-[35px] flex flex-col font-bold col-span-2 text-center title">
               Choose a service
             </p>
           </div>
           <Input aria-label="You can search services by name here" className="w-[400px] mx-auto block mt-[50px] border-[4px] h-[50px] text-[20px] placeholder:text-[20px]" placeholder="Search services" onChange={(e) => setSearch(e.target.value)} />
-          <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[250px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected}/>
+          <Services search={search} services={services} className="mt-[50px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[250px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected}/>
         </div>
       }
       {((selected && serviceConnected && chosenService?.oauth_required) || (selected && chosenService && !chosenService.oauth_required)) &&

@@ -124,7 +124,7 @@
       font-size: 400%;
     }
     @media (width < 40rem) {
-      font-size: 250%;
+      font-size: 200%;
     }
     color: var(--common-color);
     text-align: center;
