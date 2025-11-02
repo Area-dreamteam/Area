@@ -31,7 +31,6 @@ import { fetchIsConnected } from "@/app/functions/fetch"
 import { Checkbox } from "@/components/ui/checkbox"
 import Markdown from "@/app/components/Markdown"
 import { ActionButton } from "@/app/components/ActionButtons"
-import { AlertDescription } from "@/components/ui/alert"
 
 //-- Button --//
 
@@ -157,9 +156,10 @@ function Creation({ creating, setAppletRespSchema = () => "",  theAction, setThe
           </div>
           <div className="centered mt-[30px]">
             <button aria-label="Click to finish the creation of your applet" className="rounded-button inverted px-[5%] py-[3%]" onClick={() => {
-                creating ?
+                if (creating)
                     createApplet(theAction as ActDetails, theReactions as ActDetails[], title)
-                    : makeAppletResponse(setAppletRespSchema, title, theAction as ActDetails, theReactions as ActDetails[]);
+                else
+                    makeAppletResponse(setAppletRespSchema, title, theAction as ActDetails, theReactions as ActDetails[]);
                 if (creating)
                     router.push("/my_applets");
                 }} disabled={title === "" || !theAction || !theReactions}>
@@ -170,7 +170,12 @@ function Creation({ creating, setAppletRespSchema = () => "",  theAction, setThe
       ) : (
         <div>
           <div className="grid grid-cols-4">
-            <LeftUpButton text="Cancel" act={(param: boolean | string) => { creating ? router.push(param as string) : router.back()}} param={"/my_applets"} />
+            <LeftUpButton text="Cancel" act={(param: boolean | string) => {
+                if (creating)
+                    router.push(param as string)
+                else
+                    router.back()
+                }} param={"/my_applets"} />
             <p className="mt-[35px] flex flex-col title col-span-2 text-center">
               {creating ? "Create": "Edit"}
             </p>

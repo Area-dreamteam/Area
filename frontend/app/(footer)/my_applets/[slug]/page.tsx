@@ -167,9 +167,10 @@ export default function AppletPage({ params }: AppletProp) {
               )}
             </div>
             <div className="flex justify-end pt-[50px] mr-[20px]">
-              <SettingsButton
+              {!published &&
+                <SettingsButton
                 link={`/my_applets/${myApplet.area_info.id}/edit`}
-              />
+              />}
             </div>
           </div>
           {!published && (

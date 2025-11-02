@@ -19,7 +19,8 @@ import {
 
 /**
  * Parse Pydantic validation error from backend
- */
+*/
+
 function parseValidationError(data: unknown): string {
   try {
     if (data?.detail) {
