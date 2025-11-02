@@ -42,7 +42,6 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    // Parse oauth_login array if present
     List<OAuthLoginInfo> oauthLogins = [];
     if (json['oauth_login'] != null) {
       final oauthLoginList = json['oauth_login'] as List<dynamic>;
@@ -51,13 +50,11 @@ class UserModel {
           .toList();
     }
 
-    // Extract connected account names from oauth_login for backwards compatibility
     List<String> linkedAccounts = oauthLogins
         .where((oauth) => oauth.connected)
         .map((oauth) => oauth.name)
         .toList();
 
-    // Fallback to old linked_accounts format if oauth_login is not present
     if (json['linked_accounts'] != null) {
       linkedAccounts = List<String>.from(json['linked_accounts']);
     }

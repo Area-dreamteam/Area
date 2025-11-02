@@ -19,7 +19,6 @@ class ApiUrlService {
       return customUrl;
     }
     
-    // Fallback to environment variable or default
     const apiUrlFromEnv = String.fromEnvironment('API_URL', defaultValue: _defaultApiUrl);
     _cachedApiUrl = apiUrlFromEnv;
     return apiUrlFromEnv;

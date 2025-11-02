@@ -24,7 +24,6 @@ class AuthRepository {
           const storage = FlutterSecureStorage();
           await storage.write(key: 'session_cookie', value: sessionCookie);
           
-          // Verify it was stored correctly
           final storedCookie = await storage.read(key: 'session_cookie');
           print('DEBUG loginWithEmailPassword - storedCookie verification: $storedCookie');
         } else {
