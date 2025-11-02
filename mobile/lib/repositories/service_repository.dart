@@ -299,7 +299,10 @@ class ServiceRepository {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.data);
-        return data['is_connected'] as bool;
+        if (data is Map && data.containsKey('is_connected')) {
+          return data['is_connected'] as bool;
+        }
+        return true;
       }
       return false;
     } catch (e) {
@@ -327,27 +330,20 @@ class ServiceRepository {
     }
   }
 
-  Future<void> updateUserPassword({required String newPassword}) async {
+  Future<void> updateUserPassword({
+    required String newPassword,
+    required String currentPassword,
+  }) async {
     String errorMessage = "Problem to update password";
     try {
       final response = await _apiService.updateUserPassword(
         newPassword: newPassword,
+        currentPassword: currentPassword,
       );
       if (response.statusCode == 200 || response.statusCode == 204) {
         return;
       }
       throw Exception(errorMessage);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> unlinkOAuthAccount(String providerName) async {
-    try {
-      final response = await _apiService.unlinkOAuthAccount(providerName);
-      if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Failed to unlink account: ${response.data}');
-      }
     } catch (e) {
       rethrow;
     }
@@ -446,6 +442,39 @@ class ServiceRepository {
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('Échec de la mise à jour de l\'Area: ${response.data}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> disconnectService(int serviceId) async {
+    try {
+      final response = await _apiService.disconnectService(serviceId);
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to disconnect service: ${response.data}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> disconnectOAuthLogin(int oauthLoginId) async {
+    try {
+      final response = await _apiService.disconnectOAuthLogin(oauthLoginId);
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to disconnect OAuth login: ${response.data}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> unlinkOAuthAccount(int oauthId) async {
+    try {
+      final response = await _apiService.unlinkOAuthAccount(oauthId);
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to unlink OAuth account: ${response.data}');
       }
     } catch (e) {
       rethrow;

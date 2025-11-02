@@ -6,6 +6,10 @@ import 'package:mobile/pages/change_password_page.dart';
 import 'package:mobile/widgets/navbar.dart';
 import 'package:mobile/repositories/auth_repository.dart';
 import 'package:mobile/scaffolds/main_scaffold.dart';
+import 'package:mobile/core/config.dart';
+import 'package:mobile/services/api_url_service.dart';
+import 'package:mobile/services/api_service.dart';
+import 'package:mobile/services/oauth_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,6 +21,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _apiUrlController = TextEditingController();
 
   @override
   void initState() {
@@ -28,10 +33,17 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
         if (mounted && viewModel.currentUser != null) {
           _usernameController.text = viewModel.currentUser!.name;
           _emailController.text = viewModel.currentUser!.email;
-          _emailController.addListener(() {});
         }
       });
+      _loadApiUrl();
     });
+  }
+
+  Future<void> _loadApiUrl() async {
+    final url = await Config.getApiUrl();
+    if (mounted) {
+      _apiUrlController.text = url;
+    }
   }
 
   @override
@@ -58,6 +70,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _usernameController.dispose();
     _emailController.dispose();
+    _apiUrlController.dispose();
     super.dispose();
   }
 
@@ -104,6 +117,8 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
               label: 'Email',
               controller: _emailController,
             ),
+            const SizedBox(height: 40),
+            _buildApiUrlSection(),
             const SizedBox(height: 40),
             _buildLinkedAccountsSection(viewModel),
             const SizedBox(height: 40),
@@ -202,6 +217,167 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildApiUrlSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'API Server URL',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Configure the API server URL for the mobile app.',
+          style: TextStyle(color: Colors.white70, fontSize: 14),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _apiUrlController,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey.shade800,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            hintText: 'https://your-api-server.com',
+            hintStyle: TextStyle(color: Colors.grey.shade600),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _saveApiUrl,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: const Text('Save URL'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            ElevatedButton(
+              onPressed: _resetApiUrl,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey.shade700,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              ),
+              child: const Text('Reset'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _saveApiUrl() async {
+    final newUrl = _apiUrlController.text.trim();
+
+    if (newUrl.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter a valid URL'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      await ApiUrlService.setApiUrl(newUrl);
+
+      if (!mounted) return;
+
+      final apiService = context.read<ApiService>();
+      await apiService.updateBaseUrl(newUrl);
+
+      if (!mounted) return;
+
+      final oauthService = context.read<OAuthService>();
+      await oauthService.updateBaseUrl(newUrl);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('API URL updated successfully. Please restart the app for full effect.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update API URL: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _resetApiUrl() async {
+    try {
+      await ApiUrlService.resetApiUrl();
+      final defaultUrl = await ApiUrlService.getDefaultApiUrl();
+
+      if (mounted) {
+        _apiUrlController.text = defaultUrl;
+      }
+
+      if (!mounted) return;
+
+      final apiService = context.read<ApiService>();
+      await apiService.updateBaseUrl(defaultUrl);
+
+      if (!mounted) return;
+
+      final oauthService = context.read<OAuthService>();
+      await oauthService.updateBaseUrl(defaultUrl);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('API URL reset to default. Please restart the app for full effect.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to reset API URL: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildLinkedAccountsSection(ProfileViewModel viewModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,9 +396,8 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           style: TextStyle(color: Colors.white70, fontSize: 14),
         ),
         const SizedBox(height: 16),
-
         ...viewModel.linkedAccounts.map((account) {
-          final String displayName = account.provider.name.replaceAll(
+          final String displayName = account.name.replaceAll(
             '_oauth',
             '',
           );
@@ -230,16 +405,16 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           return _buildLinkTile(
             displayName.toLowerCase(),
             getServiceIcon(
-              account.provider.name,
+              account.name,
               size: 30.0,
-              imageUrl: account.provider.imageUrl,
+              imageUrl: account.imageUrl,
             ),
-            account.isLinked,
-            () {
-              if (account.isLinked) {
-                viewModel.unlinkAccount(account.provider.name);
+            account.connected,
+                () {
+              if (account.connected) {
+                viewModel.unlinkAccount(account.id);
               } else {
-                viewModel.linkAccount(account.provider.name);
+                viewModel.linkAccount(account.name);
               }
             },
           );
@@ -249,11 +424,11 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
   }
 
   Widget _buildLinkTile(
-    String name,
-    Widget leadingWidget,
-    bool isLinked,
-    VoidCallback onPressed,
-  ) {
+      String name,
+      Widget leadingWidget,
+      bool isLinked,
+      VoidCallback onPressed,
+      ) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: SizedBox(width: 30, height: 30, child: leadingWidget),
@@ -279,21 +454,21 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
       onPressed: viewModel.isLoading
           ? null
           : () async {
-              final newName = _usernameController.text.trim();
-              final newEmail = _emailController.text.trim();
-              await viewModel.saveInformation(
-                newName: newName,
-                newEmail: newEmail,
-              );
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Profile updated.'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              }
-            },
+        final newName = _usernameController.text.trim();
+        final newEmail = _emailController.text.trim();
+        await viewModel.saveInformation(
+          newName: newName,
+          newEmail: newEmail,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile updated.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -305,17 +480,17 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
       ),
       child: viewModel.state == ProfileState.saving
           ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                color: Colors.black,
-              ),
-            )
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 3,
+          color: Colors.black,
+        ),
+      )
           : const Text(
-              'Save',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+        'Save',
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -367,7 +542,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
             if (mounted) {
               navigator.pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const MainPageApp()),
-                (Route<dynamic> route) => false,
+                    (Route<dynamic> route) => false,
               );
             }
           } catch (e) {
@@ -400,7 +575,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           if (mounted) {
             navigator.pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const MainPageApp()),
-              (Route<dynamic> route) => false,
+                  (Route<dynamic> route) => false,
             );
           }
         } catch (e) {

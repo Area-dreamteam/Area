@@ -19,11 +19,11 @@ import { useState, useEffect } from 'react'
 import { redirect } from 'next/navigation'
 
 function redirectToEditableApplet(applet: PublicApplet | PrivateApplet) {
-  redirect(`/my_applets/${applet.name}?published=false`)
+  redirect(`/my_applets/${applet.id}?published=false`)
 }
 
 function redirectToUnpublishableApplet(applet: PublicApplet | PrivateApplet) {
-  redirect(`/my_applets/${applet.name}?published=true`)
+  redirect(`/my_applets/${applet.id}?published=true`)
 }
 
 function FilterApplets(text: string, applets: PrivateApplet[] | null) {
@@ -60,8 +60,9 @@ export default function My_applet() {
     <div className="w-screen">
       <h1 className="centered text-[50px] font-bold mt-[50px]">My Applets</h1>
       <Input
+        aria-label="This input area allow you to search by name your own applets"
         className="mx-auto block w-[400px] h-[50px] mt-[20px] mb-[20px] border-[4px]"
-        placeholder="Search Applets or Services"
+        placeholder="Search your Applets"
         onChange={(e) => setSearched(e.target.value)}
       />
       <div className="mx-auto block w-1/2">

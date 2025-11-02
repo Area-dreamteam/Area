@@ -10,7 +10,9 @@ from services.services_classes import Service, create_service_dictionnary, oauth
 from services.clash_royale import ClashRoyale
 from services.date_and_time import DateAndTime
 from services.discord import Discord
+from services.email import Email
 from services.github import Github
+from services.ign import IGN
 from services.google import Gmail
 from services.microsoft import Outlook
 from services.open_meteo import OpenMeteo
@@ -24,13 +26,19 @@ from services.google_calendar import GoogleCalendar
 from services.trakt import Trakt
 from services.youtube import Youtube
 from services.dropbox import Dropbox
+from services.notion import Notion
+from services.linkedin import LinkedIn
+from services.figma import Figma
+from services.calendly import Calendly
 from services.riot_dev import RiotDev
 
 __all__ = [
     "ClashRoyale",
     "DateAndTime",
     "Discord",
+    "Email",
     "Github",
+    "IGN",
     "Gmail",
     "Outlook",
     "OpenMeteo",
@@ -43,7 +51,11 @@ __all__ = [
     "GoogleCalendar",
     "Trakt",
     "Youtube",
+    "LinkedIn",
     "Dropbox",
+    "Notion",
+    "Figma",
+    "Calendly",
     "RiotDev"
 ]
 

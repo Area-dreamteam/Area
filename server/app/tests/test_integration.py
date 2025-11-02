@@ -5,7 +5,7 @@ class TestCompleteUserWorkflow:
 
     def test_complete_user_lifecycle(self, client, session):
         """Test complete user lifecycle: register -> login"""
-        user_data = {"email": "integration@example.com", "password": "testpassword123"}
+        user_data = {"email": "integration@example.com", "password": "TestPassword123!"}
 
         register_response = client.post("/auth/register", json=user_data)
         assert register_response.status_code == 200
@@ -20,7 +20,7 @@ class TestCompleteUserWorkflow:
 
     def test_duplicate_registration_prevention(self, client, session):
         """Test that duplicate registration is properly prevented"""
-        user_data = {"email": "duplicate@example.com", "password": "testpassword123"}
+        user_data = {"email": "duplicate@example.com", "password": "TestPassword123!"}
 
         first_response = client.post("/auth/register", json=user_data)
         assert first_response.status_code == 200
@@ -31,7 +31,7 @@ class TestCompleteUserWorkflow:
 
     def test_invalid_credentials_handling(self, client):
         """Test handling of invalid login credentials"""
-        login_data = {"email": "nonexistent@example.com", "password": "anypassword"}
+        login_data = {"email": "nonexistent@example.com", "password": "AnyPassword123!"}
 
         response = client.post("/auth/login", json=login_data)
         assert response.status_code == 400

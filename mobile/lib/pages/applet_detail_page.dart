@@ -105,7 +105,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) =>
-          const Center(child: CircularProgressIndicator(color: Colors.white)),
+      const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
     try {
       final completeApplet = await serviceRepo.fetchAreaDetails(
@@ -157,103 +157,116 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
   Widget build(BuildContext context) {
     final Color pageColor = hexToColor(currentApplet.color);
     final myAppletViewModel = context.watch<MyAppletViewModel>();
+    final theme = Theme.of(context);
+    final bool isDark = pageColor.computeLuminance() < 0.5;
+    final Color textColor = isDark ? Colors.white : Colors.black;
+    final Color buttonBackgroundColor = isDark ? Colors.white : Colors.black;
+    final Color buttonForegroundColor = isDark ? Colors.black : Colors.white;
 
     return Scaffold(
-        backgroundColor: pageColor,
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.pop(context, false);
-            },
-          ),
-          title: Text(
-            currentApplet.name,
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
+      backgroundColor: pageColor,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: textColor),
+          tooltip: 'Retour',
+          onPressed: () {
+            Navigator.pop(context, false);
+          },
         ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 24),
-                Text(
+        title: Text(
+          currentApplet.name,
+          style: TextStyle(color: textColor),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 24),
+              Semantics(
+                header: true,
+                child: Text(
                   currentApplet.name,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: textColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                if (currentApplet.description != null &&
-                    currentApplet.description!.isNotEmpty)
-                  Text(
-                    currentApplet.description!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              if (currentApplet.description != null &&
+                  currentApplet.description!.isNotEmpty)
+                Text(
+                  currentApplet.description!,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: textColor,
                   ),
-                const SizedBox(height: 48),
-                if (myAppletViewModel.state == MyAppletState.error &&
-                    myAppletViewModel.errorMessage.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 15.0),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      color: Colors.redAccent,
-                      child: Text(
-                        myAppletViewModel.errorMessage,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                ),
+              const SizedBox(height: 48),
+              if (myAppletViewModel.state == MyAppletState.error &&
+                  myAppletViewModel.errorMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    color: Colors.redAccent,
+                    child: Text(
+                      myAppletViewModel.errorMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
+                ),
 
-                if (currentApplet.isPublic) ...[
-                  _buildActionButton(
-                    text: 'Unpublish',
-                    icon: Icons.public_off_outlined,
-                    onPressed: _togglePublic,
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                  ),
-                ] else ...[
-                  _buildActionButton(
-                    text: 'Edit',
-                    icon: Icons.edit_outlined,
-                    onPressed: _navigateToEdit,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildActionButton(
-                    text: 'Publish',
-                    icon: Icons.public_outlined,
-                    onPressed: _togglePublic,
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildActionButton(
-                    text: 'Delete',
-                    icon: Icons.delete_outline,
-                    onPressed: _deleteApplet,
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                  ),
-                ],
+              if (currentApplet.isPublic) ...[
+                _buildActionButton(
+                  text: 'Unpublish',
+                  icon: Icons.public_off_outlined,
+                  onPressed: _togglePublic,
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                ),
+              ] else ...[
+                _buildActionButton(
+                  text: 'Edit',
+                  icon: Icons.edit_outlined,
+                  onPressed: _navigateToEdit,
+                  backgroundColor: buttonBackgroundColor,
+                  foregroundColor: buttonForegroundColor,
+                ),
+                const SizedBox(height: 16),
+                _buildActionButton(
+                  text: 'Publish',
+                  icon: Icons.public_outlined,
+                  onPressed: _togglePublic,
+                  backgroundColor: buttonBackgroundColor,
+                  foregroundColor: buttonForegroundColor,
+                ),
+                const SizedBox(height: 16),
+                _buildActionButton(
+                  text: 'Delete',
+                  icon: Icons.delete_outline,
+                  onPressed: _deleteApplet,
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                ),
               ],
-            ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildActionButton({
@@ -263,21 +276,26 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
     Color backgroundColor = Colors.white,
     Color foregroundColor = Colors.black,
   }) {
-    return ElevatedButton.icon(
-      icon: Icon(icon, size: 20),
-      label: Text(
-        text,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
+    return Semantics(
+      label: text,
+      button: true,
+      enabled: true,
+      child: ElevatedButton.icon(
+        icon: ExcludeSemantics(child: Icon(icon, size: 20)),
+        label: Text(
+          text,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        elevation: 2,
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+          elevation: 2,
+        ),
       ),
     );
   }

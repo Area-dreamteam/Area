@@ -34,14 +34,16 @@ export default function Services({
       style={{ backgroundColor: service.color }}
       onClick={() => onClick(service)}
     >
-      {service.image_url && getImageUrl(service.image_url) != "" && (
+      {service.image_url && getImageUrl(service.image_url) != "" ? (
         <Image
           alt="service's logo"
           src={getImageUrl(service.image_url)}
           width={200}
           height={200}
-          className="rounded-xl w-[100%] h-[100%]"
+          className="rounded-xl w-[150px] h-[150px]"
         />
+      ): (
+        <div className="w-[150px] h-[150px] flex justify-center"/>
       )}
       <div className="centered bg-black rounded-t-lg w-full">
         <p className="font-bold text-white text-[20px] py-4 px-5">

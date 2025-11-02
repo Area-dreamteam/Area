@@ -89,7 +89,7 @@ class Service:
         category: str,
         color: str = "#000000",
         img_url: str = "",
-        oauth: str = False,
+        oauth: bool = False,
     ) -> None:
         self.name: str = self.__class__.__name__
         self.description: str = description

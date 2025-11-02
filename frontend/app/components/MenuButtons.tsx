@@ -12,9 +12,11 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
 } from '@/components/ui/navigation-menu'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export default function MenuButton(text: string, linkedPage: string) {
+  const router = useRouter();
+
   return (
     <NavigationMenuItem>
       <NavigationMenuLink
@@ -22,8 +24,8 @@ export default function MenuButton(text: string, linkedPage: string) {
         className="text-1 p-3 w-[15vw] h-10 hover:text-[#4400ff] centered bg-transparent"
         style={{ fontFamily: 'Open Sans' }}
         onClick={(e) => {
-          e.preventDefault()
-          redirect(linkedPage)
+          e.preventDefault();
+          router.push(linkedPage);
         }}
       >
         <Link href={linkedPage} className="text-center">

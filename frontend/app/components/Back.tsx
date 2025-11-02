@@ -19,6 +19,7 @@ export default function BackButton({ dir = null }: BackProps) {
 
   return (
     <Button
+      aria-label={dir ? `Go to ${dir}` : "Go to last page"}
       className="rounded-full border-white hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[20%] py-[20px] simple-text font-bold"
       onClick={(event) => {
         event.preventDefault()

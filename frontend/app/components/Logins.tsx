@@ -7,10 +7,10 @@
 
 'use client'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertTitle } from '@/components/ui/alert'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { AlertCircleIcon } from 'lucide-react'
 import { Password, Mail } from '../components/Forms'
 import { fetchLogin, fetchRegister } from '../functions/fetch'
@@ -29,19 +29,21 @@ interface LoginProps {
 export default function Logins({ isRegister }: LoginProps) {
   const router = useRouter()
   const [email, setEmail] = useState<string>('')
-  const [error, setError] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
   const [password, setPassword] = useState<string>('')
   const [logins, setLogins] = useState<[OAuthInfo]>()
 
   async function sendForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const success: boolean = await (isRegister
+    const result = await (isRegister
       ? fetchRegister(email, password)
       : fetchLogin(email, password))
 
-    if (success) {
+    if (result.success) {
       router.push('/explore')
-    } else setError(true)
+    } else {
+      setError(result.error || 'An error occurred')
+    }
   }
 
   useEffect(() => {
@@ -51,7 +53,7 @@ export default function Logins({ isRegister }: LoginProps) {
   return (
     <div className="font-bold">
       <p
-        onClick={() => redirect('/')}
+        onClick={() => router.push('/')}
         className="w-[200px] mx-auto centered title logo"
       >
         Area
@@ -69,31 +71,13 @@ export default function Logins({ isRegister }: LoginProps) {
         {error && (
           <Alert
             variant="destructive"
-            className="bg-red-100 rounded-4xl mb-5 mr-[20px] w-[300px] mx-auto"
+            className="bg-red-100 rounded-4xl mb-5 mr-[20px] w-[300px] mx-auto p-4"
           >
             <AlertCircleIcon />
-            <AlertTitle>
-              {isRegister
-                ? 'Sorry, this account already exist'
-                : 'Logins incorrect'}
-              .
+            <AlertTitle className="!line-clamp-none break-words whitespace-normal">
+              {error}
             </AlertTitle>
-            {!isRegister && (
-              <AlertDescription>
-                <p>
-                  Your email or password seems to be wrong. Please try again.
-                </p>
-              </AlertDescription>
-            )}
           </Alert>
-        )}
-        {!isRegister && (
-          <Link
-            href="/passwords/forgot"
-            className="centered simple-text activate-link sm:mt-4 mt-2"
-          >
-            Forgot your password ?
-          </Link>
         )}
         <div className="centered">
           <button className="rounded-button inverted m-[5%]" type="submit">

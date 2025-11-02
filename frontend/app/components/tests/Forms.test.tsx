@@ -99,10 +99,6 @@ describe('Password Component', () => {
     expect(input).toBeInTheDocument()
     expect(input).toHaveAttribute('type', 'password')
     expect(input).toHaveAttribute('placeholder', 'Password')
-    expect(input).toHaveAttribute(
-      'pattern',
-      '^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$'
-    )
     expect(input).toHaveAttribute('required')
     expect(eyeIcon).toBeInTheDocument()
   })

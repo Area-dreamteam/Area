@@ -1,16 +1,15 @@
 /*
- ** EPITECH PROJECT, 2025
- ** Area_Mirroring
- ** File description:
- ** page
- */
+** EPITECH PROJECT, 2025
+** Area_Mirroring
+** File description:
+** page
+*/
 
 'use client'
 
 import { useEffect } from 'react'
 import { use, useState } from 'react'
-import { notFound, useSearchParams } from 'next/navigation'
-import { redirect } from 'next/navigation'
+import { notFound, useRouter, useSearchParams } from 'next/navigation'
 import BackButton from '@/app/components/Back'
 import SettingsButton from '@/app/components/Settings'
 import {
@@ -37,7 +36,6 @@ type AppletProp = {
 
 async function deleteApplet(id: number) {
   await fetchDeletePersonalApplet(id)
-  redirect('/my_applets')
 }
 
 async function AppletConnection(
@@ -51,7 +49,6 @@ async function AppletConnection(
 
 async function UnpublishApplet(id: number) {
   await fetchUnpublishPersonalApplet(id)
-  redirect('/my_applets')
 }
 
 async function publishApplet(id: number) {
@@ -59,7 +56,7 @@ async function publishApplet(id: number) {
 }
 
 export default function AppletPage({ params }: AppletProp) {
-  const slug = decodeURIComponent(use(params).slug)
+  const slug = use(params).slug;
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const published = searchParams.get('published') === 'true'
@@ -73,6 +70,7 @@ export default function AppletPage({ params }: AppletProp) {
   const [myApplet, setMyApplet] = useState<
     SpecificPublicApplet | SpecificPrivateApplet | null
   >(null)
+  const router = useRouter();
 
   useEffect(() => {
     const loadApplets = async () => {
@@ -86,19 +84,26 @@ export default function AppletPage({ params }: AppletProp) {
   useEffect(() => {
     if (applets != null) {
       const searched = applets.find(
-        (applet) => applet.name.toLowerCase() == slug.toLowerCase()
+        (applet) => applet.id == Number(slug)
       )
       setCurrApplet(searched)
+      if (!searched) {
+        setLoading(false)
+      }
     }
-  }, [applets, slug])
+  }, [applets]);
 
   useEffect(() => {
-    if (currApplet) fetchPrivateApplet(setMyApplet, currApplet.id)
-  }, [currApplet])
-
-  useEffect(() => {
-    if (myApplet != null) setLoading(false)
-  }, [myApplet])
+    const getSpecificApplet = async () => {
+      if (currApplet) {
+        await (published 
+          ? fetchSpecificApplet(setMyApplet, currApplet.id)
+          : fetchPrivateApplet(setMyApplet, currApplet.id))
+        setLoading(false)
+      }
+    }
+    getSpecificApplet();
+  }, [currApplet, published])
 
   useEffect(() => {
     if (!areaChanged) return
@@ -119,9 +124,9 @@ export default function AppletPage({ params }: AppletProp) {
           Loading...
         </p>
       ) : myApplet ? (
-        <div className="w-screen">
+        <div className="w-screen h-max">
           <div
-            className={`grid grid-cols-4 text-white md:h-[500px] h-[300px] ${published ? '' : 'rounded-b-xl'}`}
+            className={`grid grid-cols-4 text-white ${published ? 'h-max' : 'rounded-b-xl md:h-[500px] h-[300px]'}`}
             style={{ background: myApplet.area_info.color }}
           >
             <div className="ml-[20px] pt-[50px]">
@@ -136,13 +141,15 @@ export default function AppletPage({ params }: AppletProp) {
               </div>
               {published ? (
                 <button
+                  aria-label="Click here to unpublish your applet"
                   className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]"
-                  onClick={() => UnpublishApplet(myApplet.area_info.id)}
+                  onClick={() => { UnpublishApplet(myApplet.area_info.id); router.push("/my_applets") }}
                 >
                   Unpublish
                 </button>
               ) : (
                 <button
+                  aria-label={`Click here to ${(myApplet as SpecificPrivateApplet).area_info.enable ? 'disable' : 'enable'} your applet`}
                   className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]"
                   onClick={() => {
                     const privApplet = myApplet as SpecificPrivateApplet
@@ -161,7 +168,7 @@ export default function AppletPage({ params }: AppletProp) {
             </div>
             <div className="flex justify-end pt-[50px] mr-[20px]">
               <SettingsButton
-                link={`/my_applets/${myApplet.area_info.name}/edit`}
+                link={`/my_applets/${myApplet.area_info.id}/edit`}
               />
             </div>
           </div>
@@ -169,11 +176,12 @@ export default function AppletPage({ params }: AppletProp) {
             <div className="grid grid-cols-2">
               <button
                 className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted [--common-bg:#BA301C] [--common-hover:#801100]"
-                onClick={() => deleteApplet(myApplet.area_info.id)}
+                onClick={() => { deleteApplet(myApplet.area_info.id); router.push('/my_applets'); }}
               >
                 Delete applet
               </button>
               <button
+                aria-label={`Click on this button if you want to make your applet public so everyone can copy it`}
                 className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted"
                 onClick={() => publishApplet(myApplet.area_info.id)}
               >
@@ -183,7 +191,9 @@ export default function AppletPage({ params }: AppletProp) {
           )}
         </div>
       ) : (
-        notFound()
+        <div>
+          {applets ? "youpi" : notFound()}
+        </div>
       )}
     </div>
   )

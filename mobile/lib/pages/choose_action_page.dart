@@ -114,15 +114,21 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
     final isAction = widget.type == 'trigger';
     final service = widget.service;
     final serviceColor = hexToColor(service.color);
-
     final title = isAction ? 'Choose a trigger' : 'Choose an action';
+    final bool isDark = serviceColor.computeLuminance() < 0.5;
+    final Color textColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
       backgroundColor: const Color(0xFF212121),
       appBar: AppBar(
-        title: Text(title, style: TextStyle(color: Colors.white)),
+        title: Text(title, style: TextStyle(color: textColor)),
         backgroundColor: serviceColor,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: textColor),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: textColor),
+          tooltip: 'Retour',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(180),
           child: ServiceHeader(service: service, title: ''),
@@ -143,12 +149,16 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
-
-                return ItemCard(
-                  name: item.name,
-                  description: item.description,
-                  color: serviceColor,
-                  onTap: () => _handleItemTap(item),
+                return Semantics(
+                  label: "${item.name}, ${item.description}",
+                  hint: "Appuyez pour choisir cet élément",
+                  button: true,
+                  child: ItemCard(
+                    name: item.name,
+                    description: item.description,
+                    color: serviceColor,
+                    onTap: () => _handleItemTap(item),
+                  ),
                 );
               },
             ),

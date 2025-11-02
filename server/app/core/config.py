@@ -50,8 +50,18 @@ class Settings(BaseSettings):
     TRAKT_CLIENT_SECRET: str
     DROPBOX_CLIENT_ID: str
     DROPBOX_CLIENT_SECRET: str
+    NOTION_CLIENT_ID: str
+    NOTION_CLIENT_SECRET: str
+    LINKEDIN_CLIENT_ID: str
+    LINKEDIN_CLIENT_SECRET: str
+    FIGMA_CLIENT_ID: str
+    FIGMA_CLIENT_SECRET: str
+    CALENDLY_CLIENT_ID: str
+    CALENDLY_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
+    EMAIL: str
+    EMAIL_PASSWORD: str
 
     class Config:
         env_file = get_env_file()

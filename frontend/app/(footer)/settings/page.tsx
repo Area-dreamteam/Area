@@ -17,7 +17,7 @@ import { MyProfileProp, OauthProfileProp } from '@/app/types/profile'
 import { redirectOauth } from '@/app/functions/oauth'
 import { Input } from '@/components/ui/input'
 import { useState, useEffect } from 'react'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 function profileLabels(text: string) {
@@ -55,7 +55,6 @@ async function connectOauth(
 }
 
 function oauthLink(
-  user: MyProfileProp,
   service: OauthProfileProp,
   linkColor: string,
   setUpdate: (arg: boolean) => void
@@ -95,8 +94,8 @@ function LinkedAccounts(
   const linked = user.oauth_login.map((service) => {
     return (
       <div key={service.id} className="grid grid-cols-2 gap-5 mb-[2%]">
-        <p className="simple-text"> {service.name} </p>
-        {oauthLink(user, service, '#0099ff', setUpdate)}
+        <p className="simple-text"> {service.name.replace("Oauth", "")} </p>
+        {oauthLink(service, '#0099ff', setUpdate)}
       </div>
     )
   })
@@ -137,18 +136,24 @@ function Profile({ profile }: PersonnalInfoProp) {
       <br />
       <h3>Username</h3>
       <Input
+        aria-label="You can change your name here"
         defaultValue={personalProfile.name}
         onChange={(e) => setName(e.target.value)}
       />
       <br />
       <br />
       <h3>Password</h3>
-      <Input defaultValue="********" type="password" readOnly />
+      <Input
+        aria-label="You can't enter anything here. But you can click on the link below to change your password"
+        defaultValue="********"
+        type="password"
+        readOnly />
       {profileLink('Change password', '/settings/change_password', '#0099ff')}
       <br />
       <br />
       <h3>Email</h3>
       <Input
+        aria-label="You can change your email here"
         defaultValue={personalProfile.email}
         onChange={(e) => setEmail(e.target.value)}
       />
@@ -158,6 +163,7 @@ function Profile({ profile }: PersonnalInfoProp) {
       {user ? LinkedAccounts(user, setUpdate) : ''}
       <DeleteAccount />
       <button
+        aria-label="Click here to validate your changes"
         className="rounded-button block mx-auto mt-[10%] mb-[10%] px-[5%] py-[2%] rounded-full inverted hover:cursor-pointer"
         type="submit"
       >
@@ -170,12 +176,13 @@ function Profile({ profile }: PersonnalInfoProp) {
 export default function Settings() {
   const [available, setAvailable] = useState<boolean>(false)
   const [profile, setProfile] = useState<MyProfileProp | null>(null)
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfileData = async () => {
       const succeed = await fetchMyself(setProfile)
       if (succeed) setAvailable(true)
-      else redirect('/login')
+      else router.push('/login')
     }
     fetchProfileData()
   }, [])

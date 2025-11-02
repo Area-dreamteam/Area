@@ -8,16 +8,18 @@
 'use client'
 
 import { Input } from '@/components/ui/input'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export default function Help() {
+  const router = useRouter();
+
   return (
     <div>
       <p
         className="hover:cursor-pointer text-[40px]  font-bold hover:text-[#3b3b3b]"
         onClick={(e) => {
           e.preventDefault()
-          redirect('/explore')
+          router.push('/explore')
         }}
       >
         Area

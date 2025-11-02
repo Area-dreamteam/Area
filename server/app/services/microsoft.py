@@ -124,10 +124,7 @@ class Outlook(ServiceClass):
         service: "Outlook"
 
         def __init__(self) -> None:
-            config_schema = [
-                {"name": "to", "type": "input", "values": []},
-                {"name": "subject", "type": "input", "values": []},
-            ]
+            config_schema = []
             super().__init__("Triggered when new email is sent", config_schema)
 
         def check(
@@ -150,10 +147,7 @@ class Outlook(ServiceClass):
         service: "Outlook"
 
         def __init__(self) -> None:
-            config_schema = [
-                {"name": "from", "type": "input", "values": []},
-                {"name": "subject", "type": "input", "values": []},
-            ]
+            config_schema = []
             super().__init__("Triggered when new email arrives", config_schema)
 
         def check(
@@ -203,8 +197,8 @@ class Outlook(ServiceClass):
                     }
                 }
                 r = requests.post(url, headers=headers, data=json.dumps(payload))
-
-                if r.status_code not in (200, 202):
+                logger.error(r.status_code)
+                if r.status_code != 202:
                     raise MicrosoftApiError("Failed to send email")
                 logger.debug(f"Outlook: Email sent to {to}")
             except MicrosoftApiError as e:
@@ -262,6 +256,17 @@ class Outlook(ServiceClass):
             return False
         if message is None:
             return False
+        last_state_values = (
+            area_action.last_state.get("internetMessageId", ""),
+        )
+        message_values = (
+            message.get("internetMessageId", ""),
+        )
+        if last_state_values == message_values:
+            return False
+        area_action.last_state = message
+        session.add(area_action)
+        session.commit()
         return True
 
     def _get_latest_email(
@@ -286,7 +291,6 @@ class Outlook(ServiceClass):
         headers = {"Authorization": f"Bearer {token}"}
 
         r = requests.get(base_url, headers=headers, params=params)
-
         if r.status_code != 200:
             raise MicrosoftApiError("Outlook: Failed to get messages")
         messages = r.json().get("value", [])
@@ -295,7 +299,6 @@ class Outlook(ServiceClass):
     def _get_user_info(self, token: str) -> Dict[str, Any]:
         url = "https://graph.microsoft.com/v1.0/me"
         r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
-        logger.error(r.json())
         if r.status_code != 200:
             raise MicrosoftApiError("Invalid token or expired")
         return r.json()
@@ -307,7 +310,7 @@ class Outlook(ServiceClass):
             "client_id": settings.MICROSOFT_CLIENT_ID,
             "response_type": "code",
             "redirect_uri": redirect,
-            "scope": "offline_access Mail.Read Mail.Send User.Read",
+            "scope": "offline_access email openid profile https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Mail.Send https://graph.microsoft.com/User.Read",
             "state": state if state else generate_state(),
         }
         return f"{base_url}?{urlencode(params)}"

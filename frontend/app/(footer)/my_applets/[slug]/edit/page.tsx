@@ -10,7 +10,7 @@
 import Warning from '@/app/components/Warning'
 import { Input } from '@/components/ui/input'
 import { useEffect, use, useState } from 'react'
-import { notFound, redirect } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import ValidateButton from '@/app/components/Validation'
 import { PrivateApplet, SpecificPrivateApplet } from '@/app/types/applet'
 import {
@@ -30,11 +30,10 @@ async function editApplet(
 ) {
   if (title == '' || desc == '') return false
   await fetchUpdatePersonalApplets(title, desc, oldApplet)
-  redirect(`/my_applets/${title}`)
 }
 
 export default function Edit({ params }: AppletProp) {
-  const slug = decodeURIComponent(use(params).slug)
+  const slug = use(params).slug;
   const [loading, setLoading] = useState(true)
   const [applets, setApplets] = useState<PrivateApplet[] | null>(null)
   const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null)
@@ -43,6 +42,7 @@ export default function Edit({ params }: AppletProp) {
   )
   const [title, setTitle] = useState<string>('')
   const [desc, setDesc] = useState<string>('')
+  const router = useRouter();
 
   useEffect(() => {
     const loadApplets = async () => {
@@ -54,7 +54,7 @@ export default function Edit({ params }: AppletProp) {
   useEffect(() => {
     if (applets != null) {
       const searched = applets.find(
-        (applet) => applet.name.toLowerCase() == slug.toLowerCase()
+        (applet) => applet.id == Number(slug)
       )
       setCurrApplet(searched)
 
@@ -81,6 +81,7 @@ export default function Edit({ params }: AppletProp) {
         : myApplet && (
             <div className="py-[50px] h-screen w-[75%] mx-auto">
               <Input
+                aria-label="This input allow you to change the title of the applet"
                 className="centered subtitle bg-white"
                 defaultValue={myApplet.area_info.name}
                 placeholder="Title"
@@ -88,6 +89,7 @@ export default function Edit({ params }: AppletProp) {
               />
               <hr className="mt-[25px] mb-[25px]" />
               <textarea
+                aria-label="you can change the description of your applet here"
                 className="rounded-md bg-white text-black w-[75%] h-[20%] px-[1%] mx-auto block"
                 defaultValue={
                   myApplet.area_info.description
@@ -109,8 +111,11 @@ export default function Edit({ params }: AppletProp) {
               <br />
               <ValidateButton
                 clickAct={() => {
-                  if (!editApplet(title, desc, myApplet))
+                  const status = editApplet(title, desc, myApplet);
+                  if (!status)                  
                     return Warning('Update impossible', '')
+                  else
+                    router.push(`/my_applets/${myApplet.area_info.id}`);
                 }}
                 arg={true}
                 text="Validate"
