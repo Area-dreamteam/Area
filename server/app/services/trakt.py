@@ -8,12 +8,13 @@ from core.utils import generate_state
 from api.users.db import get_user_service_token
 from core.categories import ServiceCategory
 from fastapi import HTTPException, Request, Response
-from models import AreaAction, Service, User, UserService
+from models import AreaAction, Service, User, UserService, AreaReaction
 from services.area_api import AreaApi
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
     Action,
+    Reaction,
     get_component,
 )
 from sqlmodel import Session, select
@@ -53,6 +54,39 @@ class TraktApi(AreaApi):
         )
         logger.debug(f"test movie {res}")
         return True
+    
+    def get_movie(self, token, name):
+        res = self.get(
+            f"https://api.trakt.tv/movies/{name}",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+        
+        return res
+    
+    def add_to_favorite(self, token, name):
+        movie = self.get_movie(token, name)
+        
+        self.post(
+            "https://api.trakt.tv/sync/favorites",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+            data={
+                "movies": [movie]
+            },
+            good_status_code=[201]
+        )
+        
 
     def get_profile(self, token):
         res = self.get(
@@ -185,62 +219,29 @@ class Trakt(ServiceClass):
                 return True
 
             return False
+        
+    class add_to_favorite(Reaction):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "movie_title",
+                    "type": "input",
+                    "values": [],
+                }
+            ]
+            super().__init__("Add a movie to favorite", config_schema)
 
-    # class if_temperature_rise_above(Action):
-    #     def __init__(self) -> None:
-    #         config_schema = [
-    #             {
-    #                 "name": "temperature_limit",
-    #                 "type": "input",
-    #                 "values": [],
-    #             }
-    #         ]
-    #         super().__init__(
-    #             "Check if temperature rise above a certain limit",
-    #             config_schema,
-    #         )
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                movie_name = get_component(area_action.config, "movie_title", "values")
+                
+                trakt_api.add_to_favorite(token, movie_name)
+                
+                logger.info(f'{self.service.name}: Add "{movie_name}" to favorite')
 
-    #     def check(
-    #         self, session: Session, area_action: AreaAction, user_id: int
-    #     ) -> bool:
-    #         temperature_limit = int(
-    #             get_component(area_action.config, "temperature_limit", "values")
-    #         )
-    #         longitude = get_component(area_action.config, "longitude", "values")
-    #         latitude = get_component(area_action.config, "latitude", "values")
-    #         timezone = get_component(area_action.config, "timezone", "values")
-
-    #         current_temperature = open_meteo_api.get_current_temperature(latitude, longitude, timezone)
-
-    #         return current_temperature > temperature_limit
-
-    # class if_temperature_fall_bellow(Action):
-    #     def __init__(self) -> None:
-    #         config_schema = [
-    #             {
-    #                 "name": "temperature_limit",
-    #                 "type": "input",
-    #                 "values": [],
-    #             }
-    #         ]
-    #         super().__init__(
-    #             "Check if temperature fall bellow a certain limit",
-    #             config_schema,
-    #         )
-
-    #     def check(
-    #         self, session: Session, area_action: AreaAction, user_id: int
-    #     ) -> bool:
-    #         temperature_limit = int(
-    #             get_component(area_action.config, "temperature_limit", "values")
-    #         )
-    #         longitude = get_component(area_action.config, "longitude", "values")
-    #         latitude = get_component(area_action.config, "latitude", "values")
-    #         timezone = get_component(area_action.config, "timezone", "values")
-
-    #         current_temperature = open_meteo_api.get_current_temperature(latitude, longitude, timezone)
-
-    #         return current_temperature < temperature_limit
+            except TraktApiError as e:
+                logger.error(f'{self.service.name}: {e.message}')
 
     def oauth_link(self, state: str = None) -> str:
         base_url = "https://api.trakt.tv/oauth/authorize"
