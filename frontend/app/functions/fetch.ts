@@ -16,6 +16,51 @@ import {
   SpecificPrivateApplet,
 } from '../types/applet'
 
+/**
+ * Parse Pydantic validation error from backend
+ */
+function parseValidationError(data: any): string {
+  try {
+    if (data?.detail) {
+      const detail = data.detail
+      
+      // If detail is a list (Pydantic validation errors)
+      if (Array.isArray(detail) && detail.length > 0) {
+        const firstError = detail[0]
+        if (firstError.msg) {
+          let msg = firstError.msg
+          const type = firstError.type
+          const loc = firstError.loc
+          
+          // Check if this is a password field error
+          const isPasswordError = Array.isArray(loc) && loc.includes('password')
+          
+          // Handle Pydantic's built-in string_too_short error
+          if (type === 'string_too_short' && isPasswordError) {
+            return 'Password must be at least 8 characters long'
+          }
+          
+          // Clean up "Value error, " prefix if present
+          if (msg.startsWith('Value error, ')) {
+            msg = msg.substring(13)
+          }
+          
+          return msg
+        }
+      }
+      
+      // If detail is a string
+      if (typeof detail === 'string') {
+        return detail
+      }
+    }
+    
+    return 'Invalid input. Please check your data.'
+  } catch (parseError) {
+    return 'Invalid input. Please check your data.'
+  }
+}
+
 export const Calls = axios.create({
   baseURL: '/api/backend',
   withCredentials: true,
@@ -129,18 +174,35 @@ export async function fetchChangePassword(
   return false
 }
 
-export async function fetchLogin(email: string, password: string) {
+export async function fetchLogin(email: string, password: string): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await Calls.post('/auth/login', {
       email: email,
       password: password,
     })
-    if (res.status != 200) return false
-    return true
-  } catch (err) {
+    if (res.status != 200) {
+      return { success: false, error: 'Invalid email or password' }
+    }
+    return { success: true }
+  } catch (err: any) {
     console.log('Error: ', err)
+    
+    // Handle 422 validation errors
+    if (err.response?.status === 422) {
+      const errorMessage = parseValidationError(err.response.data)
+      return { success: false, error: errorMessage }
+    }
+    
+    // Handle other errors with detail field
+    if (err.response?.data?.detail) {
+      const detail = err.response.data.detail
+      if (typeof detail === 'string') {
+        return { success: false, error: detail }
+      }
+    }
+    
+    return { success: false, error: 'Connection error. Please try again.' }
   }
-  return false
 }
 
 export async function fetchLogout() {
@@ -154,7 +216,7 @@ export async function fetchLogout() {
   return false
 }
 
-export async function fetchRegister(email: string, password: string) {
+export async function fetchRegister(email: string, password: string): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await Calls.post('/auth/register', {
       name: email.split('@')[0],
@@ -163,12 +225,29 @@ export async function fetchRegister(email: string, password: string) {
     })
     console.log(res)
 
-    if (res.status != 200) return false
-    return true
-  } catch (err) {
+    if (res.status != 200 && res.status != 201) {
+      return { success: false, error: 'Account creation failed' }
+    }
+    return { success: true }
+  } catch (err: any) {
     console.log('An error occured: ', err)
+    
+    // Handle 422 validation errors
+    if (err.response?.status === 422) {
+      const errorMessage = parseValidationError(err.response.data)
+      return { success: false, error: errorMessage }
+    }
+    
+    // Handle other errors with detail field
+    if (err.response?.data?.detail) {
+      const detail = err.response.data.detail
+      if (typeof detail === 'string') {
+        return { success: false, error: detail }
+      }
+    }
+    
+    return { success: false, error: 'Unable to create account. Please try again.' }
   }
-  return false
 }
 
 export async function fetchActs(
