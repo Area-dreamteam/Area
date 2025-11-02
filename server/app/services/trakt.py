@@ -52,7 +52,6 @@ class TraktApi(AreaApi):
                 "Authorization": f"Bearer {token}",
             },
         )
-        logger.debug(f"test movie {res}")
         return True
     
     def get_movie(self, token, name):
