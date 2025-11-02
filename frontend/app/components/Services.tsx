@@ -58,7 +58,7 @@ export default function Services({
       {nbServices != 0 ? (
         <div className={className}>{serviceBlocks}</div>
       ) : (
-        <p className="centered text-[20px] mt-[20px]">No service found.</p>
+        <p className="centered simple-text mt-[20px]">No service found.</p>
       )}
     </div>
   )

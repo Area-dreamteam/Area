@@ -16,7 +16,6 @@ from models.users.user_service import UserService
 from sqlmodel import select
 from fastapi.responses import HTMLResponse
 
-
 def windowCloseAndCookie(
     id: int,
     name: str,
@@ -138,6 +137,8 @@ def oauth_add_login(
     """
     if user is None:
         existing = session.exec(select(User).where(User.email == user_mail)).first()
+        if existing is None:
+            existing = session.exec(select(User).join(UserOAuthLogin, UserOAuthLogin.user_id == User.id).where(UserOAuthLogin.email == user_mail)).first()
     else:
         existing = session.exec(select(User).where(User.id == user.id)).first()
     if not existing:
@@ -158,6 +159,7 @@ def oauth_add_login(
         new_user_service = UserOAuthLogin(
             user_id=new_user.id,
             oauth_login_id=service.id,
+            email=user_mail,
             access_token=access_token,
         )
         session.add(new_user_service)
@@ -166,7 +168,6 @@ def oauth_add_login(
             new_user.id, name, request, is_mobile, is_login=True
         )
     """User login with new oauth"""
-
     service = session.exec(
         select(UserOAuthLogin)
         .join(OAuthLogin, OAuthLogin.id == UserOAuthLogin.oauth_login_id)
@@ -177,12 +178,20 @@ def oauth_add_login(
     ).first()
     if not service:
         """Already existing user, First time connecting to service"""
+        existing_oauth_login = session.exec(select(User).join(UserOAuthLogin, UserOAuthLogin.user_id == User.id).where(UserOAuthLogin.email == user_mail)).first()
+        if existing_oauth_login:
+            return windowCloseAndCookie(existing.id, name, request, is_mobile, is_login=True)
+        existing_email = session.exec(select(User).where(User.email == user_mail)).first()
+        if existing_email and existing.email != user_mail:
+            return windowCloseAndCookie(existing.id, name, request, is_mobile, is_login=True)
+
         service = session.exec(
             select(OAuthLogin).where(OAuthLogin.name == name)
         ).first()
         new_user_service = UserOAuthLogin(
             user_id=existing.id,
             oauth_login_id=service.id,
+            email=user_mail,
             access_token=access_token,
         )
         session.add(new_user_service)

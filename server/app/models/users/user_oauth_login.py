@@ -12,6 +12,7 @@ class UserOAuthLogin(SQLModel, table=True):
     id: int = Field(primary_key=True)
     user_id: int = Field(foreign_key="users.id", ondelete="CASCADE")
     oauth_login_id: int = Field(foreign_key="oauth_login.id", ondelete="CASCADE")
+    email: str = Field(unique=False, index=True)
     access_token: str
     refresh_token: Optional[str] = None
     
