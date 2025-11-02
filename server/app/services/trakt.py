@@ -87,6 +87,23 @@ class TraktApi(AreaApi):
             good_status_code=[201]
         )
         
+    def remove_from_favorite(self, token, name):
+        movie = self.get_movie(token, name)
+        
+        self.post(
+            "https://api.trakt.tv/sync/favorites/remove",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+            data={
+                "movies": [movie]
+            },
+            good_status_code=[200]
+        )
 
     def get_profile(self, token):
         res = self.get(
@@ -239,6 +256,29 @@ class Trakt(ServiceClass):
                 trakt_api.add_to_favorite(token, movie_name)
                 
                 logger.info(f'{self.service.name}: Add "{movie_name}" to favorite')
+
+            except TraktApiError as e:
+                logger.error(f'{self.service.name}: {e.message}')
+                
+    class remove_from_favorite(Reaction):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "movie_title",
+                    "type": "input",
+                    "values": [],
+                }
+            ]
+            super().__init__("Remove a movie from favorite", config_schema)
+
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                movie_name = get_component(area_action.config, "movie_title", "values")
+                
+                trakt_api.remove_from_favorite(token, movie_name)
+                
+                logger.info(f'{self.service.name}: Removed "{movie_name}" from favorite')
 
             except TraktApiError as e:
                 logger.error(f'{self.service.name}: {e.message}')
