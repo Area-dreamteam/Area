@@ -13,7 +13,7 @@ export default function Help() {
   const router = useRouter();
 
   return (
-    <div>
+    <div className="mb-[20%]">
       <div className="flex items-center justify-between mb-8 ml-4 mt-4 mr-4">
         <p
           className="hover:cursor-pointer text-[40px]  font-bold hover:text-[#3b3b3b]"
@@ -26,7 +26,7 @@ export default function Help() {
         </p>
         <button
           onClick={() => router.back()}
-          className="text-black hover:text-gray-600 font-bold text-xl flex items-center gap-2"
+          className="text-black hover:text-gray-600 hover:cursor-pointer font-bold text-xl flex items-center gap-2"
         >
           ← Back
         </button>
