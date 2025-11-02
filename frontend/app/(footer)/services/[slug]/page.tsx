@@ -111,7 +111,7 @@ export default function ServicePage({ params }: ServiceProp) {
                   className="rounded-xl m-4"
                 />
               )}
-              <div className="mb-[20px]">
+              <div className="mb-[20px] medium-text inverted">
                 <Markdown>{myService.description}</Markdown>
               </div>
               <p className="text-[20px]">{myService.name}</p>
