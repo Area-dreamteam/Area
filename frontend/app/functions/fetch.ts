@@ -14,6 +14,7 @@ import {
   PrivateApplet,
   SpecificPublicApplet,
   SpecificPrivateApplet,
+  AppletRespSchema,
 } from '../types/applet'
 
 /**
@@ -416,25 +417,11 @@ export async function fetchAction(
 }
 
 export async function fetchUpdatePersonalApplets(
-  name: string,
-  desc: string,
-  applet: SpecificPrivateApplet
+  applet: AppletRespSchema,
+  id: number
 ) {
   try {
-    const res = await Calls.patch(`/users/areas/${applet.area_info.id}`, {
-      name: name,
-      description: desc,
-      action: {
-        action_id: applet.action.id,
-        config: applet.action.config,
-      },
-      reactions: applet.reactions.map((reac) => {
-        return {
-          reaction_id: reac.id,
-          config: reac.config,
-        }
-      }),
-    })
+    const res = await Calls.patch(`/users/areas/${id}`, applet)
 
     if (res.status != 200) {
       return false

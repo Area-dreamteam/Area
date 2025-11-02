@@ -1,23 +1,19 @@
-/*
- ** EPITECH PROJECT, 2025
- ** Area_Mirroring
- ** File description:
- ** page
- */
 
 'use client'
 
 import Warning from '@/app/components/Warning'
 import { Input } from '@/components/ui/input'
 import { useEffect, use, useState } from 'react'
-import { notFound, useRouter } from 'next/navigation'
+import { notFound, redirect, useRouter } from 'next/navigation'
 import ValidateButton from '@/app/components/Validation'
-import { PrivateApplet, SpecificPrivateApplet } from '@/app/types/applet'
+import { AppletRespSchema, PrivateApplet, SpecificPrivateApplet } from '@/app/types/applet'
 import {
   fetchPrivateApplet,
   fetchPersonalApplets,
   fetchUpdatePersonalApplets,
 } from '@/app/functions/fetch'
+import { Act, ActDetails } from '@/app/types/service'
+import AppletManagement from '@/app/components/appletManagement'
 
 type AppletProp = {
   params: Promise<{ slug: string }>
@@ -29,7 +25,22 @@ async function editApplet(
   oldApplet: SpecificPrivateApplet
 ) {
   if (title == '' || desc == '') return false
-  await fetchUpdatePersonalApplets(title, desc, oldApplet)
+  const modifiedApplet: AppletRespSchema = {
+    name: title,
+    description: desc,
+    action: {
+      action_id: oldApplet.action.id,
+      config: oldApplet.action.config,
+    },
+    reactions: oldApplet.reactions.map((reac) => {
+      return {
+        reaction_id: reac.id,
+        config: reac.config,
+      }
+    }),
+  }
+  await fetchUpdatePersonalApplets(modifiedApplet, oldApplet.area_info.id)
+  return true;
 }
 
 export default function Edit({ params }: AppletProp) {
@@ -37,9 +48,11 @@ export default function Edit({ params }: AppletProp) {
   const [loading, setLoading] = useState(true)
   const [applets, setApplets] = useState<PrivateApplet[] | null>(null)
   const [myApplet, setMyApplet] = useState<SpecificPrivateApplet | null>(null)
-  const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(
-    undefined
-  )
+  const [currApplet, setCurrApplet] = useState<PrivateApplet | undefined>(undefined)
+  const [editingAppletParameters, setEditingAppletParameters] = useState<boolean>(false);
+  const [appletConfig, setAppletConfig] = useState<AppletRespSchema | null>(null);
+  const [theReactions, setTheReactions] = useState<ActDetails[] | null>(null);
+  const [theAction, setTheAction] = useState<ActDetails | null>(null);
   const [title, setTitle] = useState<string>('')
   const [desc, setDesc] = useState<string>('')
   const router = useRouter();
@@ -67,18 +80,69 @@ export default function Edit({ params }: AppletProp) {
   }, [currApplet])
 
   useEffect(() => {
+
+    function getReactions(applet: SpecificPrivateApplet)
+    {
+      let nb = 1;
+      const reactions: ActDetails[] = applet.reactions.map((reac) => {
+        const act: Act = {
+          id: reac.id,
+          name: reac.name,
+          description: reac.description
+        }
+        const reaction: ActDetails = {
+          id: nb,
+          config: reac.config,
+          act: act
+        }
+        nb += 1;
+        return reaction;
+      });
+      return reactions;
+    }
+  
     if (myApplet != null) {
-      setLoading(false)
-      setTitle(myApplet.area_info.name)
-      setDesc(myApplet.area_info.description)
+      setLoading(false);
+      setTitle(myApplet.area_info.name);
+      setDesc(myApplet.area_info.description);
+      const act: Act = {
+        id: myApplet.action.id,
+        name: myApplet.action.name,
+        description: myApplet.action.description
+      }
+      const action: ActDetails = {
+        id: 0,
+        config: myApplet.action.config,
+        act: act
+      }
+      setTheAction(action);
+      setTheReactions(getReactions(myApplet));
     }
   }, [myApplet])
+
+  useEffect(() => {
+    if (!appletConfig || !myApplet) {
+      setEditingAppletParameters(false);
+      setAppletConfig(null);
+      return;
+    }
+    const updateArea = async () => {
+      await fetchUpdatePersonalApplets(appletConfig, myApplet.area_info.id);
+      router.push("/my_applets");
+    }
+    updateArea();
+  }, [appletConfig])
+
+  if ((!currApplet || !myApplet) && !loading)
+    notFound();
 
   return (
     <div style={{ background: myApplet?.area_info.color }}>
       {loading
-        ? ''
-        : myApplet && (
+        ? ('Loading'
+        ) : (
+        myApplet &&
+          !editingAppletParameters ? (
             <div className="py-[50px] h-screen w-[75%] mx-auto">
               <Input
                 aria-label="This input allow you to change the title of the applet"
@@ -109,21 +173,35 @@ export default function Edit({ params }: AppletProp) {
                 {new Date(myApplet.area_info.created_at).toLocaleDateString()}
               </p>
               <br />
+              <button className="rounded-button block mx-auto mt-[10%]" onClick={() => setEditingAppletParameters(true)}>
+                Change Applet's configuration
+              </button>
               <ValidateButton
                 clickAct={() => {
                   const status = editApplet(title, desc, myApplet);
-                  if (!status)                  
-                    return Warning('Update impossible', '')
-                  else
-                    router.push(`/my_applets/${myApplet.area_info.id}`);
+                  if (!status)             
+                    return Warning('Update impossible', '');
+                  router.push(`/my_applets`);
                 }}
                 arg={true}
                 text="Validate"
-                addToClass="mt-[50px]"
+                addToClass="mt-[20%]"
               />
             </div>
-          )}
-      {(!currApplet || !myApplet) && !loading && notFound()}
+          ) : (
+            <div className="h-max pb-[5%]">
+              <AppletManagement 
+                creating={false}
+                theAction={theAction}
+                setTheAction={setTheAction}
+                theReactions={theReactions}
+                setTheReactions={setTheReactions}
+                setAppletRespSchema={setAppletConfig}
+              />
+            </div>
+          )
+        )
+      }
     </div>
   )
 }

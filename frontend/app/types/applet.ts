@@ -21,6 +21,20 @@ export interface Applet {
   color: string
 }
 
+export interface AppletRespSchema {
+  name: string,
+  description: string,
+  action: {
+    action_id: number,
+    config: ConfigRespAct[]
+  }
+  reactions:
+  {
+    reaction_id: number,
+    config: ConfigRespAct[]
+  }[]
+}
+
 export interface PublicApplet {
   id: number
   name: string
@@ -70,7 +84,7 @@ export interface SpecificPublicApplet {
       color: string
     }
   }
-  reactions: [
+  reactions:
     {
       id: number
       name: string
@@ -82,8 +96,7 @@ export interface SpecificPublicApplet {
         category: string
         color: string
       }
-    },
-  ]
+    }[],
 }
 
 export interface SpecificPrivateApplet {
@@ -110,9 +123,9 @@ export interface SpecificPrivateApplet {
       category: string
       color: string
     }
-    config: ConfigRespAct
+    config: ConfigRespAct[]
   }
-  reactions: [
+  reactions:
     {
       id: number
       name: string
@@ -124,7 +137,6 @@ export interface SpecificPrivateApplet {
         category: string
         color: string
       }
-      config: ConfigRespAct
-    },
-  ]
+      config: ConfigRespAct[]
+    }[],
 }
