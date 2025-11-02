@@ -552,12 +552,13 @@ export async function fetchPersonalAppletConnection(id: number, state: string) {
 export async function fetchCreateApplet(
   action: ActDetails,
   reactions: ActDetails[],
-  title: string
+  title: string,
+  description: string = ""
 ) {
   try {
     const res = await Calls.post('/users/areas/me', {
       name: title.replaceAll('_', ' '),
-      description: '[description]',
+      description: description,
       action: {
         action_id: action.act.id,
         config: action.config,

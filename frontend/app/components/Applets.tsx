@@ -33,10 +33,17 @@ export default function Applets({
         style={{ backgroundColor: applet.color }}
         onClick={() => onClick(applet)}
       >
-        <div className="centered bg-black rounded-t-lg">
-          <p className="font-bold text-white text-[20px] m-[20px]">
-            {applet.name}
-          </p>
+        <div className="flex flex-col h-full">
+          <div className="centered bg-black rounded-t-lg">
+            <p className="font-bold text-white text-[20px] m-[20px]">
+              {applet.name}
+            </p>
+          </div>
+          <div className="flex-1 p-[15px] overflow-hidden">
+            <p className="text-white text-[14px] line-clamp-4">
+              {applet.description}
+            </p>
+          </div>
         </div>
       </div>
     ) : (
