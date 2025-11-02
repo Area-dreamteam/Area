@@ -57,16 +57,16 @@ function ActionButton({ buttonText = "", replacementText = "", disable = false,
         }
       </h1>
       {(!disable && !chosen) &&
-        <Button className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setIsChoosing(true)}>
+        <Button aria-label="You can add an action or reaction by clicking here" className="mr-[20px] rounded-full text-black hover:bg-white bg-white hover:cursor-pointer px-[30px] py-[20px] font-bold w-[100px] text-[20px]" onClick={() => setIsChoosing(true)}>
           Add
         </Button>
       }
       {chosen &&
         <div>
-          <button className="mr-[20px] mb-[5%] py-[5%] rounded-button w-[75%] font-bold" onClick={() => {setCurrentId(chosen.id); setIsChoosing(true); setIsEditing(true)}}>
+          <button aria-label="You can change your selected action or reaction by clicking here" className="mr-[20px] mb-[5%] py-[5%] rounded-button w-[75%] font-bold" onClick={() => {setCurrentId(chosen.id); setIsChoosing(true); setIsEditing(true)}}>
             Edit
           </button>
-          <button className="mr-[20px] py-[5%] rounded-button w-[75%] font-bold" onClick={() => setChosen(null)}>
+          <button aria-label="You can delete your selected action or reaction by clicking here" className="mr-[20px] py-[5%] rounded-button w-[75%] font-bold" onClick={() => setChosen(null)}>
             Delete
           </button>
         </div>
@@ -174,10 +174,10 @@ function Creation({ theAction, setTheAction, theReactions, setTheReactions,
               <hr className="col-span-4 mb-[120px]" />
             </div>
             <p className="subtitle inverted centered mb-[20px]">Applet Title</p>
-            <Input className="block mx-auto w-[75%] h-[10%] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input aria-label="Fill this area with the title you want for your applet" className="block mx-auto w-[75%] h-[10%] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="centered mt-[30px]">
-            <button className="rounded-button inverted px-[5%] py-[3%]" onClick={() => {createApplet(theAction as ActDetails, theReactions as ActDetails[], title); router.push("/my_applets");}} disabled={title === "" || !theAction || !theReactions}>
+            <button aria-label="Click to finish the creation of your applet" className="rounded-button inverted px-[5%] py-[3%]" onClick={() => {createApplet(theAction as ActDetails, theReactions as ActDetails[], title); router.push("/my_applets");}} disabled={title === "" || !theAction || !theReactions}>
               Finish
             </button>
           </div>
@@ -199,7 +199,7 @@ function Creation({ theAction, setTheAction, theReactions, setTheReactions,
           }
           {(theAction != null && theReactions != null) &&
             <div>
-              <button className="mt-[5%] rounded-button inverted block mx-auto disabled:bg-gray-500" onClick={() => {setCurrentId(nextAvailableId(theReactions, 1)); setChoosingReaction(true)}}>
+              <button aria-label="Click on this button to add a reaction to the reactions chain" className="mt-[5%] rounded-button inverted block mx-auto disabled:bg-gray-500" onClick={() => {setCurrentId(nextAvailableId(theReactions, 1)); setChoosingReaction(true)}}>
                 +
               </button>
               <ValidateButton arg={true} clickAct={setValidating} text="Continue" addToClass={"mt-[100px] mb-[5%]"} inverted={true}/>
@@ -210,7 +210,7 @@ function Creation({ theAction, setTheAction, theReactions, setTheReactions,
     </div>
   )
 }
-// find a proper way to add or delete reactions
+
 //-- Affichage des triggers --//
 
 interface SelectElementProp {
@@ -238,7 +238,7 @@ function SelectElement({ content, config, handleChange }: SelectElementProp) {
     );
 
     return (
-        <Select onValueChange={(v) => defineChoice(v, setVal, handleChange, config)}
+        <Select aria-label="Select the option you want" onValueChange={(v) => defineChoice(v, setVal, handleChange, config)}
             value={val}>
         <SelectTrigger className="w-[250px] text-black bg-white">
             <SelectValue placeholder={val} />
@@ -286,6 +286,7 @@ function CheckboxElement({ content, config, handleChange }: SelectElementProp)
 
         return (<div className="flex items-center space-x-2" key={value}>
           <Checkbox
+            aria-label="Select one or more element for this trigger"
             id={value}
             checked={checked}
             onCheckedChange={() => handleChecking(value, !checked)}/>
@@ -320,7 +321,7 @@ function DisplayTrigger({ config, handleChange }: TriggerProp)
                 </div>
             }
             {config.type == "input" &&
-                <Input onChange={(e) => defineChoice(e.target.value, () => "", handleChange, config)}/>
+                <Input aria-label="Enter the corresponding information here" onChange={(e) => defineChoice(e.target.value, () => "", handleChange, config)}/>
             }
             {(config.type == "check_list" && Array.isArray(config.values) && typeof config.values === "object") && 
                 <CheckboxElement content={config.values}
@@ -460,7 +461,12 @@ function ChooseTrigger({ actInfos, service, type,
             ) : (
                 "No trigger available"
             )}
-            <Button className="rounded-full border-white text-white hover:bg-[#555555] bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]" disabled={!allTriggersValid(configResp, trigger?.config_schema)} onClick={() => unsetChoosingTime(actInfos, configResp, setAct, setActInfos, setService, setChoosingTrigger, setIsChoosing, setConfigResp, currentId, isEditing, setIsEditing)}>
+            <Button
+              aria-label="Click here to validate the trigger(s)"
+              className="rounded-full border-white text-white hover:bg-[#555555] bg-black border-[4px] hover:cursor-pointer px-[30px] py-[20px] font-bold w-[250px] h-[100px] text-[30px] mx-auto mt-[45px]"
+              disabled={!allTriggersValid(configResp, trigger?.config_schema)}
+              onClick={() => unsetChoosingTime(actInfos, configResp, setAct, setActInfos, setService, setChoosingTrigger, setIsChoosing, setConfigResp, currentId, isEditing, setIsEditing)}
+            >
                 Create trigger
             </Button>
         </div>
@@ -608,7 +614,7 @@ function ChooseService({ setIsChoosing, setAct, type, act,
               Choose a service
             </p>
           </div>
-          <Input className="w-[400px] mx-auto block mt-[50px] border-[4px] h-[50px] text-[20px] placeholder:text-[20px]" placeholder="Search services" onChange={(e) => setSearch(e.target.value)} />
+          <Input aria-label="You can search services by name here" className="w-[400px] mx-auto block mt-[50px] border-[4px] h-[50px] text-[20px] placeholder:text-[20px]" placeholder="Search services" onChange={(e) => setSearch(e.target.value)} />
           <Services search={search} services={services} className="mt-[50px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-fit mx-auto gap-[5px]" boxClassName="rounded-xl w-[200px] h-[250px] hover:cursor-pointer relative border-black border-[1px]" onClick={setSelected}/>
         </div>
       }
