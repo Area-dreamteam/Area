@@ -1,7 +1,6 @@
-from typing import List
 from crontab import CronTab
 from core.config import settings
-from sqlmodel import select, join
+from sqlmodel import select
 from pathlib import Path
 from core.engine import engine
 from sqlmodel import Session
@@ -13,7 +12,7 @@ from models.services.action import Action
 def print_jobs():
     cron = CronTab(user=settings.CRON_USER)
     for job in cron:
-        logger.info(job)
+        logger.debug(job)
 
 
 def newJob(action_id: int):

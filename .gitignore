@@ -1,5 +1,10 @@
-*.env*
 .vscode
 reports/
 .coverage
 pgadmin4
+justfile
+wiki
+
+*.env*
+!.env.tests
+!.env*.example

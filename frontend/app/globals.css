@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -112,12 +112,11 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer components
-{
+@layer components {
   :root {
     --common-color: black;
     --common-bg: white;
-    --common-hover: #CCCCCC;
+    --common-hover: #cccccc;
   }
 
   .title {
@@ -168,12 +167,23 @@
     }
   }
 
+  .medium-text {
+    @media (width >= 40rem) {
+      color: var(--common-color);
+      font-size: 100%;
+    }
+    @media (width < 40rem) {
+      color: var(--common-color);
+      font-size: 70%;
+    }
+  }
+
   .tiny-text {
     color: var(--common-color);
     font-weight: bold;
     font-size: 70%;
   }
-  
+
   .logo {
     @media (width >= 40rem) {
       color: var(--common-color);
@@ -185,8 +195,8 @@
     }
     &:hover {
       @media (hover: hover) {
-          cursor: pointer;
-          color: #424242;
+        cursor: pointer;
+        color: #424242;
       }
     }
     margin-left: 2%;
@@ -203,8 +213,8 @@
   .activate-link {
     &:hover {
       @media (hover: hover) {
-          color: #4400ff;
-          text-decoration-line: underline;
+        color: #4400ff;
+        text-decoration-line: underline;
       }
     }
   }
@@ -213,7 +223,7 @@
     color: #0099ff;
     &:hover {
       @media (hover: hover) {
-          color: #0077c7;
+        color: #0077c7;
       }
     }
   }
@@ -228,7 +238,7 @@
     padding-right: 3%;
     font-weight: bold;
     cursor: pointer;
-  
+
     @media (width >= 40rem) {
       font-size: 200%;
     }
@@ -238,7 +248,7 @@
 
     &:hover {
       @media (hover: hover) {
-          background-color: var(--common-hover);
+        background-color: var(--common-hover);
       }
     }
   }
@@ -253,7 +263,7 @@
     padding-right: 2%;
     font-weight: bold;
     cursor: pointer;
-  
+
     @media (width >= 40rem) {
       font-size: 80%;
     }
@@ -263,7 +273,7 @@
 
     &:hover {
       @media (hover: hover) {
-          background-color: var(--common-hover);
+        background-color: var(--common-hover);
       }
     }
   }
@@ -278,7 +288,6 @@
       height: 25px;
       width: 100px;
       border-radius: calc(var(--radius) - 2px);
-      
     }
     /* md:w-[300px] w-[100px] outline-[1px] md:rounded-xl rounded-md mb-4 */
     outline-style: var(--tw-outline-style);
@@ -286,15 +295,135 @@
   }
 
   @property --tw-outline-style {
-      syntax: "*";
-      inherits: false;
-      initial-value: solid;
+    syntax: '*';
+    inherits: false;
+    initial-value: solid;
   }
 
   .inverted {
     --common-bg: var(--color-black);
     --common-color: var(--color-white);
     --common-hover: #555555;
+  }
+
+  .markdown {
+    p {
+      margin-bottom: 1rem;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: bold;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+    }
+
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      list-style-type: disc;
+    }
+
+    ol {
+      list-style-type: decimal;
+    }
+
+    li {
+      margin-bottom: 0.25rem;
+    }
+
+    code {
+      background-color: oklch(0.97 0 0);
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-family: var(--font-mono);
+    }
+
+    .dark & code {
+      background-color: oklch(0.269 0 0);
+    }
+
+    pre {
+      background-color: oklch(0.97 0 0);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+
+    .dark & pre {
+      background-color: oklch(0.269 0 0);
+    }
+
+    a {
+      color: #0099ff;
+      text-decoration: underline;
+
+      &:hover {
+        @media (hover: hover) {
+          color: #0077c7;
+        }
+      }
+    }
+
+    blockquote {
+      border-left: 4px solid oklch(0.922 0 0);
+      padding-left: 1rem;
+      margin-left: 0;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .dark & blockquote {
+      border-left-color: oklch(1 0 0 / 10%);
+    }
+
+    strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    th, td {
+      border: 1px solid oklch(0.922 0 0);
+      padding: 0.5rem;
+    }
+
+    .dark & th,
+    .dark & td {
+      border-color: oklch(1 0 0 / 10%);
+    }
+
+    th {
+      background-color: oklch(0.97 0 0);
+      font-weight: bold;
+    }
+
+    .dark & th {
+      background-color: oklch(0.269 0 0);
+    }
   }
 }
 

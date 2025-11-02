@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/viewmodels/register_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/login.dart';
@@ -26,16 +27,16 @@ class _RegisterPageState extends State<RegisterPage> {
   void _onRegisterSuccess() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Account created! Redirecting to login...'),
+        content: Text('Account created! Redirecting to MyAreaPage...'),
         backgroundColor: Colors.green,
       ),
     );
 
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const MyAreaPage()),
+          (Route<dynamic> route) => false,
         );
       }
     });
@@ -72,17 +73,15 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _header() {
-    return const Column(
-      children: <Widget>[
-        Text(
-          "Sign up",
-          style: TextStyle(
-            fontSize: 50,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+    return Semantics(
+      header: true,
+      child: Text(
+        "Sign up",
+        style: Theme.of(context).textTheme.displayMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
-      ],
+      ),
     );
   }
 

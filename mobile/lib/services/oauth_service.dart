@@ -1,5 +1,3 @@
-// ignore_for_file: empty_catches, avoid_print
-
 import 'package:app_links/app_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,19 +6,23 @@ import 'package:mobile/core/config.dart';
 import 'dart:async';
 
 class OAuthService {
-  final String _baseUrl = Config.getApiUrl();
+  String _baseUrl = 'http://localhost:8080';
   static const _storage = FlutterSecureStorage();
 
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
   Completer<OAuthResult>? _oauthCompleter;
   Completer<OAuthLinkResult>? _linkCompleter;
+  bool _initialized = false;
 
-  void initialize() {
-    // Handle initial deep link (when app is opened from deep link)
+  Future<void> initialize() async {
+    if (_initialized) return;
+
+    _baseUrl = await Config.getApiUrl();
+    _initialized = true;
+
     _checkInitialLink();
 
-    // Listen to deep links while app is running
     _linkSubscription = _appLinks.uriLinkStream.listen(
       _handleDeepLink,
       onError: (err) {
@@ -29,6 +31,10 @@ class OAuthService {
         _completeLink(OAuthLinkResult.error('Deeplink handling error'));
       },
     );
+  }
+
+  Future<void> updateBaseUrl(String newUrl) async {
+    _baseUrl = newUrl;
   }
 
   Future<void> _checkInitialLink() async {
@@ -63,11 +69,15 @@ class OAuthService {
     _oauthCompleter = Completer<OAuthResult>();
 
     try {
-      // Store the operation type for recovery after app restart
       await _storage.write(key: 'oauth_operation', value: 'login');
       await _storage.write(key: 'oauth_service', value: serviceName);
 
-      final oauthUrl = '$_baseUrl/oauth/login_index/$serviceName?mobile=true';
+      final baseUrl = _baseUrl.endsWith('/')
+          ? _baseUrl.substring(0, _baseUrl.length - 1)
+          : _baseUrl;
+
+      final path = '/oauth/login_index/$serviceName?mobile=true';
+      final oauthUrl = '$baseUrl$path';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
@@ -107,21 +117,43 @@ class OAuthService {
     _linkCompleter = Completer<OAuthLinkResult>();
 
     try {
-      // Store the operation type for recovery after app restart
       await _storage.write(key: 'oauth_operation', value: 'link');
       await _storage.write(key: 'oauth_service', value: serviceName);
 
-      // Get the auth token to pass to the backend
       final sessionCookie = await _storage.read(key: 'session_cookie');
+      print('DEBUG linkWithOAuth - sessionCookie: $sessionCookie');
+
       String? token;
-      if (sessionCookie != null &&
-          sessionCookie.startsWith('access_token=Bearer ')) {
-        token = sessionCookie.substring('access_token=Bearer '.length);
+      if (sessionCookie != null) {
+        if (sessionCookie.startsWith('access_token="Bearer ')) {
+          final startIndex = 'access_token="Bearer '.length;
+          final endIndex = sessionCookie.indexOf('"', startIndex);
+          if (endIndex != -1) {
+            token = sessionCookie.substring(startIndex, endIndex);
+          }
+        } else if (sessionCookie.startsWith('access_token=Bearer ')) {
+          token = sessionCookie.substring('access_token=Bearer '.length);
+        }
+
+        if (token != null) {
+          print('DEBUG linkWithOAuth - extracted token: $token');
+        } else {
+          print('DEBUG linkWithOAuth - failed to extract token from cookie');
+        }
+      } else {
+        print('DEBUG linkWithOAuth - sessionCookie is null');
       }
 
-      final oauthUrl = token != null
-          ? '$_baseUrl/oauth/index/$serviceName?mobile=true&token=$token'
-          : '$_baseUrl/oauth/index/$serviceName?mobile=true';
+      final baseUrl = _baseUrl.endsWith('/')
+          ? _baseUrl.substring(0, _baseUrl.length - 1)
+          : _baseUrl;
+
+      final path = token != null
+          ? '/oauth/index/$serviceName?mobile=true&token=$token'
+          : '/oauth/index/$serviceName?mobile=true';
+
+      print('DEBUG linkWithOAuth - OAuth URL path: $path');
+      final oauthUrl = '$baseUrl$path';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
@@ -196,13 +228,16 @@ class OAuthService {
 
   void _handleDeepLink(Uri uri) async {
     print('Received deeplink: $uri');
-    if (uri.scheme == 'area' && uri.host == 'oauth-callback') {
+    bool isOAuthCallback =
+        (uri.scheme == 'area' && uri.host == 'oauth-callback') ||
+        (uri.scheme == 'https' && uri.path.startsWith('/oauth-callback'));
+
+    if (isOAuthCallback) {
       final token = uri.queryParameters['token'];
       final service = uri.queryParameters['service'];
       final error = uri.queryParameters['error'];
       final linked = uri.queryParameters['linked'];
 
-      // Check stored OAuth operation if completers are null (app was restarted)
       final storedOperation = await _storage.read(key: 'oauth_operation');
       final storedService = await _storage.read(key: 'oauth_service');
 
@@ -219,8 +254,6 @@ class OAuthService {
         _completeOAuth(OAuthResult.success(token, service));
         await _clearOAuthState();
       } else if (linked == 'true' && service != null) {
-        // If there's no active completer but we have a stored operation,
-        // this means the app was restarted. We need to notify the user somehow.
         if (_linkCompleter == null && storedOperation == 'link') {
           print(
             'OAuth linking succeeded after app restart - storing success flag',

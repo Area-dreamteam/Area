@@ -1,8 +1,8 @@
-import json
 from models.oauth.oauth_login import OAuthLogin
 from sqlmodel import SQLModel, select, Session
 from sqlalchemy.dialects.postgresql import insert
-from models import Service, Action, Reaction
+from sqlalchemy import or_
+from models import Service, Action, Reaction, Area
 from core.engine import engine
 from core.logger import logger
 
@@ -138,6 +138,16 @@ def sync_services_oauth_catalog_to_db(session: Session, catalog: dict):
     logger.info("Database synchronization completed")
 
 
+def delete_invalid_areas(session: Session):
+    invalid_areas = session.exec(
+        select(Area).where(or_(~Area.actions.has(), ~Area.reactions.any()))
+    ).all()
+
+    for area in invalid_areas:
+        session.delete(area)
+        logger.info(f"Deleted invalid area: {area.id}")
+
+
 def sync_services_catalog_to_db(session: Session, catalog: dict):
     existing_services = session.exec(select(Service)).all()
     existing_service_names = {service.name for service in existing_services}
@@ -192,6 +202,8 @@ def sync_services_catalog_to_db(session: Session, catalog: dict):
         service_id = result.scalar_one()
         sync_actions_for_service(session, service_data, service_id)
         sync_reactions_for_service(session, service_data, service_id)
+
+    delete_invalid_areas(session)
 
     session.commit()
     logger.info("Database synchronization completed")

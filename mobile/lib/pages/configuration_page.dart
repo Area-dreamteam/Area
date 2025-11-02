@@ -14,7 +14,6 @@ class ConfigurationPage extends StatefulWidget {
     required this.configSchema,
     required this.serviceName,
     required this.itemName,
-
     required this.itemDescription,
     required this.itemType,
   });
@@ -61,41 +60,53 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         ),
         backgroundColor: const Color(0xFF212121),
         iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          tooltip: 'Retour',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Form(
         key: _formKey,
         child: Column(
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 30),
             _buildHeader(widget.serviceName),
-
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16.0),
-                itemCount: widget.configSchema.length,
+                itemCount: widget.configSchema.length + 1,
                 itemBuilder: (context, index) {
-                  final field =
-                      widget.configSchema[index] as Map<String, dynamic>;
-                  return _buildFormField(field);
+                  if (index < widget.configSchema.length) {
+                    final field =
+                        widget.configSchema[index] as Map<String, dynamic>;
+                    return _buildFormField(field);
+                  } else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(height: 60),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          onPressed: _handleConfirmation,
+                          child: Text(
+                            'Create ${widget.itemType}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
                 },
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                ),
-                onPressed: _handleConfirmation,
-                child: Text(
-                  'Create ${widget.itemType}',
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
-                ),
               ),
             ),
           ],
@@ -105,29 +116,34 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   }
 
   Widget _buildHeader(String serviceName) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          getServiceIcon(serviceName, size: 100.0, imageUrl: null),
-          const SizedBox(height: 16),
-          Text(
-            widget.itemName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+    final theme = Theme.of(context);
+    return MergeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            getServiceIcon(serviceName, size: 50.0, imageUrl: null),
+            const SizedBox(height: 12),
+            Semantics(
+              header: true,
+              child: Text(
+                widget.itemName,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            widget.itemDescription,
-            style: const TextStyle(color: Colors.white70, fontSize: 16),
-            textAlign: TextAlign.start,
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              widget.itemDescription,
+              style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white70),
+              textAlign: TextAlign.start,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -136,17 +152,17 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final List<Map<String, dynamic>> finalPayload = [];
+      final List<Map<String, dynamic>> information = [];
 
       for (var field in widget.configSchema) {
         final name = field['name'];
         final type = field['type'];
         final value = _configData[name];
 
-        finalPayload.add({'name': name, 'type': type, 'values': value});
+        information.add({'name': name, 'type': type, 'values': value});
       }
 
-      Navigator.pop(context, finalPayload);
+      Navigator.pop(context, information);
     }
   }
 
@@ -154,57 +170,39 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     final String type = field['type'];
     final String name = field['name'];
     final dynamic values = field['values'];
+    final theme = Theme.of(context);
+    final inputDecoration = InputDecoration(
+      labelText: name,
+      labelStyle: const TextStyle(color: Colors.white70),
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.blue),
+      ),
+      border: const OutlineInputBorder(),
+      filled: true,
+      fillColor: Colors.grey.shade800,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (type != 'check_list')
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-
         Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: switch (type) {
             'input' => TextFormField(
               initialValue: _configData[name] as String?,
-              decoration: InputDecoration(
-                labelStyle: const TextStyle(color: Colors.white70),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white54),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-                border: const OutlineInputBorder(),
-              ),
+              decoration: inputDecoration,
               style: const TextStyle(color: Colors.white),
               validator: (value) =>
                   (value?.isEmpty ?? true) ? 'This field is required' : null,
               onSaved: (value) => _configData[name] = value ?? '',
             ),
-
             'select' => DropdownButtonFormField<String>(
               initialValue: _configData[name] as String?,
-              decoration: InputDecoration(
-                labelStyle: const TextStyle(color: Colors.white70),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white54),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-              dropdownColor: Colors.black87,
+              decoration: inputDecoration,
+              dropdownColor: Colors.black,
               style: const TextStyle(color: Colors.white),
               items: (values as List<dynamic>).map((option) {
                 return DropdownMenuItem(
@@ -219,39 +217,56 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   ? 'Please select a value'
                   : null,
             ),
-
-            'check_list' => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                ...(values as List<dynamic>).map((item) {
-                  final map = item as Map<String, dynamic>;
-                  final key = map.keys.first;
-                  final initialValue =
-                      (_configData[name] as Map<String, bool>)[key] ?? false;
-
-                  return CheckboxListTile(
-                    title: Text(
-                      key,
-                      style: const TextStyle(color: Colors.white),
+            'check_list' => Semantics(
+              label: name,
+              container: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                    value: initialValue,
-                    onChanged: (bool? newValue) {
-                      setState(() {
-                        (_configData[name] as Map<String, bool>)[key] =
-                            newValue ?? false;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity.leading,
-                    checkColor: Colors.white,
-                    activeColor: Colors.blue,
-                  );
-                }),
-              ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(color: Colors.white),
+                    ),
+                    child: Column(
+                      children: (values as List<dynamic>).map((item) {
+                        final map = item as Map<String, dynamic>;
+                        final key = map.keys.first;
+                        final initialValue =
+                            (_configData[name] as Map<String, bool>)[key] ??
+                            false;
+
+                        return CheckboxListTile(
+                          title: Text(
+                            key,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          value: initialValue,
+                          onChanged: (bool? newValue) {
+                            setState(() {
+                              (_configData[name] as Map<String, bool>)[key] =
+                                  newValue ?? false;
+                            });
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                          checkColor: Colors.black,
+                          activeColor: Colors.blue,
+                          tileColor: Colors.transparent,
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
             ),
             _ => Text(
               'Unsupported field type: $type',

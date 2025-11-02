@@ -7,8 +7,7 @@ from models.areas import AreaAction
 from core.logger import logger
 from sqlmodel import select
 from sqlmodel import Session
-from typing import Annotated, List
-from fastapi import Depends
+from typing import List
 from core.engine import engine
 
 
@@ -30,4 +29,4 @@ def startupCron():
         for i in actions:
             newJob(i.action_id)
 
-    logger.info(f"Cron startup: {actions}")
+    logger.debug(f"Cron startup: {actions}")

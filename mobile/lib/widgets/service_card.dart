@@ -25,6 +25,8 @@ class ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardColor = hexToColor(colorHex);
+    final bool isDark = cardColor.computeLuminance() < 0.5;
+    final Color textColor = isDark ? Colors.white : Colors.black;
 
     final cardContent = Container(
       decoration: BoxDecoration(
@@ -36,23 +38,17 @@ class ServiceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: ClipOval(
-              child: getServiceIcon(name, size: 20.0, imageUrl: imageUrl),
-            ),
+          SizedBox(height: 20),
+          SizedBox(
+            width: 40,
+            height: 40,
+            child: getServiceIcon(name, size: 20.0, imageUrl: imageUrl),
           ),
           const SizedBox(height: 18),
           Text(
             name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: textColor,
               fontWeight: FontWeight.bold,
               height: 1,
             ),
@@ -61,13 +57,19 @@ class ServiceCard extends StatelessWidget {
       ),
     );
 
-    return Material(
-      borderRadius: BorderRadius.circular(14),
-      elevation: 4,
-      child: InkWell(
+    return Semantics(
+      label: "Service $name",
+      button: true,
+      enabled: onTap != null,
+      child: Material(
         borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: cardContent,
+        elevation: 4,
+        color: cardColor,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: cardContent,
+        ),
       ),
     );
   }

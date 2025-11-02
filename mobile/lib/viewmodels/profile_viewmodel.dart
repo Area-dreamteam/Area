@@ -4,9 +4,14 @@ import 'package:mobile/repositories/service_repository.dart';
 import 'package:mobile/services/oauth_service.dart';
 
 class LinkedAccountView {
+  final int oauthId;
   final OAuthProvider provider;
   final bool isLinked;
-  LinkedAccountView({required this.provider, required this.isLinked});
+  LinkedAccountView({
+    required this.oauthId,
+    required this.provider,
+    required this.isLinked,
+  });
 }
 
 enum ProfileState { initial, loading, loaded, error, saving }
@@ -27,11 +32,17 @@ class ProfileViewModel extends ChangeNotifier {
   List<LinkedAccountView> _linkedAccounts = [];
 
   ProfileState get state => _state;
+
   UserModel? get currentUser => _currentUser;
+
   String get errorMessage => _errorMessage;
+
   bool get isLoading =>
       _state == ProfileState.loading || _state == ProfileState.saving;
-  List<LinkedAccountView> get linkedAccounts => _linkedAccounts;
+
+  List<OAuthLoginInfo> get linkedAccounts => _currentUser?.oauthLogins ?? [];
+
+  List<LinkedAccountView> get linkedAccountViews => _linkedAccounts;
 
   Future<void> loadCurrentUser() async {
     if (_state == ProfileState.loading) {
@@ -39,29 +50,40 @@ class ProfileViewModel extends ChangeNotifier {
     }
     _setState(ProfileState.loading);
     try {
-      // Check if there's a pending OAuth link success from app restart
       final pendingLinkService = await _oauthService.checkPendingLinkSuccess();
       if (pendingLinkService != null) {
         print('Found pending OAuth link success for: $pendingLinkService');
       }
+
+      _currentUser = await _serviceRepository.fetchCurrentUser();
       
-      final userFuture = _serviceRepository.fetchCurrentUser();
-      final providersFuture = _oauthService.getAvailableProviders();
-      final results = await Future.wait([userFuture, providersFuture]);
-      _currentUser = results[0] as UserModel;
-      final availableProviders = results[1] as List<OAuthProvider>;
-      final userLinkedNames = _currentUser?.linkedAccounts ?? [];
-      _linkedAccounts = availableProviders.map((provider) {
-        return LinkedAccountView(
-          provider: provider,
-          isLinked: userLinkedNames.contains(provider.name),
-        );
-      }).toList();
+      if (_currentUser?.oauthLogins.isNotEmpty ?? false) {
+        _linkedAccounts = _currentUser!.oauthLogins.map((oauth) {
+          return LinkedAccountView(
+            oauthId: oauth.id,
+            provider: OAuthProvider(
+              name: oauth.name,
+              color: oauth.color,
+              imageUrl: oauth.imageUrl,
+            ),
+            isLinked: oauth.connected,
+          );
+        }).toList();
+      } else {
+        final availableProviders = await _oauthService.getAvailableProviders();
+        final userLinkedNames = _currentUser?.linkedAccounts ?? [];
+        _linkedAccounts = availableProviders.map((provider) {
+          return LinkedAccountView(
+            oauthId: 0,
+            provider: provider,
+            isLinked: userLinkedNames.contains(provider.name),
+          );
+        }).toList();
+      }
 
       _setState(ProfileState.loaded);
     } catch (e) {
-      _errorMessage =
-          "Failed to get user data: $e";
+      _errorMessage = "Failed to get user data: $e";
       _setState(ProfileState.error);
     }
   }
@@ -92,6 +114,8 @@ class ProfileViewModel extends ChangeNotifier {
           name: newName,
           email: newEmail,
           role: _currentUser!.role,
+          linkedAccounts: _currentUser!.linkedAccounts,
+          oauthLogins: _currentUser!.oauthLogins,
         );
       }
       _setState(ProfileState.loaded);
@@ -111,7 +135,7 @@ class ProfileViewModel extends ChangeNotifier {
   Future<void> linkAccount(String providerName) async {
     _setState(ProfileState.saving);
     try {
-      final result = await _oauthService.linkWithOAuth(providerName);
+      final result = await _oauthService.loginWithOAuth(providerName);
 
       if (result.isSuccess) {
         await loadCurrentUser();
@@ -124,10 +148,10 @@ class ProfileViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> unlinkAccount(String providerName) async {
+  Future<void> unlinkAccount(int oauthId) async {
     _setState(ProfileState.saving);
     try {
-      await _serviceRepository.unlinkOAuthAccount(providerName);
+      await _serviceRepository.unlinkOAuthAccount(oauthId);
       await loadCurrentUser();
     } catch (e) {
       _errorMessage = "Failed to unlink account: $e";

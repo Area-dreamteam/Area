@@ -37,10 +37,12 @@ class _MyAppletPageState extends State<CreateAreaPage> {
     }
 
     if (viewModel.applets.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No Applet.',
-          style: TextStyle(fontSize: 20, color: Colors.white70),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(color: Colors.white70),
         ),
       );
     }
@@ -54,25 +56,28 @@ class _MyAppletPageState extends State<CreateAreaPage> {
           ...viewModel.applets.map(
             (applet) => Padding(
               padding: const EdgeInsets.only(bottom: 20),
-              child: AppletCard( 
-                color: Colors.black, 
-                icon: Icons.electrical_services,
-                title: applet.name,
-                byText: 'ID: ${applet.id}',
-                onDelete: () async {
-                  final success = await viewModel.deleteApplet(applet.id);
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? "Applet deleted successfully"
-                            : viewModel.errorMessage,
+              child: Semantics(
+                label: "Applet: ${applet.name}, ID: ${applet.id}",
+                button: true,
+                child: AppletCard(
+                  color: Colors.black,
+                  title: applet.name,
+                  byText: 'ID: ${applet.id}',
+                  onDelete: () async {
+                    final success = await viewModel.deleteApplet(applet.id);
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success
+                              ? "Applet deleted successfully"
+                              : viewModel.errorMessage,
+                        ),
+                        backgroundColor: success ? Colors.green : Colors.red,
                       ),
-                      backgroundColor: success ? Colors.green : Colors.red,
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ),

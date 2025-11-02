@@ -18,14 +18,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final apiService = ApiService();
+  await apiService.initialize();
+  
   final oauthService = OAuthService();
+  await oauthService.initialize();
+  
   final authRepository = AuthRepository(apiService: apiService);
   final servicesRepository = ServiceRepository(apiService: apiService);
-  
-  // Initialize OAuth service for deeplink handling
-  oauthService.initialize();
-
-  oauthService.initialize();
 
   runApp(
     MultiProvider(

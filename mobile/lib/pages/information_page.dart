@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/models/service_info_model.dart';
@@ -12,6 +10,7 @@ import 'package:mobile/viewmodels/my_applet_viewmodel.dart';
 import 'package:mobile/widgets/card.dart';
 import 'package:mobile/widgets/hex_convert.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/pages/my_area.dart';
 
 class InformationPage extends StatefulWidget {
   final ExploreItem item;
@@ -31,7 +30,7 @@ class _InformationPageState extends State<InformationPage>
   bool _isLoading = true;
   Service? _detailedService;
   bool _isConnected = false;
-  // ---
+  bool _isCopying = false;
 
   @override
   void initState() {
@@ -85,15 +84,12 @@ class _InformationPageState extends State<InformationPage>
   Future<void> _loadServiceData() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
-
     try {
       final repo = context.read<ServiceRepository>();
-
       final results = await Future.wait([
         repo.fetchServiceDetails(_serviceId),
         repo.isServiceConnected(_serviceId),
       ]);
-
       if (mounted) {
         setState(() {
           _detailedService = results[0] as Service;
@@ -116,14 +112,11 @@ class _InformationPageState extends State<InformationPage>
 
   Future<void> _linkService() async {
     if (_detailedService == null) return;
-
     final oauthService = context.read<OAuthService>();
     final serviceName = _detailedService!.name;
-
     setState(() => _isLoading = true);
     try {
       final result = await oauthService.linkWithOAuth(serviceName);
-
       if (result.isSuccess && mounted) {
         final repo = context.read<ServiceRepository>();
         final status = await repo.isServiceConnected(_serviceId);
@@ -147,16 +140,87 @@ class _InformationPageState extends State<InformationPage>
     }
   }
 
+  Future<void> _unlinkService() async {
+    if (_detailedService == null) return;
+
+    final repo = context.read<ServiceRepository>();
+
+    setState(() => _isLoading = true);
+    try {
+      await repo.disconnectService(_serviceId);
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isConnected = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to disconnect service: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _copyApplet() async {
+    if (_isCopying) return;
+
+    setState(() => _isCopying = true);
+
+    final applet = widget.item.data as AppletModel;
+    final repo = context.read<ServiceRepository>();
+
+    try {
+      await repo.copyPublicArea(applet.id);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Applet copied to your Private Areas!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MyAreaPage()),
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isCopying = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to copy Applet: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isApplet = widget.item.type == 'Applet';
     final color = hexToColor(widget.item.colorHex);
+    final bool isDark = color.computeLuminance() < 0.5;
+    final Color appBarIconColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
       backgroundColor: const Color(0xFF212121),
       appBar: AppBar(
         backgroundColor: color,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: appBarIconColor),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: appBarIconColor),
+          tooltip: 'Retour',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: isApplet
           ? _buildAppletLayout(context, color)
@@ -166,55 +230,66 @@ class _InformationPageState extends State<InformationPage>
 
   Widget _buildServiceLayout(BuildContext context, Color color) {
     final service = widget.item.data as Service;
+    final theme = Theme.of(context);
+    final bool isDark = color.computeLuminance() < 0.5;
+    final Color headerTextColor = isDark ? Colors.white : Colors.black;
 
     return Container(
       color: color,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20.0,
-              vertical: 10.0,
-            ),
-            child: Column(
-              children: [
-                getServiceIcon(service.name, size: 60.0, imageUrl: service.imageUrl),
-                // ---
-                const SizedBox(height: 16),
-                Text(
-                  service.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+          MergeSemantics(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 10.0,
+              ),
+              child: Column(
+                children: [
+                  getServiceIcon(
+                    service.name,
+                    size: 60.0,
+                    imageUrl: service.imageUrl,
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _detailedService?.description ?? service.description ?? "",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                if (_isLoading)
-                  const SizedBox(
-                    height: 50,
-                    child: Center(
-                      child: CircularProgressIndicator(color: Colors.white),
+                  const SizedBox(height: 16),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      service.name,
+                      style: theme.textTheme.headlineLarge?.copyWith(
+                        color: headerTextColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  )
-                else if (_detailedService != null &&
-                    _detailedService!.oauthRequired)
-                  _buildConnectButton(showIcon: false)
-                else
-                  const SizedBox(height: 50),
-                const SizedBox(height: 24),
-              ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _detailedService?.description ?? service.description ?? "",
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: headerTextColor,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  if (_isLoading)
+                    const SizedBox(
+                      height: 50,
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                    )
+                  else if (_detailedService != null &&
+                      _detailedService!.oauthRequired)
+                    _buildConnectButton(
+                      showIcon: false,
+                      serviceName: service.name,
+                    )
+                  else
+                    const SizedBox(height: 50),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -253,64 +328,92 @@ class _InformationPageState extends State<InformationPage>
   Widget _buildAppletLayout(BuildContext context, Color color) {
     final applet = widget.item.data as AppletModel;
     final triggerService = applet.triggerService;
+    final theme = Theme.of(context);
 
     return ListView(
       padding: const EdgeInsets.all(20.0),
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: triggerService != null
-                  ? getServiceIcon(triggerService.name, size: 40.0, imageUrl: triggerService.imageUrl)
-                  // ---
-                  : const Icon(Icons.apps, color: Colors.white, size: 40),
-            ),
-            IconButton(
-              icon: const Icon(Icons.ios_share, color: Colors.white),
-              onPressed: () {},
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Text(
-          widget.item.title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 20),
-        if (triggerService != null)
-          Row(
+        MergeSemantics(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              getServiceIcon(triggerService.name, size: 30.0, imageUrl: triggerService.imageUrl),
-              // ---
-              const SizedBox(width: 10),
-              Text(
-                triggerService.name,
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: triggerService != null
+                        ? getServiceIcon(
+                            triggerService.name,
+                            size: 40.0,
+                            imageUrl: triggerService.imageUrl,
+                          )
+                        : const ExcludeSemantics(
+                            child: Icon(
+                              Icons.apps,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Semantics(
+                header: true,
+                child: Text(
+                  widget.item.title,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (triggerService != null)
+                Row(
+                  children: [
+                    getServiceIcon(
+                      triggerService.name,
+                      size: 30.0,
+                      imageUrl: triggerService.imageUrl,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      triggerService.name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const ExcludeSemantics(
+                    child: Icon(
+                      Icons.person_outline,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    widget.item.byText ?? 'by ${applet.user.name}',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            const Icon(Icons.person_outline, color: Colors.white70, size: 20),
-            const SizedBox(width: 12),
-            Text(
-              widget.item.byText ?? 'by ${applet.user.name}',
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-          ],
         ),
         const SizedBox(height: 30),
 
@@ -322,25 +425,38 @@ class _InformationPageState extends State<InformationPage>
             ),
           )
         else if (_detailedService != null && _detailedService!.oauthRequired)
-          _buildConnectButton(showIcon: true, serviceInfo: triggerService)
+          _buildConnectButton(
+            showIcon: true,
+            serviceInfo: triggerService,
+            serviceName: _detailedService!.name,
+          )
         else
           const SizedBox.shrink(),
-        // ---
         const SizedBox(height: 30),
-        const Text(
-          "Description",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+
+        _buildActionButton(
+          text: 'Get this Applet',
+          icon: Icons.download_for_offline_outlined,
+          onPressed: _copyApplet,
+          isLoading: _isCopying,
+        ),
+        const SizedBox(height: 30),
+
+        Semantics(
+          header: true,
+          child: Text(
+            "Description",
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         const SizedBox(height: 10),
         Text(
           applet.description ?? "",
-          style: const TextStyle(
+          style: theme.textTheme.bodyLarge?.copyWith(
             color: Colors.white70,
-            fontSize: 16,
             height: 1.5,
           ),
         ),
@@ -355,18 +471,17 @@ class _InformationPageState extends State<InformationPage>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-
         final applets = snapshot.data ?? [];
-
         if (applets.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
               "No public applets found for this service.",
-              style: TextStyle(color: Colors.white70),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.white70),
             ),
           );
         }
-
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: applets.length,
@@ -374,11 +489,14 @@ class _InformationPageState extends State<InformationPage>
             final applet = applets[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: AppletCard(
-                title: applet.name,
-                byText: 'By ${applet.user.name}',
-                colorHex: applet.color,
-                icon: Icons.public,
+              child: Semantics(
+                label: "Applet: ${applet.name}, par ${applet.user.name}",
+                button: true,
+                child: AppletCard(
+                  title: applet.name,
+                  byText: 'By ${applet.user.name}',
+                  colorHex: applet.color,
+                ),
               ),
             );
           },
@@ -393,18 +511,17 @@ class _InformationPageState extends State<InformationPage>
         if (viewModel.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
-
-        final myAppletsForThisService = viewModel.applets;
-
+        final myAppletsForThisService = viewModel.privateApplets;
         if (myAppletsForThisService.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
               "You have no applets.",
-              style: TextStyle(color: Colors.white70, fontSize: 16),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.white70),
             ),
           );
         }
-
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: myAppletsForThisService.length,
@@ -412,11 +529,14 @@ class _InformationPageState extends State<InformationPage>
             final applet = myAppletsForThisService[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: AppletCard(
-                title: applet.name,
-                byText: 'By ${applet.user.name}',
-                colorHex: applet.color,
-                icon: Icons.electrical_services_outlined,
+              child: Semantics(
+                label: "Applet: ${applet.name}, par ${applet.user.name}",
+                button: true,
+                child: AppletCard(
+                  title: applet.name,
+                  byText: 'By ${applet.user.name}',
+                  colorHex: applet.color,
+                ),
               ),
             );
           },
@@ -425,8 +545,11 @@ class _InformationPageState extends State<InformationPage>
     );
   }
 
-  Widget _buildConnectButton(
-      {required bool showIcon, ServiceInfo? serviceInfo}) {
+  Widget _buildConnectButton({
+    required bool showIcon,
+    required String serviceName,
+    ServiceInfo? serviceInfo,
+  }) {
     if (_isLoading) {
       return ElevatedButton(
         onPressed: null,
@@ -444,57 +567,113 @@ class _InformationPageState extends State<InformationPage>
         ),
       );
     }
-
     if (_isConnected) {
-      return ElevatedButton(
-        onPressed: null,
+      return Semantics(
+        label: "Déconnecter le service $serviceName",
+        button: true,
+        toggled: true,
+        child: ElevatedButton(
+          onPressed: _unlinkService,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.redAccent,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.link_off, size: 20),
+              SizedBox(width: 12),
+              Text(
+                "Disconnect",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Semantics(
+      label: "Connecter le service $serviceName",
+      button: true,
+      toggled: false,
+      child: ElevatedButton(
+        onPressed: _linkService,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 20),
-            SizedBox(width: 12),
-            Text(
-              "Connected",
+            if (showIcon && serviceInfo != null) ...[
+              getServiceIcon(
+                serviceInfo.name,
+                size: 24.0,
+                imageUrl: serviceInfo.imageUrl,
+              ),
+              const SizedBox(width: 12),
+            ] else if (showIcon) ...[
+              const CircleAvatar(backgroundColor: Colors.blue, radius: 12),
+              const SizedBox(width: 12),
+            ],
+            const Text(
+              "Connect",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-      );
-    }
-
-    return ElevatedButton(
-      onPressed: _linkService,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (showIcon && serviceInfo != null) ...[
-            getServiceIcon(serviceInfo.name, size: 24.0, imageUrl: serviceInfo.imageUrl),
-            const SizedBox(width: 12),
-          ] else if (showIcon) ...[
-            const CircleAvatar(backgroundColor: Colors.blue, radius: 12),
-            const SizedBox(width: 12),
-          ],
-          const Text(
-            "Connect",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildActionButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+    Color backgroundColor = Colors.white,
+    Color foregroundColor = Colors.black,
+    bool isLoading = false,
+  }) {
+    return Semantics(
+      label: text,
+      button: true,
+      enabled: true,
+      child: ElevatedButton.icon(
+        icon: isLoading ? const SizedBox.shrink() : Icon(icon, size: 20),
+        label: isLoading
+            ? SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: foregroundColor,
+                  strokeWidth: 3,
+                ),
+              )
+            : Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+        onPressed: isLoading ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
           ),
-        ],
+          elevation: 2,
+        ),
       ),
     );
   }

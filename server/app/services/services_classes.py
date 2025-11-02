@@ -4,7 +4,6 @@ Defines the core service system with automatic action/reaction discovery,
 OAuth integration, and JSON serialization for API and database operations.
 """
 
-import json
 from typing import Dict, Optional, Any, Union
 from core.logger import logger
 from models import User, AreaAction, AreaReaction
@@ -90,7 +89,7 @@ class Service:
         category: str,
         color: str = "#000000",
         img_url: str = "",
-        oauth: str = False,
+        oauth: bool = False,
     ) -> None:
         self.name: str = self.__class__.__name__
         self.description: str = description
@@ -233,7 +232,7 @@ def create_service_dictionnary(
     Recursively finds all subclasses of the given service type
     and creates a registry dictionary for service discovery.
     """
-    logger.debug(f"Type class: {service_type.__name__}")
+    logger.info(f"Type class: {service_type.__name__}")
     service_dict = {}
 
     def get_all_subclasses(cls):
@@ -246,7 +245,7 @@ def create_service_dictionnary(
 
     for service_class in get_all_subclasses(service_type):
         instance = service_class()
-        logger.debug(instance.name)
+        logger.info(instance.name)
         service_dict[instance.name] = instance
 
     return service_dict

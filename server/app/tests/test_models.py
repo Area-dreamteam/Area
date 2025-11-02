@@ -1,7 +1,6 @@
 import pytest
 from datetime import datetime
 from pydantic import ValidationError
-from unittest.mock import Mock, patch
 
 from models.users.user import User
 from models.areas.area import Area
@@ -342,23 +341,23 @@ class TestUserSchemas:
 
     def test_user_create_schema(self):
         """Test UserCreate schema"""
-        user_data = {"email": "create@example.com", "password": "password123"}
+        user_data = {"email": "create@example.com", "password": "Password123!"}
 
         user_create = UserCreate(**user_data)
 
         assert user_create.email == "create@example.com"
-        assert user_create.password == "password123"
+        assert user_create.password == "Password123!"
 
     def test_user_create_schema_validation(self):
         """Test UserCreate schema validation"""
         with pytest.raises(ValidationError):
-            UserCreate(password="password123")
+            UserCreate(password="Password123!")
 
         with pytest.raises(ValidationError):
             UserCreate(email="test@example.com")
 
         with pytest.raises(ValidationError):
-            UserCreate(email="invalid-email", password="password123")
+            UserCreate(email="invalid-email", password="Password123!")
 
     def test_user_create_schema_email_validation(self):
         """Test UserCreate email validation"""
@@ -369,7 +368,7 @@ class TestUserSchemas:
         ]
 
         for email in valid_emails:
-            user_create = UserCreate(email=email, password="password123")
+            user_create = UserCreate(email=email, password="Password123!")
             assert user_create.email == email
 
         invalid_emails = [
@@ -382,7 +381,29 @@ class TestUserSchemas:
 
         for email in invalid_emails:
             with pytest.raises(ValidationError):
-                UserCreate(email=email, password="password123")
+                UserCreate(email=email, password="Password123!")
+    
+    def test_user_create_schema_password_validation(self):
+        """Test UserCreate password validation"""
+        # Valid password
+        user_create = UserCreate(email="test@example.com", password="ValidPass123!")
+        assert user_create.password == "ValidPass123!"
+        
+        # Password without uppercase
+        with pytest.raises(ValidationError):
+            UserCreate(email="test@example.com", password="lowercase123!")
+        
+        # Password without lowercase
+        with pytest.raises(ValidationError):
+            UserCreate(email="test@example.com", password="UPPERCASE123!")
+        
+        # Password without special character
+        with pytest.raises(ValidationError):
+            UserCreate(email="test@example.com", password="NoSpecial123")
+        
+        # Password too short
+        with pytest.raises(ValidationError):
+            UserCreate(email="test@example.com", password="Short1!")
 
     def test_user_update_schema(self):
         """Test UserUpdate schema"""
@@ -407,12 +428,12 @@ class TestUserSchemas:
     def test_user_update_schema_email_validation(self):
         """Test UserUpdate email validation"""
         user_update = UserUpdate(
-            name="Test", email="valid@example.com", password="pass12345"
+            name="Test", email="valid@example.com"
         )
         assert user_update.email == "valid@example.com"
 
         with pytest.raises(ValidationError):
-            UserUpdate(name="Test", email="invalid-email", password="pass12345")
+            UserUpdate(name="Test", email="invalid-email")
 
 
 class TestAreaSchemas:

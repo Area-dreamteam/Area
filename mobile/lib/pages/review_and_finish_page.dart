@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user_model.dart';
 import 'package:mobile/pages/my_area.dart';
@@ -24,9 +22,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   void initState() {
     super.initState();
 
+    final viewModel = context.read<CreateViewModel>();
     _userFuture = context.read<ServiceRepository>().fetchCurrentUser();
 
-    final viewModel = context.read<CreateViewModel>();
+    _nameController.text = viewModel.name;
+    _descriptionController.text = viewModel.description;
 
     _nameController.addListener(() {
       viewModel.setName(_nameController.text);
@@ -40,12 +40,14 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   @override
   void dispose() {
     _nameController.dispose();
-    _descriptionController.dispose(); // C'est bien ici
+    _descriptionController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Consumer<CreateViewModel>(
       builder: (context, viewModel, child) {
         return Scaffold(
@@ -57,6 +59,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
             ),
             backgroundColor: const Color(0xFF212121),
             iconTheme: const IconThemeData(color: Colors.white),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: 'Retour',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -66,39 +73,41 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 20),
                 _buildLogos(viewModel),
                 const SizedBox(height: 40),
-
-                // --- CHAMP TITRE ---
-                const Text(
-                  'Applet title',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Semantics(
+                  header: true,
+                  child: Text(
+                    'Applet title',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _nameController,
-                  hint: "Ex: Post new GitHub issues to Slack",
+                  hint: "Title Area",
+                  label: "Applet title",
                   maxLines: 3,
                 ),
-
                 const SizedBox(height: 24),
-                const Text(
-                  'Description',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Semantics(
+                  header: true,
+                  child: Text(
+                    'Description',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _descriptionController,
-                  hint: "A short description of what this Applet does.",
+                  hint: "Describe your area",
+                  label: "Description",
                   maxLines: 5,
                 ),
-
                 const SizedBox(height: 20),
                 _buildUserInfo(),
                 const SizedBox(height: 40),
@@ -113,9 +122,10 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
 
   Widget _buildLogos(CreateViewModel viewModel) {
     final actionService = viewModel.selectedAction?.service;
-    final reactionService = viewModel.selectedReaction?.service;
+    final reactionServices =
+        viewModel.selectedReactions.map((r) => r.service).toList();
 
-    if (actionService == null || reactionService == null) {
+    if (actionService == null || reactionServices.isEmpty) {
       return const Center(
         child: Text(
           'Error loading services',
@@ -124,33 +134,59 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
       );
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        getServiceIcon(actionService.name, size: 80, imageUrl: actionService.imageUrl),
-        const SizedBox(width: 60),
-        getServiceIcon(reactionService.name, size: 80, imageUrl: reactionService.imageUrl)
-      ],
+    return ExcludeSemantics(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          getServiceIcon(
+            actionService.name,
+            size: 80,
+            imageUrl: actionService.imageUrl,
+          ),
+          const SizedBox(width: 20),
+          const Icon(Icons.arrow_forward, color: Colors.white, size: 30),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 15.0,
+              runSpacing: 10.0,
+              children: reactionServices.map((service) {
+                return getServiceIcon(
+                  service.name,
+                  size: 60,
+                  imageUrl: service.imageUrl,
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
+    required String label,
     int maxLines = 1,
   }) {
-    return TextField(
-      controller: controller,
-      style: const TextStyle(color: Colors.black, fontSize: 18),
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black45),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide.none,
+    return Semantics(
+      label: label,
+      textField: true,
+      child: TextField(
+        controller: controller,
+        style: const TextStyle(color: Colors.black, fontSize: 18),
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.black45),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );
@@ -160,7 +196,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
     return FutureBuilder<UserModel>(
       future: _userFuture,
       builder: (context, snapshot) {
-        String username = '...';
+        String username = '';
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
             username = snapshot.data!.name;
@@ -171,14 +207,19 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
         return Text(
           'by $username',
           textAlign: TextAlign.left,
-          style: const TextStyle(color: Colors.white70, fontSize: 16),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Colors.white70
+          ),
         );
       },
     );
   }
 
   Widget _buildCreateButton(BuildContext context, CreateViewModel viewModel) {
-    final bool isReady = viewModel.isReadyToCreate;
+    final bool isReady = viewModel.isReadyToCreateOrUpdate;
+
+    final String buttonText =
+        viewModel.isEditing ? 'Update Applet' : 'Create Applet';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -195,7 +236,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
           ),
           onPressed: isReady && !viewModel.isLoading
               ? () async {
-                  final success = await viewModel.createApplet();
+                  final success = await viewModel.saveApplet();
 
                   if (success && context.mounted) {
                     Navigator.pushAndRemoveUntil(
@@ -214,7 +255,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                   width: 24,
                   child: CircularProgressIndicator(color: Colors.white),
                 )
-              : const Text('Create Applet', style: TextStyle(fontSize: 18)),
+              : Text(buttonText, style: const TextStyle(fontSize: 18)),
         ),
       ],
     );

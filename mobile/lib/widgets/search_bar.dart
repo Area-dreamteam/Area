@@ -14,6 +14,9 @@ class MySearchBar extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         decoration: InputDecoration(
+          labelText: 'Search info',
+          labelStyle: TextStyle(color: Colors.grey.shade700),
+
           prefixIcon: const Icon(Icons.search),
           hintText: 'Search info',
           filled: true,

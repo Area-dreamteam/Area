@@ -3,6 +3,8 @@ import 'package:mobile/repositories/service_repository.dart';
 import 'package:mobile/models/action_model.dart';
 import 'package:mobile/models/reaction_model.dart';
 import 'package:mobile/models/service_model.dart';
+import 'package:mobile/models/applet_model.dart';
+import 'dart:convert';
 
 class ConfiguredItem<T> {
   final Service service;
@@ -20,44 +22,49 @@ enum CreateState { nothing, loading, success, error }
 
 class CreateViewModel extends ChangeNotifier {
   final ServiceRepository _serviceRepository;
+
   CreateViewModel({required ServiceRepository serviceRepository})
     : _serviceRepository = serviceRepository;
 
-  ServiceRepository get serviceRepository => _serviceRepository;
-
   ConfiguredItem<ActionModel>? _selectedAction;
-  ConfiguredItem<Reaction>? _selectedReaction;
+  List<ConfiguredItem<Reaction>> _selectedReactions = [];
   String _name = '';
   String _description = '';
   String _errorMessage = '';
   CreateState _state = CreateState.nothing;
 
+  bool _isEditing = false;
+  int? _editingAppletId;
+
   ConfiguredItem<ActionModel>? get selectedAction => _selectedAction;
-  ConfiguredItem<Reaction>? get selectedReaction => _selectedReaction;
-
-  bool get isActionAndReactionSelected =>
-      _selectedAction != null && _selectedReaction != null;
-
+  List<ConfiguredItem<Reaction>> get selectedReactions => _selectedReactions;
   String get name => _name;
   String get description => _description;
   CreateState get state => _state;
   String get errorMessage => _errorMessage;
   bool get isLoading => _state == CreateState.loading;
+  bool get isEditing => _isEditing;
 
-  bool get isReadyToCreate =>
+  bool get isActionAndReactionSelected =>
+      _selectedAction != null && _selectedReactions.isNotEmpty;
+
+  bool get isReadyToCreateOrUpdate =>
       _selectedAction != null &&
-      _selectedReaction != null &&
-      _name.isNotEmpty &&
-      _description.isNotEmpty;
+      _selectedReactions.isNotEmpty &&
+      _name.isNotEmpty;
 
   void setName(String name) {
-    _name = name;
-    notifyListeners();
+    if (_name != name) {
+      _name = name;
+      notifyListeners();
+    }
   }
 
   void setDescription(String description) {
-    _description = description;
-    notifyListeners();
+    if (_description != description) {
+      _description = description;
+      notifyListeners();
+    }
   }
 
   void selectAction(ConfiguredItem<ActionModel> action) {
@@ -65,46 +72,160 @@ class CreateViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectReaction(ConfiguredItem<Reaction> reaction) {
-    _selectedReaction = reaction;
+  void addReaction(ConfiguredItem<Reaction> reaction) {
+    _selectedReactions.add(reaction);
     notifyListeners();
   }
 
-  void clearSelection() {
-    _selectedAction = null;
-    _selectedReaction = null;
-    _name = '';
-    _description = '';
-    _state = CreateState.nothing;
+  void removeReaction(ConfiguredItem<Reaction> reaction) {
+    _selectedReactions.remove(reaction);
     notifyListeners();
   }
 
-  Future<bool> createApplet() async {
-    if (!isReadyToCreate) {
+  List<dynamic> _decodeConfig(String? configJson) {
+    if (configJson != null && configJson.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(configJson);
+        if (decoded is List) {
+          return decoded;
+        }
+      } catch (e) {
+        print("Erreur décodage config: $e");
+      }
+    }
+    return [];
+  }
+
+  Future<bool> startEditing(AppletModel appletToEdit) async {
+    _setState(CreateState.loading);
+    try {
+      if (appletToEdit.actionId == null ||
+          appletToEdit.reactions.isEmpty ||
+          appletToEdit.triggerService == null) {
+        throw Exception("Missing information for edit.");
+      }
+
+      final actionDetailsFuture = _serviceRepository.fetchActionDetails(
+        appletToEdit.actionId!,
+      );
+      final triggerServiceFuture = _serviceRepository.fetchServiceDetails(
+        appletToEdit.triggerService!.id,
+      );
+
+      List<Future<Reaction>> reactionDetailsFutures = [];
+      List<Future<Service>> reactionServiceFutures = [];
+
+      for (var reactionInfo in appletToEdit.reactions) {
+        reactionDetailsFutures.add(
+          _serviceRepository.fetchReactionDetails(reactionInfo.id),
+        );
+        reactionServiceFutures.add(
+          _serviceRepository.fetchServiceDetails(reactionInfo.service.id),
+        );
+      }
+
+      final actionDetails = await actionDetailsFuture;
+      final triggerServiceDetails = await triggerServiceFuture;
+      final reactionModels = await Future.wait(reactionDetailsFutures);
+      final reactionServiceDetailsList = await Future.wait(
+        reactionServiceFutures,
+      );
+
+      _isEditing = true;
+      _editingAppletId = appletToEdit.id;
+      _name = appletToEdit.name;
+      _description = appletToEdit.description ?? '';
+
+      _selectedAction = ConfiguredItem<ActionModel>(
+        service: triggerServiceDetails,
+        item: actionDetails,
+        config: _decodeConfig(appletToEdit.actionConfigJson),
+      );
+
+      _selectedReactions = [];
+      for (int i = 0; i < appletToEdit.reactions.length; i++) {
+        final reactionInfo = appletToEdit.reactions[i];
+        _selectedReactions.add(
+          ConfiguredItem<Reaction>(
+            service: reactionServiceDetailsList[i],
+            item: reactionModels[i],
+            config: _decodeConfig(reactionInfo.configJson),
+          ),
+        );
+      }
+
+      _setState(CreateState.nothing);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = "Error edition: $e";
+      _setState(CreateState.error);
+      _isEditing = false;
+      _editingAppletId = null;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> saveApplet() async {
+    if (!isReadyToCreateOrUpdate) {
+      _errorMessage =
+          'Choose one action and at least one reactions.';
+      _setState(CreateState.error);
       return false;
     }
     _setState(CreateState.loading);
     try {
-      await _serviceRepository.createApplet(
-        name: _name,
-        description: _description,
-        actionId: _selectedAction!.item.id,
-        actionConfig: _selectedAction!.config,
-        reactionId: _selectedReaction!.item.id,
-        reactionConfig: _selectedReaction!.config,
-      );
+      final reactionsPayload = _selectedReactions
+          .map((item) => {'reaction_id': item.item.id, 'config': item.config})
+          .toList();
+
+      if (_isEditing && _editingAppletId != null) {
+        await _serviceRepository.updateArea(
+          areaId: _editingAppletId!,
+          name: _name,
+          description: _description,
+          actionId: _selectedAction!.item.id,
+          actionConfig: _selectedAction!.config,
+          reactions: reactionsPayload,
+        );
+      } else {
+        await _serviceRepository.createApplet(
+          name: _name,
+          description: _description,
+          actionId: _selectedAction!.item.id,
+          actionConfig: _selectedAction!.config,
+          reactions: reactionsPayload,
+        );
+      }
 
       _setState(CreateState.success);
+      clearSelection();
       return true;
     } catch (e) {
-      _errorMessage = 'Error creating applet: $e';
+      _errorMessage = 'Error save Applet: $e';
       _setState(CreateState.error);
       return false;
     }
   }
 
-  void _setState(CreateState newState) {
-    _state = newState;
+  void clearSelection() {
+    _selectedAction = null;
+    _selectedReactions = [];
+    _name = '';
+    _description = '';
+    _isEditing = false;
+    _editingAppletId = null;
+    _state = CreateState.nothing;
+    _errorMessage = '';
     notifyListeners();
+  }
+
+  void _setState(CreateState newState) {
+    if (_state != newState) {
+      if (newState != CreateState.error) _errorMessage = '';
+      _state = newState;
+      notifyListeners();
+    }
   }
 }

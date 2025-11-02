@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:mobile/utils/icon_helper.dart';
 import 'package:provider/provider.dart';
@@ -57,7 +55,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Widg
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       print('App resumed - checking for OAuth results');
-      // Give the deep link handler a moment to process
       Future.delayed(const Duration(milliseconds: 500), () {
         _checkAuthenticationStatus();
       });
@@ -168,7 +165,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Widg
       },
     );
   }
-  
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -223,8 +220,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Widg
                   _showConnectionOptions();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
@@ -259,11 +256,11 @@ Widget _buildOAuthOptionButton(
     icon: getServiceIcon(provider.name, size: 24.0, imageUrl: provider.imageUrl),
     label: Text(
       text,
-      style: const TextStyle(color: Colors.black, fontSize: 16.0),
+      style: const TextStyle(fontSize: 16.0),
     ),
     style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black,
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
       minimumSize: const Size(double.infinity, 50),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
     ),
@@ -289,11 +286,11 @@ Widget _buildOptionButton(
     icon: Image.asset(iconPath, height: 24.0, width: 24.0),
     label: Text(
       text,
-      style: const TextStyle(color: Colors.black, fontSize: 16.0),
+      style: const TextStyle(fontSize: 16.0),
     ),
     style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black,
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
       minimumSize: const Size(double.infinity, 50),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
     ),

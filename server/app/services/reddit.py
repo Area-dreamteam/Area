@@ -3,12 +3,12 @@ from urllib.parse import urlencode
 from sqlmodel import Session, select
 from fastapi import HTTPException, Response, Request
 from typing import Dict, Any
-import json
 from pydantic import BaseModel
 
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -43,7 +43,7 @@ class Reddit(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "Reddit", "social", "#FF4500", "/images/Reddit_logo.webp", True
+            "Reddit", ServiceCategory.SOCIAL, "#FF4500", "/images/Reddit_logo.webp", True
         )
 
     class new_post(Action):
@@ -52,7 +52,7 @@ class Reddit(ServiceClass):
         service: "Reddit"
 
         def __init__(self) -> None:
-            config_schema = [{"name": "subreddit", "type": "input", "values": []}]
+            config_schema = [{"name": "Subreddit", "type": "input", "values": []}]
             super().__init__(
                 "Triggered when a new post appears in a subreddit", config_schema
             )
@@ -62,7 +62,7 @@ class Reddit(ServiceClass):
         ) -> bool:
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                subreddit = get_component(area_action.config, "subreddit", "values")
+                subreddit = get_component(area_action.config, "Subreddit", "values")
 
                 url = f"https://oauth.reddit.com/r/{subreddit}/new?limit=1"
                 headers = {
@@ -92,7 +92,7 @@ class Reddit(ServiceClass):
         service: "Reddit"
 
         def __init__(self) -> None:
-            config_schema = [{"name": "subreddit", "type": "input", "values": []}]
+            config_schema = [{"name": "Subreddit", "type": "input", "values": []}]
             super().__init__(
                 "Triggered when a new hot post appears in a subreddit", config_schema
             )
@@ -102,7 +102,7 @@ class Reddit(ServiceClass):
         ) -> bool:
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                subreddit = get_component(area_action.config, "subreddit", "values")
+                subreddit = get_component(area_action.config, "Subreddit", "values")
 
                 url = f"https://oauth.reddit.com/r/{subreddit}/hot?limit=1"
                 headers = {
@@ -132,7 +132,7 @@ class Reddit(ServiceClass):
         service: "Reddit"
 
         def __init__(self) -> None:
-            config_schema = [{"name": "subreddit", "type": "input", "values": []}]
+            config_schema = [{"name": "Subreddit", "type": "input", "values": []}]
             super().__init__(
                 "Triggered when a new top post appears in a subreddit", config_schema
             )
@@ -142,7 +142,7 @@ class Reddit(ServiceClass):
         ) -> bool:
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                subreddit = get_component(area_action.config, "subreddit", "values")
+                subreddit = get_component(area_action.config, "Subreddit", "values")
 
                 url = f"https://oauth.reddit.com/r/{subreddit}/top?limit=1"
                 headers = {
@@ -173,18 +173,18 @@ class Reddit(ServiceClass):
 
         def __init__(self) -> None:
             config_schema = [
-                {"name": "subreddit", "type": "input", "values": []},
-                {"name": "title", "type": "input", "values": []},
-                {"name": "text", "type": "input", "values": []},
+                {"name": "Subreddit", "type": "input", "values": []},
+                {"name": "Title", "type": "input", "values": []},
+                {"name": "Text", "type": "input", "values": []},
             ]
             super().__init__("Post a new message to a subreddit", config_schema)
 
         def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                subreddit = get_component(area_action.config, "subreddit", "values")
-                title = get_component(area_action.config, "title", "values")
-                text = get_component(area_action.config, "text", "values")
+                subreddit = get_component(area_action.config, "Subreddit", "values")
+                title = get_component(area_action.config, "Title", "values")
+                text = get_component(area_action.config, "Text", "values")
 
                 url = "https://oauth.reddit.com/api/submit"
                 headers = {
@@ -203,7 +203,7 @@ class Reddit(ServiceClass):
                 r = requests.post(url, headers=headers, data=data)
                 if r.status_code != 200:
                     raise RedditApiError("Failed to post message")
-                logger.debug(f"Reddit: Posted to r/{subreddit}")
+                logger.info(f"{self.service.name} - {self.name} - Posted to r/{subreddit} - User: {user_id}")
             except RedditApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -242,7 +242,6 @@ class Reddit(ServiceClass):
             return True
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
 
     def _is_token_valid(self, token: str) -> bool:

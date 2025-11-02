@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/my_area.dart';
 import 'package:mobile/pages/register.dart';
@@ -20,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  
+
   List<OAuthProvider> _oauthProviders = [];
   bool _isOAuthLoading = false;
   String _oauthError = '';
@@ -30,14 +28,14 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _loadOAuthProviders();
   }
-  
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _loadOAuthProviders() async {
     print('Loading OAuth providers...');
     final oauthService = context.read<OAuthService>();
@@ -124,17 +122,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _header() {
-    return const Column(
-      children: [
-        Text(
-          "What's your email ?",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 40,
-            fontWeight: FontWeight.bold,
-          ),
+    return Semantics(
+      header: true,
+      child: Text(
+        "What's your email ?",
+        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
-      ],
+      ),
     );
   }
 
@@ -146,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
           controller: _emailController,
           style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
-            hintText: "E-mail",
+            labelText: "E-mail",
             border: const OutlineInputBorder(borderSide: BorderSide.none),
             fillColor: Colors.white,
             filled: true,
@@ -165,12 +161,13 @@ class _LoginPageState extends State<LoginPage> {
           obscureText: _obscurePassword,
           style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
-            hintText: "Password",
+            labelText: "Password",
             border: const OutlineInputBorder(borderSide: BorderSide.none),
             fillColor: Colors.white,
             filled: true,
             prefixIcon: const Icon(Icons.password),
             suffixIcon: IconButton(
+              tooltip: _obscurePassword ? "Display password" : "Hide password",
               icon: Icon(
                 _obscurePassword ? Icons.visibility_off : Icons.visibility,
               ),
@@ -262,32 +259,41 @@ class _LoginPageState extends State<LoginPage> {
           ..._oauthProviders.map((provider) {
             final displayName = provider.name.toUpperCase();
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isOAuthLoading
-                      ? null
-                      : () => _loginWithOAuth(provider.name),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+            return Semantics(
+              label: "Continue with $displayName",
+              button: true,
+              enabled: !_isOAuthLoading,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _isOAuthLoading
+                        ? null
+                        : () => _loginWithOAuth(provider.name),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  icon: _isOAuthLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : getServiceIcon(provider.name, size: 20.0, imageUrl: provider.imageUrl),
-                  label: Text(
-                    'Continue with $displayName',
-                    style: const TextStyle(fontSize: 16),
+                    icon: _isOAuthLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : getServiceIcon(
+                            provider.name,
+                            size: 20.0,
+                            imageUrl: provider.imageUrl,
+                          ),
+                    label: Text(
+                      'Continue with $displayName',
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
               ),

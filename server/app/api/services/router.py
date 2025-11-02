@@ -1,3 +1,4 @@
+from core.logger import logger
 from models.users.user_service import UserService
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
@@ -103,21 +104,18 @@ def get_reactions_of_service(
     summary="Check service connection",
     description="Check if current user has connected this service",
 )
-def is_service_connected(
-    id: int, session: SessionDep, user: CurrentUserNoFail
-) -> dict:
+def is_service_connected(id: int, session: SessionDep, user: CurrentUserNoFail) -> dict:
     service_name: str = session.exec(
         select(Service.name)
         .join(UserService, UserService.service_id == Service.id)
         .where(UserService.service_id == id, UserService.user_id == user.id)
     ).first()
-    
     if service_name is None:
         return {"is_connected": False}
 
     if services_dico[service_name].is_connected(session, user.id) is True:
         return {"is_connected": True}
-    
+
     user_service: UserService = session.exec(
         select(UserService)
         .join(Service, Service.id == UserService.service_id)

@@ -1,17 +1,12 @@
-from fastapi.responses import RedirectResponse
-from fastapi import APIRouter, HTTPException, Cookie, Response
+from fastapi import APIRouter, HTTPException, Response
 from sqlmodel import select
-from urllib.parse import urlencode
-from pydantic_core import ValidationError
 from core.config import settings
-import requests
 
 
 from models import User
-from schemas import UserCreate, TokenResponse, MessageResponse, UserRegistrationResponse
+from schemas import UserCreate, MessageResponse, UserRegistrationResponse
 from core.security import hash_password, verify_password, sign_jwt
 from dependencies.db import SessionDep
-from core.config import settings
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])

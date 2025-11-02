@@ -8,22 +8,24 @@ Also provides GitHub automation service for repository and issue management.
 
 from typing import Dict, Any, List
 from services.oauth_lib import oauth_add_login, oauth_add_link
-from core.security import sign_jwt
 import requests
 from urllib.parse import urlencode
-from models.oauth.oauth_login import OAuthLogin
-from models.users.user_oauth_login import UserOAuthLogin
 from models.users.user import User
 from models.users.user_service import UserService
 from models.services.service import Service
-from models.areas import AreaAction, AreaReaction
 from sqlmodel import select
 from fastapi import HTTPException, Response, Request
-from fastapi.responses import HTMLResponse
 from core.config import settings
+from core.categories import ServiceCategory
 
 from pydantic import BaseModel
-from services.services_classes import oauth_service, Service as ServiceClass, Action, Reaction, get_component
+from services.services_classes import (
+    oauth_service,
+    Service as ServiceClass,
+    Action,
+    Reaction,
+    get_component,
+)
 from sqlmodel import Session
 from pydantic_core import ValidationError
 from core.utils import generate_state
@@ -92,7 +94,7 @@ class GithubOauth(oauth_service):
             "redirect_uri": redirect,
             "prompt": "select_account",
             "allow_signup": "true",
-            "scope": "user",
+            "scope": "read:user user:email",
             "login": "",
             "force_verify": "true",
         }
@@ -121,7 +123,7 @@ class GithubOauth(oauth_service):
             user_info = self._get_email(token_res.access_token)[0]
         except GithubApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
-        return oauth_add_login(  # type: ignore
+        return oauth_add_login(
             session,
             self.name,
             user,
@@ -138,7 +140,7 @@ class Github(ServiceClass):
     def __init__(self) -> None:
         super().__init__(
             "GitHub Repository and Issue Management",
-            "developer",
+            ServiceCategory.DEVELOPER,
             "#000000",
             "images/Github_logo.webp",
             True,
@@ -152,20 +154,30 @@ class Github(ServiceClass):
         def __init__(self):
             super().__init__(
                 "Triggered when a new repository is created by the authenticated user",
-                []
+                [],
             )
 
         def check(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
 
             try:
-                repositories = self.service._get_user_repositories(token)  # type: ignore
+                repositories = self.service._get_user_repositories(token)
             except GithubApiError as e:
                 logger.error(f"GitHub new_repository check error: {e.message}")
                 return False
 
             repo_ids = {repo["id"] for repo in repositories}
-            previous_repo_ids = set(area_action.last_state.get("repo_ids", []) if area_action.last_state else [])
+            previous_repo_ids = set(
+                area_action.last_state.get("repo_ids", [])
+                if area_action.last_state
+                else []
+            )
+
+            if not area_action.last_state or "repo_ids" not in area_action.last_state:
+                area_action.last_state = {"repo_ids": list(repo_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
 
             area_action.last_state = {"repo_ids": list(repo_ids)}
             session.add(area_action)
@@ -186,22 +198,32 @@ class Github(ServiceClass):
             ]
             super().__init__(
                 "Triggered when a new issue is created in a watched repository",
-                config_schema
+                config_schema,
             )
 
         def check(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
 
             try:
-                issues = self.service._get_repository_issues(token, owner, repo)  # type: ignore
+                issues = self.service._get_repository_issues(token, owner, repo)
             except GithubApiError as e:
                 logger.error(f"GitHub new_issue check error: {e.message}")
                 return False
 
             issue_ids = {issue["id"] for issue in issues}
-            previous_issue_ids = set(area_action.last_state.get("issue_ids", []) if area_action.last_state else [])
+            previous_issue_ids = set(
+                area_action.last_state.get("issue_ids", [])
+                if area_action.last_state
+                else []
+            )
+
+            if not area_action.last_state or "issue_ids" not in area_action.last_state:
+                area_action.last_state = {"issue_ids": list(issue_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
 
             area_action.last_state = {"issue_ids": list(issue_ids)}
             session.add(area_action)
@@ -222,22 +244,32 @@ class Github(ServiceClass):
             ]
             super().__init__(
                 "Triggered when a new pull request is created in a watched repository",
-                config_schema
+                config_schema,
             )
 
         def check(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
 
             try:
-                pulls = self.service._get_repository_pulls(token, owner, repo)  # type: ignore
+                pulls = self.service._get_repository_pulls(token, owner, repo)
             except GithubApiError as e:
                 logger.error(f"GitHub new_pull_request check error: {e.message}")
                 return False
 
             pr_ids = {pr["id"] for pr in pulls}
-            previous_pr_ids = set(area_action.last_state.get("pr_ids", []) if area_action.last_state else [])
+            previous_pr_ids = set(
+                area_action.last_state.get("pr_ids", [])
+                if area_action.last_state
+                else []
+            )
+
+            if not area_action.last_state or "pr_ids" not in area_action.last_state:
+                area_action.last_state = {"pr_ids": list(pr_ids)}
+                session.add(area_action)
+                session.commit()
+                return False
 
             area_action.last_state = {"pr_ids": list(pr_ids)}
             session.add(area_action)
@@ -259,29 +291,35 @@ class Github(ServiceClass):
             ]
             super().__init__(
                 "Triggered when a repository reaches a star count threshold",
-                config_schema
+                config_schema,
             )
 
         def check(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
-            threshold_str = get_component(area_action.config, "Star Threshold", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
+            threshold_str = get_component(
+                area_action.config, "Star Threshold", "values"
+            )
 
             try:
-                threshold = int(threshold_str)  # type: ignore
+                threshold = int(threshold_str)
             except (ValueError, TypeError):
                 logger.error(f"Invalid star threshold: {threshold_str}")
                 return False
 
             try:
-                repo_data = self.service._get_repository(token, owner, repo)  # type: ignore
+                repo_data = self.service._get_repository(token, owner, repo)
             except GithubApiError as e:
                 logger.error(f"GitHub repo_star_threshold check error: {e.message}")
                 return False
 
             current_stars = repo_data.get("stargazers_count", 0)
-            previous_triggered = area_action.last_state.get("triggered", False) if area_action.last_state else False
+            previous_triggered = (
+                area_action.last_state.get("triggered", False)
+                if area_action.last_state
+                else False
+            )
 
             if current_stars >= threshold and not previous_triggered:
                 area_action.last_state = {"triggered": True}
@@ -307,20 +345,19 @@ class Github(ServiceClass):
                 {"name": "Issue Body", "type": "input", "values": []},
             ]
             super().__init__(
-                "Create a new issue in a specified repository",
-                config_schema
+                "Create a new issue in a specified repository", config_schema
             )
 
         def execute(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
-            title = get_component(area_action.config, "Issue Title", "values")  # type: ignore
-            body = get_component(area_action.config, "Issue Body", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
+            title = get_component(area_action.config, "Issue Title", "values")
+            body = get_component(area_action.config, "Issue Body", "values")
 
             try:
-                self.service._create_issue(token, owner, repo, title, body)  # type: ignore
-                logger.info(f"Created issue '{title}' in {owner}/{repo}")
+                self.service._create_issue(token, owner, repo, title, body)
+                logger.info(f"{self.service.name} - {self.name} - Created issue '{title}' in {owner}/{repo} - User: {user_id}")
             except GithubApiError as e:
                 logger.error(f"Failed to create issue: {e.message}")
 
@@ -334,19 +371,16 @@ class Github(ServiceClass):
                 {"name": "Repository Owner", "type": "input", "values": []},
                 {"name": "Repository Name", "type": "input", "values": []},
             ]
-            super().__init__(
-                "Star a repository on GitHub",
-                config_schema
-            )
+            super().__init__("Star a repository on GitHub", config_schema)
 
         def execute(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
 
             try:
-                self.service._star_repository(token, owner, repo)  # type: ignore
-                logger.info(f"Starred repository {owner}/{repo}")
+                self.service._star_repository(token, owner, repo)
+                logger.info(f"{self.service.name} - {self.name} - Starred repository {owner}/{repo} - User: {user_id}")
             except GithubApiError as e:
                 logger.error(f"Failed to star repository: {e.message}")
 
@@ -362,31 +396,32 @@ class Github(ServiceClass):
                 {"name": "PR Number", "type": "input", "values": []},
                 {"name": "Comment Body", "type": "input", "values": []},
             ]
-            super().__init__(
-                "Add a comment to a pull request",
-                config_schema
-            )
+            super().__init__("Add a comment to a pull request", config_schema)
 
         def execute(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
-            pr_number_str = get_component(area_action.config, "PR Number", "values")  # type: ignore
-            comment = get_component(area_action.config, "Comment Body", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
+            pr_number_str = get_component(area_action.config, "PR Number", "values")
+            comment = get_component(area_action.config, "Comment Body", "values")
 
             try:
-                pr_number = int(pr_number_str)  # type: ignore
+                pr_number = int(pr_number_str)
             except (ValueError, TypeError):
                 logger.error(f"Invalid PR number: {pr_number_str}")
                 return
 
             try:
-                self.service._comment_on_pull_request(token, owner, repo, pr_number, comment)  # type: ignore
-                logger.info(f"Commented on PR #{pr_number} in {owner}/{repo}")
+                self.service._comment_on_pull_request(
+                    token, owner, repo, pr_number, comment
+                )
+                logger.info(f"{self.service.name} - {self.name} - Commented on PR #{pr_number} in {owner}/{repo} - User: {user_id}")
             except GithubApiError as e:
                 logger.error(f"Failed to comment on PR: {e.message}")
 
-    def _get_token(self, client_id: str, client_secret: str, code: str) -> GithubOAuthTokenRes:
+    def _get_token(
+        self, client_id: str, client_secret: str, code: str
+    ) -> GithubOAuthTokenRes:
         """Exchange authorization code for access token."""
         base_url = "https://github.com/login/oauth/access_token"
         params = {"client_id": client_id, "client_secret": client_secret, "code": code}
@@ -409,7 +444,7 @@ class Github(ServiceClass):
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28"
+            "X-GitHub-Api-Version": "2022-11-28",
         }
         r = requests.get(url, headers=headers)
 
@@ -472,7 +507,9 @@ class Github(ServiceClass):
     ) -> List[Dict[str, Any]]:
         """Fetch issues for a specific repository."""
         result = self._make_github_request(
-            token, f"/repos/{owner}/{repo}/issues?state=all&per_page=100", return_list=True
+            token,
+            f"/repos/{owner}/{repo}/issues?state=all&per_page=100",
+            return_list=True,
         )
         return result if isinstance(result, list) else []
 
@@ -481,7 +518,9 @@ class Github(ServiceClass):
     ) -> List[Dict[str, Any]]:
         """Fetch pull requests for a specific repository."""
         result = self._make_github_request(
-            token, f"/repos/{owner}/{repo}/pulls?state=all&per_page=100", return_list=True
+            token,
+            f"/repos/{owner}/{repo}/pulls?state=all&per_page=100",
+            return_list=True,
         )
         return result if isinstance(result, list) else []
 
@@ -540,7 +579,7 @@ class Github(ServiceClass):
         base_url = "https://github.com/login/oauth/authorize"
         redirect = f"{settings.FRONT_URL}/callbacks/link/{self.name}"
         params = {
-            "client_id": settings.GITHUB_CLIENT_ID,
+            "client_id": settings.GITHUB_LINK_CLIENT_ID,
             "redirect_uri": redirect,
             "scope": "repo read:user read:org",
             "state": state if state else generate_state(),
@@ -558,13 +597,13 @@ class Github(ServiceClass):
         """Handle GitHub OAuth callback for service linking."""
         try:
             token_res = self._get_token(
-                settings.GITHUB_CLIENT_ID,
-                settings.GITHUB_CLIENT_SECRET,
+                settings.GITHUB_LINK_CLIENT_ID,
+                settings.GITHUB_LINK_CLIENT_SECRET,
                 code,
             )
         except GithubApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(  # type: ignore
+        return oauth_add_link(
             session, self.name, user, token_res.access_token, request, is_mobile
         )

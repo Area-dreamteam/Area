@@ -6,8 +6,7 @@
  */
 
 import axios from 'axios'
-import { ConfigRespAct } from '../types/config'
-import { Act, Service, SpecificService } from '../types/service'
+import { Act, ActDetails, Service, SpecificService } from '../types/service'
 import { MyProfileProp, UpdateProfileProp } from '../types/profile'
 import { SpecificAction, SpecificReaction } from '../types/actions'
 import {
@@ -15,7 +14,66 @@ import {
   PrivateApplet,
   SpecificPublicApplet,
   SpecificPrivateApplet,
+  AppletRespSchema,
 } from '../types/applet'
+
+interface PydanticValidationError {
+  loc: (string | number)[]
+  msg: string
+  type: string
+  ctx?: Record<string, unknown>
+}
+interface HTTPExceptionResponse {
+  detail: string | PydanticValidationError[]
+}
+
+function isHTTPExceptionResponse(data: unknown): data is HTTPExceptionResponse {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'detail' in data &&
+    (typeof data.detail === 'string' ||
+      (Array.isArray(data.detail) && data.detail.length > 0))
+  )
+}
+
+function parseValidationError(data: unknown): string {
+  try {
+    if (!isHTTPExceptionResponse(data)) {
+      return 'Invalid input. Please check your data.'
+    }
+
+    const { detail } = data
+
+    if (Array.isArray(detail) && detail.length > 0) {
+      const firstError = detail[0]
+
+      let msg = firstError.msg
+      const type = firstError.type
+      const loc = firstError.loc
+
+      const isPasswordError = loc.includes('password')
+
+      if (type === 'string_too_short' && isPasswordError) {
+        return 'Password must be at least 8 characters long'
+      }
+
+      if (msg.startsWith('Value error, ')) {
+        msg = msg.substring(13)
+      }
+
+      return msg
+    }
+
+    if (typeof detail === 'string') {
+      return detail
+    }
+
+    return 'Invalid input. Please check your data.'
+  } catch {
+    return 'Invalid input. Please check your data.'
+  }
+}
 
 export const Calls = axios.create({
   baseURL: '/api/backend',
@@ -130,18 +188,45 @@ export async function fetchChangePassword(
   return false
 }
 
-export async function fetchLogin(email: string, password: string) {
+export async function fetchLogin(
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await Calls.post('/auth/login', {
       email: email,
       password: password,
     })
-    if (res.status != 200) return false
-    return true
-  } catch (err) {
+    if (res.status != 200) {
+      return { success: false, error: 'Invalid email or password' }
+    }
+    return { success: true }
+  } catch (err: unknown) {
     console.log('Error: ', err)
+
+    // Handle 422 validation errors
+    if (typeof err === 'object' && err !== null && 'response' in err) {
+      const axiosErr = err as { response?: { status?: number; data?: unknown } }
+      if (axiosErr.response?.status === 422) {
+        const errorMessage = parseValidationError(axiosErr.response.data)
+        return { success: false, error: errorMessage }
+      }
+
+      // Handle other errors with detail field
+      if (
+        axiosErr.response?.data &&
+        typeof axiosErr.response.data === 'object' &&
+        'detail' in axiosErr.response.data
+      ) {
+        const detail = (axiosErr.response.data as { detail?: unknown }).detail
+        if (typeof detail === 'string') {
+          return { success: false, error: detail }
+        }
+      }
+    }
+
+    return { success: false, error: 'Connection error. Please try again.' }
   }
-  return false
 }
 
 export async function fetchLogout() {
@@ -155,7 +240,10 @@ export async function fetchLogout() {
   return false
 }
 
-export async function fetchRegister(email: string, password: string) {
+export async function fetchRegister(
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await Calls.post('/auth/register', {
       name: email.split('@')[0],
@@ -164,12 +252,39 @@ export async function fetchRegister(email: string, password: string) {
     })
     console.log(res)
 
-    if (res.status != 200) return false
-    return true
-  } catch (err) {
+    if (res.status != 200 && res.status != 201) {
+      return { success: false, error: 'Account creation failed' }
+    }
+    return { success: true }
+  } catch (err: unknown) {
     console.log('An error occured: ', err)
+
+    // Handle 422 validation errors
+    if (typeof err === 'object' && err !== null && 'response' in err) {
+      const axiosErr = err as { response?: { status?: number; data?: unknown } }
+      if (axiosErr.response?.status === 422) {
+        const errorMessage = parseValidationError(axiosErr.response.data)
+        return { success: false, error: errorMessage }
+      }
+
+      // Handle other errors with detail field
+      if (
+        axiosErr.response?.data &&
+        typeof axiosErr.response.data === 'object' &&
+        'detail' in axiosErr.response.data
+      ) {
+        const detail = (axiosErr.response.data as { detail?: unknown }).detail
+        if (typeof detail === 'string') {
+          return { success: false, error: detail }
+        }
+      }
+    }
+
+    return {
+      success: false,
+      error: 'Unable to create account. Please try again.',
+    }
   }
-  return false
 }
 
 export async function fetchActs(
@@ -229,13 +344,13 @@ export async function fetchSpecificService(
 }
 
 export async function fetchApplets(
-  setApplets: (data: (PublicApplet | PrivateApplet)[] | null) => void
+  setApplets: (data: PublicApplet[] | PrivateApplet[] | null) => void
 ) {
   try {
     const res = await Calls.get('/areas/public')
-
     if (res.status != 200) {
-      setApplets(null)
+      console.log('failed')
+      // setApplets(null);
       return false
     }
     setApplets(res.data)
@@ -243,7 +358,8 @@ export async function fetchApplets(
   } catch (err) {
     console.log('Error: ', err)
   }
-  setApplets(null)
+  console.log('failed')
+  // setApplets(null);
   return false
 }
 
@@ -337,25 +453,11 @@ export async function fetchAction(
 }
 
 export async function fetchUpdatePersonalApplets(
-  name: string,
-  desc: string,
-  applet: SpecificPrivateApplet
+  applet: AppletRespSchema,
+  id: number
 ) {
   try {
-    const res = await Calls.patch(`/users/areas/${applet.area_info.id}`, {
-      name: name,
-      description: desc,
-      action: {
-        action_id: applet.action.id,
-        config: applet.action,
-      },
-      reactions: applet.reactions.map((reac) => {
-        return {
-          reaction_id: reac.id,
-          config: reac.config,
-        }
-      }),
-    })
+    const res = await Calls.patch(`/users/areas/${id}`, applet)
 
     if (res.status != 200) {
       return false
@@ -448,26 +550,22 @@ export async function fetchPersonalAppletConnection(id: number, state: string) {
 }
 
 export async function fetchCreateApplet(
-  action: Act,
-  reaction: Act,
-  title: string,
-  actConfig: ConfigRespAct[],
-  reactConfig: ConfigRespAct[]
+  action: ActDetails,
+  reactions: ActDetails[],
+  title: string
 ) {
   try {
     const res = await Calls.post('/users/areas/me', {
       name: title.replaceAll('_', ' '),
       description: '[description]',
       action: {
-        action_id: action.id,
-        config: actConfig,
+        action_id: action.act.id,
+        config: action.config,
       },
-      reactions: [
-        {
-          reaction_id: reaction.id,
-          config: reactConfig,
-        },
-      ],
+      reactions: reactions.map((reaction) => ({
+        reaction_id: reaction.act.id,
+        config: reaction.config,
+      })),
     })
 
     if (res.status != 200) {

@@ -22,12 +22,12 @@ class SelectorCategory extends StatelessWidget {
         itemCount: categories.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final cat = categories[index];
-          final selected = cat == selectedCategory;
+          final category = categories[index];
+          final selected = category == selectedCategory;
           return ChoiceChip(
-            label: Text(cat),
+            label: Text(category),
             selected: selected,
-            onSelected: (_) => onCategorySelected(cat),
+            onSelected: (_) => onCategorySelected(category),
           );
         },
       ),

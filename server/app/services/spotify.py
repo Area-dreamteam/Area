@@ -2,15 +2,14 @@ import requests
 from urllib.parse import urlencode
 from sqlmodel import Session, select
 from fastapi import HTTPException, Response, Request
-from typing import Dict, Any, List
-import json
+from typing import Dict, Any
 from pydantic import BaseModel
-from datetime import datetime, timezone
 import base64
 
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -18,7 +17,7 @@ from services.services_classes import (
     Reaction,
     get_component,
 )
-from models import AreaAction, AreaReaction, UserService, Service, User
+from models import UserService, Service, User
 from api.users.db import get_user_service_token
 
 
@@ -45,7 +44,7 @@ class Spotify(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "Spotify", "music", "#1DB954", "images/Spotify_logo.webp", True
+            "Spotify", ServiceCategory.MUSIC, "#1DB954", "images/Spotify_logo.webp", True
         )
 
     class device_connect_to_spotify(Action):
@@ -330,9 +329,7 @@ class Spotify(ServiceClass):
                 )
                 if r.status_code != 204:
                     raise SpotifyApiError("Failed to set volume")
-                logger.debug(
-                    f"Spotify: volume set to {volume_percent}% for user {user_id}"
-                )
+                logger.info(f"{self.service.name} - {self.name} - Volume set to {volume_percent}% - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -364,13 +361,13 @@ class Spotify(ServiceClass):
                     url, headers={"Authorization": f"Bearer {token}"}, params=params
                 )
                 if r.status_code == 404:
-                    logger.debug(
+                    logger.info(
                         f"Spotify {self.name}: no active playback for user {user_id}"
                     )
                     return
                 if r.status_code != 200:
                     raise SpotifyApiError("Failed to set repeat mode")
-                logger.debug(f"Spotify: repeat mode set to {state} for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Repeat mode set to {state} - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -391,13 +388,13 @@ class Spotify(ServiceClass):
                 url = "https://api.spotify.com/v1/me/player/next"
                 r = requests.post(url, headers={"Authorization": f"Bearer {token}"})
                 if r.status_code == 404:
-                    logger.debug(
+                    logger.info(
                         f"Spotify {self.name}: no active playback for user {user_id}"
                     )
                     return
                 if r.status_code != 200:
                     raise SpotifyApiError(f"Failed to skip to next track: {r.text}")
-                logger.debug("Spotify: Skip to next track  for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Skip to next track - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -418,13 +415,13 @@ class Spotify(ServiceClass):
                 url = "https://api.spotify.com/v1/me/player/previous"
                 r = requests.post(url, headers={"Authorization": f"Bearer {token}"})
                 if r.status_code == 404:
-                    logger.debug(
+                    logger.info(
                         f"Spotify {self.name}: no active playback for user {user_id}"
                     )
                     return
                 if r.status_code != 200:
                     raise SpotifyApiError(f"Failed to skip to previous track: {r.text}")
-                logger.debug("Spotify: Skip to previous track for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Skip to previous track - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -443,13 +440,13 @@ class Spotify(ServiceClass):
                 url = "https://api.spotify.com/v1/me/player/pause"
                 r = requests.put(url, headers={"Authorization": f"Bearer {token}"})
                 if r.status_code == 404:
-                    logger.debug(
+                    logger.info(
                         f"Spotify {self.name}: no active playback for user {user_id}"
                     )
                     return
                 if r.status_code != 200:
                     raise SpotifyApiError(f"Failed to pause playback: {r.text}")
-                logger.debug("Spotify: Pause playback for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Pause playback - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -468,7 +465,6 @@ class Spotify(ServiceClass):
             return True
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
 
     def _is_token_valid(self, token: str) -> bool:
@@ -483,7 +479,7 @@ class Spotify(ServiceClass):
         localhost_domain: str = settings.FRONT_URL.find("localhost")
         redirect_domain: str = settings.FRONT_URL
         if localhost_domain > -1:
-            redirect_domain = "http://127.0.0.1:3000"
+            redirect_domain = "http://127.0.0.1:8081"
         redirect = f"{redirect_domain}/callbacks/link/{self.name}"
 
         params = {
@@ -501,7 +497,7 @@ class Spotify(ServiceClass):
         localhost_domain: str = settings.FRONT_URL.find("localhost")
         redirect_domain: str = settings.FRONT_URL
         if localhost_domain > -1:
-            redirect_domain = "http://127.0.0.1:3000"
+            redirect_domain = "http://127.0.0.1:8081"
         redirect = f"{redirect_domain}/callbacks/link/{self.name}"
 
         auth_str = f"{settings.SPOTIFY_CLIENT_ID}:{settings.SPOTIFY_CLIENT_SECRET}"

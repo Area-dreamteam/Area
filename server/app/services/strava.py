@@ -2,14 +2,14 @@ import requests
 from urllib.parse import urlencode
 from sqlmodel import Session, select
 from fastapi import HTTPException, Response, Request
-from typing import Dict, Any, List
-import json
+from typing import Dict, Any
 from pydantic import BaseModel
 from datetime import datetime, timezone
 
 from core.config import settings
 from core.utils import generate_state
 from core.logger import logger
+from core.categories import ServiceCategory
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
@@ -17,7 +17,7 @@ from services.services_classes import (
     Reaction,
     get_component,
 )
-from models import AreaAction, AreaReaction, UserService, Service, User
+from models import AreaAction, UserService, Service, User
 from api.users.db import get_user_service_token
 
 
@@ -43,7 +43,7 @@ class Strava(ServiceClass):
 
     def __init__(self) -> None:
         super().__init__(
-            "Strava", "fitness", "#fc4c02", "images/Strava_logo.webp", True
+            "Strava", ServiceCategory.FITNESS, "#fc4c02", "images/Strava_logo.webp", True
         )
 
     class new_activity_by_you(Action):
@@ -90,7 +90,6 @@ class Strava(ServiceClass):
                 r = requests.get(
                     url, headers={"Authorization": f"Bearer {token}"}, params=params
                 )
-                logger.error(r.json())
                 if r.status_code != 200:
                     raise StravaApiError("Failed to fetch activities")
 
@@ -118,7 +117,6 @@ class Strava(ServiceClass):
                 r = requests.get(url, headers={"Authorization": f"Bearer {token}"})
                 if r.status_code != 200:
                     raise StravaApiError("Failed to fetch athlete clubs")
-                logger.error(r.json())
                 club = r.json()[-1] if r.json() else None
                 logger.error(club)
             except StravaApiError as e:
@@ -132,25 +130,25 @@ class Strava(ServiceClass):
 
         def __init__(self):
             config_schema = [
-                {"name": "name", "type": "input", "values": []},
-                {"name": "description", "type": "input", "values": []},
-                {"name": "type", "type": "select", "values": ["Ride", "Run", "Walk"]},
-                {"name": "elapsed_time(seconds)", "type": "input", "values": []},
+                {"name": "Name", "type": "input", "values": []},
+                {"name": "Description", "type": "input", "values": []},
+                {"name": "Activity type", "type": "select", "values": ["Ride", "Run", "Walk"]},
+                {"name": "Elapsed time (seconds)", "type": "input", "values": []},
             ]
             super().__init__("Create a new manual activity", config_schema)
 
         def execute(self, session, area_reaction, user_id):
             try:
                 token = get_user_service_token(session, user_id, self.service.name)
-                name = get_component(area_reaction.config, "name", "values")
-                type = get_component(area_reaction.config, "type", "values")
+                name = get_component(area_reaction.config, "Name", "values")
+                type = get_component(area_reaction.config, "Type", "values")
                 try:
                     elapsed: int = get_component(
-                        area_reaction.config, "elapsed_time(seconds)", "values"
+                        area_reaction.config, "Elapsed time (seconds)", "values"
                     )
                 except Exception:
                     elapsed: int = 0
-                desc = get_component(area_reaction.config, "description", "values")
+                desc = get_component(area_reaction.config, "Description", "values")
 
                 url = "https://www.strava.com/api/v3/activities"
                 data = {
@@ -165,7 +163,7 @@ class Strava(ServiceClass):
                 )
                 if r.status_code != 201:
                     raise StravaApiError(f"Failed to create activity: {r.text}")
-                logger.debug("Strava: created new activity for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Created new activity - User: {user_id}")
             except StravaApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -176,7 +174,7 @@ class Strava(ServiceClass):
 
         def __init__(self):
             config_schema = [
-                {"name": "new_weight", "type": "input", "values": []},
+                {"name": "New weight", "type": "input", "values": []},
             ]
             super().__init__("Update your weight on Strava", config_schema)
 
@@ -185,7 +183,7 @@ class Strava(ServiceClass):
                 token = get_user_service_token(session, user_id, self.service.name)
                 try:
                     new_weight: float = float(
-                        get_component(area_reaction.config, "new_weight", "values")
+                        get_component(area_reaction.config, "New weight", "values")
                     )
                 except Exception:
                     raise StravaApiError("Incorrect weight value")
@@ -199,7 +197,7 @@ class Strava(ServiceClass):
                 )
                 if r.status_code != 200:
                     raise StravaApiError(f"Failed to update weight: {r.text}")
-                logger.debug("Strava: update weight for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Updated weight to {new_weight}kg - User: {user_id}")
             except StravaApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -235,7 +233,6 @@ class Strava(ServiceClass):
             return True
         if user_service.refresh_token is None:
             return False
-        # refresh le token
         return True
 
     def _is_token_valid(self, token: str) -> bool:

@@ -32,9 +32,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return;
     }
     final newPassword = _newPasswordController.text;
+    final currentPassword = _currentPasswordController.text;
 
     final viewModel = context.read<ChangePasswordViewModel>();
-    final success = await viewModel.changePassword(newPassword: newPassword);
+    final success = await viewModel.changePassword(
+      newPassword: newPassword,
+      currentPassword: currentPassword,
+    );
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,9 +61,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             title: const Text(
               'Change password',
               style: TextStyle(color: Colors.white),
-            ),  
+            ),
             backgroundColor: const Color(0xFF212121),
             iconTheme: const IconThemeData(color: Colors.white),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              tooltip: 'Retour',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
           body: Stack(
             children: [
@@ -98,7 +107,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         },
                       ),
                       const SizedBox(height: 24),
-
                       _buildPasswordField(
                         label: 'Confirm new password',
                         controller: _confirmPasswordController,
@@ -142,45 +150,33 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     required VoidCallback toggleObscure,
     required String? Function(String?) validator,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 16,
-          ),
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      style: const TextStyle(color: Colors.white, fontSize: 18),
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        filled: true,
+        fillColor: Colors.grey.shade800,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide.none,
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          obscureText: obscureText,
-          style: const TextStyle(color: Colors.white, fontSize: 18),
-          validator: validator,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey.shade800,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            suffixIcon: IconButton(
-              icon: Icon(
-                obscureText
-                    ? Icons.visibility_off
-                    : Icons.visibility,
-                color: Colors.white,
-              ),
-              onPressed: toggleObscure,
-            ),
-          ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
         ),
-      ],
+        suffixIcon: IconButton(
+          tooltip: obscureText ? 'Afficher $label' : 'Masquer $label',
+          icon: Icon(
+            obscureText ? Icons.visibility_off : Icons.visibility,
+            color: Colors.white,
+          ),
+          onPressed: toggleObscure,
+        ),
+      ),
     );
   }
 

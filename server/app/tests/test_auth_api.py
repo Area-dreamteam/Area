@@ -1,4 +1,3 @@
-import pytest
 from models.users.user import User
 from core.security import hash_password
 
@@ -8,7 +7,7 @@ class TestRegisterEndpoint:
 
     def test_register_success(self, client, session):
         """Test successful user registration"""
-        user_data = {"email": "test@example.com", "password": "testpassword123"}
+        user_data = {"email": "test@example.com", "password": "TestPassword123!"}
 
         response = client.post("/auth/register", json=user_data)
 
@@ -22,13 +21,13 @@ class TestRegisterEndpoint:
         """Test registration with existing email"""
         existing_user = User(
             email="existing@example.com",
-            password=hash_password("existingpassword"),
+            password=hash_password("ExistingPassword123!"),
             name="Existing User",
         )
         session.add(existing_user)
         session.commit()
 
-        user_data = {"email": "existing@example.com", "password": "testpassword123"}
+        user_data = {"email": "existing@example.com", "password": "TestPassword123!"}
 
         response = client.post("/auth/register", json=user_data)
 
@@ -37,7 +36,31 @@ class TestRegisterEndpoint:
 
     def test_register_invalid_email(self, client):
         """Test registration with invalid email format"""
-        user_data = {"email": "invalid-email", "password": "testpassword123"}
+        user_data = {"email": "invalid-email", "password": "TestPassword123!"}
+
+        response = client.post("/auth/register", json=user_data)
+
+        assert response.status_code == 422
+    
+    def test_register_weak_password(self, client):
+        """Test registration with weak password (no uppercase)"""
+        user_data = {"email": "test@example.com", "password": "testpassword123!"}
+
+        response = client.post("/auth/register", json=user_data)
+
+        assert response.status_code == 422
+    
+    def test_register_password_no_special_char(self, client):
+        """Test registration with password missing special character"""
+        user_data = {"email": "test@example.com", "password": "TestPassword123"}
+
+        response = client.post("/auth/register", json=user_data)
+
+        assert response.status_code == 422
+    
+    def test_register_password_too_short(self, client):
+        """Test registration with password that is too short"""
+        user_data = {"email": "test@example.com", "password": "Test1!"}
 
         response = client.post("/auth/register", json=user_data)
 
@@ -51,13 +74,13 @@ class TestLoginEndpoint:
         """Test successful login"""
         user = User(
             email="login@example.com",
-            password=hash_password("testpassword123"),
+            password=hash_password("TestPassword123!"),
             name="Test User",
         )
         session.add(user)
         session.commit()
 
-        user_data = {"email": "login@example.com", "password": "testpassword123"}
+        user_data = {"email": "login@example.com", "password": "TestPassword123!"}
 
         response = client.post("/auth/login", json=user_data)
 
@@ -67,7 +90,7 @@ class TestLoginEndpoint:
 
     def test_login_user_not_found(self, client):
         """Test login with non-existent user"""
-        user_data = {"email": "nonexistent@example.com", "password": "testpassword123"}
+        user_data = {"email": "nonexistent@example.com", "password": "TestPassword123!"}
 
         response = client.post("/auth/login", json=user_data)
 
@@ -78,13 +101,13 @@ class TestLoginEndpoint:
         """Test login with wrong password"""
         user = User(
             email="wrong@example.com",
-            password=hash_password("correctpassword"),
+            password=hash_password("CorrectPassword123!"),
             name="Test User",
         )
         session.add(user)
         session.commit()
 
-        user_data = {"email": "wrong@example.com", "password": "wrongpassword"}
+        user_data = {"email": "wrong@example.com", "password": "WrongPassword123!"}
 
         response = client.post("/auth/login", json=user_data)
 
@@ -108,7 +131,7 @@ class TestAuthenticationFlow:
 
     def test_register_login_logout_flow(self, client, session):
         """Test complete register -> login -> logout flow"""
-        user_data = {"email": "flow@example.com", "password": "testpassword123"}
+        user_data = {"email": "flow@example.com", "password": "FlowPassword123!"}
 
         register_response = client.post("/auth/register", json=user_data)
         assert register_response.status_code == 200

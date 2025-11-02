@@ -48,16 +48,23 @@ class _ExplorePageState extends State<ExplorePage> {
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selected ? Colors.blue : Colors.grey.shade200,
-                foregroundColor: selected ? Colors.white : Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Semantics(
+              label: "Catégorie $tab",
+              selected: selected,
+              button: true,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: selected
+                      ? Colors.blue
+                      : Colors.grey.shade200,
+                  foregroundColor: selected ? Colors.white : Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () {
+                  setState(() => _selectedCategory = tab);
+                },
+                child: Text(tab),
               ),
-              onPressed: () {
-                setState(() => _selectedCategory = tab);
-              },
-              child: Text(tab),
             ),
           ),
         );
@@ -86,6 +93,7 @@ class _ExplorePageState extends State<ExplorePage> {
               controller: _searchCtrl,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
+                labelText: 'Search',
                 hintText: 'Search',
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 filled: true,
@@ -112,39 +120,48 @@ class _ExplorePageState extends State<ExplorePage> {
                       if (item.type == 'Applet') {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: AppletCard(
-                            colorHex: item.colorHex,
-                            title: item.title,
-                            byText: item.byText ?? 'By Unknown',
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      InformationPage(item: item),
-                                ),
-                              );
-                            },
+                          child: Semantics(
+                            label:
+                                "Applet: ${item.title}, par ${item.byText ?? 'Auteur inconnu'}",
+                            button: true,
+                            child: AppletCard(
+                              colorHex: item.colorHex,
+                              title: item.title,
+                              byText: item.byText ?? 'By Unknown',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        InformationPage(item: item),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         );
                       } else {
                         final serviceData = item.data as Service;
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: ServiceCard(
-                            id: serviceData.id,
-                            name: serviceData.name,
-                            colorHex: serviceData.color,
-                            imageUrl: serviceData.imageUrl,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      InformationPage(item: item),
-                                ),
-                              );
-                            },
+                          child: Semantics(
+                            label: "Service: ${serviceData.name}",
+                            button: true,
+                            child: ServiceCard(
+                              id: serviceData.id,
+                              name: serviceData.name,
+                              colorHex: serviceData.color,
+                              imageUrl: serviceData.imageUrl,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        InformationPage(item: item),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         );
                       }
