@@ -65,9 +65,6 @@ export function Password({
         placeholder="Password"
         type={psswdType}
         onChange={(e) => onChange(e.target.value)}
-        pattern={
-          secure ? '^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$' : '.+'
-        }
         required
       />
     </div>

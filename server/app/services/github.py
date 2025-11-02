@@ -94,7 +94,7 @@ class GithubOauth(oauth_service):
             "redirect_uri": redirect,
             "prompt": "select_account",
             "allow_signup": "true",
-            "scope": "user",
+            "scope": "read:user user:email",
             "login": "",
             "force_verify": "true",
         }
@@ -123,7 +123,7 @@ class GithubOauth(oauth_service):
             user_info = self._get_email(token_res.access_token)[0]
         except GithubApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
-        return oauth_add_login(  # type: ignore
+        return oauth_add_login(
             session,
             self.name,
             user,
@@ -161,7 +161,7 @@ class Github(ServiceClass):
             token = get_user_service_token(session, user_id, self.service.name)
 
             try:
-                repositories = self.service._get_user_repositories(token)  # type: ignore
+                repositories = self.service._get_user_repositories(token)
             except GithubApiError as e:
                 logger.error(f"GitHub new_repository check error: {e.message}")
                 return False
@@ -203,11 +203,11 @@ class Github(ServiceClass):
 
         def check(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
 
             try:
-                issues = self.service._get_repository_issues(token, owner, repo)  # type: ignore
+                issues = self.service._get_repository_issues(token, owner, repo)
             except GithubApiError as e:
                 logger.error(f"GitHub new_issue check error: {e.message}")
                 return False
@@ -249,11 +249,11 @@ class Github(ServiceClass):
 
         def check(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
 
             try:
-                pulls = self.service._get_repository_pulls(token, owner, repo)  # type: ignore
+                pulls = self.service._get_repository_pulls(token, owner, repo)
             except GithubApiError as e:
                 logger.error(f"GitHub new_pull_request check error: {e.message}")
                 return False
@@ -296,20 +296,20 @@ class Github(ServiceClass):
 
         def check(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
             threshold_str = get_component(
                 area_action.config, "Star Threshold", "values"
-            )  # type: ignore
+            )
 
             try:
-                threshold = int(threshold_str)  # type: ignore
+                threshold = int(threshold_str)
             except (ValueError, TypeError):
                 logger.error(f"Invalid star threshold: {threshold_str}")
                 return False
 
             try:
-                repo_data = self.service._get_repository(token, owner, repo)  # type: ignore
+                repo_data = self.service._get_repository(token, owner, repo)
             except GithubApiError as e:
                 logger.error(f"GitHub repo_star_threshold check error: {e.message}")
                 return False
@@ -350,13 +350,13 @@ class Github(ServiceClass):
 
         def execute(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
-            title = get_component(area_action.config, "Issue Title", "values")  # type: ignore
-            body = get_component(area_action.config, "Issue Body", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
+            title = get_component(area_action.config, "Issue Title", "values")
+            body = get_component(area_action.config, "Issue Body", "values")
 
             try:
-                self.service._create_issue(token, owner, repo, title, body)  # type: ignore
+                self.service._create_issue(token, owner, repo, title, body)
                 logger.info(f"Created issue '{title}' in {owner}/{repo}")
             except GithubApiError as e:
                 logger.error(f"Failed to create issue: {e.message}")
@@ -375,11 +375,11 @@ class Github(ServiceClass):
 
         def execute(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
 
             try:
-                self.service._star_repository(token, owner, repo)  # type: ignore
+                self.service._star_repository(token, owner, repo)
                 logger.info(f"Starred repository {owner}/{repo}")
             except GithubApiError as e:
                 logger.error(f"Failed to star repository: {e.message}")
@@ -400,13 +400,13 @@ class Github(ServiceClass):
 
         def execute(self, session, area_action, user_id):
             token = get_user_service_token(session, user_id, self.service.name)
-            owner = get_component(area_action.config, "Repository Owner", "values")  # type: ignore
-            repo = get_component(area_action.config, "Repository Name", "values")  # type: ignore
-            pr_number_str = get_component(area_action.config, "PR Number", "values")  # type: ignore
-            comment = get_component(area_action.config, "Comment Body", "values")  # type: ignore
+            owner = get_component(area_action.config, "Repository Owner", "values")
+            repo = get_component(area_action.config, "Repository Name", "values")
+            pr_number_str = get_component(area_action.config, "PR Number", "values")
+            comment = get_component(area_action.config, "Comment Body", "values")
 
             try:
-                pr_number = int(pr_number_str)  # type: ignore
+                pr_number = int(pr_number_str)
             except (ValueError, TypeError):
                 logger.error(f"Invalid PR number: {pr_number_str}")
                 return
@@ -414,7 +414,7 @@ class Github(ServiceClass):
             try:
                 self.service._comment_on_pull_request(
                     token, owner, repo, pr_number, comment
-                )  # type: ignore
+                )
                 logger.info(f"Commented on PR #{pr_number} in {owner}/{repo}")
             except GithubApiError as e:
                 logger.error(f"Failed to comment on PR: {e.message}")
@@ -604,6 +604,6 @@ class Github(ServiceClass):
         except GithubApiError as e:
             raise HTTPException(status_code=400, detail=e.message)
 
-        return oauth_add_link(  # type: ignore
+        return oauth_add_link(
             session, self.name, user, token_res.access_token, request, is_mobile
         )

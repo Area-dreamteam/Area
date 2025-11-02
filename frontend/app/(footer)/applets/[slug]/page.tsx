@@ -11,7 +11,6 @@ import { useEffect } from 'react'
 import { use, useState } from 'react'
 import { notFound, useSearchParams } from 'next/navigation'
 import BackButton from '@/app/components/Back'
-import SettingsButton from '@/app/components/Settings'
 import { PublicApplet, SpecificPublicApplet } from '@/app/types/applet'
 import {
   fetchApplets,
@@ -53,8 +52,6 @@ export default function AppletPage({ params }: AppletProp) {
       )
       setCurrApplet(searched)
     }
-    console.log(applets)
-    console.log(currApplet)
   }, [applets, slug])
 
   useEffect(() => {
@@ -96,17 +93,12 @@ export default function AppletPage({ params }: AppletProp) {
                 <Markdown>{applet.area_info.description}</Markdown>
               </div>
               <button
-  
+
                 className="my-[35%] little-rounded-button centered w-[60%]"
                 onClick={() => copyApplet(applet.area_info.id)}
               >
                 Copy
               </button>
-            </div>
-            <div className="flex justify-end pt-[50px] mr-[20px]">
-              <SettingsButton
-                link={`/my_applets/${applet.area_info.id}/edit`}
-              />
             </div>
           </div>
         </div>
