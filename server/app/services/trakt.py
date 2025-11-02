@@ -8,12 +8,13 @@ from core.utils import generate_state
 from api.users.db import get_user_service_token
 from core.categories import ServiceCategory
 from fastapi import HTTPException, Request, Response
-from models import AreaAction, Service, User, UserService
+from models import AreaAction, Service, User, UserService, AreaReaction
 from services.area_api import AreaApi
 from services.oauth_lib import oauth_add_link
 from services.services_classes import (
     Service as ServiceClass,
     Action,
+    Reaction,
     get_component,
 )
 from sqlmodel import Session, select
@@ -51,8 +52,129 @@ class TraktApi(AreaApi):
                 "Authorization": f"Bearer {token}",
             },
         )
-        logger.debug(f"test movie {res}")
         return True
+    
+    def get_movie(self, token, name):
+        res = self.get(
+            f"https://api.trakt.tv/movies/{name}",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+        
+        return res
+    
+    def add_to_favorite(self, token, name):
+        movie = self.get_movie(token, name)
+        
+        self.post(
+            "https://api.trakt.tv/sync/favorites",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+            data={
+                "movies": [movie]
+            },
+            good_status_code=[201]
+        )
+        
+    def remove_from_favorite(self, token, name):
+        movie = self.get_movie(token, name)
+        
+        self.post(
+            "https://api.trakt.tv/sync/favorites/remove",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+            data={
+                "movies": [movie]
+            },
+            good_status_code=[200]
+        )
+        
+    def add_to_watchlist(self, token, name):
+        movie = self.get_movie(token, name)
+        
+        self.post(
+            "https://api.trakt.tv/sync/watchlist",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+            data={
+                "movies": [movie]
+            },
+            good_status_code=[201]
+        )
+
+    def remove_from_watchlist(self, token, name):
+        movie = self.get_movie(token, name)
+        
+        self.post(
+            "https://api.trakt.tv/sync/watchlist/remove",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+            data={
+                "movies": [movie]
+            },
+            good_status_code=[200]
+        )  
+        
+    def add_to_history(self, token, name):
+        movie = self.get_movie(token, name)
+        
+        self.post(
+            "https://api.trakt.tv/sync/history",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+            data={
+                "movies": [movie]
+            },
+            good_status_code=[201]
+        )
+
+    def remove_from_history(self, token, name):
+        movie = self.get_movie(token, name)
+        
+        self.post(
+            "https://api.trakt.tv/sync/history/remove",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+            data={
+                "movies": [movie]
+            },
+            good_status_code=[200]
+        )
 
     def get_profile(self, token):
         res = self.get(
@@ -74,6 +196,19 @@ class TraktApi(AreaApi):
     def get_watchlist(self, token):
         res = self.get(
             "https://api.trakt.tv/sync/watchlist/movies/added/asc",
+            headers={
+                "User-Agent": "Area/0.0.1",
+                "Content-Type": "application/json",
+                "trakt-api-key": settings.TRAKT_CLIENT_ID,
+                "trakt-api-version": "2",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+        return res
+    
+    def get_watch_history(self, token):
+        res = self.get(
+            "https://api.trakt.tv/sync/history/movies",
             headers={
                 "User-Agent": "Area/0.0.1",
                 "Content-Type": "application/json",
@@ -131,7 +266,7 @@ class Trakt(ServiceClass):
             if not watchlist:
                 return False
 
-            last_movie_title = trakt_api.get_watchlist(token)[0]["movie"]["title"]
+            last_movie_title = watchlist[0]["movie"]["title"]
 
             if (
                 last_state is None
@@ -145,9 +280,9 @@ class Trakt(ServiceClass):
 
             return False
 
-    class new_movie_in_watchlist(Action):
+    class new_movie_watched(Action):
         def __init__(self) -> None:
-            super().__init__("Check if a movie was added to watchlist")
+            super().__init__("Check if a new movie was watched")
 
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
@@ -155,11 +290,11 @@ class Trakt(ServiceClass):
             token = get_user_service_token(session, user_id, self.service.name)
             last_state = area_action.last_state
 
-            watchlist = trakt_api.get_watchlist(token)
-            if not watchlist:
+            watch_history = trakt_api.get_watch_history(token)
+            if not watch_history:
                 return False
 
-            last_movie_title = trakt_api.get_watchlist(token)[0]["movie"]["title"]
+            last_movie_title = watch_history[0]["movie"]["title"]
 
             if (
                 last_state is None
@@ -172,62 +307,144 @@ class Trakt(ServiceClass):
                 return True
 
             return False
+        
+    class add_to_favorite(Reaction):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "movie_title",
+                    "type": "input",
+                    "values": [],
+                }
+            ]
+            super().__init__("Add a movie to favorite", config_schema)
 
-    # class if_temperature_rise_above(Action):
-    #     def __init__(self) -> None:
-    #         config_schema = [
-    #             {
-    #                 "name": "temperature_limit",
-    #                 "type": "input",
-    #                 "values": [],
-    #             }
-    #         ]
-    #         super().__init__(
-    #             "Check if temperature rise above a certain limit",
-    #             config_schema,
-    #         )
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                movie_name = get_component(area_action.config, "movie_title", "values")
+                
+                trakt_api.add_to_favorite(token, movie_name)
+                
+                logger.info(f'{self.service.name}: Add "{movie_name}" to favorite')
 
-    #     def check(
-    #         self, session: Session, area_action: AreaAction, user_id: int
-    #     ) -> bool:
-    #         temperature_limit = int(
-    #             get_component(area_action.config, "temperature_limit", "values")
-    #         )
-    #         longitude = get_component(area_action.config, "longitude", "values")
-    #         latitude = get_component(area_action.config, "latitude", "values")
-    #         timezone = get_component(area_action.config, "timezone", "values")
+            except TraktApiError as e:
+                logger.error(f'{self.service.name}: {e.message}')
+                
+    class remove_from_favorite(Reaction):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "movie_title",
+                    "type": "input",
+                    "values": [],
+                }
+            ]
+            super().__init__("Remove a movie from favorite", config_schema)
 
-    #         current_temperature = open_meteo_api.get_current_temperature(latitude, longitude, timezone)
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                movie_name = get_component(area_action.config, "movie_title", "values")
+                
+                trakt_api.remove_from_favorite(token, movie_name)
+                
+                logger.info(f'{self.service.name}: Removed "{movie_name}" from favorite')
 
-    #         return current_temperature > temperature_limit
+            except TraktApiError as e:
+                logger.error(f'{self.service.name}: {e.message}')
+                
+    class add_to_watchlist(Reaction):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "movie_title",
+                    "type": "input",
+                    "values": [],
+                }
+            ]
+            super().__init__("Add a movie to watchlist", config_schema)
 
-    # class if_temperature_fall_bellow(Action):
-    #     def __init__(self) -> None:
-    #         config_schema = [
-    #             {
-    #                 "name": "temperature_limit",
-    #                 "type": "input",
-    #                 "values": [],
-    #             }
-    #         ]
-    #         super().__init__(
-    #             "Check if temperature fall bellow a certain limit",
-    #             config_schema,
-    #         )
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                movie_name = get_component(area_action.config, "movie_title", "values")
+                
+                trakt_api.add_to_watchlist(token, movie_name)
+                
+                logger.info(f'{self.service.name}: Add "{movie_name}" to watchlist')
 
-    #     def check(
-    #         self, session: Session, area_action: AreaAction, user_id: int
-    #     ) -> bool:
-    #         temperature_limit = int(
-    #             get_component(area_action.config, "temperature_limit", "values")
-    #         )
-    #         longitude = get_component(area_action.config, "longitude", "values")
-    #         latitude = get_component(area_action.config, "latitude", "values")
-    #         timezone = get_component(area_action.config, "timezone", "values")
+            except TraktApiError as e:
+                logger.error(f'{self.service.name}: {e.message}')
 
-    #         current_temperature = open_meteo_api.get_current_temperature(latitude, longitude, timezone)
+    class remove_from_watchlist(Reaction):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "movie_title",
+                    "type": "input",
+                    "values": [],
+                }
+            ]
+            super().__init__("Remove a movie from watchlist", config_schema)
 
-    #         return current_temperature < temperature_limit
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                movie_name = get_component(area_action.config, "movie_title", "values")
+                
+                trakt_api.remove_from_watchlist(token, movie_name)
+                
+                logger.info(f'{self.service.name}: Removed "{movie_name}" from watchlist')
+
+            except TraktApiError as e:
+                logger.error(f'{self.service.name}: {e.message}')
+        
+    class add_to_history(Reaction):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "movie_title",
+                    "type": "input",
+                    "values": [],
+                }
+            ]
+            super().__init__("Add a movie to history", config_schema)
+
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                movie_name = get_component(area_action.config, "movie_title", "values")
+                
+                trakt_api.add_to_history(token, movie_name)
+                
+                logger.info(f'{self.service.name}: Add "{movie_name}" to history')
+
+            except TraktApiError as e:
+                logger.error(f'{self.service.name}: {e.message}')
+
+    class remove_from_history(Reaction):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "movie_title",
+                    "type": "input",
+                    "values": [],
+                }
+            ]
+            super().__init__("Remove a movie from history", config_schema)
+
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+            try:
+                token = get_user_service_token(session, user_id, self.service.name)
+                movie_name = get_component(area_action.config, "movie_title", "values")
+                
+                trakt_api.remove_from_history(token, movie_name)
+                
+                logger.info(f'{self.service.name}: Removed "{movie_name}" from history')
+
+            except TraktApiError as e:
+                logger.error(f'{self.service.name}: {e.message}')
 
     def oauth_link(self, state: str = None) -> str:
         base_url = "https://api.trakt.tv/oauth/authorize"

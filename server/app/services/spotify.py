@@ -329,9 +329,7 @@ class Spotify(ServiceClass):
                 )
                 if r.status_code != 204:
                     raise SpotifyApiError("Failed to set volume")
-                logger.debug(
-                    f"Spotify: volume set to {volume_percent}% for user {user_id}"
-                )
+                logger.info(f"{self.service.name} - {self.name} - Volume set to {volume_percent}% - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -363,13 +361,13 @@ class Spotify(ServiceClass):
                     url, headers={"Authorization": f"Bearer {token}"}, params=params
                 )
                 if r.status_code == 404:
-                    logger.debug(
+                    logger.info(
                         f"Spotify {self.name}: no active playback for user {user_id}"
                     )
                     return
                 if r.status_code != 200:
                     raise SpotifyApiError("Failed to set repeat mode")
-                logger.debug(f"Spotify: repeat mode set to {state} for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Repeat mode set to {state} - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -390,13 +388,13 @@ class Spotify(ServiceClass):
                 url = "https://api.spotify.com/v1/me/player/next"
                 r = requests.post(url, headers={"Authorization": f"Bearer {token}"})
                 if r.status_code == 404:
-                    logger.debug(
+                    logger.info(
                         f"Spotify {self.name}: no active playback for user {user_id}"
                     )
                     return
                 if r.status_code != 200:
                     raise SpotifyApiError(f"Failed to skip to next track: {r.text}")
-                logger.debug("Spotify: Skip to next track  for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Skip to next track - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -417,13 +415,13 @@ class Spotify(ServiceClass):
                 url = "https://api.spotify.com/v1/me/player/previous"
                 r = requests.post(url, headers={"Authorization": f"Bearer {token}"})
                 if r.status_code == 404:
-                    logger.debug(
+                    logger.info(
                         f"Spotify {self.name}: no active playback for user {user_id}"
                     )
                     return
                 if r.status_code != 200:
                     raise SpotifyApiError(f"Failed to skip to previous track: {r.text}")
-                logger.debug("Spotify: Skip to previous track for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Skip to previous track - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -442,13 +440,13 @@ class Spotify(ServiceClass):
                 url = "https://api.spotify.com/v1/me/player/pause"
                 r = requests.put(url, headers={"Authorization": f"Bearer {token}"})
                 if r.status_code == 404:
-                    logger.debug(
+                    logger.info(
                         f"Spotify {self.name}: no active playback for user {user_id}"
                     )
                     return
                 if r.status_code != 200:
                     raise SpotifyApiError(f"Failed to pause playback: {r.text}")
-                logger.debug("Spotify: Pause playback for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Pause playback - User: {user_id}")
             except SpotifyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

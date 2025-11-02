@@ -97,7 +97,7 @@ class ClashRoyale(ServiceClass):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            logger.debug("Clashroyal action trigger")
+            logger.info("Clashroyal action trigger")
             service = cast("ClashRoyale", self.service)
 
             player_tag = get_component(

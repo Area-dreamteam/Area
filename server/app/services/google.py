@@ -184,7 +184,7 @@ class Gmail(ServiceClass):
 
             try:
                 self.service._send_email(token, to, subject, body)
-                logger.debug(f"Gmail: Email sent to {to}")
+                logger.info(f"{self.service.name} - {self.name} - Email sent to {to} - User: {user_id}")
             except GoogleApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

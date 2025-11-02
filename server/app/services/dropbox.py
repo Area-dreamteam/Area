@@ -194,9 +194,7 @@ class Dropbox(ServiceClass):
                 r = requests.post(url, headers=headers, data=content.encode("utf-8"))
                 if r.status_code != 200:
                     raise DropboxApiError(f"Failed to create text file: {r.text}")
-                logger.debug(
-                    f"{self.service.name}: file create {file_path} for user {user_id}"
-                )
+                logger.info(f"{self.service.name} - {self.name} - File create {file_path} - User: {user_id}")
             except DropboxApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -228,9 +226,7 @@ class Dropbox(ServiceClass):
                 r = requests.post(url, headers=headers, json=data)
                 if r.status_code != 200:
                     raise DropboxApiError(f"Failed to move file/folder: {r.text}")
-                logger.debug(
-                    f"{self.service.name}: move {from_path} to {to_path} for user {user_id}"
-                )
+                logger.info(f"{self.service.name} - {self.name} - Move {from_path} to {to_path} - User: {user_id}")
             except DropboxApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -258,9 +254,7 @@ class Dropbox(ServiceClass):
                 r = requests.post(url, headers=headers, json=data)
                 if r.status_code != 200:
                     raise DropboxApiError(f"Failed to revoke shared link: {r.text}")
-                logger.debug(
-                    f"{self.service.name}: revoke shared link {url_to_revoke} for user {user_id}"
-                )
+                logger.info(f"{self.service.name} - {self.name} - Revoke shared link {url_to_revoke}  - User: {user_id}")
             except DropboxApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

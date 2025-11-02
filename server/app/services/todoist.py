@@ -119,7 +119,7 @@ class Todoist(ServiceClass):
                     area_action.config, "Project name", "values"
                 )
                 self.service._create_task(token, content, project_name)
-                logger.debug(f"Todoist: Creating task for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Created task '{content}' - User: {user_id}")
             except TodoistApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

@@ -12,7 +12,7 @@ from models.services.action import Action
 def print_jobs():
     cron = CronTab(user=settings.CRON_USER)
     for job in cron:
-        logger.info(job)
+        logger.debug(job)
 
 
 def newJob(action_id: int):

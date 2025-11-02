@@ -110,7 +110,6 @@ def is_service_connected(id: int, session: SessionDep, user: CurrentUserNoFail) 
         .join(UserService, UserService.service_id == Service.id)
         .where(UserService.service_id == id, UserService.user_id == user.id)
     ).first()
-    logger.debug(service_name)
     if service_name is None:
         return {"is_connected": False}
 

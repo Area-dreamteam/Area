@@ -272,6 +272,7 @@ class Youtube(ServiceClass):
                 r = requests.post(url, headers=headers, params=params)
                 if r.status_code != 204:
                     raise YoutubeApiError(f"Failed to like video: {r.text}")
+                logger.info(f"{self.service.name} - {self.name} - Rated video {video_id} with {rating} - User: {user_id}")
             except YoutubeApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

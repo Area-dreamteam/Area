@@ -203,7 +203,7 @@ class Reddit(ServiceClass):
                 r = requests.post(url, headers=headers, data=data)
                 if r.status_code != 200:
                     raise RedditApiError("Failed to post message")
-                logger.debug(f"Reddit: Posted to r/{subreddit}")
+                logger.info(f"{self.service.name} - {self.name} - Posted to r/{subreddit} - User: {user_id}")
             except RedditApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

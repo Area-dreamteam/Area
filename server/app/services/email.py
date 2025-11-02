@@ -59,7 +59,7 @@ class Email(Service):
                     server.login(username, password)
                     server.send_message(message)
 
-                logger.debug(f"Email: Successfully sent email to {to_address}")
+                logger.info(f"{self.service.name} - {self.name} - Email sent to {to_address} - User: {user_id}")
             except smtplib.SMTPException as e:
                 logger.error(f"Email: SMTP error - {str(e)}")
                 raise EmailError(f"SMTP error: {str(e)}")

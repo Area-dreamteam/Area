@@ -337,7 +337,7 @@ class Discord(ServiceClass):
                 )
 
                 self.service._send_message(channel_id, content)
-                logger.info(f"Discord: Sent message to channel {channel_id}")
+                logger.info(f"{self.service.name} - {self.name} - Sent message to channel {channel_id} - User: {user_id}")
 
             except DiscordApiError as e:
                 logger.error(f"{self.service.name}: {e.message}")
@@ -371,7 +371,7 @@ class Discord(ServiceClass):
                 type_int = type_map.get(channel_type, 0)
 
                 self.service._create_channel(guild_id, name, type_int)
-                logger.info(f"Discord: Created channel '{name}' in guild {guild_id}")
+                logger.info(f"{self.service.name} - {self.name} - Created channel '{name}' in guild {guild_id} - User: {user_id}")
 
             except DiscordApiError as e:
                 logger.error(f"{self.service.name}: {e.message}")
@@ -398,7 +398,7 @@ class Discord(ServiceClass):
                 role_id = get_component(area_action.config, "Role ID", "values")
 
                 self.service._add_role_to_member(guild_id, target_user_id, role_id)
-                logger.info(f"Discord: Added role {role_id} to user {target_user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Added role {role_id} to user {target_user_id} - User: {user_id}")
 
             except DiscordApiError as e:
                 logger.error(f"{self.service.name}: {e.message}")
@@ -422,7 +422,7 @@ class Discord(ServiceClass):
                 emoji = get_component(area_action.config, "Emoji", "values")
 
                 self.service._add_reaction(channel_id, message_id, emoji)
-                logger.info(f"Discord: Added reaction {emoji} to message {message_id}")
+                logger.info(f"{self.service.name} - {self.name} - Added reaction {emoji} to message {message_id} - User: {user_id}")
 
             except DiscordApiError as e:
                 logger.error(f"{self.service.name}: {e.message}")
@@ -441,9 +441,7 @@ class Discord(ServiceClass):
                 message_id = get_component(area_action.config, "Message ID", "values")
 
                 self.service._delete_message(channel_id, message_id)
-                logger.info(
-                    f"Discord: Deleted message {message_id} from channel {channel_id}"
-                )
+                logger.info(f"{self.service.name} - {self.name} - Deleted message {message_id} from channel {channel_id} - User: {user_id}")
 
             except DiscordApiError as e:
                 logger.error(f"{self.service.name}: {e.message}")
@@ -480,7 +478,7 @@ class Discord(ServiceClass):
                     color = 5865714
 
                 self.service._send_embed_message(channel_id, title, description, color)
-                logger.info(f"Discord: Sent embed message to channel {channel_id}")
+                logger.info(f"{self.service.name} - {self.name} - Sent embed message to channel {channel_id} - User: {user_id}")
 
             except DiscordApiError as e:
                 logger.error(f"{self.service.name}: {e.message}")

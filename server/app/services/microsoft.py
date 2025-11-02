@@ -200,7 +200,7 @@ class Outlook(ServiceClass):
                 logger.error(r.status_code)
                 if r.status_code != 202:
                     raise MicrosoftApiError("Failed to send email")
-                logger.debug(f"Outlook: Email sent to {to}")
+                logger.info(f"{self.service.name} - {self.name} - Email sent to {to} - User: {user_id}")
             except MicrosoftApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

@@ -4,6 +4,7 @@ from services.services_classes import Service, Action, get_component
 from services.area_api import AreaApi
 from core.categories import ServiceCategory
 from datetime import datetime
+from core.logger import logger
 
 
 class OpenMeteoApiError(Exception):
@@ -223,9 +224,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            temperature_limit = int(
-                get_component(area_action.config, "temperature_limit", "values")
-            )
+            try:
+                temperature_limit = int(
+                    get_component(area_action.config, "temperature_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+                
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -254,9 +260,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            temperature_limit = int(
-                get_component(area_action.config, "temperature_limit", "values")
-            )
+            try:
+                temperature_limit = int(
+                    get_component(area_action.config, "temperature_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -285,9 +296,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            visibility_limit = int(
-                get_component(area_action.config, "visibility_limit", "values")
-            )
+            try:
+                visibility_limit = int(
+                    get_component(area_action.config, "visibility_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -316,9 +332,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            humidity_limit = int(
-                get_component(area_action.config, "humidity_limit", "values")
-            )
+            try:
+                humidity_limit = int(
+                    get_component(area_action.config, "humidity_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -347,9 +368,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            humidity_limit = int(
-                get_component(area_action.config, "humidity_limit", "values")
-            )
+            try:
+                humidity_limit = int(
+                    get_component(area_action.config, "humidity_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -378,9 +404,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            wind_speed_limit = float(
-                get_component(area_action.config, "wind_speed_limit", "values")
-            )
+            try:
+                wind_speed_limit = float(
+                    get_component(area_action.config, "wind_speed_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -409,9 +440,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            wind_speed_limit = float(
-                get_component(area_action.config, "wind_speed_limit", "values")
-            )
+            try:
+                wind_speed_limit = float(
+                    get_component(area_action.config, "wind_speed_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -440,9 +476,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            uv_index_limit = float(
-                get_component(area_action.config, "uv_index_limit", "values")
-            )
+            try:
+                uv_index_limit = float(
+                    get_component(area_action.config, "uv_index_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+                
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -471,9 +512,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            uv_index_limit = float(
-                get_component(area_action.config, "uv_index_limit", "values")
-            )
+            try:
+                uv_index_limit = float(
+                    get_component(area_action.config, "uv_index_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -502,9 +548,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            cloud_cover_limit = float(
-                get_component(area_action.config, "cloud_cover_limit", "values")
-            )
+            try:
+                cloud_cover_limit = float(
+                    get_component(area_action.config, "cloud_cover_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -533,9 +584,14 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            cloud_cover_limit = float(
-                get_component(area_action.config, "cloud_cover_limit", "values")
-            )
+            try:
+                cloud_cover_limit = float(
+                    get_component(area_action.config, "cloud_cover_limit", "values")
+                )
+            except ValueError as e:
+                logger.error(f"Error in parameter conversion: {e}")
+                return False
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")
@@ -572,9 +628,8 @@ class OpenMeteo(Service):
         def check(
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
-            air_quality_alert = float(
-                get_component(area_action.config, "alert_level", "values")
-            )
+            air_quality_alert = get_component(area_action.config, "alert_level", "values")
+            
             longitude = get_component(area_action.config, "longitude", "values")
             latitude = get_component(area_action.config, "latitude", "values")
             timezone = get_component(area_action.config, "timezone", "values")

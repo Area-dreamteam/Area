@@ -29,4 +29,4 @@ def startupCron():
         for i in actions:
             newJob(i.action_id)
 
-    logger.info(f"Cron startup: {actions}")
+    logger.debug(f"Cron startup: {actions}")

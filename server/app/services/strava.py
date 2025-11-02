@@ -163,7 +163,7 @@ class Strava(ServiceClass):
                 )
                 if r.status_code != 201:
                     raise StravaApiError(f"Failed to create activity: {r.text}")
-                logger.debug("Strava: created new activity for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Created new activity - User: {user_id}")
             except StravaApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -197,7 +197,7 @@ class Strava(ServiceClass):
                 )
                 if r.status_code != 200:
                     raise StravaApiError(f"Failed to update weight: {r.text}")
-                logger.debug("Strava: update weight for user {user_id}")
+                logger.info(f"{self.service.name} - {self.name} - Updated weight to {new_weight}kg - User: {user_id}")
             except StravaApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
