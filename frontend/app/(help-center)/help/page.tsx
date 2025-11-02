@@ -30,10 +30,6 @@ export default function Help() {
       <h2 className="centered text-[25px] text-[#8a8a8a] mb-[20px]">
         Answers to frequently asked questions
       </h2>
-      <Input
-        className="centered w-1/2 border-[5px] h-[50px] text-[25px] mb-[20px] hover:border-[#90b8f3] mx-auto"
-        placeholder="Search"
-      />
       <div className="max-w-4xl mx-auto mt-10 space-y-6">
         <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
           <h3 className="text-2xl font-bold mb-3">📚 User Journey Guide</h3>
