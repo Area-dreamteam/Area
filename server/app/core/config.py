@@ -5,13 +5,14 @@ from pydantic_settings import BaseSettings
 def get_env_file() -> str:
     env = os.getenv("ENV")
     if env is None:
-        return "No env file found"
+        return ".env"
     elif env == "dev":
         return ".env"
     elif env == "prod":
         return ".env"
     elif env == "tests":
         return ".env.tests"
+    return ".env"
 
 
 class Settings(BaseSettings):
@@ -56,6 +57,8 @@ class Settings(BaseSettings):
     LINKEDIN_CLIENT_SECRET: str
     FIGMA_CLIENT_ID: str
     FIGMA_CLIENT_SECRET: str
+    CALENDLY_CLIENT_ID: str
+    CALENDLY_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
     EMAIL: str

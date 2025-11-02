@@ -65,6 +65,7 @@ class DateAndTime(Service):
         ) -> bool:
             """Check if current minute matches selected interval."""
             try:
+                return True
                 current_time = datetime.now()
                 selected_minute_str = get_component(
                     area_action.config, "Minute", "values"
