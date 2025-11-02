@@ -154,17 +154,21 @@ class RiotDev(Service):
 
             match_id, is_win = match_info
             
-            if (
-                last_state is None
-                or "last_game_id" not in last_state
-                or last_state["last_game_id"] != match_id
-            ):
+            if last_state is None or "last_game_id" not in last_state:
                 area_action.last_state = {"last_game_id": match_id}
                 session.add(area_action)
                 session.commit()
-                return is_win
+                return False
+            
+            if last_state["last_game_id"] == match_id:
+                return False
+                
+            area_action.last_state = {"last_game_id": match_id}
+            session.add(area_action)
+            session.commit()
+            
+            return is_win
 
-            return False
 
     class lose_game(Action):
         def __init__(self) -> None:
@@ -204,17 +208,21 @@ class RiotDev(Service):
 
             match_id, is_win = match_info
             
-            if (
-                last_state is None
-                or "last_game_id" not in last_state
-                or last_state["last_game_id"] != match_id
-            ):
+            if last_state is None or "last_game_id" not in last_state:
                 area_action.last_state = {"last_game_id": match_id}
                 session.add(area_action)
                 session.commit()
-                return not is_win
+                return False
+            
+            if last_state["last_game_id"] == match_id:
+                return False
+                
+            area_action.last_state = {"last_game_id": match_id}
+            session.add(area_action)
+            session.commit()
+            
+            return not is_win
 
-            return False
 
     class new_game(Action):
         def __init__(self) -> None:
@@ -254,14 +262,17 @@ class RiotDev(Service):
 
             match_id, _ = match_info
             
-            if (
-                last_state is None
-                or "last_game_id" not in last_state
-                or last_state["last_game_id"] != match_id
-            ):
+            if last_state is None or "last_game_id" not in last_state:
                 area_action.last_state = {"last_game_id": match_id}
                 session.add(area_action)
                 session.commit()
-                return True
-
-            return False
+                return False
+            
+            if last_state["last_game_id"] == match_id:
+                return False
+                
+            area_action.last_state = {"last_game_id": match_id}
+            session.add(area_action)
+            session.commit()
+            
+            return True
