@@ -21,8 +21,8 @@ import {
  */
 function parseValidationError(data: unknown): string {
   try {
-    if (data?.detail) {
-      const detail = data.detail
+    if (data && typeof data === 'object' && 'detail' in data) {
+      const detail = (data as { detail: unknown }).detail
       
       // If detail is a list (Pydantic validation errors)
       if (Array.isArray(detail) && detail.length > 0) {
