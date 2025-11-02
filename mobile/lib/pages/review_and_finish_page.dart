@@ -46,6 +46,8 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Consumer<CreateViewModel>(
       builder: (context, viewModel, child) {
         return Scaffold(
@@ -57,6 +59,11 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
             ),
             backgroundColor: const Color(0xFF212121),
             iconTheme: const IconThemeData(color: Colors.white),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: 'Retour',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -66,46 +73,39 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 const SizedBox(height: 20),
                 _buildLogos(viewModel),
                 const SizedBox(height: 40),
-                const Row(
-                  children: [
-                    Text(
-                      'Applet title',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    'Applet title',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(width: 5),
-                    Text(
-                      '*',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _nameController,
                   hint: "Title Area",
+                  label: "Applet title",
                   maxLines: 3,
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Description',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Semantics(
+                  header: true,
+                  child: Text(
+                    'Description',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 _buildTextField(
                   controller: _descriptionController,
                   hint: "Describe your area",
+                  label: "Description",
                   maxLines: 5,
                 ),
                 const SizedBox(height: 20),
@@ -122,9 +122,8 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
 
   Widget _buildLogos(CreateViewModel viewModel) {
     final actionService = viewModel.selectedAction?.service;
-    final reactionServices = viewModel.selectedReactions
-        .map((r) => r.service)
-        .toList();
+    final reactionServices =
+        viewModel.selectedReactions.map((r) => r.service).toList();
 
     if (actionService == null || reactionServices.isEmpty) {
       return const Center(
@@ -135,53 +134,59 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
       );
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        getServiceIcon(
-          actionService.name,
-          size: 80,
-          imageUrl: actionService.imageUrl,
-        ),
-        const SizedBox(width: 20),
-        const Icon(Icons.arrow_forward, color: Colors.white, size: 30),
-        const SizedBox(width: 20),
-
-        Expanded(
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 15.0,
-            runSpacing: 10.0,
-            children: reactionServices.map((service) {
-              return getServiceIcon(
-                service.name,
-                size: 60,
-                imageUrl: service.imageUrl,
-              );
-            }).toList(),
+    return ExcludeSemantics(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          getServiceIcon(
+            actionService.name,
+            size: 80,
+            imageUrl: actionService.imageUrl,
           ),
-        ),
-      ],
+          const SizedBox(width: 20),
+          const Icon(Icons.arrow_forward, color: Colors.white, size: 30),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 15.0,
+              runSpacing: 10.0,
+              children: reactionServices.map((service) {
+                return getServiceIcon(
+                  service.name,
+                  size: 60,
+                  imageUrl: service.imageUrl,
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
+    required String label,
     int maxLines = 1,
   }) {
-    return TextField(
-      controller: controller,
-      style: const TextStyle(color: Colors.black, fontSize: 18),
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide.none,
+    return Semantics(
+      label: label,
+      textField: true,
+      child: TextField(
+        controller: controller,
+        style: const TextStyle(color: Colors.black, fontSize: 18),
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.black45),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );
@@ -202,7 +207,9 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
         return Text(
           'by $username',
           textAlign: TextAlign.left,
-          style: const TextStyle(color: Colors.white70, fontSize: 16),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Colors.white70
+          ),
         );
       },
     );
@@ -211,9 +218,8 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   Widget _buildCreateButton(BuildContext context, CreateViewModel viewModel) {
     final bool isReady = viewModel.isReadyToCreateOrUpdate;
 
-    final String buttonText = viewModel.isEditing
-        ? 'Update Applet'
-        : 'Create Applet';
+    final String buttonText =
+        viewModel.isEditing ? 'Update Applet' : 'Create Applet';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -251,20 +257,6 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
                 )
               : Text(buttonText, style: const TextStyle(fontSize: 18)),
         ),
-        if (!isReady && !viewModel.isLoading)
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Text(
-              viewModel.name.isEmpty 
-                  ? 'Please enter an applet title to continue'
-                  : 'Please complete all required fields',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 14,
-              ),
-            ),
-          ),
       ],
     );
   }

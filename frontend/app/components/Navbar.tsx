@@ -64,9 +64,6 @@ function ProfileDropdown() {
             >
               Account
             </DropdownMenuItem>
-            <DropdownMenuItem disabled>My services</DropdownMenuItem>
-            <DropdownMenuItem disabled>Activity</DropdownMenuItem>
-            <DropdownMenuItem disabled>Archive</DropdownMenuItem>
             <DropdownMenuItem
               className="hover:cursor-pointer"
               onClick={() => router.push('/help')}

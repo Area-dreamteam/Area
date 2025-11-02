@@ -79,7 +79,7 @@ export default function AppletPage({ params }: AppletProp) {
       ) : applet ? (
         <div className="w-screen">
           <div
-            className="grid grid-cols-4 text-white md:h-[500px] h-[300px]"
+            className="grid grid-cols-4 text-white h-max"
             style={{ background: applet.area_info.color }}
           >
             <div className="ml-[20px] pt-[50px]">
@@ -94,7 +94,7 @@ export default function AppletPage({ params }: AppletProp) {
               </div>
               <button
                 aria-label={`This button allow you to copy the applet named ${applet.area_info.name}`}
-                className="my-[35%] little-rounded-button centered w-[60%]"
+                className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]"
                 onClick={() => copyApplet(applet.area_info.id)}
               >
                 Copy

@@ -291,7 +291,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
 
   Future<void> _saveApiUrl() async {
     final newUrl = _apiUrlController.text.trim();
-    
+
     if (newUrl.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -306,17 +306,17 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
 
     try {
       await ApiUrlService.setApiUrl(newUrl);
-      
+
       if (!mounted) return;
-      
+
       final apiService = context.read<ApiService>();
       await apiService.updateBaseUrl(newUrl);
-      
+
       if (!mounted) return;
-      
+
       final oauthService = context.read<OAuthService>();
       await oauthService.updateBaseUrl(newUrl);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -342,21 +342,21 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
     try {
       await ApiUrlService.resetApiUrl();
       final defaultUrl = await ApiUrlService.getDefaultApiUrl();
-      
+
       if (mounted) {
         _apiUrlController.text = defaultUrl;
       }
-      
+
       if (!mounted) return;
-      
+
       final apiService = context.read<ApiService>();
       await apiService.updateBaseUrl(defaultUrl);
-      
+
       if (!mounted) return;
-      
+
       final oauthService = context.read<OAuthService>();
       await oauthService.updateBaseUrl(defaultUrl);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -410,7 +410,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
               imageUrl: account.imageUrl,
             ),
             account.connected,
-            () {
+                () {
               if (account.connected) {
                 viewModel.unlinkAccount(account.id);
               } else {

@@ -57,7 +57,6 @@ class ProfileViewModel extends ChangeNotifier {
 
       _currentUser = await _serviceRepository.fetchCurrentUser();
       
-      // Use oauth_login data from user model if available
       if (_currentUser?.oauthLogins.isNotEmpty ?? false) {
         _linkedAccounts = _currentUser!.oauthLogins.map((oauth) {
           return LinkedAccountView(
@@ -71,12 +70,11 @@ class ProfileViewModel extends ChangeNotifier {
           );
         }).toList();
       } else {
-        // Fallback to old method if oauth_login is not present
         final availableProviders = await _oauthService.getAvailableProviders();
         final userLinkedNames = _currentUser?.linkedAccounts ?? [];
         _linkedAccounts = availableProviders.map((provider) {
           return LinkedAccountView(
-            oauthId: 0, // Default value for fallback
+            oauthId: 0,
             provider: provider,
             isLinked: userLinkedNames.contains(provider.name),
           );

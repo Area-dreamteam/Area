@@ -124,9 +124,9 @@ export default function AppletPage({ params }: AppletProp) {
           Loading...
         </p>
       ) : myApplet ? (
-        <div className="w-screen">
+        <div className="w-screen h-max">
           <div
-            className={`grid grid-cols-4 text-white md:h-[500px] h-[300px] ${published ? '' : 'rounded-b-xl'}`}
+            className={`grid grid-cols-4 text-white ${published ? 'h-max' : 'rounded-b-xl md:h-[500px] h-[300px]'}`}
             style={{ background: myApplet.area_info.color }}
           >
             <div className="ml-[20px] pt-[50px]">
