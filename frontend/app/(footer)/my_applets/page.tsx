@@ -60,8 +60,9 @@ export default function My_applet() {
     <div className="w-screen">
       <h1 className="centered text-[50px] font-bold mt-[50px]">My Applets</h1>
       <Input
+        aria-label="This input area allow you to search by name your own applets"
         className="mx-auto block w-[400px] h-[50px] mt-[20px] mb-[20px] border-[4px]"
-        placeholder="Search Applets or Services"
+        placeholder="Search your Applets"
         onChange={(e) => setSearched(e.target.value)}
       />
       <div className="mx-auto block w-1/2">

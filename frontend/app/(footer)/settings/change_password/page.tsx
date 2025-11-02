@@ -54,6 +54,10 @@ export default function changePassword() {
           "New password and confirmation aren't the same"
         )}
       <button
+        aria-label={`Click here to validate your changes. Currently, you ${
+          newPassword.length < 8 ||
+          confirmNewPassword.length < 8 ||
+          newPassword.length != confirmNewPassword.length ? "can't" : "can"} validate your modifications${newPassword.length < 8 || confirmNewPassword.length < 8 ? " because your new password isn't greater than 8 characters" : ""} ${newPassword.length != confirmNewPassword.length ? `${(newPassword.length < 8 || confirmNewPassword.length < 8) ? " and" : " because"} both passwords you entered to modify the old one aren't the same. Please enter the same password in the new password input and the confirmation input` : ""}.`}
         className="rounded-button centered inverted px-[5%] py-[3%] mt-[5%] disabled:bg-gray-400 disabled:cursor-auto"
         disabled={
           newPassword.length < 8 ||

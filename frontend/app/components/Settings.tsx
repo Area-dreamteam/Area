@@ -20,6 +20,7 @@ export default function SettingsButton({ link }: SettingsProp) {
 
   return (
     <Button
+      aria-label="This button allow you to edit your applet"
       className="rounded-full border-white hover:bg-transparent bg-transparent border-[4px] hover:cursor-pointer px-[10%] py-[20px] simple-text font-bold"
       onClick={(e) => {
         e.preventDefault()

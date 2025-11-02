@@ -119,6 +119,7 @@ export default function ServicePage({ params }: ServiceProp) {
           </div>
           {!myService.oauth_required ? (
             <button
+              aria-label="This button redirects you to the applet's creation page"
               className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto"
               onClick={(e) => {
                 e.preventDefault()

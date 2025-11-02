@@ -81,6 +81,7 @@ export default function Edit({ params }: AppletProp) {
         : myApplet && (
             <div className="py-[50px] h-screen w-[75%] mx-auto">
               <Input
+                aria-label="This input allow you to change the title of the applet"
                 className="centered subtitle bg-white"
                 defaultValue={myApplet.area_info.name}
                 placeholder="Title"
@@ -88,6 +89,7 @@ export default function Edit({ params }: AppletProp) {
               />
               <hr className="mt-[25px] mb-[25px]" />
               <textarea
+                aria-label="you can change the description of your applet here"
                 className="rounded-md bg-white text-black w-[75%] h-[20%] px-[1%] mx-auto block"
                 defaultValue={
                   myApplet.area_info.description

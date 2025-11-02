@@ -11,7 +11,6 @@ import { useEffect } from 'react'
 import { use, useState } from 'react'
 import { notFound } from 'next/navigation'
 import BackButton from '@/app/components/Back'
-import SettingsButton from '@/app/components/Settings'
 import { PublicApplet, SpecificPublicApplet } from '@/app/types/applet'
 import {
   fetchApplets,
@@ -96,7 +95,7 @@ export default function AppletPage({ params }: AppletProp) {
                 <Markdown>{applet.area_info.description}</Markdown>
               </div>
               <button
-  
+                aria-label={`This button allow you to copy the applet named ${applet.area_info.name}`}
                 className="my-[35%] little-rounded-button centered w-[60%]"
                 onClick={() => copyApplet(applet.area_info.id)}
               >
@@ -104,9 +103,6 @@ export default function AppletPage({ params }: AppletProp) {
               </button>
             </div>
             <div className="flex justify-end pt-[50px] mr-[20px]">
-              <SettingsButton
-                link={`/my_applets/${applet.area_info.id}/edit`}
-              />
             </div>
           </div>
         </div>
