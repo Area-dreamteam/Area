@@ -16,7 +16,7 @@ export default function Help() {
   return (
     <div>
       <p
-        className="hover:cursor-pointer text-[40px]  font-bold hover:text-[#3b3b3b]"
+        className="hover:cursor-pointer text-[40px] w-0 font-bold hover:text-[#3b3b3b]"
         onClick={(e) => {
           e.preventDefault()
           router.push('/explore')
