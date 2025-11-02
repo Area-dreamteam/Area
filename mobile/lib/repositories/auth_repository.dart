@@ -33,22 +33,29 @@ class AuthRepository {
         return null;
       }
 
+      if (response.statusCode == 422) {
+        return _parseValidationError(response.data);
+      }
+
       if (response.data is String && response.data.isNotEmpty) {
         try {
           final data = jsonDecode(response.data);
           if (data is Map<String, dynamic> && data.containsKey('detail')) {
-            return data['detail'];
+            final detail = data['detail'];
+            if (detail is String) {
+              return detail;
+            }
           }
         } catch (e) {
-          return "Réponse invalide du serveur.";
+          return "Invalid Server response.";
         }
       }
 
-      return "Erreur ${response.statusCode}: email ou mot de passe invalide.";
+      return "Error ${response.statusCode}: Invalid email or password.";
     } on DioException catch (e) {
-      return _handleDioError(e, "Erreur de connexion");
+      return _handleDioError(e, "Connection Error");
     } catch (e) {
-      return "Erreur inconnue.";
+      return "Unknown error: $e";
     }
   }
 
@@ -64,11 +71,30 @@ class AuthRepository {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return null;
       }
-      return "Creation account failed";
+
+      if (response.statusCode == 422) {
+        return _parseValidationError(response.data);
+      }
+
+      if (response.data is String && response.data.isNotEmpty) {
+        try {
+          final data = jsonDecode(response.data);
+          if (data is Map<String, dynamic> && data.containsKey('detail')) {
+            final detail = data['detail'];
+            if (detail is String) {
+              return detail;
+            }
+          }
+        } catch (e) {
+          return "Invalid Server response.";
+        }
+      }
+
+      return "Account creation failed";
     } on DioException catch (e) {
-      return _handleDioError(e, "Impossible to create account");
+      return _handleDioError(e, "Unable to create account");
     } catch (e) {
-      return "Unknown error";
+      return "Unknown error: $e";
     }
   }
 
@@ -81,18 +107,75 @@ class AuthRepository {
   }
 
   String _handleDioError(DioException e, String defaultMessage) {
+    if (e.response != null && e.response!.statusCode == 422) {
+      return _parseValidationError(e.response!.data);
+    }
+
     if (e.response != null &&
         e.response?.data is String &&
         e.response!.data.isNotEmpty) {
-      final data = jsonDecode(e.response!.data);
-      if (data is Map<String, dynamic> && data.containsKey('detail')) {
-        return data['detail'];
+      try {
+        final data = jsonDecode(e.response!.data);
+        if (data is Map<String, dynamic> && data.containsKey('detail')) {
+          return data['detail'];
+        }
+      } catch (parseError) {
+        // Fallback to default message
       }
     }
+
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.unknown) {
-      return "Erreur connexion to server";
+      return "Connection error. Please check your internet connection.";
     }
+
     return defaultMessage;
+  }
+
+  String _parseValidationError(dynamic data) {
+    try {
+      Map<String, dynamic> jsonData;
+      if (data is String && data.isNotEmpty) {
+        jsonData = jsonDecode(data);
+      } else if (data is Map<String, dynamic>) {
+        jsonData = data;
+      } else {
+        return "Invalid input. Please check your data.";
+      }
+
+      if (jsonData.containsKey('detail')) {
+        final detail = jsonData['detail'];
+
+        if (detail is List && detail.isNotEmpty) {
+          final firstError = detail[0];
+          if (firstError is Map<String, dynamic> &&
+              firstError.containsKey('msg')) {
+            String msg = firstError['msg'];
+            final type = firstError['type'] as String?;
+            final loc = firstError['loc'] as List?;
+
+            final isPasswordError = loc != null && loc.contains('password');
+
+            if (type == 'string_too_short' && isPasswordError) {
+              return 'Password must be at least 8 characters long';
+            }
+
+            if (msg.startsWith('Value error, ')) {
+              msg = msg.substring(13);
+            }
+
+            return msg;
+          }
+        }
+
+        if (detail is String) {
+          return detail;
+        }
+      }
+
+      return "Invalid input. Please check your data.";
+    } catch (parseError) {
+      return "Invalid input. Please check your data.";
+    }
   }
 }
