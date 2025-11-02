@@ -56,6 +56,8 @@ class Settings(BaseSettings):
     LINKEDIN_CLIENT_SECRET: str
     FIGMA_CLIENT_ID: str
     FIGMA_CLIENT_SECRET: str
+    CALENDLY_CLIENT_ID: str
+    CALENDLY_CLIENT_SECRET: str
     FRONT_URL: str
     CRON_USER: str = "root"
     EMAIL: str

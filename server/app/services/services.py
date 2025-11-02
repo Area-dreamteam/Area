@@ -29,6 +29,7 @@ from services.dropbox import Dropbox
 from services.notion import Notion
 from services.linkedin import LinkedIn
 from services.figma import Figma
+from services.calendly import Calendly
 
 __all__ = [
     "ClashRoyale",
@@ -52,7 +53,8 @@ __all__ = [
     "LinkedIn",
     "Dropbox",
     "Notion",
-    "Figma"
+    "Figma",
+    "Calendly"
 ]
 
 # Service registries - automatically populated with all Service/oauth_service subclasses
