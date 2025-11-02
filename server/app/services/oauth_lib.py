@@ -181,6 +181,9 @@ def oauth_add_login(
         existing_oauth_login = session.exec(select(User).join(UserOAuthLogin, UserOAuthLogin.user_id == User.id).where(UserOAuthLogin.email == user_mail)).first()
         if existing_oauth_login:
             return windowCloseAndCookie(existing.id, name, request, is_mobile, is_login=True)
+        existing_email = session.exec(select(User).where(User.email == user_mail)).first()
+        if existing_email and existing.email != user_mail:
+            return windowCloseAndCookie(existing.id, name, request, is_mobile, is_login=True)
 
         service = session.exec(
             select(OAuthLogin).where(OAuthLogin.name == name)
