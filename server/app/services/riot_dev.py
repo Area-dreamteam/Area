@@ -113,7 +113,7 @@ default_openmeteo_config_schema = [
 class RiotDev(Service):
     def __init__(self) -> None:
         super().__init__(
-            "Service RiotDev", ServiceCategory.WEATHER, "#2596be", "", False
+            "Service RiotDev", ServiceCategory.WEATHER, "#000000", "images/RiotDev_logo.png", False
         )
 
     class win_game(Action):
