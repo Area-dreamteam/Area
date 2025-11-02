@@ -167,6 +167,17 @@
     }
   }
 
+  .medium-text {
+    @media (width >= 40rem) {
+      color: var(--common-color);
+      font-size: 100%;
+    }
+    @media (width < 40rem) {
+      color: var(--common-color);
+      font-size: 70%;
+    }
+  }
+
   .tiny-text {
     color: var(--common-color);
     font-weight: bold;
