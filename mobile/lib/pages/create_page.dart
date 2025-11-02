@@ -16,7 +16,6 @@ class CreatePage extends StatefulWidget {
 }
 
 class _CreatePageState extends State<CreatePage> {
-
   @override
   void initState() {
     super.initState();
@@ -50,10 +49,12 @@ class _CreatePageState extends State<CreatePage> {
                   const SizedBox(height: 40),
                   _ifThisCard(context, viewModel),
                   const SizedBox(height: 20),
-                  const Icon(
-                    Icons.arrow_downward,
-                    color: Colors.white,
-                    size: 30,
+                  const ExcludeSemantics(
+                    child: Icon(
+                      Icons.arrow_downward,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   _thenThatSection(context, viewModel),
@@ -70,13 +71,15 @@ class _CreatePageState extends State<CreatePage> {
   }
 
   Widget _header() {
-    return const Text(
-      'Create your AREA',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 50,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
+    return Semantics(
+      header: true,
+      child: Text(
+        'Create your AREA',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -84,28 +87,36 @@ class _CreatePageState extends State<CreatePage> {
   Widget _ifThisCard(BuildContext context, CreateViewModel viewModel) {
     final selectedAction = viewModel.selectedAction;
 
-    return CreateCard(
-      title: 'If This',
-      details: selectedAction != null
-          ? CardDetails(
-              serviceName: selectedAction.service.name,
-              actionName: selectedAction.item.name,
-              imageUrl: selectedAction.service.imageUrl,
-            )
-          : null,
-      onTap: () async {
-        final result = await Navigator.push<ConfiguredItem<dynamic>?>(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ChooseServicePage(type: 'trigger'),
-          ),
-        );
-        if (result != null && context.mounted) {
-          context.read<CreateViewModel>().selectAction(
-            result as ConfiguredItem<ActionModel>,
+    String label = selectedAction == null
+        ? "if, Click for add a trigger"
+        : "if: ${selectedAction.service.name}, ${selectedAction.item.name}. Click for edit.";
+
+    return Semantics(
+      label: label,
+      button: true,
+      child: CreateCard(
+        title: 'If This',
+        details: selectedAction != null
+            ? CardDetails(
+                serviceName: selectedAction.service.name,
+                actionName: selectedAction.item.name,
+                imageUrl: selectedAction.service.imageUrl,
+              )
+            : null,
+        onTap: () async {
+          final result = await Navigator.push<ConfiguredItem<dynamic>?>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ChooseServicePage(type: 'trigger'),
+            ),
           );
-        }
-      },
+          if (result != null && context.mounted) {
+            context.read<CreateViewModel>().selectAction(
+              result as ConfiguredItem<ActionModel>,
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -116,40 +127,49 @@ class _CreatePageState extends State<CreatePage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ...selectedReactions.map((reaction) {
+          String reactionLabel =
+              "${reaction.service.name}, ${reaction.item.name}.";
           return Padding(
             padding: const EdgeInsets.only(bottom: 15.0),
-            child: CreateCard(
-              title: 'Then That',
-              details: CardDetails(
-                serviceName: reaction.service.name,
-                actionName: reaction.item.name,
-                imageUrl: reaction.service.imageUrl,
+            child: Semantics(
+              label: reactionLabel,
+              child: CreateCard(
+                title: 'Then That',
+                details: CardDetails(
+                  serviceName: reaction.service.name,
+                  actionName: reaction.item.name,
+                  imageUrl: reaction.service.imageUrl,
+                ),
+                onTap: () {
+                },
+                onRemove: () {
+                  viewModel.removeReaction(reaction);
+                },
               ),
-              onTap: () {
-              },
-              onRemove: () {
-                viewModel.removeReaction(reaction);
-              },
             ),
           );
         }),
-
-        CreateCard(
-          title: 'Then That',
-          details: null,
-          onTap: () async {
-            final result = await Navigator.push<ConfiguredItem<dynamic>?>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ChooseServicePage(type: 'reaction'),
-              ),
-            );
-            if (result != null && context.mounted) {
-              context.read<CreateViewModel>().addReaction(
-                result as ConfiguredItem<Reaction>,
+        Semantics(
+          label: "Click to add an action",
+          button: true,
+          child: CreateCard(
+            title: 'Then That',
+            details: null,
+            onTap: () async {
+              final result = await Navigator.push<ConfiguredItem<dynamic>?>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const ChooseServicePage(type: 'reaction'),
+                ),
               );
-            }
-          },
+              if (result != null && context.mounted) {
+                context.read<CreateViewModel>().addReaction(
+                  result as ConfiguredItem<Reaction>,
+                );
+              }
+            },
+          ),
         ),
       ],
     );

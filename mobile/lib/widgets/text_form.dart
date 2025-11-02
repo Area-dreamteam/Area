@@ -23,7 +23,7 @@ class CustomTextFormField extends StatelessWidget {
       style: const TextStyle(color: Colors.black),
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        hintText: hintText,
+        labelText: hintText,
         border: const OutlineInputBorder(borderSide: BorderSide.none),
         fillColor: Colors.white,
         filled: true,
@@ -36,11 +36,7 @@ class CustomTextFormField extends StatelessWidget {
 
 class CustomPasswordFormField extends StatefulWidget {
   final TextEditingController controller;
-
-  const CustomPasswordFormField({
-    super.key,
-    required this.controller,
-  });
+  const CustomPasswordFormField({super.key, required this.controller});
 
   @override
   State<CustomPasswordFormField> createState() =>
@@ -57,12 +53,15 @@ class _CustomPasswordFormFieldState extends State<CustomPasswordFormField> {
       obscureText: _obscurePassword,
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
-        hintText: "Password",
+        labelText: "Password",
         border: const OutlineInputBorder(borderSide: BorderSide.none),
         fillColor: Colors.white,
         filled: true,
         prefixIcon: const Icon(Icons.password),
         suffixIcon: IconButton(
+          tooltip: _obscurePassword
+              ? 'Display password'
+              : 'Hide password',
           icon: Icon(
             _obscurePassword ? Icons.visibility_off : Icons.visibility,
           ),
