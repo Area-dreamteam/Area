@@ -1,6 +1,4 @@
 database.db
-*.env*
-!.env.tests
 node_modules
 package-lock.json
 dist
