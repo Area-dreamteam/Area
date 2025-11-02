@@ -165,3 +165,53 @@ class RiotDev(Service):
                 return is_win
 
             return False
+
+    class lose_game(Action):
+        def __init__(self) -> None:
+            config_schema = [
+                {
+                    "name": "dev_api_key",
+                    "type": "input",
+                    "values": [],
+                },
+                {
+                    "name": "player_game_name",
+                    "type": "input",
+                    "values": [],
+                },
+                {
+                    "name": "player_tag_line",
+                    "type": "input",
+                    "values": [],
+                },
+            ]
+            super().__init__(
+                "Check if last game was lose",
+                config_schema,
+            )
+
+        def check(
+            self, session: Session, area_action: AreaAction, user_id: int
+        ) -> bool:
+            dev_api_key = get_component(area_action.config, "dev_api_key", "values")
+            player_game_name = get_component(area_action.config, "player_game_name", "values")
+            player_tag_line = get_component(area_action.config, "player_tag_line", "values")
+            last_state = area_action.last_state
+
+            match_info = riot_dev_api.get_last_match_info(dev_api_key, player_game_name, player_tag_line)
+            if match_info is None:
+                return False
+
+            match_id, is_win = match_info
+            
+            if (
+                last_state is None
+                or "last_game_id" not in last_state
+                or last_state["last_game_id"] != match_id
+            ):
+                area_action.last_state = {"last_game_id": match_id}
+                session.add(area_action)
+                session.commit()
+                return not is_win
+
+            return False
