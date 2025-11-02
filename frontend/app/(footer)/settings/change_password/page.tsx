@@ -21,11 +21,11 @@ async function sendForm(
   setError: (arg: boolean) => void
 ) {
   if (newPassword !== confirmNewPassword) {
-    setError(true)
-    return false
+    setError(true);
+    return false;
   }
-  console.log('same password')
-  await fetchChangePassword(currentPassword, newPassword)
+  await fetchChangePassword(currentPassword, newPassword);
+  return true;
 }
 
 export default function changePassword() {
@@ -64,16 +64,14 @@ export default function changePassword() {
           confirmNewPassword.length < 8 ||
           newPassword.length != confirmNewPassword.length
         }
-        onClick={() => {
-          const state = sendForm(
+        onClick={async () => {
+          const state = await sendForm(
               currentPassword,
               newPassword,
               confirmNewPassword,
               setError
               );
-            if (!state)
-            console.log(error)
-            else
+            if (state)
               router.push("/settings")
         }}
       >

@@ -586,9 +586,6 @@ function ChooseService({ setIsChoosing, setAct, type, act,
   useEffect(() => {
     if (!checkedConnection || !chosenService)
       return;
-    console.log(chosenService)
-    console.log(serviceConnected)
-    console.log(chosenService?.oauth_required);
     if (!serviceConnected && chosenService.oauth_required)
       router.push(`/services/${chosenService.name}`);
     setCheckedConnection(false);
