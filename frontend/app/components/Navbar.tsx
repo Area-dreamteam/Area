@@ -22,6 +22,7 @@ export default function NavigationBar() {
     <NavigationMenu className="flex flex-row-reverse">
       <NavigationMenuList>
         {MenuButton('Explore', '/explore')}
+        {MenuButton('Download App', '/client.apk')}
         {MenuButton('Login', '/login')}
         {MenuButton('Register', '/register')}
       </NavigationMenuList>
@@ -69,6 +70,12 @@ function ProfileDropdown() {
               onClick={() => router.push('/help')}
             >
               Help
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="hover:cursor-pointer"
+              onClick={() => router.push('/client.apk')}
+            >
+              Download Mobile App
             </DropdownMenuItem>
             <DropdownMenuItem
               className="hover:cursor-pointer"

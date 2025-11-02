@@ -115,7 +115,7 @@ export default function Logins({ isRegister }: LoginProps) {
             )
           })}
       </li>
-      <p className="mb-[10%] text-black text-center simple-text">
+      <p className="mb-[5%] text-black text-center simple-text">
         {isRegister ? 'Already have an account ?' : 'New to Area ?'}
         {isRegister ? (
           <Link href="/login" className="activate-link">
@@ -127,6 +127,14 @@ export default function Logins({ isRegister }: LoginProps) {
           </Link>
         )}
       </p>
+      <div className="centered mb-[10%]">
+        <Link
+          href="/client.apk"
+          className="text-blue-600 underline hover:text-blue-800 simple-text"
+        >
+          Download Mobile App
+        </Link>
+      </div>
     </div>
   )
 }

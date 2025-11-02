@@ -7,23 +7,30 @@
 
 'use client'
 
-import { Input } from '@/components/ui/input'
 import { useRouter } from 'next/navigation'
 
 export default function Help() {
   const router = useRouter();
 
   return (
-    <div>
-      <p
-        className="hover:cursor-pointer text-[40px] w-0 font-bold hover:text-[#3b3b3b]"
-        onClick={(e) => {
-          e.preventDefault()
-          router.push('/explore')
-        }}
-      >
-        Area
-      </p>
+    <div className="mb-[20%]">
+      <div className="flex items-center justify-between mb-8 ml-4 mt-4 mr-4">
+        <p
+          className="hover:cursor-pointer text-[40px]  font-bold hover:text-[#3b3b3b]"
+          onClick={(e) => {
+            e.preventDefault()
+            router.push('/explore')
+          }}
+        >
+          Area
+        </p>
+        <button
+          onClick={() => router.back()}
+          className="text-black hover:text-gray-600 hover:cursor-pointer font-bold text-xl flex items-center gap-2"
+        >
+          ← Back
+        </button>
+      </div>
       <h1 className="centered mt-[150px] text-[50px] font-bold mb-[20px]">
         Help Center
       </h1>

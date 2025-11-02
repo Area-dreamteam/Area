@@ -127,7 +127,9 @@ class GoogleCalendar(ServiceClass):
                 r = requests.post(url, headers=headers, json=body)
                 if r.status_code != 200:
                     raise GoogleCalendarApiError(f"Failed to create event: {r.text}")
-                logger.info(f"{self.service.name} - {self.name} - Created event '{summary}' in calendar '{calendar_name}' - User: {user_id}")
+                logger.info(
+                    f"{self.service.name} - {self.name} - Created event '{summary}' in calendar '{calendar_name}' - User: {user_id}"
+                )
             except GoogleCalendarApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -184,7 +186,9 @@ class GoogleCalendar(ServiceClass):
                 r = requests.post(url, headers=headers, json=body)
                 if r.status_code != 200:
                     raise GoogleCalendarApiError(f"Failed to create event: {r.text}")
-                logger.info(f"{self.service.name} - {self.name} - Created detailed event '{summary}' in calendar '{calendar_name}' - User: {user_id}")
+                logger.info(
+                    f"{self.service.name} - {self.name} - Created detailed event '{summary}' in calendar '{calendar_name}' - User: {user_id}"
+                )
             except GoogleCalendarApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

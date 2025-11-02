@@ -51,8 +51,8 @@ function LeftUpButton({ text, act, param, color = "black" }: UpButtonProp) {
 
 //-- Send form --//
 
-async function createApplet(action: ActDetails, reactions: ActDetails[], title: string) {
-    await fetchCreateApplet(action, reactions, title);
+async function createApplet(action: ActDetails, reactions: ActDetails[], title: string, description: string) {
+    await fetchCreateApplet(action, reactions, title, description);
 }
 
 //-- Creation page --//
@@ -84,11 +84,11 @@ function nextAvailableId(theReactions: ActDetails[], proposedId: number)
   return proposedId;
 }
 
-function makeAppletResponse(setAppletRespSchema: (arg: AppletRespSchema) => void, title: string, action: ActDetails, reactions: ActDetails[])
+function makeAppletResponse(setAppletRespSchema: (arg: AppletRespSchema) => void, title: string, description: string, action: ActDetails, reactions: ActDetails[])
 {
     const response: AppletRespSchema = {
         name: title,
-        description: "[description]",
+        description: description,
         action: {
           action_id: action.act.id,
           config: action.config,
@@ -106,8 +106,16 @@ function Creation({ creating, setAppletRespSchema = () => "",  theAction, setThe
   setIsEditing }: CreationProps)
 {
   const [validating, setValidating] = useState<boolean>(false);
-  const [title, setTitle] = useState<string>(`if ${theAction?.act.name}, then ${theReactions ? theReactions[0].act.name : ""}`);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const router = useRouter();
+
+  useEffect(() => {
+    if (theAction && theReactions && theReactions.length > 0) {
+      const reactionsText = theReactions.map(r => r.act.name).join(", then ");
+      setTitle(`if ${theAction.act.name}, then ${reactionsText}`);
+    }
+  }, [theAction, theReactions]);
 
   useEffect(() => {
     const checkingReactions = (newReac: ActDetails) => {
@@ -142,31 +150,33 @@ function Creation({ creating, setAppletRespSchema = () => "",  theAction, setThe
   return (
     <div>
       {validating ? (
-        <div>
-          <div className="rounded-b-xl bg-black text-white font-bold w-screen h-[450px]">
-            <div className="grid grid-cols-4">
-              <LeftUpButton text="Back" act={(param: boolean | string) => setValidating(param as boolean)} param={false} color="white" />
-              <p className="mt-[35px] flex flex-col text-[50px] col-span-2 text-center">
-                Review and finish
-              </p>
-              <hr className="col-span-4 mb-[120px]" />
+          <div>
+            <div className="rounded-b-xl bg-black text-white font-bold w-screen h-max pb-[50px]">
+              <div className="grid grid-cols-4">
+                <LeftUpButton text="Back" act={(param: boolean | string) => setValidating(param as boolean)} param={false} color="white" />
+                <p className="mt-[35px] flex flex-col text-[50px] col-span-2 text-center">
+                  Review and finish
+                </p>
+                <hr className="col-span-4 mb-[50px]" />
+              </div>
+              <p className="subtitle inverted centered mb-[20px]">Applet Title</p>
+              <Input aria-label="Fill this area with the title you want for your applet" className="block mx-auto w-[75%] h-[50px] bg-white text-black mb-[30px]" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
+              <p className="subtitle inverted centered mb-[20px]">Applet Description</p>
+              <textarea aria-label="Fill this area with the description you want for your applet" className="rounded-md bg-white text-black w-[75%] h-[150px] px-[1%] py-[1%] mx-auto block" placeholder="Enter a description" defaultValue={description} onChange={(e) => setDescription(e.target.value)} required />
             </div>
-            <p className="subtitle inverted centered mb-[20px]">Applet Title</p>
-            <Input aria-label="Fill this area with the title you want for your applet" className="block mx-auto w-[75%] h-[10%] bg-white text-black" defaultValue={title} onChange={(e) => setTitle(e.target.value)} />
+            <div className="centered mt-[30px]">
+              <button aria-label="Click to finish the creation of your applet" className="rounded-button inverted px-[5%] py-[3%] disabled:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => {
+                  if (creating)
+                      createApplet(theAction as ActDetails, theReactions as ActDetails[], title, description)
+                  else
+                      makeAppletResponse(setAppletRespSchema, title, description, theAction as ActDetails, theReactions as ActDetails[]);
+                  if (creating)
+                      router.push("/my_applets");
+                  }} disabled={title === "" || description === "" || !theAction || !theReactions}>
+                Finish
+              </button>
+            </div>
           </div>
-          <div className="centered mt-[30px]">
-            <button aria-label="Click to finish the creation of your applet" className="rounded-button inverted px-[5%] py-[3%]" onClick={() => {
-                if (creating)
-                    createApplet(theAction as ActDetails, theReactions as ActDetails[], title)
-                else
-                    makeAppletResponse(setAppletRespSchema, title, theAction as ActDetails, theReactions as ActDetails[]);
-                if (creating)
-                    router.push("/my_applets");
-                }} disabled={title === "" || !theAction || !theReactions}>
-              Finish
-            </button>
-          </div>
-        </div>
       ) : (
         <div>
           <div className="grid grid-cols-4">
