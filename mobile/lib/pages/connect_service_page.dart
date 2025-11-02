@@ -101,7 +101,7 @@ class _ConnectServicePageState extends State<ConnectServicePage> {
                   'You need to connect your ${widget.service.name} account to use this service.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    color: textColor.withOpacity(0.7),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 48),

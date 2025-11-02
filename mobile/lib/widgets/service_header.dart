@@ -60,7 +60,7 @@ class ServiceHeader extends StatelessWidget implements PreferredSizeWidget {
                   service.description!,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: textColor.withOpacity(0.8),
+                    color: textColor,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

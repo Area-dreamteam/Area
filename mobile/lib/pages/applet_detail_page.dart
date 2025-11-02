@@ -207,7 +207,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
                   currentApplet.description!,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    color: textColor.withOpacity(0.7),
+                    color: textColor,
                   ),
                 ),
               const SizedBox(height: 48),
@@ -279,7 +279,7 @@ class _AppletDetailPageState extends State<AppletDetailPage> {
     return Semantics(
       label: text,
       button: true,
-      enabled: onPressed != null,
+      enabled: true,
       child: ElevatedButton.icon(
         icon: ExcludeSemantics(child: Icon(icon, size: 20)),
         label: Text(

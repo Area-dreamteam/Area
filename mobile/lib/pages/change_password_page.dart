@@ -131,7 +131,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               ),
               if (viewModel.isLoading)
                 Container(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black,
                   child: const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),

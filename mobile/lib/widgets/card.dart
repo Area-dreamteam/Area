@@ -24,7 +24,6 @@ class AppletCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardColor = color ?? hexToColor(colorHex ?? '#212121');
-    final bool isDark = cardColor.computeLuminance() < 0.5;
     final textColor = Colors.white;
     bool isDeletable = onDelete != null;
 

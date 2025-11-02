@@ -165,7 +165,7 @@ class _ReviewAndFinishPageState extends State<ReviewAndFinishPage> {
   }) {
     return TextField(
       controller: controller,
-      style: const TextStyle(color: Colors.black, fontSize: 18),
+      style: const TextStyle(color: Colors.grey, fontSize: 18),
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: hint,

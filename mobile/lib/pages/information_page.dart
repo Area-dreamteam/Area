@@ -267,7 +267,7 @@ class _InformationPageState extends State<InformationPage>
                     _detailedService?.description ?? service.description ?? "",
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: headerTextColor.withOpacity(0.7),
+                      color: headerTextColor,
                       height: 1.5,
                     ),
                   ),
@@ -645,7 +645,7 @@ class _InformationPageState extends State<InformationPage>
     return Semantics(
       label: text,
       button: true,
-      enabled: !isLoading && onPressed != null,
+      enabled: true,
       child: ElevatedButton.icon(
         icon: isLoading ? const SizedBox.shrink() : Icon(icon, size: 20),
         label: isLoading
