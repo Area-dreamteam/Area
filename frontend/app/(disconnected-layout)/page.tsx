@@ -7,7 +7,6 @@
 
 'use client'
 
-import { redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { fetchApplets } from '../functions/fetch'
 import { PublicApplet } from '../types/applet'
