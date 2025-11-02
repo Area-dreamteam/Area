@@ -31,12 +31,10 @@ export function Mail({ onChange = () => '' }: Information) {
 }
 
 interface PasswordProps {
-  secure?: boolean
   onChange?: (value: string) => void
 }
 
 export function Password({
-  secure = true,
   onChange = () => '',
 }: PasswordProps) {
   const [isPsswdVisible, setIsPsswdVisible] = useState(false)

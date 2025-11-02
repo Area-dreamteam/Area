@@ -41,7 +41,7 @@ export default function changePassword() {
       <hr />
       <br />
       <h3 className="subtitle mb-[5px]">Current password</h3>
-      <Password onChange={setCurrentPassword} secure={false} />
+      <Password onChange={setCurrentPassword}/>
       <br />
       <h3 className="subtitle mb-[5px]">New password</h3>
       <Password onChange={setNewPassword} />
