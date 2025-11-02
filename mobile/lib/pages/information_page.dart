@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/models/service_info_model.dart';
 import 'package:mobile/viewmodels/explore_viewmodel.dart';

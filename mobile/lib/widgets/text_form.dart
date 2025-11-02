@@ -18,25 +18,33 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      style: const TextStyle(color: Colors.black),
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: hintText,
-        border: const OutlineInputBorder(borderSide: BorderSide.none),
-        fillColor: Colors.white,
-        filled: true,
-        prefixIcon: Icon(icon),
+    return Semantics(
+      label: hintText,
+      textField: true,
+      child: TextFormField(
+        controller: controller,
+        style: const TextStyle(color: Colors.black),
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          hintText: hintText,
+          border: const OutlineInputBorder(borderSide: BorderSide.none),
+          fillColor: Colors.white,
+          filled: true,
+          prefixIcon: Icon(icon),
+        ),
+        validator: validator,
       ),
-      validator: validator,
     );
   }
 }
 
 class CustomPasswordFormField extends StatefulWidget {
   final TextEditingController controller;
-  const CustomPasswordFormField({super.key, required this.controller});
+
+  const CustomPasswordFormField({
+    super.key,
+    required this.controller,
+  });
 
   @override
   State<CustomPasswordFormField> createState() =>
@@ -48,24 +56,27 @@ class _CustomPasswordFormFieldState extends State<CustomPasswordFormField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: widget.controller,
-      obscureText: _obscurePassword,
-      style: const TextStyle(color: Colors.black),
-      decoration: InputDecoration(
-        labelText: "Password",
-        border: const OutlineInputBorder(borderSide: BorderSide.none),
-        fillColor: Colors.white,
-        filled: true,
-        prefixIcon: const Icon(Icons.password),
-        suffixIcon: IconButton(
-          tooltip: _obscurePassword
-              ? 'Display password'
-              : 'Hide password',
-          icon: Icon(
-            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+    return Semantics(
+      label: "Password",
+      textField: true,
+      obscured: _obscurePassword,
+      child: TextFormField(
+        controller: widget.controller,
+        obscureText: _obscurePassword,
+        style: const TextStyle(color: Colors.black),
+        decoration: InputDecoration(
+          hintText: "Password",
+          border: const OutlineInputBorder(borderSide: BorderSide.none),
+          fillColor: Colors.white,
+          filled: true,
+          prefixIcon: const Icon(Icons.password),
+          suffixIcon: IconButton(
+            tooltip: _obscurePassword ? 'Display password' : 'Hide password',
+            icon: Icon(
+              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+            ),
+            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
           ),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
         ),
       ),
     );

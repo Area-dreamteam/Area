@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:mobile/models/service_model.dart';
 import 'package:mobile/utils/icon_helper.dart';
 import 'package:mobile/widgets/hex_convert.dart';
