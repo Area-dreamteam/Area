@@ -6,6 +6,7 @@ from fastapi import HTTPException, Request, Response
 from pydantic import BaseModel
 import requests
 import json
+import re
 from urllib.parse import urlencode
 import base64
 from core.logger import logger
@@ -39,7 +40,7 @@ class FigmaOAuthTokenRes(BaseModel):
 
 class Figma(ServiceClass):
     def __init__(self) -> None:
-        super().__init__("Figma", "design", "#F24E1E", "images/Figma_logo.webp", True)
+        super().__init__("Figma", "design", "#0dc07b", "images/Figma_logo.png", True)
 
     class new_file_in_project(Action):
         """Triggered when a new file is added in a specific Figma project."""
@@ -47,7 +48,7 @@ class Figma(ServiceClass):
         service: "Figma"
 
         def __init__(self):
-            config_schema = [{"name": "Project ID", "type": "input", "values": []}]
+            config_schema = [{"name": "Project URL", "type": "input", "values": []}]
             super().__init__(
                 "Triggered when a new file appears in a project", config_schema
             )
@@ -55,17 +56,24 @@ class Figma(ServiceClass):
         def check(self, session: Session, area_action: AreaAction, user_id: int):
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                project_id: str = get_component(
-                    area_action.config, "Project ID", "values"
+                project_url: str = get_component(
+                    area_action.config, "Project URL", "values"
                 )
-
+                project_id: str = self.service._parse_figma_url(project_url).get("id", "")
+                logger.error(project_id)
                 url = f"https://api.figma.com/v1/projects/{project_id}/files"
                 headers = {"Authorization": f"Bearer {token}"}
                 r = requests.get(url, headers=headers)
                 if r.status_code != 200:
                     raise FigmaApiError(f"Failed to list project files: {r.text}")
 
-                files = [f["id"] for f in r.json().get("files", [])]
+                data = r.json()
+                files = []
+                for f in data.get("files", []):
+                    if "key" in f:
+                        files.append(f["key"])
+                    elif "id" in f:
+                        files.append(f["id"])
                 last_files = (area_action.last_state or {}).get("files", [])
                 new_files = [f for f in files if f not in last_files]
 
@@ -84,7 +92,7 @@ class Figma(ServiceClass):
         service: "Figma"
 
         def __init__(self):
-            config_schema = [{"name": "File ID", "type": "input", "values": []}]
+            config_schema = [{"name": "File URL", "type": "input", "values": []}]
             super().__init__(
                 "Triggered when a new comment is added on a file", config_schema
             )
@@ -92,7 +100,8 @@ class Figma(ServiceClass):
         def check(self, session: Session, area_action: AreaAction, user_id: int):
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                file_id: str = get_component(area_action.config, "File ID", "values")
+                file_url: str = get_component(area_action.config, "File URL", "values")
+                file_id: str = self.service._parse_figma_url(file_url).get("id")
 
                 url = f"https://api.figma.com/v1/files/{file_id}/comments"
                 headers = {"Authorization": f"Bearer {token}"}
@@ -118,7 +127,7 @@ class Figma(ServiceClass):
 
         def __init__(self):
             config_schema = [
-                {"name": "File ID", "type": "input", "values": []},
+                {"name": "File URL", "type": "input", "values": []},
                 {"name": "Comment Text", "type": "input", "values": []},
             ]
             super().__init__("Add a comment to a file", config_schema)
@@ -126,10 +135,11 @@ class Figma(ServiceClass):
         def execute(self, session: Session, area_reaction: AreaReaction, user_id: int):
             try:
                 token: str = get_user_service_token(session, user_id, self.service.name)
-                file_id: str = get_component(area_reaction.config, "File ID", "values")
+                file_url: str = get_component(area_reaction.config, "File URL", "values")
                 text: str = get_component(
                     area_reaction.config, "Comment Text", "values"
                 )
+                file_id: str = self.service._parse_figma_url(file_url).get("id")
 
                 url = f"https://api.figma.com/v1/files/{file_id}/comments"
                 headers = {
@@ -146,6 +156,21 @@ class Figma(ServiceClass):
                 )
             except FigmaApiError as e:
                 logger.error(f"{self.service.name}: {e}")
+
+    def _parse_figma_url(self, url: str) -> Dict[str, str]:
+        patterns = {
+            "file": r"figma\.com/(?:file|design)/([a-zA-Z0-9]+)",
+            "project": r"figma\.com/(?:projects?|files/team/[a-zA-Z0-9]+/project)/([a-zA-Z0-9]+)",
+            "team": r"figma\.com/team/([a-zA-Z0-9]+)",
+            "team_files": r"figma\.com/files/team/([a-zA-Z0-9]+)",
+        }
+
+        for key, pattern in patterns.items():
+            match = re.search(pattern, url)
+            if match:
+                return {"type": key, "id": match.group(1)}
+
+        return {"type": "", "id": ""}
 
     def is_connected(self, session: Session, user_id: int) -> bool:
         user_service: UserService = session.exec(
