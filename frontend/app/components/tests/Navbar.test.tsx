@@ -216,7 +216,7 @@ describe('ConnectedNavbar', () => {
     render(<ConnectedNavbar />)
 
     const menuItems = screen.getAllByTestId('dropdown-menu-item')
-    expect(menuItems).toHaveLength(9) // Create, My applets, Explore, Account, My services, Activity, Archive, Help, Log out
+    expect(menuItems).toHaveLength(6) // Create, My applets, Explore, Account, Help, Log out
   })
 
   it('dropdown menu items have correct click handlers for enabled items', async () => {
@@ -258,7 +258,7 @@ describe('ConnectedNavbar', () => {
     }
   })
 
-  it('has disabled menu items', () => {
+  it('has no disabled menu items', () => {
     render(<ConnectedNavbar />)
 
     const menuItems = screen.getAllByTestId('dropdown-menu-item')
@@ -266,22 +266,12 @@ describe('ConnectedNavbar', () => {
     const disabledItems = menuItems.filter(
       (item) => item.getAttribute('data-disabled') === 'true'
     )
-    expect(disabledItems.length).toBeGreaterThan(0)
+    expect(disabledItems.length).toBe(0)
 
-    // Check specific disabled items
-    const myServicesItem = menuItems.find((item) =>
-      item.textContent?.includes('My services')
-    )
-    const activityItem = menuItems.find((item) =>
-      item.textContent?.includes('Activity')
-    )
-    const archiveItem = menuItems.find((item) =>
-      item.textContent?.includes('Archive')
-    )
-
-    expect(myServicesItem).toHaveAttribute('data-disabled', 'true')
-    expect(activityItem).toHaveAttribute('data-disabled', 'true')
-    expect(archiveItem).toHaveAttribute('data-disabled', 'true')
+    // Verify all menu items are enabled
+    menuItems.forEach((item) => {
+      expect(item).not.toHaveAttribute('data-disabled', 'true')
+    })
   })
 
   it('navigation menu list is hidden on mobile', () => {
