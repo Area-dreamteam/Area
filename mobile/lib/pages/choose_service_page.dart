@@ -11,6 +11,7 @@ import 'package:mobile/pages/connect_service_page.dart';
 
 class ChooseServicePage extends StatefulWidget {
   final String type;
+
   const ChooseServicePage({super.key, required this.type});
 
   @override
@@ -44,6 +45,11 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
         ),
         backgroundColor: const Color(0xFF212121),
         iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          tooltip: 'Retour',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       backgroundColor: const Color(0xFF212121),
       body: Consumer<SelectServiceViewmodel>(
@@ -72,11 +78,15 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                   horizontal: 16.0,
                   vertical: 12.0,
                 ),
-                child: MySearchBar(
-                  controller: _searchController,
-                  onChanged: (value) {
-                    setState(() {});
-                  },
+                child: Semantics(
+                  label: "Rechercher un service",
+                  textField: true,
+                  child: MySearchBar(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                  ),
                 ),
               ),
               Expanded(
@@ -92,86 +102,90 @@ class _ChooseServicePageState extends State<ChooseServicePage> {
                   itemBuilder: (context, index) {
                     final serviceFromList = filteredServices[index];
                     final serviceRepo = context.read<ServiceRepository>();
-
-                    return ServiceCard(
-                      id: serviceFromList.id,
-                      name: serviceFromList.name,
-                      description: serviceFromList.description,
-                      category: serviceFromList.category,
-                      colorHex: serviceFromList.color,
-                      imageUrl: serviceFromList.imageUrl,
-                      onTap: () async {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
+                    return Semantics(
+                      label: "Service: ${serviceFromList.name}",
+                      button: true,
+                      child: ServiceCard(
+                        id: serviceFromList.id,
+                        name: serviceFromList.name,
+                        description: serviceFromList.description,
+                        category: serviceFromList.category,
+                        colorHex: serviceFromList.color,
+                        imageUrl: serviceFromList.imageUrl,
+                        onTap: () async {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                        );
-                        Service detailedService;
-                        try {
-                          detailedService = await serviceRepo
-                              .fetchServiceDetails(serviceFromList.id);
-                          if (context.mounted) Navigator.pop(context);
-                        } catch (e) {
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Error fetching service details: $e",
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                          return;
-                        }
-                        bool proceedToActions = false;
-
-                        if (detailedService.oauthRequired) {
-                          final isConnected = await serviceRepo
-                              .isServiceConnected(detailedService.id);
-
-                          if (isConnected) {
-                            proceedToActions = true;
-                          } else {
-                            if (!context.mounted) return;
-                            final connectionResult = await Navigator.push<bool>(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ConnectServicePage(
-                                  service: detailedService,
-                                ),
-                              ),
-                            );
-                            if (connectionResult == true) {
-                              proceedToActions = true;
-                            }
-                          }
-                        } else {
-                          proceedToActions = true;
-                        }
-
-                        if (proceedToActions && context.mounted) {
-                          final result =
-                              await Navigator.push<ConfiguredItem<dynamic>?>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ChooseActionPage(
-                                    service: detailedService,
-                                    type: widget.type,
-                                    serviceRepository: serviceRepo,
+                          );
+                          Service detailedService;
+                          try {
+                            detailedService = await serviceRepo
+                                .fetchServiceDetails(serviceFromList.id);
+                            if (context.mounted) Navigator.pop(context);
+                          } catch (e) {
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Error fetching service details: $e",
                                   ),
+                                  backgroundColor: Colors.red,
                                 ),
                               );
-                          if (result != null && context.mounted) {
-                            Navigator.pop(context, result);
+                            }
+                            return;
                           }
-                        }
-                      },
+                          bool proceedToActions = false;
+
+                          if (detailedService.oauthRequired) {
+                            final isConnected = await serviceRepo
+                                .isServiceConnected(detailedService.id);
+
+                            if (isConnected) {
+                              proceedToActions = true;
+                            } else {
+                              if (!context.mounted) return;
+                              final connectionResult =
+                                  await Navigator.push<bool>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ConnectServicePage(
+                                        service: detailedService,
+                                      ),
+                                    ),
+                                  );
+                              if (connectionResult == true) {
+                                proceedToActions = true;
+                              }
+                            }
+                          } else {
+                            proceedToActions = true;
+                          }
+
+                          if (proceedToActions && context.mounted) {
+                            final result =
+                                await Navigator.push<ConfiguredItem<dynamic>?>(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChooseActionPage(
+                                      service: detailedService,
+                                      type: widget.type,
+                                      serviceRepository: serviceRepo,
+                                    ),
+                                  ),
+                                );
+                            if (result != null && context.mounted) {
+                              Navigator.pop(context, result);
+                            }
+                          }
+                        },
+                      ),
                     );
                   },
                 ),

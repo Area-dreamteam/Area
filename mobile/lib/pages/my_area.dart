@@ -75,10 +75,10 @@ class _MyAppletPageState extends State<MyAreaPage>
   }
 
   Widget _buildBody(
-    MyAppletViewModel viewModel,
-    List<AppletModel> privateApplets,
-    List<AppletModel> publicApplets,
-  ) {
+      MyAppletViewModel viewModel,
+      List<AppletModel> privateApplets,
+      List<AppletModel> publicApplets,
+      ) {
     if (viewModel.isLoading && viewModel.applets.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(color: Colors.white),
@@ -86,20 +86,21 @@ class _MyAppletPageState extends State<MyAreaPage>
     }
 
     if (viewModel.applets.isEmpty && !viewModel.isLoading) {
+      final theme = Theme.of(context);
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'No Applets yet.',
-              style: TextStyle(fontSize: 20, color: Colors.white70),
+              style: theme.textTheme.titleLarge?.copyWith(color: Colors.white70),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Create an Applet to automate your tasks!',
-              style: TextStyle(fontSize: 16, color: Colors.white54),
+              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white54),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
@@ -182,11 +183,12 @@ class _MyAppletPageState extends State<MyAreaPage>
   }
 
   Widget _buildAppletList(
-    List<AppletModel> applets,
-    String emptyTitle,
-    String emptySubtitle,
-  ) {
+      List<AppletModel> applets,
+      String emptyTitle,
+      String emptySubtitle,
+      ) {
     if (applets.isEmpty) {
+      final theme = Theme.of(context);
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -194,12 +196,12 @@ class _MyAppletPageState extends State<MyAreaPage>
             SizedBox(height: 16),
             Text(
               emptyTitle,
-              style: TextStyle(fontSize: 18, color: Colors.white70),
+              style: theme.textTheme.titleMedium?.copyWith(color: Colors.white70),
             ),
             SizedBox(height: 8),
             Text(
               emptySubtitle,
-              style: TextStyle(fontSize: 14, color: Colors.white54),
+              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white54),
               textAlign: TextAlign.center,
             ),
           ],
@@ -220,8 +222,8 @@ class _MyAppletPageState extends State<MyAreaPage>
             onToggleEnabled: applet.isPublic
                 ? null
                 : (value) => context
-                      .read<MyAppletViewModel>()
-                      .toggleAreaEnabled(applet.id),
+                .read<MyAppletViewModel>()
+                .toggleAreaEnabled(applet.id),
           ),
         );
       },
