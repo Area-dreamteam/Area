@@ -24,6 +24,7 @@ from services.google_calendar import GoogleCalendar
 from services.trakt import Trakt
 from services.youtube import Youtube
 from services.dropbox import Dropbox
+from services.riot_dev import RiotDev
 
 __all__ = [
     "ClashRoyale",
@@ -42,7 +43,8 @@ __all__ = [
     "GoogleCalendar",
     "Trakt",
     "Youtube",
-    "Dropbox"
+    "Dropbox",
+    "RiotDev"
 ]
 
 # Service registries - automatically populated with all Service/oauth_service subclasses
