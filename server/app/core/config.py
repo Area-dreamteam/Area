@@ -12,7 +12,6 @@ def get_env_file() -> str:
         return ".env"
     elif env == "tests":
         return ".env.tests"
-    return ".env"
 
 
 class Settings(BaseSettings):
