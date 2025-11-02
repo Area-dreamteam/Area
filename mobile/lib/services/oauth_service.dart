@@ -75,9 +75,9 @@ class OAuthService {
       final baseUrl = _baseUrl.endsWith('/')
           ? _baseUrl.substring(0, _baseUrl.length - 1)
           : _baseUrl;
-      
+
       final path = '/oauth/login_index/$serviceName?mobile=true';
-      final oauthUrl = '$baseUrl$path';      
+      final oauthUrl = '$baseUrl$path';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
@@ -130,12 +130,12 @@ class OAuthService {
       final baseUrl = _baseUrl.endsWith('/')
           ? _baseUrl.substring(0, _baseUrl.length - 1)
           : _baseUrl;
-          
+
       final path = token != null
           ? '/oauth/index/$serviceName?mobile=true&token=$token'
           : '/oauth/index/$serviceName?mobile=true';
 
-      final oauthUrl = '$baseUrl$path';      
+      final oauthUrl = '$baseUrl$path';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
@@ -315,3 +315,4 @@ class OAuthProvider {
     );
   }
 }
+

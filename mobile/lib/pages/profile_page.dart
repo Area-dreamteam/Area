@@ -410,10 +410,17 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
               size: 30.0,
               imageUrl: account.imageUrl,
             ),
+<<<<<<< Updated upstream
             account.connected,
                 () {
               if (account.connected) {
                 viewModel.unlinkAccount(account.id);
+=======
+            account.isLinked,
+            () {
+              if (account.isLinked) {
+                viewModel.unlinkAccount(account.oauthId);
+>>>>>>> Stashed changes
               } else {
               }
             },

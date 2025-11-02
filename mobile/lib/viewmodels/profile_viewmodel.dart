@@ -3,6 +3,20 @@ import 'package:mobile/models/user_model.dart';
 import 'package:mobile/repositories/service_repository.dart';
 import 'package:mobile/services/oauth_service.dart';
 
+<<<<<<< Updated upstream
+=======
+class LinkedAccountView {
+  final int oauthId;
+  final OAuthProvider provider;
+  final bool isLinked;
+  LinkedAccountView({
+    required this.oauthId,
+    required this.provider,
+    required this.isLinked,
+  });
+}
+
+>>>>>>> Stashed changes
 enum ProfileState { initial, loading, loaded, error, saving }
 
 class ProfileViewModel extends ChangeNotifier {
@@ -36,7 +50,43 @@ class ProfileViewModel extends ChangeNotifier {
     }
     _setState(ProfileState.loading);
     try {
+<<<<<<< Updated upstream
       _currentUser = await _serviceRepository.fetchCurrentUser();
+=======
+      final pendingLinkService = await _oauthService.checkPendingLinkSuccess();
+      if (pendingLinkService != null) {
+        print('Found pending OAuth link success for: $pendingLinkService');
+      }
+
+      _currentUser = await _serviceRepository.fetchCurrentUser();
+      
+      // Use oauth_login data from user model if available
+      if (_currentUser?.oauthLogins.isNotEmpty ?? false) {
+        _linkedAccounts = _currentUser!.oauthLogins.map((oauth) {
+          return LinkedAccountView(
+            oauthId: oauth.id,
+            provider: OAuthProvider(
+              name: oauth.name,
+              color: oauth.color,
+              imageUrl: oauth.imageUrl,
+            ),
+            isLinked: oauth.connected,
+          );
+        }).toList();
+      } else {
+        // Fallback to old method if oauth_login is not present
+        final availableProviders = await _oauthService.getAvailableProviders();
+        final userLinkedNames = _currentUser?.linkedAccounts ?? [];
+        _linkedAccounts = availableProviders.map((provider) {
+          return LinkedAccountView(
+            oauthId: 0, // Default value for fallback
+            provider: provider,
+            isLinked: userLinkedNames.contains(provider.name),
+          );
+        }).toList();
+      }
+
+>>>>>>> Stashed changes
       _setState(ProfileState.loaded);
     } catch (e) {
       _errorMessage = "Failed to get user data: $e";
@@ -62,7 +112,22 @@ class ProfileViewModel extends ChangeNotifier {
         email: emailChanged ? newEmail : _currentUser!.email,
       );
 
+<<<<<<< Updated upstream
       await loadCurrentUser();
+=======
+      if (update != null) {
+        _currentUser = update;
+      } else {
+        _currentUser = UserModel(
+          id: _currentUser!.id,
+          name: newName,
+          email: newEmail,
+          role: _currentUser!.role,
+          linkedAccounts: _currentUser!.linkedAccounts,
+          oauthLogins: _currentUser!.oauthLogins,
+        );
+      }
+>>>>>>> Stashed changes
       _setState(ProfileState.loaded);
       return true;
     } catch (e) {
@@ -81,7 +146,27 @@ class ProfileViewModel extends ChangeNotifier {
   Future<void> unlinkAccount(int oauthLoginId) async {
     _setState(ProfileState.saving);
     try {
+<<<<<<< Updated upstream
       await _serviceRepository.disconnectOAuthLogin(oauthLoginId);
+=======
+      final result = await _oauthService.loginWithOAuth(providerName);
+
+      if (result.isSuccess) {
+        await loadCurrentUser();
+      } else {
+        throw Exception(result.error ?? "Failed to link account");
+      }
+    } catch (e) {
+      _errorMessage = "Failed to link account: $e";
+      _setState(ProfileState.error);
+    }
+  }
+
+  Future<void> unlinkAccount(int oauthId) async {
+    _setState(ProfileState.saving);
+    try {
+      await _serviceRepository.unlinkOAuthAccount(oauthId);
+>>>>>>> Stashed changes
       await loadCurrentUser();
     } catch (e) {
       _errorMessage = "Failed to unlink account: $e";

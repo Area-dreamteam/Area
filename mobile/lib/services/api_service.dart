@@ -128,9 +128,20 @@ class ApiService {
     return _dio.delete('/users/areas/public/$areaId/unpublish');
   }
 
-  Future<Response> getServiceAuthUrl(String serviceName) {
+  Future<Response> getServiceAuthUrl(String serviceName) async {
+    final sessionCookie = await _storage.read(key: 'session_cookie');
+    String? token;
+    if (sessionCookie != null &&
+        sessionCookie.startsWith('access_token=Bearer ')) {
+      token = sessionCookie.substring('access_token=Bearer '.length);
+    }
+
+    final path = token != null
+        ? '/oauth/index/$serviceName?token=$token'
+        : '/oauth/index/$serviceName';
+
     return _dio.get(
-      '/oauth/index/$serviceName',
+      path,
       options: Options(
         followRedirects: false,
         validateStatus: (status) {
@@ -189,12 +200,21 @@ class ApiService {
     return _dio.patch('/users/me', data: data);
   }
 
+<<<<<<< Updated upstream
   Future<Response> updateUserPassword({
     required String newPassword,
     required String currentPassword,
   }) {
     return _dio.patch('/users/me/password',
         data: {"current_password": currentPassword, "new_password": newPassword});
+=======
+  Future<Response> updateUserPassword({required String newPassword}) {
+    return _dio.patch('/users/me/password', data: {"password": newPassword});
+  }
+
+  Future<Response> unlinkOAuthAccount(int oauthId) {
+    return _dio.delete('/oauth/oauth_login/$oauthId/disconnect');
+>>>>>>> Stashed changes
   }
 
   Future<Response> getServiceDetails(int serviceId) {
