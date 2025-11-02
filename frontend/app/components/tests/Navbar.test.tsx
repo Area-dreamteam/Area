@@ -9,11 +9,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import NavigationBar, { ConnectedNavbar } from '../Navbar'
 
 // Mock next/navigation
+const mockPush = jest.fn()
+
 jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
+  useRouter: jest.fn(() => ({
+    push: mockPush,
+  })),
 }))
-
-const { redirect: mockRedirect } = jest.requireMock('next/navigation')
 
 // Mock fetch functions
 jest.mock('@/app/functions/fetch', () => ({
@@ -221,16 +224,16 @@ describe('ConnectedNavbar', () => {
 
     const menuItems = screen.getAllByTestId('dropdown-menu-item')
 
-    // Test Account menu item (should call redirect to /settings)
+    // Test Account menu item (should call router.push to /settings)
     const accountItem = menuItems.find((item) =>
       item.textContent?.includes('Account')
     )
     if (accountItem) {
       fireEvent.click(accountItem)
-      expect(mockRedirect).toHaveBeenCalledWith('/settings')
+      expect(mockPush).toHaveBeenCalledWith('/settings')
     }
 
-    mockRedirect.mockClear()
+    mockPush.mockClear()
 
     // Test Help menu item
     const helpItem = menuItems.find((item) =>
@@ -238,10 +241,10 @@ describe('ConnectedNavbar', () => {
     )
     if (helpItem) {
       fireEvent.click(helpItem)
-      expect(mockRedirect).toHaveBeenCalledWith('/help')
+      expect(mockPush).toHaveBeenCalledWith('/help')
     }
 
-    mockRedirect.mockClear()
+    mockPush.mockClear()
 
     // Test Log out menu item
     const logoutItem = menuItems.find((item) =>
@@ -250,7 +253,7 @@ describe('ConnectedNavbar', () => {
     if (logoutItem) {
       fireEvent.click(logoutItem)
       await waitFor(() => {
-        expect(mockRedirect).toHaveBeenCalledWith('/')
+        expect(mockPush).toHaveBeenCalledWith('/')
       })
     }
   })
