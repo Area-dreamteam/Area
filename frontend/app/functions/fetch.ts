@@ -19,7 +19,7 @@ import {
 /**
  * Parse Pydantic validation error from backend
  */
-function parseValidationError(data: any): string {
+function parseValidationError(data: unknown): string {
   try {
     if (data?.detail) {
       const detail = data.detail
@@ -56,7 +56,7 @@ function parseValidationError(data: any): string {
     }
     
     return 'Invalid input. Please check your data.'
-  } catch (parseError) {
+  } catch {
     return 'Invalid input. Please check your data.'
   }
 }
@@ -184,20 +184,23 @@ export async function fetchLogin(email: string, password: string): Promise<{ suc
       return { success: false, error: 'Invalid email or password' }
     }
     return { success: true }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.log('Error: ', err)
     
     // Handle 422 validation errors
-    if (err.response?.status === 422) {
-      const errorMessage = parseValidationError(err.response.data)
-      return { success: false, error: errorMessage }
-    }
-    
-    // Handle other errors with detail field
-    if (err.response?.data?.detail) {
-      const detail = err.response.data.detail
-      if (typeof detail === 'string') {
-        return { success: false, error: detail }
+    if (typeof err === 'object' && err !== null && 'response' in err) {
+      const axiosErr = err as { response?: { status?: number; data?: unknown } }
+      if (axiosErr.response?.status === 422) {
+        const errorMessage = parseValidationError(axiosErr.response.data)
+        return { success: false, error: errorMessage }
+      }
+      
+      // Handle other errors with detail field
+      if (axiosErr.response?.data && typeof axiosErr.response.data === 'object' && 'detail' in axiosErr.response.data) {
+        const detail = (axiosErr.response.data as { detail?: unknown }).detail
+        if (typeof detail === 'string') {
+          return { success: false, error: detail }
+        }
       }
     }
     
@@ -229,20 +232,23 @@ export async function fetchRegister(email: string, password: string): Promise<{ 
       return { success: false, error: 'Account creation failed' }
     }
     return { success: true }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.log('An error occured: ', err)
     
     // Handle 422 validation errors
-    if (err.response?.status === 422) {
-      const errorMessage = parseValidationError(err.response.data)
-      return { success: false, error: errorMessage }
-    }
-    
-    // Handle other errors with detail field
-    if (err.response?.data?.detail) {
-      const detail = err.response.data.detail
-      if (typeof detail === 'string') {
-        return { success: false, error: detail }
+    if (typeof err === 'object' && err !== null && 'response' in err) {
+      const axiosErr = err as { response?: { status?: number; data?: unknown } }
+      if (axiosErr.response?.status === 422) {
+        const errorMessage = parseValidationError(axiosErr.response.data)
+        return { success: false, error: errorMessage }
+      }
+      
+      // Handle other errors with detail field
+      if (axiosErr.response?.data && typeof axiosErr.response.data === 'object' && 'detail' in axiosErr.response.data) {
+        const detail = (axiosErr.response.data as { detail?: unknown }).detail
+        if (typeof detail === 'string') {
+          return { success: false, error: detail }
+        }
       }
     }
     
