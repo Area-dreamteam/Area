@@ -16,10 +16,19 @@ class AuthRepository {
       if (response.statusCode == 200 || response.statusCode == 204) {
         if (response.headers.map['set-cookie'] != null) {
           String rawCookie = response.headers.map['set-cookie']![0];
+          print('DEBUG loginWithEmailPassword - rawCookie: $rawCookie');
+          
           String? sessionCookie = rawCookie.split(';').first;
+          print('DEBUG loginWithEmailPassword - sessionCookie after split: $sessionCookie');
 
           const storage = FlutterSecureStorage();
           await storage.write(key: 'session_cookie', value: sessionCookie);
+          
+          // Verify it was stored correctly
+          final storedCookie = await storage.read(key: 'session_cookie');
+          print('DEBUG loginWithEmailPassword - storedCookie verification: $storedCookie');
+        } else {
+          print('DEBUG loginWithEmailPassword - No set-cookie header found!');
         }
         return null;
       }

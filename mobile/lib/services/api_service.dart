@@ -130,15 +130,37 @@ class ApiService {
 
   Future<Response> getServiceAuthUrl(String serviceName) async {
     final sessionCookie = await _storage.read(key: 'session_cookie');
+    print('DEBUG getServiceAuthUrl - sessionCookie: $sessionCookie');
+    
     String? token;
-    if (sessionCookie != null &&
-        sessionCookie.startsWith('access_token=Bearer ')) {
-      token = sessionCookie.substring('access_token=Bearer '.length);
+    if (sessionCookie != null) {
+      // Handle both formats: access_token="Bearer ..." and access_token=Bearer ...
+      if (sessionCookie.startsWith('access_token="Bearer ')) {
+        // Extract token from quoted format: access_token="Bearer TOKEN"
+        final startIndex = 'access_token="Bearer '.length;
+        final endIndex = sessionCookie.indexOf('"', startIndex);
+        if (endIndex != -1) {
+          token = sessionCookie.substring(startIndex, endIndex);
+        }
+      } else if (sessionCookie.startsWith('access_token=Bearer ')) {
+        // Extract token from unquoted format: access_token=Bearer TOKEN
+        token = sessionCookie.substring('access_token=Bearer '.length);
+      }
+      
+      if (token != null) {
+        print('DEBUG getServiceAuthUrl - extracted token: $token');
+      } else {
+        print('DEBUG getServiceAuthUrl - failed to extract token from cookie');
+      }
+    } else {
+      print('DEBUG getServiceAuthUrl - sessionCookie is null');
     }
 
     final path = token != null
         ? '/oauth/index/$serviceName?token=$token'
         : '/oauth/index/$serviceName';
+    
+    print('DEBUG getServiceAuthUrl - path: $path');
 
     return _dio.get(
       path,
@@ -200,21 +222,16 @@ class ApiService {
     return _dio.patch('/users/me', data: data);
   }
 
-<<<<<<< Updated upstream
   Future<Response> updateUserPassword({
     required String newPassword,
     required String currentPassword,
   }) {
     return _dio.patch('/users/me/password',
         data: {"current_password": currentPassword, "new_password": newPassword});
-=======
-  Future<Response> updateUserPassword({required String newPassword}) {
-    return _dio.patch('/users/me/password', data: {"password": newPassword});
   }
 
   Future<Response> unlinkOAuthAccount(int oauthId) {
     return _dio.delete('/oauth/oauth_login/$oauthId/disconnect');
->>>>>>> Stashed changes
   }
 
   Future<Response> getServiceDetails(int serviceId) {

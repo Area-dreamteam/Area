@@ -349,20 +349,7 @@ class ServiceRepository {
     }
   }
 
-<<<<<<< Updated upstream
-=======
-  Future<void> unlinkOAuthAccount(int oauthId) async {
-    try {
-      final response = await _apiService.unlinkOAuthAccount(oauthId);
-      if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Failed to unlink account: ${response.data}');
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
 
->>>>>>> Stashed changes
   Future<Service> fetchServiceDetails(int serviceId) async {
     try {
       final response = await _apiService.getServiceDetails(serviceId);
@@ -478,6 +465,17 @@ class ServiceRepository {
       final response = await _apiService.disconnectOAuthLogin(oauthLoginId);
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('Failed to disconnect OAuth login: ${response.data}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> unlinkOAuthAccount(int oauthId) async {
+    try {
+      final response = await _apiService.unlinkOAuthAccount(oauthId);
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to unlink OAuth account: ${response.data}');
       }
     } catch (e) {
       rethrow;

@@ -17,10 +17,10 @@ class OAuthService {
 
   Future<void> initialize() async {
     if (_initialized) return;
-    
+
     _baseUrl = await Config.getApiUrl();
     _initialized = true;
-    
+
     _checkInitialLink();
 
     _linkSubscription = _appLinks.uriLinkStream.listen(
@@ -121,10 +121,27 @@ class OAuthService {
       await _storage.write(key: 'oauth_service', value: serviceName);
 
       final sessionCookie = await _storage.read(key: 'session_cookie');
+      print('DEBUG linkWithOAuth - sessionCookie: $sessionCookie');
+
       String? token;
-      if (sessionCookie != null &&
-          sessionCookie.startsWith('access_token=Bearer ')) {
-        token = sessionCookie.substring('access_token=Bearer '.length);
+      if (sessionCookie != null) {
+        if (sessionCookie.startsWith('access_token="Bearer ')) {
+          final startIndex = 'access_token="Bearer '.length;
+          final endIndex = sessionCookie.indexOf('"', startIndex);
+          if (endIndex != -1) {
+            token = sessionCookie.substring(startIndex, endIndex);
+          }
+        } else if (sessionCookie.startsWith('access_token=Bearer ')) {
+          token = sessionCookie.substring('access_token=Bearer '.length);
+        }
+
+        if (token != null) {
+          print('DEBUG linkWithOAuth - extracted token: $token');
+        } else {
+          print('DEBUG linkWithOAuth - failed to extract token from cookie');
+        }
+      } else {
+        print('DEBUG linkWithOAuth - sessionCookie is null');
       }
 
       final baseUrl = _baseUrl.endsWith('/')
@@ -135,6 +152,7 @@ class OAuthService {
           ? '/oauth/index/$serviceName?mobile=true&token=$token'
           : '/oauth/index/$serviceName?mobile=true';
 
+      print('DEBUG linkWithOAuth - OAuth URL path: $path');
       final oauthUrl = '$baseUrl$path';
       final uri = Uri.parse(oauthUrl);
 
@@ -315,4 +333,3 @@ class OAuthProvider {
     );
   }
 }
-

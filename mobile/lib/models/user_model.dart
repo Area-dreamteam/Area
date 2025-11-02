@@ -29,31 +29,14 @@ class UserModel {
   final String name;
   final String email;
   final String role;
-<<<<<<< Updated upstream
-  final List<OAuthLoginInfo> oauthLogin;
-=======
   final List<String> linkedAccounts;
   final List<OAuthLoginInfo> oauthLogins;
->>>>>>> Stashed changes
 
   UserModel({
     required this.id,
     required this.name,
     required this.email,
     required this.role,
-<<<<<<< Updated upstream
-    this.oauthLogin = const [],
-  });
-
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    var loginList = <OAuthLoginInfo>[];
-    if (json['oauth_login'] != null && json['oauth_login'] is List) {
-      loginList = (json['oauth_login'] as List)
-          .map((item) => OAuthLoginInfo.fromJson(item))
-          .toList();
-    }
-
-=======
     this.linkedAccounts = const [],
     this.oauthLogins = const [],
   });
@@ -79,18 +62,13 @@ class UserModel {
       linkedAccounts = List<String>.from(json['linked_accounts']);
     }
 
->>>>>>> Stashed changes
     return UserModel(
       id: json['id'] as int,
       name: json['name'] as String,
       email: json['email'] as String,
       role: json['role'] as String,
-<<<<<<< Updated upstream
-      oauthLogin: loginList,
-=======
       linkedAccounts: linkedAccounts,
       oauthLogins: oauthLogins,
->>>>>>> Stashed changes
     );
   }
 }
