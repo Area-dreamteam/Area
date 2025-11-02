@@ -6,15 +6,21 @@ import 'package:mobile/core/config.dart';
 import 'dart:async';
 
 class OAuthService {
-  final String _baseUrl = Config.getApiUrl();
+  String _baseUrl = 'http://localhost:8080';
   static const _storage = FlutterSecureStorage();
 
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
   Completer<OAuthResult>? _oauthCompleter;
   Completer<OAuthLinkResult>? _linkCompleter;
+  bool _initialized = false;
 
-  void initialize() {
+  Future<void> initialize() async {
+    if (_initialized) return;
+
+    _baseUrl = await Config.getApiUrl();
+    _initialized = true;
+
     _checkInitialLink();
 
     _linkSubscription = _appLinks.uriLinkStream.listen(
@@ -25,6 +31,10 @@ class OAuthService {
         _completeLink(OAuthLinkResult.error('Deeplink handling error'));
       },
     );
+  }
+
+  Future<void> updateBaseUrl(String newUrl) async {
+    _baseUrl = newUrl;
   }
 
   Future<void> _checkInitialLink() async {
@@ -65,9 +75,9 @@ class OAuthService {
       final baseUrl = _baseUrl.endsWith('/')
           ? _baseUrl.substring(0, _baseUrl.length - 1)
           : _baseUrl;
-      
+
       final path = '/oauth/login_index/$serviceName?mobile=true';
-      final oauthUrl = '$baseUrl$path';      
+      final oauthUrl = '$baseUrl$path';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {
@@ -111,21 +121,39 @@ class OAuthService {
       await _storage.write(key: 'oauth_service', value: serviceName);
 
       final sessionCookie = await _storage.read(key: 'session_cookie');
+      print('DEBUG linkWithOAuth - sessionCookie: $sessionCookie');
+
       String? token;
-      if (sessionCookie != null &&
-          sessionCookie.startsWith('access_token=Bearer ')) {
-        token = sessionCookie.substring('access_token=Bearer '.length);
+      if (sessionCookie != null) {
+        if (sessionCookie.startsWith('access_token="Bearer ')) {
+          final startIndex = 'access_token="Bearer '.length;
+          final endIndex = sessionCookie.indexOf('"', startIndex);
+          if (endIndex != -1) {
+            token = sessionCookie.substring(startIndex, endIndex);
+          }
+        } else if (sessionCookie.startsWith('access_token=Bearer ')) {
+          token = sessionCookie.substring('access_token=Bearer '.length);
+        }
+
+        if (token != null) {
+          print('DEBUG linkWithOAuth - extracted token: $token');
+        } else {
+          print('DEBUG linkWithOAuth - failed to extract token from cookie');
+        }
+      } else {
+        print('DEBUG linkWithOAuth - sessionCookie is null');
       }
 
       final baseUrl = _baseUrl.endsWith('/')
           ? _baseUrl.substring(0, _baseUrl.length - 1)
           : _baseUrl;
-          
+
       final path = token != null
           ? '/oauth/index/$serviceName?mobile=true&token=$token'
           : '/oauth/index/$serviceName?mobile=true';
 
-      final oauthUrl = '$baseUrl$path';      
+      print('DEBUG linkWithOAuth - OAuth URL path: $path');
+      final oauthUrl = '$baseUrl$path';
       final uri = Uri.parse(oauthUrl);
 
       if (await canLaunchUrl(uri)) {

@@ -18,11 +18,15 @@ class ChangePasswordViewModel extends ChangeNotifier {
 
   Future<bool> changePassword({
     required String newPassword,
+    required String currentPassword,
   }) async {
     _setState(ChangePasswordState.loading);
 
     try {
-      await _serviceRepository.updateUserPassword(newPassword: newPassword);
+      await _serviceRepository.updateUserPassword(
+        newPassword: newPassword,
+        currentPassword: currentPassword,
+      );
       _setState(ChangePasswordState.success);
       return true;
     } catch (e) {
