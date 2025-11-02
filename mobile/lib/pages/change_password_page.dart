@@ -32,9 +32,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return;
     }
     final newPassword = _newPasswordController.text;
+    final currentPassword = _currentPasswordController.text;
 
     final viewModel = context.read<ChangePasswordViewModel>();
-    final success = await viewModel.changePassword(newPassword: newPassword);
+    final success = await viewModel.changePassword(
+      newPassword: newPassword,
+      currentPassword: currentPassword,
+    );
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,7 +61,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             title: const Text(
               'Change password',
               style: TextStyle(color: Colors.white),
-            ),  
+            ),
             backgroundColor: const Color(0xFF212121),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
@@ -98,7 +102,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         },
                       ),
                       const SizedBox(height: 24),
-
                       _buildPasswordField(
                         label: 'Confirm new password',
                         controller: _confirmPasswordController,
@@ -171,12 +174,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
             suffixIcon: IconButton(
               icon: Icon(
-                obscureText
-                    ? Icons.visibility_off
-                    : Icons.visibility,
+                obscureText ? Icons.visibility_off : Icons.visibility,
                 color: Colors.white,
               ),
-              tooltip: 'hide password',
               onPressed: toggleObscure,
             ),
           ),
@@ -199,17 +199,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       ),
       child: viewModel.isLoading
           ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                color: Colors.black,
-              ),
-            )
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 3,
+          color: Colors.black,
+        ),
+      )
           : const Text(
-              'Save',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+        'Save',
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }
