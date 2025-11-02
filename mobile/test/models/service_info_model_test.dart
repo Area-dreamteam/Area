@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile/models/applet_model.dart';
 import 'package:mobile/models/service_info_model.dart';
 
 void main() {
