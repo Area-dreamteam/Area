@@ -14,47 +14,61 @@ import {
   PrivateApplet,
   SpecificPublicApplet,
   SpecificPrivateApplet,
+  AppletRespSchema,
 } from '../types/applet'
 
-/**
- * Parse Pydantic validation error from backend
- */
+interface PydanticValidationError {
+  loc: (string | number)[]
+  msg: string
+  type: string
+  ctx?: Record<string, unknown>
+}
+interface HTTPExceptionResponse {
+  detail: string | PydanticValidationError[]
+}
+
+function isHTTPExceptionResponse(data: unknown): data is HTTPExceptionResponse {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'detail' in data &&
+    (typeof data.detail === 'string' ||
+      (Array.isArray(data.detail) && data.detail.length > 0))
+  )
+}
+
 function parseValidationError(data: unknown): string {
   try {
-    if (data?.detail) {
-      const detail = data.detail
-      
-      // If detail is a list (Pydantic validation errors)
-      if (Array.isArray(detail) && detail.length > 0) {
-        const firstError = detail[0]
-        if (firstError.msg) {
-          let msg = firstError.msg
-          const type = firstError.type
-          const loc = firstError.loc
-          
-          // Check if this is a password field error
-          const isPasswordError = Array.isArray(loc) && loc.includes('password')
-          
-          // Handle Pydantic's built-in string_too_short error
-          if (type === 'string_too_short' && isPasswordError) {
-            return 'Password must be at least 8 characters long'
-          }
-          
-          // Clean up "Value error, " prefix if present
-          if (msg.startsWith('Value error, ')) {
-            msg = msg.substring(13)
-          }
-          
-          return msg
-        }
-      }
-      
-      // If detail is a string
-      if (typeof detail === 'string') {
-        return detail
-      }
+    if (!isHTTPExceptionResponse(data)) {
+      return 'Invalid input. Please check your data.'
     }
-    
+
+    const { detail } = data
+
+    if (Array.isArray(detail) && detail.length > 0) {
+      const firstError = detail[0]
+
+      let msg = firstError.msg
+      const type = firstError.type
+      const loc = firstError.loc
+
+      const isPasswordError = loc.includes('password')
+
+      if (type === 'string_too_short' && isPasswordError) {
+        return 'Password must be at least 8 characters long'
+      }
+
+      if (msg.startsWith('Value error, ')) {
+        msg = msg.substring(13)
+      }
+
+      return msg
+    }
+
+    if (typeof detail === 'string') {
+      return detail
+    }
+
     return 'Invalid input. Please check your data.'
   } catch {
     return 'Invalid input. Please check your data.'
@@ -174,7 +188,10 @@ export async function fetchChangePassword(
   return false
 }
 
-export async function fetchLogin(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+export async function fetchLogin(
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await Calls.post('/auth/login', {
       email: email,
@@ -186,7 +203,7 @@ export async function fetchLogin(email: string, password: string): Promise<{ suc
     return { success: true }
   } catch (err: unknown) {
     console.log('Error: ', err)
-    
+
     // Handle 422 validation errors
     if (typeof err === 'object' && err !== null && 'response' in err) {
       const axiosErr = err as { response?: { status?: number; data?: unknown } }
@@ -194,16 +211,20 @@ export async function fetchLogin(email: string, password: string): Promise<{ suc
         const errorMessage = parseValidationError(axiosErr.response.data)
         return { success: false, error: errorMessage }
       }
-      
+
       // Handle other errors with detail field
-      if (axiosErr.response?.data && typeof axiosErr.response.data === 'object' && 'detail' in axiosErr.response.data) {
+      if (
+        axiosErr.response?.data &&
+        typeof axiosErr.response.data === 'object' &&
+        'detail' in axiosErr.response.data
+      ) {
         const detail = (axiosErr.response.data as { detail?: unknown }).detail
         if (typeof detail === 'string') {
           return { success: false, error: detail }
         }
       }
     }
-    
+
     return { success: false, error: 'Connection error. Please try again.' }
   }
 }
@@ -219,7 +240,10 @@ export async function fetchLogout() {
   return false
 }
 
-export async function fetchRegister(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+export async function fetchRegister(
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
   try {
     const res = await Calls.post('/auth/register', {
       name: email.split('@')[0],
@@ -234,7 +258,7 @@ export async function fetchRegister(email: string, password: string): Promise<{ 
     return { success: true }
   } catch (err: unknown) {
     console.log('An error occured: ', err)
-    
+
     // Handle 422 validation errors
     if (typeof err === 'object' && err !== null && 'response' in err) {
       const axiosErr = err as { response?: { status?: number; data?: unknown } }
@@ -242,17 +266,24 @@ export async function fetchRegister(email: string, password: string): Promise<{ 
         const errorMessage = parseValidationError(axiosErr.response.data)
         return { success: false, error: errorMessage }
       }
-      
+
       // Handle other errors with detail field
-      if (axiosErr.response?.data && typeof axiosErr.response.data === 'object' && 'detail' in axiosErr.response.data) {
+      if (
+        axiosErr.response?.data &&
+        typeof axiosErr.response.data === 'object' &&
+        'detail' in axiosErr.response.data
+      ) {
         const detail = (axiosErr.response.data as { detail?: unknown }).detail
         if (typeof detail === 'string') {
           return { success: false, error: detail }
         }
       }
     }
-    
-    return { success: false, error: 'Unable to create account. Please try again.' }
+
+    return {
+      success: false,
+      error: 'Unable to create account. Please try again.',
+    }
   }
 }
 
@@ -318,18 +349,18 @@ export async function fetchApplets(
   try {
     const res = await Calls.get('/areas/public')
     if (res.status != 200) {
-      console.log("failed")
+      console.log('failed')
       // setApplets(null);
-      return false;
+      return false
     }
     setApplets(res.data)
-    return true;
+    return true
   } catch (err) {
     console.log('Error: ', err)
   }
-  console.log("failed")
+  console.log('failed')
   // setApplets(null);
-  return false;
+  return false
 }
 
 export async function fetchSpecificApplet(
@@ -422,25 +453,11 @@ export async function fetchAction(
 }
 
 export async function fetchUpdatePersonalApplets(
-  name: string,
-  desc: string,
-  applet: SpecificPrivateApplet
+  applet: AppletRespSchema,
+  id: number
 ) {
   try {
-    const res = await Calls.patch(`/users/areas/${applet.area_info.id}`, {
-      name: name,
-      description: desc,
-      action: {
-        action_id: applet.action.id,
-        config: applet.action.config,
-      },
-      reactions: applet.reactions.map((reac) => {
-        return {
-          reaction_id: reac.id,
-          config: reac.config,
-        }
-      }),
-    })
+    const res = await Calls.patch(`/users/areas/${id}`, applet)
 
     if (res.status != 200) {
       return false

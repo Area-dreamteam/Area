@@ -150,7 +150,7 @@ export default function AppletPage({ params }: AppletProp) {
               ) : (
                 <button
                   aria-label={`Click here to ${(myApplet as SpecificPrivateApplet).area_info.enable ? 'disable' : 'enable'} your applet`}
-                  className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]"
+                  className="md:my-[100px] my-[50px] little-rounded-button centered lg:w-[40%] w-[60%]"
                   onClick={() => {
                     const privApplet = myApplet as SpecificPrivateApplet
                     AppletConnection(
@@ -167,9 +167,10 @@ export default function AppletPage({ params }: AppletProp) {
               )}
             </div>
             <div className="flex justify-end pt-[50px] mr-[20px]">
-              <SettingsButton
+              {!published &&
+                <SettingsButton
                 link={`/my_applets/${myApplet.area_info.id}/edit`}
-              />
+              />}
             </div>
           </div>
           {!published && (
@@ -191,9 +192,7 @@ export default function AppletPage({ params }: AppletProp) {
           )}
         </div>
       ) : (
-        <div>
-          {applets ? "youpi" : notFound()}
-        </div>
+        notFound()
       )}
     </div>
   )
