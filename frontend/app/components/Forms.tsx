@@ -17,6 +17,7 @@ export function Mail({ onChange = () => '' }: Information) {
   return (
     <div className="logins-container">
       <Input
+        aria-label="Enter your email address here"
         className="text-black h-[100%] w-5/6 border-none focus-visible:ring-0 md:placeholder:text-sm placeholder:text-xs md:text-sm text-xs"
         pattern="[a-zA-Z0-9._\-]+@[a-zA-Z0-9_\-]+\.[a-z]{2,}$"
         placeholder="Email"
@@ -30,12 +31,10 @@ export function Mail({ onChange = () => '' }: Information) {
 }
 
 interface PasswordProps {
-  secure?: boolean
   onChange?: (value: string) => void
 }
 
 export function Password({
-  secure = true,
   onChange = () => '',
 }: PasswordProps) {
   const [isPsswdVisible, setIsPsswdVisible] = useState(false)
@@ -61,6 +60,7 @@ export function Password({
         />
       )}
       <Input
+        aria-label="Enter your password here"
         className="text-black h-[100%] w-5/6 border-none focus-visible:ring-0 md:placeholder:text-sm placeholder:text-xs md:text-sm text-xs"
         placeholder="Password"
         type={psswdType}

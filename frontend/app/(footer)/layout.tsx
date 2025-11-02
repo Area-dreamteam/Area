@@ -9,7 +9,7 @@ import Link from 'next/link'
 
 function Footer() {
   return (
-    <div className="bg-black text-white w-full font-bold pl-[10px] bottom-0">
+    <div className="bg-black text-white w-full font-bold pl-[10px]">
       <Link href="/explore" className="mt-[50px] text-[50px]">
         Area
       </Link>
@@ -23,7 +23,6 @@ function Footer() {
         </div>
       </div>
       <p className="pb-[25px] centered">
-        {' '}
         This website has been made by Boris Cheng, Idriss Dupoisot, Gauthier
         Fagot, Luc Simon and Léo Barbier
       </p>
@@ -37,9 +36,11 @@ export default function ExploreLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <ConnectedNavbar />
-      {children}
+      <main className="flex-1">
+        {children}
+      </main>
       <Footer />
     </div>
   )

@@ -12,7 +12,7 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
 } from '@/components/ui/navigation-menu'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export default function MenuButton(text: string, linkedPage: string) {
   const router = useRouter();

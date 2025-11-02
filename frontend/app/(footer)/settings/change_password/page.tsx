@@ -10,9 +10,9 @@
 import { fetchChangePassword } from '@/app/functions/fetch'
 import { Password } from '@/app/components/Forms'
 import Warning from '@/app/components/Warning'
-import { redirect } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 async function sendForm(
   currentPassword: string,
@@ -26,14 +26,14 @@ async function sendForm(
   }
   console.log('same password')
   await fetchChangePassword(currentPassword, newPassword)
-  redirect('/settings')
 }
 
 export default function changePassword() {
   const [error, setError] = useState<boolean>(false)
-  const [newPassword, setNewPassword] = useState<string>('')
-  const [currentPassword, setCurrentPassword] = useState<string>('')
-  const [confirmNewPassword, setConfirmNewPassword] = useState<string>('')
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [currentPassword, setCurrentPassword] = useState<string>('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
+  const router = useRouter();
 
   return (
     <div className="mx-auto mt-[40px] w-[75%] font-bold">
@@ -41,7 +41,7 @@ export default function changePassword() {
       <hr />
       <br />
       <h3 className="subtitle mb-[5px]">Current password</h3>
-      <Password onChange={setCurrentPassword} secure={false} />
+      <Password onChange={setCurrentPassword}/>
       <br />
       <h3 className="subtitle mb-[5px]">New password</h3>
       <Password onChange={setNewPassword} />
@@ -54,6 +54,10 @@ export default function changePassword() {
           "New password and confirmation aren't the same"
         )}
       <button
+        aria-label={`Click here to validate your changes. Currently, you ${
+          newPassword.length < 8 ||
+          confirmNewPassword.length < 8 ||
+          newPassword.length != confirmNewPassword.length ? "can't" : "can"} validate your modifications${newPassword.length < 8 || confirmNewPassword.length < 8 ? " because your new password isn't greater than 8 characters" : ""} ${newPassword.length != confirmNewPassword.length ? `${(newPassword.length < 8 || confirmNewPassword.length < 8) ? " and" : " because"} both passwords you entered to modify the old one aren't the same. Please enter the same password in the new password input and the confirmation input` : ""}.`}
         className="rounded-button centered inverted px-[5%] py-[3%] mt-[5%] disabled:bg-gray-400 disabled:cursor-auto"
         disabled={
           newPassword.length < 8 ||
@@ -61,16 +65,16 @@ export default function changePassword() {
           newPassword.length != confirmNewPassword.length
         }
         onClick={() => {
-          if (
-            !sendForm(
+          const state = sendForm(
               currentPassword,
               newPassword,
               confirmNewPassword,
               setError
-            )
-          ) {
+              );
+            if (!state)
             console.log(error)
-          }
+            else
+              router.push("/settings")
         }}
       >
         Change

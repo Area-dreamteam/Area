@@ -10,7 +10,7 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { AlertCircleIcon } from 'lucide-react'
 import { Password, Mail } from '../components/Forms'
 import { fetchLogin, fetchRegister } from '../functions/fetch'

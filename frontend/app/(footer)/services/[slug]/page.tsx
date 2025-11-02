@@ -11,7 +11,6 @@ import Image from 'next/image'
 import { useEffect } from 'react'
 import { use, useState } from 'react'
 import { notFound, useRouter } from 'next/navigation'
-import { redirect } from 'next/navigation'
 import BackButton from '@/app/components/Back'
 import { useAuth } from '@/app/functions/hooks'
 import { fetchSpecificService } from '@/app/functions/fetch'
@@ -120,6 +119,7 @@ export default function ServicePage({ params }: ServiceProp) {
           </div>
           {!myService.oauth_required ? (
             <button
+              aria-label="This button redirects you to the applet's creation page"
               className="mt-[25px] mb-[25px] rounded-button inverted block mx-auto"
               onClick={(e) => {
                 e.preventDefault()
