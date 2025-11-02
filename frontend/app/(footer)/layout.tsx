@@ -16,8 +16,7 @@ function Footer() {
       <div className="grid grid-cols-3 pb-[25px]">
         <div className="flex flex-col mt-[10px] gap-[10px] text-[20px]">
           <Link href="/explore">Explore</Link>
-          <Link href="/services">Services</Link>
-          <Link href="/applets">Applets</Link>
+          <Link href="/my_applets">My applets</Link>
           <Link href="/help">Help center</Link>
           <Link href="/client.apk">Client apk</Link>
         </div>
