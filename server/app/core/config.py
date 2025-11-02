@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 def get_env_file() -> str:
     env = os.getenv("ENV")
     if env is None:
-        return ".env"
+        return "No env file found"
     elif env == "dev":
         return ".env"
     elif env == "prod":
