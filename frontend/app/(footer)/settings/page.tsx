@@ -55,7 +55,6 @@ async function connectOauth(
 }
 
 function oauthLink(
-  user: MyProfileProp,
   service: OauthProfileProp,
   linkColor: string,
   setUpdate: (arg: boolean) => void
@@ -95,8 +94,8 @@ function LinkedAccounts(
   const linked = user.oauth_login.map((service) => {
     return (
       <div key={service.id} className="grid grid-cols-2 gap-5 mb-[2%]">
-        <p className="simple-text"> {service.name} </p>
-        {oauthLink(user, service, '#0099ff', setUpdate)}
+        <p className="simple-text"> {service.name.replace("Oauth", "")} </p>
+        {oauthLink(service, '#0099ff', setUpdate)}
       </div>
     )
   })
