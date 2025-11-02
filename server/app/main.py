@@ -16,7 +16,6 @@ async def lifespan(app: FastAPI):
     """Application lifespan: initialize DB, services and cron jobs."""
     logger.info("Server starting...")
     init_db(get_json_services(), get_json_services_login())
-    logger.debug(get_json_services_login())
     yield
     logger.info("Server shutting down...")
 

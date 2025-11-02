@@ -295,8 +295,7 @@ class Podcast(Service):
 
                 message = log_message if log_message else "Podcast update"
                 logger.info(
-                    f"{message} - Podcast: {podcast_info.get('title', 'Unknown')}, "
-                    f"Episodes: {podcast_info.get('episode_count', 0)}"
+                    f"{self.service.name} - {self.name} - {message} - Podcast: {podcast_info.get('title', 'Unknown')}, Episodes: {podcast_info.get('episode_count', 0)} - User: {user_id}"
                 )
 
             except PodcastApiError as e:
@@ -346,7 +345,7 @@ class Podcast(Service):
                     ]
                 )
 
-                logger.info(f"Latest {num_episodes} episodes:\n{episode_list}")
+                logger.info(f"{self.service.name} - {self.name} - Latest {num_episodes} episodes saved - User: {user_id}")
 
             except PodcastApiError as e:
                 logger.error(f"Podcast save_episode_list error: {e.message}")

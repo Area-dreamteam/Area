@@ -232,7 +232,7 @@ def create_service_dictionnary(
     Recursively finds all subclasses of the given service type
     and creates a registry dictionary for service discovery.
     """
-    logger.debug(f"Type class: {service_type.__name__}")
+    logger.info(f"Type class: {service_type.__name__}")
     service_dict = {}
 
     def get_all_subclasses(cls):
@@ -245,7 +245,7 @@ def create_service_dictionnary(
 
     for service_class in get_all_subclasses(service_type):
         instance = service_class()
-        logger.debug(instance.name)
+        logger.info(instance.name)
         service_dict[instance.name] = instance
 
     return service_dict

@@ -151,9 +151,7 @@ class Figma(ServiceClass):
                 if r.status_code != 200:
                     raise FigmaApiError(f"Failed to create comment: {r.text}")
 
-                logger.debug(
-                    f"{self.service.name}: comment added on file {file_id} for user {user_id}"
-                )
+                logger.info(f"{self.service.name} - {self.name} - Comment added on file {file_id}  - User: {user_id}")
             except FigmaApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

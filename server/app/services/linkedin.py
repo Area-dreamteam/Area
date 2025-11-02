@@ -241,7 +241,7 @@ class LinkedIn(ServiceClass):
 
             try:
                 self.service._create_post(token, content, visibility)
-                logger.info(f"LinkedIn post created successfully")
+                logger.info(f"{self.service.name} - {self.name} - Post created successfully - User: {user_id}")
             except LinkedInApiError as e:
                 logger.error(f"Failed to create post: {e.message}")
 
@@ -276,7 +276,7 @@ class LinkedIn(ServiceClass):
 
             try:
                 self.service._send_message(token, recipient_urn, message)
-                logger.info(f"LinkedIn message sent successfully")
+                logger.info(f"{self.service.name} - {self.name} - Message sent successfully - User: {user_id}")
             except LinkedInApiError as e:
                 logger.error(f"Failed to send message: {e.message}")
 
@@ -307,7 +307,7 @@ class LinkedIn(ServiceClass):
 
             try:
                 self.service._add_comment(token, post_urn, comment)
-                logger.info(f"LinkedIn comment added successfully")
+                logger.info(f"{self.service.name} - {self.name} - Comment added successfully - User: {user_id}")
             except LinkedInApiError as e:
                 logger.error(f"Failed to add comment: {e.message}")
 

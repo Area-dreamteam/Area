@@ -357,7 +357,7 @@ class Github(ServiceClass):
 
             try:
                 self.service._create_issue(token, owner, repo, title, body)
-                logger.info(f"Created issue '{title}' in {owner}/{repo}")
+                logger.info(f"{self.service.name} - {self.name} - Created issue '{title}' in {owner}/{repo} - User: {user_id}")
             except GithubApiError as e:
                 logger.error(f"Failed to create issue: {e.message}")
 
@@ -380,7 +380,7 @@ class Github(ServiceClass):
 
             try:
                 self.service._star_repository(token, owner, repo)
-                logger.info(f"Starred repository {owner}/{repo}")
+                logger.info(f"{self.service.name} - {self.name} - Starred repository {owner}/{repo} - User: {user_id}")
             except GithubApiError as e:
                 logger.error(f"Failed to star repository: {e.message}")
 
@@ -415,7 +415,7 @@ class Github(ServiceClass):
                 self.service._comment_on_pull_request(
                     token, owner, repo, pr_number, comment
                 )
-                logger.info(f"Commented on PR #{pr_number} in {owner}/{repo}")
+                logger.info(f"{self.service.name} - {self.name} - Commented on PR #{pr_number} in {owner}/{repo} - User: {user_id}")
             except GithubApiError as e:
                 logger.error(f"Failed to comment on PR: {e.message}")
 

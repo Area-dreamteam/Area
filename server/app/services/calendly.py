@@ -176,7 +176,7 @@ class Calendly(ServiceClass):
                 r = requests.post(url, headers=headers, json=data)
                 if r.status_code != 201:
                     raise CalendlyApiError(f"Failed to create event: {r.text}")
-                logger.debug(f"Successfully created Calendly event: {event_name}")
+                logger.info(f"{self.service.name} - {self.name} - Created event '{event_name}' - User: {user_id}")
             except CalendlyApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 

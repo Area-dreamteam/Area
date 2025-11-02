@@ -282,7 +282,7 @@ class Notion(ServiceClass):
                     return
 
                 self.service._create_page(session, user_id, parent_id, title, content)
-                logger.info(f"Created Notion page: {title}")
+                logger.info(f"{self.service.name} - {self.name} - Created page '{title}' - User: {user_id}")
 
             except NotionApiError as e:
                 logger.error(f"{self.service.name} create_page error: {e.message}")
@@ -322,7 +322,7 @@ class Notion(ServiceClass):
                     return
 
                 self.service._create_database_item(session, user_id, database_id, title)
-                logger.info(f"Created database item: {title}")
+                logger.info(f"{self.service.name} - {self.name} - Created database item '{title}' - User: {user_id}")
 
             except NotionApiError as e:
                 logger.error(
@@ -362,7 +362,7 @@ class Notion(ServiceClass):
                     return
 
                 self.service._append_block_to_page(session, user_id, page_id, content)
-                logger.info(f"Appended content to page: {page_title}")
+                logger.info(f"{self.service.name} - {self.name} - Appended content to page '{page_title}' - User: {user_id}")
 
             except NotionApiError as e:
                 logger.error(
