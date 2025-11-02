@@ -114,7 +114,6 @@ class _ChooseActionPageState extends State<ChooseActionPage> {
     final isAction = widget.type == 'trigger';
     final service = widget.service;
     final serviceColor = hexToColor(service.color);
-
     final title = isAction ? 'Choose a trigger' : 'Choose an action';
 
     return Scaffold(

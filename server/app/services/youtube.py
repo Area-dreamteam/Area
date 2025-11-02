@@ -44,7 +44,7 @@ class Youtube(ServiceClass):
         super().__init__(
             "Service youtube de Google",
             ServiceCategory.MEDIA,
-            "#CC1717",
+            "#FF0000",
             "/images/Youtube_logo.webp",
             True,
         )

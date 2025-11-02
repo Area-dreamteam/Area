@@ -52,8 +52,6 @@ export default function AppletPage({ params }: AppletProp) {
       )
       setCurrApplet(searched)
     }
-    console.log(applets)
-    console.log(currApplet)
   }, [applets, slug])
 
   useEffect(() => {

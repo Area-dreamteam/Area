@@ -44,7 +44,7 @@ class Discord(ServiceClass):
             category=ServiceCategory.COMMUNICATION,
             color="#5865F2",
             img_url="images/Discord_logo.webp",
-            oauth=True,  # type: ignore
+            oauth=True,
         )
 
     class new_message_in_channel(Action):
@@ -63,10 +63,10 @@ class Discord(ServiceClass):
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
             try:
-                channel_id = get_component(area_action.config, "Channel ID", "values")  # type: ignore
-                keyword = get_component(area_action.config, "Keyword Filter", "values")  # type: ignore
+                channel_id = get_component(area_action.config, "Channel ID", "values")
+                keyword = get_component(area_action.config, "Keyword Filter", "values")
 
-                messages = self.service._get_channel_messages(channel_id, limit=10)  # type: ignore
+                messages = self.service._get_channel_messages(channel_id, limit=10)
 
                 if not messages:
                     return False
@@ -123,10 +123,10 @@ class Discord(ServiceClass):
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
             try:
-                guild_id = self.service.get_user_guild_id(session, user_id)  # type: ignore
+                guild_id = self.service.get_user_guild_id(session, user_id)
                 if not guild_id:
                     return False
-                guild_info = self.service._get_guild(guild_id)  # type: ignore
+                guild_info = self.service._get_guild(guild_id)
 
                 current_count = guild_info.get("approximate_member_count", 0)
                 previous_count = (
@@ -170,14 +170,14 @@ class Discord(ServiceClass):
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
             try:
-                channel_id = get_component(area_action.config, "Channel ID", "values")  # type: ignore
-                keywords_str = get_component(area_action.config, "Keywords", "values")  # type: ignore
+                channel_id = get_component(area_action.config, "Channel ID", "values")
+                keywords_str = get_component(area_action.config, "Keywords", "values")
 
                 if not keywords_str:
                     return False
 
                 keywords = [k.strip().lower() for k in keywords_str.split(",")]
-                messages = self.service._get_channel_messages(channel_id, limit=10)  # type: ignore
+                messages = self.service._get_channel_messages(channel_id, limit=10)
 
                 if not messages:
                     return False
@@ -229,10 +229,10 @@ class Discord(ServiceClass):
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
             try:
-                guild_id = self.service.get_user_guild_id(session, user_id)  # type: ignore
+                guild_id = self.service.get_user_guild_id(session, user_id)
                 if not guild_id:
                     return False
-                channels = self.service._get_guild_channels(guild_id)  # type: ignore
+                channels = self.service._get_guild_channels(guild_id)
 
                 channel_ids = {ch["id"] for ch in channels}
                 previous_ids = set(
@@ -277,10 +277,10 @@ class Discord(ServiceClass):
             self, session: Session, area_action: AreaAction, user_id: int
         ) -> bool:
             try:
-                channel_id = get_component(area_action.config, "Channel ID", "values")  # type: ignore
-                target_user_id = get_component(area_action.config, "User ID", "values")  # type: ignore
+                channel_id = get_component(area_action.config, "Channel ID", "values")
+                target_user_id = get_component(area_action.config, "User ID", "values")
 
-                messages = self.service._get_channel_messages(channel_id, limit=10)  # type: ignore
+                messages = self.service._get_channel_messages(channel_id, limit=10)
 
                 if not messages:
                     return False
@@ -327,16 +327,16 @@ class Discord(ServiceClass):
             ]
             super().__init__("Send a message to a Discord channel", config_schema)
 
-        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
-                channel_id = get_component(area_action.config, "Channel ID", "values")  # type: ignore
+                channel_id = get_component(area_action.config, "Channel ID", "values")
                 content = get_component(
                     area_action.config,
                     "Message Content",
-                    "values",  # type: ignore
+                    "values",
                 )
 
-                self.service._send_message(channel_id, content)  # type: ignore
+                self.service._send_message(channel_id, content)
                 logger.info(f"Discord: Sent message to channel {channel_id}")
 
             except DiscordApiError as e:
@@ -354,23 +354,23 @@ class Discord(ServiceClass):
             ]
             super().__init__("Create a new channel in a Discord server", config_schema)
 
-        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
-                guild_id = self.service.get_user_guild_id(session, user_id)  # type: ignore
+                guild_id = self.service.get_user_guild_id(session, user_id)
                 if not guild_id:
                     logger.error("Discord: No guild linked for user")
                     return
-                name = get_component(area_action.config, "Channel Name", "values")  # type: ignore
+                name = get_component(area_action.config, "Channel Name", "values")
                 channel_type = get_component(
                     area_action.config,
                     "Channel Type",
-                    "values",  # type: ignore
+                    "values",
                 )
 
                 type_map = {"text": 0, "voice": 2, "announcement": 5}
-                type_int = type_map.get(channel_type, 0)  # type: ignore
+                type_int = type_map.get(channel_type, 0)
 
-                self.service._create_channel(guild_id, name, type_int)  # type: ignore
+                self.service._create_channel(guild_id, name, type_int)
                 logger.info(f"Discord: Created channel '{name}' in guild {guild_id}")
 
             except DiscordApiError as e:
@@ -384,20 +384,20 @@ class Discord(ServiceClass):
             ]
             super().__init__("Add a role to a user in a Discord server", config_schema)
 
-        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
-                guild_id = self.service.get_user_guild_id(session, user_id)  # type: ignore
+                guild_id = self.service.get_user_guild_id(session, user_id)
                 if not guild_id:
                     logger.error("Discord: No guild linked for user")
                     return
                 target_user_id = get_component(
                     area_action.config,
                     "User ID",
-                    "values",  # type: ignore
+                    "values",
                 )
-                role_id = get_component(area_action.config, "Role ID", "values")  # type: ignore
+                role_id = get_component(area_action.config, "Role ID", "values")
 
-                self.service._add_role_to_member(guild_id, target_user_id, role_id)  # type: ignore
+                self.service._add_role_to_member(guild_id, target_user_id, role_id)
                 logger.info(f"Discord: Added role {role_id} to user {target_user_id}")
 
             except DiscordApiError as e:
@@ -415,13 +415,13 @@ class Discord(ServiceClass):
                 config_schema,
             )
 
-        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
-                channel_id = get_component(area_action.config, "Channel ID", "values")  # type: ignore
-                message_id = get_component(area_action.config, "Message ID", "values")  # type: ignore
-                emoji = get_component(area_action.config, "Emoji", "values")  # type: ignore
+                channel_id = get_component(area_action.config, "Channel ID", "values")
+                message_id = get_component(area_action.config, "Message ID", "values")
+                emoji = get_component(area_action.config, "Emoji", "values")
 
-                self.service._add_reaction(channel_id, message_id, emoji)  # type: ignore
+                self.service._add_reaction(channel_id, message_id, emoji)
                 logger.info(f"Discord: Added reaction {emoji} to message {message_id}")
 
             except DiscordApiError as e:
@@ -435,12 +435,12 @@ class Discord(ServiceClass):
             ]
             super().__init__("Delete a message from a channel", config_schema)
 
-        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
-                channel_id = get_component(area_action.config, "Channel ID", "values")  # type: ignore
-                message_id = get_component(area_action.config, "Message ID", "values")  # type: ignore
+                channel_id = get_component(area_action.config, "Channel ID", "values")
+                message_id = get_component(area_action.config, "Message ID", "values")
 
-                self.service._delete_message(channel_id, message_id)  # type: ignore
+                self.service._delete_message(channel_id, message_id)
                 logger.info(
                     f"Discord: Deleted message {message_id} from channel {channel_id}"
                 )
@@ -461,16 +461,16 @@ class Discord(ServiceClass):
                 config_schema,
             )
 
-        def execute(self, session: Session, area_action: AreaReaction, user_id: int):  # type: ignore
+        def execute(self, session: Session, area_action: AreaReaction, user_id: int):
             try:
-                channel_id = get_component(area_action.config, "Channel ID", "values")  # type: ignore
-                title = get_component(area_action.config, "Embed Title", "values")  # type: ignore
+                channel_id = get_component(area_action.config, "Channel ID", "values")
+                title = get_component(area_action.config, "Embed Title", "values")
                 description = get_component(
                     area_action.config,
                     "Embed Description",
-                    "values",  # type: ignore
+                    "values",
                 )
-                color_hex = get_component(area_action.config, "Embed Color", "values")  # type: ignore
+                color_hex = get_component(area_action.config, "Embed Color", "values")
 
                 try:
                     color = (
@@ -479,7 +479,7 @@ class Discord(ServiceClass):
                 except (ValueError, AttributeError):
                     color = 5865714
 
-                self.service._send_embed_message(channel_id, title, description, color)  # type: ignore
+                self.service._send_embed_message(channel_id, title, description, color)
                 logger.info(f"Discord: Sent embed message to channel {channel_id}")
 
             except DiscordApiError as e:
@@ -888,7 +888,7 @@ class Discord(ServiceClass):
             else:
                 new_metadata = {"guild_id": guild_id}
 
-            user_service.service_metadata = new_metadata  # type: ignore
+            user_service.service_metadata = new_metadata
             session.add(user_service)
             session.commit()
 

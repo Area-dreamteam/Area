@@ -143,7 +143,7 @@ export default function AppletPage({ params }: AppletProp) {
                 <button
                   aria-label="Click here to unpublish your applet"
                   className="md:my-[150px] my-[100px] little-rounded-button centered lg:w-[40%] w-[60%]"
-                  onClick={() => {UnpublishApplet(myApplet.area_info.id); router.push("/my_applets")}}
+                  onClick={() => { UnpublishApplet(myApplet.area_info.id); router.push("/my_applets") }}
                 >
                   Unpublish
                 </button>
@@ -176,7 +176,7 @@ export default function AppletPage({ params }: AppletProp) {
             <div className="grid grid-cols-2">
               <button
                 className="w-[50%] mt-[25px] mb-[25px] block mx-auto rounded-button inverted [--common-bg:#BA301C] [--common-hover:#801100]"
-                onClick={() => {deleteApplet(myApplet.area_info.id);router.push('/my_applets');}}
+                onClick={() => { deleteApplet(myApplet.area_info.id); router.push('/my_applets'); }}
               >
                 Delete applet
               </button>

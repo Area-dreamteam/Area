@@ -10,6 +10,7 @@ from services.services_classes import Service, create_service_dictionnary, oauth
 from services.clash_royale import ClashRoyale
 from services.date_and_time import DateAndTime
 from services.discord import Discord
+from services.email import Email
 from services.github import Github
 from services.ign import IGN
 from services.google import Gmail
@@ -26,11 +27,14 @@ from services.trakt import Trakt
 from services.youtube import Youtube
 from services.dropbox import Dropbox
 from services.notion import Notion
+from services.linkedin import LinkedIn
+from services.figma import Figma
 
 __all__ = [
     "ClashRoyale",
     "DateAndTime",
     "Discord",
+    "Email",
     "Github",
     "IGN",
     "Gmail",
@@ -45,8 +49,10 @@ __all__ = [
     "GoogleCalendar",
     "Trakt",
     "Youtube",
+    "LinkedIn",
     "Dropbox",
-    "Notion"
+    "Notion",
+    "Figma"
 ]
 
 # Service registries - automatically populated with all Service/oauth_service subclasses

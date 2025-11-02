@@ -14,7 +14,6 @@ class ConfigurationPage extends StatefulWidget {
     required this.configSchema,
     required this.serviceName,
     required this.itemName,
-
     required this.itemDescription,
     required this.itemType,
   });
@@ -66,36 +65,42 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         key: _formKey,
         child: Column(
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 30),
             _buildHeader(widget.serviceName),
-
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16.0),
-                itemCount: widget.configSchema.length,
+                itemCount: widget.configSchema.length + 1,
                 itemBuilder: (context, index) {
-                  final field =
-                      widget.configSchema[index] as Map<String, dynamic>;
-                  return _buildFormField(field);
+                  if (index < widget.configSchema.length) {
+                    final field =
+                    widget.configSchema[index] as Map<String, dynamic>;
+                    return _buildFormField(field);
+                  }
+                  else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(height: 60),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          onPressed: _handleConfirmation,
+                          child: Text(
+                            'Create ${widget.itemType}',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
                 },
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                ),
-                onPressed: _handleConfirmation,
-                child: Text(
-                  'Create ${widget.itemType}',
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
-                ),
               ),
             ),
           ],
@@ -110,8 +115,8 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          getServiceIcon(serviceName, size: 100.0, imageUrl: null),
-          const SizedBox(height: 16),
+          getServiceIcon(serviceName, size: 50.0, imageUrl: null),
+          const SizedBox(height: 12),
           Text(
             widget.itemName,
             style: const TextStyle(
@@ -170,7 +175,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               ),
             ),
           ),
-
         Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: switch (type) {
@@ -188,10 +192,9 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               ),
               style: const TextStyle(color: Colors.white),
               validator: (value) =>
-                  (value?.isEmpty ?? true) ? 'This field is required' : null,
+              (value?.isEmpty ?? true) ? 'This field is required' : null,
               onSaved: (value) => _configData[name] = value ?? '',
             ),
-
             'select' => DropdownButtonFormField<String>(
               initialValue: _configData[name] as String?,
               decoration: InputDecoration(
@@ -219,7 +222,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   ? 'Please select a value'
                   : null,
             ),
-
             'check_list' => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
