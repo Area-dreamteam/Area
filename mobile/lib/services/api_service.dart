@@ -134,16 +134,13 @@ class ApiService {
     
     String? token;
     if (sessionCookie != null) {
-      // Handle both formats: access_token="Bearer ..." and access_token=Bearer ...
       if (sessionCookie.startsWith('access_token="Bearer ')) {
-        // Extract token from quoted format: access_token="Bearer TOKEN"
         final startIndex = 'access_token="Bearer '.length;
         final endIndex = sessionCookie.indexOf('"', startIndex);
         if (endIndex != -1) {
           token = sessionCookie.substring(startIndex, endIndex);
         }
       } else if (sessionCookie.startsWith('access_token=Bearer ')) {
-        // Extract token from unquoted format: access_token=Bearer TOKEN
         token = sessionCookie.substring('access_token=Bearer '.length);
       }
       

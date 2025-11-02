@@ -29,46 +29,67 @@ class CreateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white38),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (details != null && onRemove != null)
-                  GestureDetector(
-                    onTap: onRemove,
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.redAccent,
-                      size: 24,
+    String semanticLabel;
+    String semanticHint = "Click for modifie the selection";
+
+    if (details == null) {
+      semanticLabel = title;
+      semanticHint = 'Click for add';
+    } else {
+      semanticLabel =
+          '$title: ${details!.serviceName}, ${details!.actionName}.';
+    }
+
+    return Semantics(
+      label: semanticLabel,
+      hint: semanticHint,
+      button: true,
+      enabled: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white38),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            details == null
-                ? _buildPlaceholder()
-                : _buildSelectionDetails(details!),
-          ],
+                  if (details != null && onRemove != null)
+                    SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.redAccent,
+                          size: 24,
+                        ),
+                        tooltip: 'Supprimer ${details!.actionName}',
+                        onPressed: onRemove,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              details == null
+                  ? _buildPlaceholder()
+                  : _buildSelectionDetails(details!),
+            ],
+          ),
         ),
       ),
     );

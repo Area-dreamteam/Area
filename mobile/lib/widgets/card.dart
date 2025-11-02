@@ -46,12 +46,13 @@ class AppletCard extends StatelessWidget {
                     color: textColor,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: textColor, size: 20),
+                  child: Icon(icon, color: cardColor, size: 20),
                 ),
               const Spacer(),
               if (onDelete != null)
                 IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.white),
+                  tooltip: 'Delete $title',
                   onPressed: onDelete,
                 ),
             ],
@@ -74,13 +75,19 @@ class AppletCard extends StatelessWidget {
       ),
     );
 
-    return Material(
-      borderRadius: BorderRadius.circular(14),
-      elevation: 4,
-      child: InkWell(
+    return Semantics(
+      label: "$title, $byText",
+      button: onTap != null,
+      enabled: onTap != null,
+      child: Material (
         borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: cardContent,
+        elevation: 4,
+        color: cardColor,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: cardContent,
+        ),
       ),
     );
   }
