@@ -414,6 +414,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
               if (account.connected) {
                 viewModel.unlinkAccount(account.id);
               } else {
+                viewModel.linkAccount(account.name);
               }
             },
           );

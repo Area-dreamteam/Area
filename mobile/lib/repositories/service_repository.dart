@@ -349,7 +349,6 @@ class ServiceRepository {
     }
   }
 
-
   Future<Service> fetchServiceDetails(int serviceId) async {
     try {
       final response = await _apiService.getServiceDetails(serviceId);
