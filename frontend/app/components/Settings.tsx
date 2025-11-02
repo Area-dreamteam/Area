@@ -9,7 +9,7 @@
 
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 interface SettingsProp {
   link: string

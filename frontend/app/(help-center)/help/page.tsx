@@ -8,7 +8,7 @@
 'use client'
 
 import { Input } from '@/components/ui/input'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export default function Help() {
   const router = useRouter();

@@ -1,16 +1,8 @@
-/*
- ** EPITECH PROJECT, 2025
- ** Area_Mirroring
- ** File description:
- ** page
- */
-
 'use client'
 
 import { useEffect } from 'react'
 import { use, useState } from 'react'
 import { notFound, useRouter, useSearchParams } from 'next/navigation'
-import { redirect } from 'next/navigation'
 import BackButton from '@/app/components/Back'
 import SettingsButton from '@/app/components/Settings'
 import {
@@ -88,16 +80,23 @@ export default function AppletPage({ params }: AppletProp) {
         (applet) => applet.id == Number(slug)
       )
       setCurrApplet(searched)
+      if (!searched) {
+        setLoading(false)
+      }
     }
-  }, [applets, slug])
+  }, [applets]);
 
   useEffect(() => {
-    if (currApplet) fetchPrivateApplet(setMyApplet, currApplet.id)
-  }, [currApplet])
-
-  useEffect(() => {
-    setLoading(false)
-  }, [myApplet])
+    const getSpecificApplet = async () => {
+      if (currApplet) {
+        await (published 
+          ? fetchSpecificApplet(setMyApplet, currApplet.id)
+          : fetchPrivateApplet(setMyApplet, currApplet.id))
+        setLoading(false)
+      }
+    }
+    getSpecificApplet();
+  }, [currApplet, published])
 
   useEffect(() => {
     if (!areaChanged) return
@@ -182,7 +181,9 @@ export default function AppletPage({ params }: AppletProp) {
           )}
         </div>
       ) : (
-        notFound()
+        <div>
+          {applets ? "youpi" : notFound()}
+        </div>
       )}
     </div>
   )

@@ -9,7 +9,7 @@
 
 import { useEffect } from 'react'
 import { use, useState } from 'react'
-import { notFound, useSearchParams } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import BackButton from '@/app/components/Back'
 import SettingsButton from '@/app/components/Settings'
 import { PublicApplet, SpecificPublicApplet } from '@/app/types/applet'

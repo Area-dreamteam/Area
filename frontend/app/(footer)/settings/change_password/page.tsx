@@ -10,9 +10,9 @@
 import { fetchChangePassword } from '@/app/functions/fetch'
 import { Password } from '@/app/components/Forms'
 import Warning from '@/app/components/Warning'
-import { redirect } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 async function sendForm(
   currentPassword: string,
@@ -26,14 +26,14 @@ async function sendForm(
   }
   console.log('same password')
   await fetchChangePassword(currentPassword, newPassword)
-  redirect('/settings')
 }
 
 export default function changePassword() {
   const [error, setError] = useState<boolean>(false)
-  const [newPassword, setNewPassword] = useState<string>('')
-  const [currentPassword, setCurrentPassword] = useState<string>('')
-  const [confirmNewPassword, setConfirmNewPassword] = useState<string>('')
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [currentPassword, setCurrentPassword] = useState<string>('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
+  const router = useRouter();
 
   return (
     <div className="mx-auto mt-[40px] w-[75%] font-bold">
@@ -61,16 +61,16 @@ export default function changePassword() {
           newPassword.length != confirmNewPassword.length
         }
         onClick={() => {
-          if (
-            !sendForm(
+          const state = sendForm(
               currentPassword,
               newPassword,
               confirmNewPassword,
               setError
-            )
-          ) {
+              );
+            if (!state)
             console.log(error)
-          }
+            else
+              router.push("/settings")
         }}
       >
         Change

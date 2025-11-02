@@ -10,7 +10,7 @@
 import Warning from '@/app/components/Warning'
 import { Input } from '@/components/ui/input'
 import { useEffect, use, useState } from 'react'
-import { notFound, redirect, useRouter } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import ValidateButton from '@/app/components/Validation'
 import { PrivateApplet, SpecificPrivateApplet } from '@/app/types/applet'
 import {

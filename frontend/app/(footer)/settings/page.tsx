@@ -17,7 +17,7 @@ import { MyProfileProp, OauthProfileProp } from '@/app/types/profile'
 import { redirectOauth } from '@/app/functions/oauth'
 import { Input } from '@/components/ui/input'
 import { useState, useEffect } from 'react'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 function profileLabels(text: string) {
@@ -170,12 +170,13 @@ function Profile({ profile }: PersonnalInfoProp) {
 export default function Settings() {
   const [available, setAvailable] = useState<boolean>(false)
   const [profile, setProfile] = useState<MyProfileProp | null>(null)
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfileData = async () => {
       const succeed = await fetchMyself(setProfile)
       if (succeed) setAvailable(true)
-      else redirect('/login')
+      else router.push('/login')
     }
     fetchProfileData()
   }, [])
