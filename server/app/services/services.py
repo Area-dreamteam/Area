@@ -27,7 +27,8 @@ from services.trakt import Trakt
 from services.youtube import Youtube
 from services.dropbox import Dropbox
 from services.notion import Notion
-from services.linkedin import LinkedIn
+
+# from services.linkedin import LinkedIn oauth doesn't work
 from services.figma import Figma
 from services.calendly import Calendly
 from services.riot_dev import RiotDev
@@ -51,12 +52,12 @@ __all__ = [
     "GoogleCalendar",
     "Trakt",
     "Youtube",
-    "LinkedIn",
+    # "LinkedIn",
     "Dropbox",
     "Notion",
     "Figma",
     "Calendly",
-    "RiotDev"
+    "RiotDev",
 ]
 
 # Service registries - automatically populated with all Service/oauth_service subclasses
