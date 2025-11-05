@@ -102,7 +102,13 @@ class MicrosoftOauth(oauth_service):
         except MicrosoftApiError as e:
             return HTTPException(status_code=400, detail=e.message)
         return oauth_add_login(
-            session, self.name, user, token_res.access_token, user_info["email"]
+            session,
+            self.name,
+            user,
+            token_res.access_token,
+            user_info["email"],
+            request,
+            is_mobile,
         )
 
 
@@ -200,7 +206,9 @@ class Outlook(ServiceClass):
                 logger.error(r.status_code)
                 if r.status_code != 202:
                     raise MicrosoftApiError("Failed to send email")
-                logger.info(f"{self.service.name} - {self.name} - Email sent to {to} - User: {user_id}")
+                logger.info(
+                    f"{self.service.name} - {self.name} - Email sent to {to} - User: {user_id}"
+                )
             except MicrosoftApiError as e:
                 logger.error(f"{self.service.name}: {e}")
 
@@ -256,12 +264,8 @@ class Outlook(ServiceClass):
             return False
         if message is None:
             return False
-        last_state_values = (
-            area_action.last_state.get("internetMessageId", ""),
-        )
-        message_values = (
-            message.get("internetMessageId", ""),
-        )
+        last_state_values = (area_action.last_state.get("internetMessageId", ""),)
+        message_values = (message.get("internetMessageId", ""),)
         if last_state_values == message_values:
             return False
         area_action.last_state = message
